@@ -214,10 +214,34 @@
     gap:3px; flex:none; min-width:34px;
   }
   .points{
+    background:none; border:none; padding:2px 4px; margin:0;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:1.45rem; font-weight:800; line-height:1;
     color: var(--cyan);
     text-shadow: 0 0 12px rgba(53,208,255,0.35);
+  }
+  .points:active{ opacity:0.6; }
+
+  .slotgrid{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;
+    margin: 4px 0 4px;
+  }
+  .slotbtn{
+    padding:14px 4px; border-radius:9px;
+    border:1px solid var(--line); background: var(--panel-hi);
+    color: var(--cyan); font-size:1.1rem; font-weight:800;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+  }
+  .slotbtn.current{
+    background: var(--cyan); color:#04121c; border-color: var(--cyan);
+  }
+  .slotnote{
+    font-size:0.84rem; font-weight:600; color: var(--muted);
+    line-height:1.4; margin: 0 0 12px;
+  }
+  .slotgame{
+    font-size:1.05rem; font-weight:800; color: var(--gold);
+    margin-bottom:2px;
   }
   .game.removed .points{ color: var(--muted); opacity:0.6; text-shadow:none; }
 
@@ -358,15 +382,6 @@
   }
   .sheetnum{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; color: var(--cyan); font-weight:800; min-width:28px; }
   .sheetcity{ font-weight:700; flex:1; min-width:0; }
-  .watchbadge{
-    font-size:0.65rem; font-weight:800; color: var(--red);
-    border:1px solid var(--red); border-radius:4px;
-    padding:2px 5px; margin-left:6px; letter-spacing:0.4px;
-    white-space:nowrap; vertical-align:middle;
-    animation: watchpulse 1.4s ease-in-out infinite;
-  }
-  @keyframes watchpulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
-  @media (prefers-reduced-motion: reduce){ .watchbadge{ animation:none; } }
   .sheetspread{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; white-space:nowrap; }
 
   .sheetbtnrow{ display:flex; gap:8px; margin-top:8px; }
@@ -389,9 +404,45 @@
     font-size:0.8rem; font-weight:800;
   }
 
+  .scorewrap{ display:flex; gap:8px; margin-bottom:14px; align-items:stretch; }
   .scorecard{
+    flex:0 0 58%;
     background: var(--panel-hi); border:1px solid var(--cyan-dim); border-radius:12px;
-    padding:14px; margin-bottom:14px; text-align:center;
+    padding:10px 12px 12px; text-align:center;
+  }
+  .lbcard{
+    flex:1; min-width:0;
+    background: var(--panel-hi); border:1px solid var(--line); border-radius:12px;
+    padding:10px 10px 12px;
+  }
+  .cardbanner{
+    font-size:0.68rem; font-weight:800; letter-spacing:0.8px;
+    color: var(--muted); text-transform:uppercase;
+    margin-bottom:6px; text-align:center;
+  }
+  .lblist{ display:flex; flex-direction:column; gap:5px; }
+  .lbrow{
+    display:flex; align-items:center; gap:6px;
+    font-size:0.82rem; font-weight:700;
+  }
+  .lbrow.me .lbname{ color: var(--gold); font-weight:800; }
+  .lbrow.me .lbpts{ color: var(--gold); }
+  .lbrank{
+    flex:none; width:14px; text-align:right;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:0.72rem; color: var(--muted); font-weight:800;
+  }
+  .lbname{
+    flex:1; min-width:0; color: var(--text); opacity:0.9;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .lbpts{
+    flex:none; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-weight:800; color: var(--cyan);
+  }
+  .lbnote{
+    font-size:0.68rem; font-weight:600; color: var(--muted);
+    margin-top:8px; line-height:1.35; text-align:center; opacity:0.8;
   }
   .scorebig{
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
@@ -508,6 +559,11 @@
   }
   .confirmcard h2{ margin:0 0 8px; color: var(--red); font-size:1.12rem; }
   .confirmcard p{ margin:0 0 16px; color: var(--muted); font-size:0.92rem; font-weight:600; line-height:1.45; }
+  .nameinput{
+    width:100%; padding:12px; border-radius:8px; margin-bottom:14px;
+    border:1px solid var(--line); background: var(--bg); color: var(--text);
+    font-size:1rem; font-weight:700;
+  }
   .confirmrow{ display:flex; gap:10px; }
   .confirmrow button{ flex:1; padding:13px; border-radius:8px; font-size:0.98rem; font-weight:800; }
   .confirmcancel{ background: transparent; border:1px solid var(--line); color: var(--text); }
@@ -586,18 +642,23 @@
       <span class="livestatus" id="liveStatus"></span>
       <button class="refreshbtn" id="refreshBtn">Refresh</button>
     </div>
-    <div class="scorecard">
-      <div class="scorebig" id="scoreBig">0</div>
-      <div class="scorelabel" id="scoreLabel">points earned</div>
-      <div class="scorecompare" id="scoreCompare"></div>
+    <div class="scorewrap">
+      <div class="scorecard">
+        <div class="cardbanner">Your Score</div>
+        <div class="scorebig" id="scoreBig">0</div>
+        <div class="scorelabel" id="scoreLabel">points earned</div>
+        <div class="scorecompare" id="scoreCompare"></div>
+      </div>
+      <div class="lbcard">
+        <div class="cardbanner">Leaderboard</div>
+        <div id="lbList" class="lblist"></div>
+        <div class="lbnote" id="lbNote"></div>
+      </div>
     </div>
     <div id="resultsList"></div>
     <div class="seasonbox">
       <h3>Season Log</h3>
       <div id="seasonLog"></div>
-    </div>
-    <div class="sheetbtnrow">
-      <button id="clearResultsBtn">Clear This Week's Results</button>
     </div>
     <button class="closebtn" id="resultsClose">‹ Back</button>
   </div>
@@ -625,14 +686,28 @@
   </div>
 </div>
 
-<div class="overlay" id="clearResOverlay">
-  <div class="confirmcard">
-    <h2>Clear results?</h2>
-    <p>This wipes the win/loss marks for this week. Your picks and order stay exactly as they are.</p>
+<div class="overlay" id="nameOverlay">
+  <div class="confirmcard" style="border-color: var(--cyan-dim);">
+    <h2 style="color: var(--cyan);">What's your name?</h2>
+    <p>This is how you'll show up on the pool leaderboard. Everyone who locks in a sheet appears there with their live score.</p>
+    <input id="nameInput" class="nameinput" type="text" maxlength="14" placeholder="Name or team">
     <div class="confirmrow">
-      <button class="confirmcancel" id="clearResCancel">Cancel</button>
-      <button class="confirmyes" id="clearResYes">Clear</button>
+      <button class="confirmcancel" id="nameSkip">Skip</button>
+      <button class="confirmyes" id="nameSave" style="background: var(--cyan); color:#04121c;">Save</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="slotOverlay">
+  <div class="sheet">
+    <div class="sheettop">
+      <button class="backbtn" id="slotBack">‹ Back</button>
+      <h2>Set Confidence</h2>
+    </div>
+    <div class="slotgame" id="slotGame"></div>
+    <p class="slotnote" id="slotNote"></p>
+    <div class="slotgrid" id="slotGrid"></div>
+    <button class="closebtn" id="slotClose">Cancel</button>
   </div>
 </div>
 
@@ -703,7 +778,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.4.0';
+  const APP_VERSION = '1.6.0';
+  const APP_BUILT = 'Sep 8, 10:45 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1195,7 +1271,7 @@
 
       li.innerHTML =
         '<div class="rankwrap">' +
-          '<div class="points">' + label + '</div>' +
+          '<button class="points" data-role="rank">' + label + '</button>' +
         '</div>' +
         '<div class="matchup">' +
           '<div class="line1">' +
@@ -1228,6 +1304,14 @@
         saveAll();
       });
 
+      const rankBtn = li.querySelector('[data-role="rank"]');
+      if(rankBtn){
+        rankBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          openSlotPicker(g);
+        });
+      }
+
       li.querySelectorAll('[data-role="hist"]').forEach(function(el){
         el.addEventListener('click', function(e){
           e.stopPropagation();
@@ -1247,6 +1331,71 @@
 
       listEl.appendChild(li);
     });
+  }
+
+  /* ---------- tap a number to place a game ----------
+     The alternative to dragging: pick the confidence slot directly and
+     everything between shifts by one, exactly like a drag would. */
+  let slotGameId = null;
+
+  function activeOrder(){
+    return games.filter(function(g){ return !g.removed; });
+  }
+
+  function openSlotPicker(g){
+    if(weekLocked){ askUnlock(); return; }
+    if(g.removed) return;
+    slotGameId = g.id;
+
+    const active = activeOrder();
+    const total = active.length;
+    const current = active.findIndex(function(x){ return x.id === g.id; }) + 1;
+
+    document.getElementById('slotGame').textContent =
+      pickedCityOf(g) + ' ' + venueWordFor(pickedCityOf(g), g) + ' ' +
+      (pickedCityOf(g) === g.cityA ? g.cityB : g.cityA);
+    document.getElementById('slotNote').textContent =
+      'Currently ' + current + ' of ' + total + '. Tap a number to move it there — 1 is your least confident, ' + total + ' your safest.';
+
+    const grid = document.getElementById('slotGrid');
+    let html = '';
+    for(let i = 1; i <= total; i++){
+      html += '<button class="slotbtn' + (i === current ? ' current' : '') + '" data-slot="' + i + '">' + i + '</button>';
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.slotbtn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        moveToSlot(slotGameId, parseInt(btn.dataset.slot, 10));
+        closeOverlay(document.getElementById('slotOverlay'));
+      });
+    });
+
+    openOverlay(document.getElementById('slotOverlay'));
+  }
+
+  function moveToSlot(id, slot){
+    const active = activeOrder();
+    const from = active.findIndex(function(x){ return x.id === id; });
+    if(from === -1 || slot < 1 || slot > active.length) return;
+    const to = slot - 1;
+    if(from === to) return;
+
+    // Reorder the active games, then rebuild the full list keeping removed
+    // games pinned to the positions they already occupy.
+    const moved = active.splice(from, 1)[0];
+    active.splice(to, 0, moved);
+
+    const out = [];
+    let ai = 0;
+    games.forEach(function(g){
+      out.push(g.removed ? g : active[ai++]);
+    });
+    games = out;
+
+    freezeOrder();
+    dismissHint();
+    render();
+    saveAll();
   }
 
   /* Updates one row in place. Reusing the existing <img> elements is what stops
@@ -1608,7 +1757,7 @@
       const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('-' + g.spread));
       return '<div class="sheetrow">' +
         '<span class="sheetnum">' + (i+1) + '</span>' +
-        '<span class="sheetcity">' + pickedCityOf(g) + (isDog ? '<span class="watchbadge">WATCH</span>' : '') + '</span>' +
+        '<span class="sheetcity">' + pickedCityOf(g) + '</span>' +
         '<span class="sheetspread ' + (isDog?'spread-red':'spread-green') + '">' + s + '</span>' +
       '</div>';
     }).join('');
@@ -1657,6 +1806,8 @@
     syncLockBtn();
     stampLine(currentWeek);
     toast('Picks locked');
+    if(!player().name) askName();
+    else syncPool();
   });
 
   document.getElementById('sheetBack').addEventListener('click', function(){ closeOverlay(overlay); });
@@ -1908,6 +2059,7 @@
     document.getElementById('liveStatus').textContent = 'Loading scores…';
     fetchScores(currentWeek, function(){
       openResults(true);
+      syncPool();
       // A game may have just kicked off or gone final — retune the interval.
       if(liveTimer){
         const want = anyGameLive() ? 20000 : 300000;
@@ -1952,6 +2104,7 @@
       else { cmp.textContent = 'Even with all-favorites'; cmp.style.color = 'var(--muted)'; }
     }
 
+    renderBoard();
     renderSeason();
     openOverlay(resultsOverlay);
     saveView('results');
@@ -2023,16 +2176,6 @@
   document.getElementById('resultsClose').addEventListener('click', closeResults);
   resultsOverlay.addEventListener('click', function(e){ if(e.target === resultsOverlay) closeResults(); });
 
-  const clearResOverlay = document.getElementById('clearResOverlay');
-  document.getElementById('clearResultsBtn').addEventListener('click', function(){ openOverlay(clearResOverlay); });
-  document.getElementById('clearResCancel').addEventListener('click', function(){ closeOverlay(clearResOverlay); });
-  document.getElementById('clearResYes').addEventListener('click', function(){
-    results = {};
-    saveAll();
-    closeOverlay(clearResOverlay);
-    openResults(true);
-  });
-  clearResOverlay.addEventListener('click', function(e){ if(e.target === clearResOverlay) closeOverlay(clearResOverlay); });
 
   /* remove / reset */
   const removeOverlay = document.getElementById('removeOverlay');
@@ -2065,6 +2208,120 @@
     render(); saveAll();
   });
   confirmOverlay.addEventListener('click', function(e){ if(e.target === confirmOverlay) closeOverlay(confirmOverlay); });
+
+  /* ---------- pool leaderboard (Firebase Realtime Database) ----------
+     Talks to the database over plain REST so the app stays one file with no
+     SDK to load. Each player writes only their own entry. */
+  const DB_URL = 'https://pick-em-pool-app-default-rtdb.firebaseio.com';
+  const PLAYER_KEY = 'pickem-player';
+  let board = [];
+  let boardNote = '';
+
+  function player(){
+    let p = getLocal(PLAYER_KEY);
+    if(!p || !p.id){
+      p = { id: 'p' + Math.random().toString(36).slice(2, 10), name: '' };
+      put(PLAYER_KEY, p);
+    }
+    return p;
+  }
+
+  function entryUrl(week, id){ return DB_URL + '/pickem/w' + week + '/' + id + '.json'; }
+  function boardUrl(week){ return DB_URL + '/pickem/w' + week + '.json'; }
+
+  // Publishes your current score. Only runs once you've locked a sheet.
+  function pushScore(){
+    const me = player();
+    if(!me.name || !weekLocked) return;
+    if(typeof fetch !== 'function') return;
+    const sc = weekScore(games, activeResults());
+    const body = {
+      name: me.name,
+      points: sc.earned,
+      decided: sc.decided,
+      total: sc.total,
+      possible: sc.possible,
+      updated: Date.now()
+    };
+    fetch(entryUrl(currentWeek, me.id), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).catch(function(){});
+  }
+
+  function fetchBoard(week, done){
+    if(typeof fetch !== 'function'){ done && done(); return; }
+    fetch(boardUrl(week))
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(data){
+        const rows = [];
+        if(data){
+          Object.keys(data).forEach(function(id){
+            const e = data[id];
+            if(!e || typeof e.points !== 'number' || !e.name) return;
+            rows.push({ id: id, name: e.name, points: e.points, decided: e.decided || 0 });
+          });
+        }
+        rows.sort(function(a,b){ return b.points - a.points; });
+        board = rows;
+        boardNote = '';
+      })
+      .catch(function(){ boardNote = "Can't reach the pool"; })
+      .then(function(){ done && done(); });
+  }
+
+  function renderBoard(){
+    const el = document.getElementById('lbList');
+    const note = document.getElementById('lbNote');
+    if(!el) return;
+    const me = player();
+
+    if(!me.name){
+      el.innerHTML = '';
+      note.textContent = 'Add your name to join the pool.';
+      return;
+    }
+    if(!board.length){
+      el.innerHTML = '';
+      note.textContent = boardNote || 'Lock in your sheet to appear here.';
+      return;
+    }
+    el.innerHTML = board.slice(0, 8).map(function(r, i){
+      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') + '">' +
+        '<span class="lbrank">' + (i + 1) + '</span>' +
+        '<span class="lbname">' + r.name + '</span>' +
+        '<span class="lbpts">' + r.points + '</span>' +
+      '</div>';
+    }).join('');
+    note.textContent = boardNote || (weekLocked ? '' : 'Lock in to post your score.');
+  }
+
+  function syncPool(){
+    pushScore();
+    fetchBoard(currentWeek, renderBoard);
+  }
+
+  /* name prompt */
+  const nameOverlay = document.getElementById('nameOverlay');
+  function askName(){
+    const me = player();
+    document.getElementById('nameInput').value = me.name || '';
+    openOverlay(nameOverlay);
+  }
+  document.getElementById('nameSave').addEventListener('click', function(){
+    const v = (document.getElementById('nameInput').value || '').trim().slice(0, 14);
+    if(v){
+      const me = player();
+      me.name = v;
+      put(PLAYER_KEY, me);
+    }
+    closeOverlay(nameOverlay);
+    syncPool();
+  });
+  document.getElementById('nameSkip').addEventListener('click', function(){
+    closeOverlay(nameOverlay);
+  });
 
   /* ---------- preview / simulation ----------
      Generates believable in-progress games so the tracker can be checked on a
@@ -2149,7 +2406,7 @@
     }
     const meta = document.getElementById('devMeta');
     if(meta){
-      meta.innerHTML = 'Version ' + APP_VERSION + '<br>' +
+      meta.innerHTML = 'Version ' + APP_VERSION + ' — built ' + APP_BUILT + '<br>' +
         'Odds and scores: ESPN<br>' +
         'Storage: ' + (hasLocal ? 'this device' : 'session only');
     }
@@ -2157,8 +2414,16 @@
 
   document.getElementById('verBadge').addEventListener('click', function(){
     syncDemoUI();
+
+  // First run: introduce yourself to the pool.
+  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
     openOverlay(document.getElementById('devOverlay'));
   });
+  const slotOverlay = document.getElementById('slotOverlay');
+  document.getElementById('slotBack').addEventListener('click', function(){ closeOverlay(slotOverlay); });
+  document.getElementById('slotClose').addEventListener('click', function(){ closeOverlay(slotOverlay); });
+  slotOverlay.addEventListener('click', function(e){ if(e.target === slotOverlay) closeOverlay(slotOverlay); });
+
   document.getElementById('devBack').addEventListener('click', function(){
     closeOverlay(document.getElementById('devOverlay'));
   });
@@ -2173,10 +2438,16 @@
     liveGames = [];
     demoResults = {};
     syncDemoUI();
+
+  // First run: introduce yourself to the pool.
+  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
     if(resultsOverlay.classList.contains('show')) refreshScores();
   });
 
   syncDemoUI();
+
+  // First run: introduce yourself to the pool.
+  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
 
   (function start(){
     const last = readView();
