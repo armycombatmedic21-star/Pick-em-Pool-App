@@ -864,6 +864,22 @@
       });
   }
 
+  /* ---------- remember where you were ----------
+     Restores the week you were on, and the score tracker if you left it
+     recently. The sheet never auto-opens — it's a glance-and-leave view. */
+  const VIEW_KEY = 'pickem-lastview';
+  const VIEW_MAX_AGE = 4 * 60 * 60 * 1000;   // 4 hours
+
+  function saveView(view){
+    put(VIEW_KEY, { view: view, week: currentWeek, t: Date.now() });
+  }
+
+  function readView(){
+    const v = getLocal(VIEW_KEY);
+    if(!v || typeof v.t !== 'number') return null;
+    return v;
+  }
+
   function loadWeek(week){
     currentWeek = week;
     weekFrozen = false;
@@ -1234,7 +1250,11 @@
   }
 
   document.addEventListener('visibilitychange', function(){
-    if(document.hidden){ saveAll(); return; }
+    if(document.hidden){
+      saveAll();
+      saveView(resultsOverlay && resultsOverlay.classList.contains('show') ? 'results' : 'main');
+      return;
+    }
     // Coming back from the background — everything on screen may be stale.
     if(resultsOverlay && resultsOverlay.classList.contains('show')){
       refreshScores();
@@ -1243,8 +1263,13 @@
       fetchLines(currentWeek);
     }
   });
-  window.addEventListener('pagehide', saveAll);
-  window.addEventListener('beforeunload', saveAll);
+  function flushState(){
+    saveAll();
+    const ro = document.getElementById('resultsOverlay');
+    saveView(ro && ro.classList.contains('show') ? 'results' : 'main');
+  }
+  window.addEventListener('pagehide', flushState);
+  window.addEventListener('beforeunload', flushState);
 
   /* week picker */
   const weekPick = document.getElementById('weekPick');
@@ -1258,6 +1283,7 @@
   weekPick.addEventListener('change', function(){
     saveAll();
     loadWeek(parseInt(weekPick.value, 10));
+    saveView('main');
   });
 
   /* ---------- overlay open/close with a real scroll lock ----------
@@ -1651,6 +1677,7 @@
 
     renderSeason();
     openOverlay(resultsOverlay);
+    saveView('results');
 
     if(!skipFetch){
       refreshScores();
@@ -1705,6 +1732,7 @@
   }
 
   function closeResults(){
+    saveView('main');
     closeOverlay(resultsOverlay);
     if(liveTimer){ clearInterval(liveTimer); liveTimer = null; }
   }
@@ -1759,7 +1787,15 @@
   });
   confirmOverlay.addEventListener('click', function(e){ if(e.target === confirmOverlay) closeOverlay(confirmOverlay); });
 
-  loadWeek(1);
+  (function start(){
+    const last = readView();
+    const startWeek = (last && last.week >= 1 && last.week <= MAX_WEEK) ? last.week : 1;
+    weekPick.value = startWeek;
+    loadWeek(startWeek);
+    if(last && last.view === 'results' && (Date.now() - last.t) < VIEW_MAX_AGE){
+      openResults();
+    }
+  })();
 })();
 </script>
 </body>
