@@ -82,15 +82,60 @@
 
   .linestamp{
     font-family:"SF Mono", ui-monospace, monospace;
-    font-size:0.68rem; font-weight:700; letter-spacing:0.3px;
-    color: var(--muted); opacity:0.75;
-    margin: -4px 0 12px;
+    font-size:0.76rem; font-weight:800; letter-spacing:0.2px;
+    color: var(--cyan);
+    background: rgba(53,208,255,0.09);
+    border:1px solid rgba(53,208,255,0.35);
+    border-radius:7px;
+    padding:8px 10px;
+    text-align:center;
+    margin: 0 0 12px;
+  }
+  .linestamp.locked{
+    color: var(--gold);
+    background: rgba(244,196,61,0.09);
+    border-color: rgba(244,196,61,0.4);
+  }
+
+  .unlinkbtn{
+    display:block; margin:-6px auto 12px; padding:4px 10px;
+    background:none; border:none; color: var(--gold);
+    font-size:0.85rem; font-weight:800; text-decoration:underline;
+  }
+
+  .sheettop{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .sheettop h2{ margin:0; }
+  .backbtn{
+    flex:none; padding:7px 12px; border-radius:7px;
+    border:1px solid var(--line); background: var(--panel-hi);
+    color: var(--cyan); font-size:0.85rem; font-weight:800;
+  }
+  .lockbtn{
+    width:100%; margin-top:14px; padding:14px; border-radius:9px;
+    border:1px solid var(--gold); background: rgba(244,196,61,0.12);
+    color: var(--gold); font-size:1rem; font-weight:800; letter-spacing:0.3px;
+  }
+  .lockbtn.on{
+    background: var(--gold); color:#20180a; border-color: var(--gold);
+    box-shadow: 0 0 16px rgba(244,196,61,0.35);
   }
   .navrow{ display:flex; gap:7px; margin: 0 0 10px; }
   .navrow button{
     flex:1; padding:10px 6px; border-radius:8px; border:1px solid var(--line);
     background: var(--panel); color: var(--cyan); font-size:0.82rem; font-weight:700;
   }
+  #resultsBtn{
+    color: var(--gold); font-weight:800;
+    border-color: rgba(244,196,61,0.45);
+    background: rgba(244,196,61,0.08);
+    text-shadow: 0 0 10px rgba(244,196,61,0.6);
+    animation: goldglow 2.4s ease-in-out infinite;
+  }
+  @keyframes goldglow{
+    0%,100%{ text-shadow: 0 0 8px rgba(244,196,61,0.45); box-shadow: 0 0 6px rgba(244,196,61,0.12); }
+    50%{ text-shadow: 0 0 16px rgba(244,196,61,0.95); box-shadow: 0 0 16px rgba(244,196,61,0.3); }
+  }
+  @media (prefers-reduced-motion: reduce){ #resultsBtn{ animation:none; } }
 
   .draghint{
     text-align:center; color: var(--green);
@@ -220,6 +265,16 @@
     box-shadow: 0 -10px 30px rgba(53,208,255,0.12);
   }
   .sheet h2{ margin:0 0 12px; color: var(--cyan); font-size:1.2rem; text-shadow: 0 0 10px rgba(53,208,255,0.3); }
+  #resultsTitle{
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(244,196,61,0.6);
+    animation: goldtextglow 2.4s ease-in-out infinite;
+  }
+  @keyframes goldtextglow{
+    0%,100%{ text-shadow: 0 0 8px rgba(244,196,61,0.45); }
+    50%{ text-shadow: 0 0 18px rgba(244,196,61,0.95); }
+  }
+  @media (prefers-reduced-motion: reduce){ #resultsTitle{ animation:none; } }
   .sheetrow{
     display:flex; align-items:center; gap:10px; padding:10px 0;
     border-bottom:1px solid var(--line); font-size:1.1rem;
@@ -389,7 +444,6 @@
   <select class="weekpick" id="weekPick"></select>
 </div>
 <p class="sub">Closest game gets the fewest points, biggest favorite gets the most. Use the Favorite / Underdog switch to set each pick.</p>
-<div class="linestamp" id="lineStamp"></div>
 
 <div class="navrow">
   <button id="resetBtn">Reset Order</button>
@@ -397,6 +451,8 @@
 </div>
 
 <div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
+<div class="linestamp" id="lineStamp"></div>
+<button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
 
 <ul id="list"></ul>
 <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -411,20 +467,25 @@
 
 <div class="overlay" id="overlay">
   <div class="sheet">
-    <h2 id="sheetTitle">Your Sheet</h2>
-    <div id="sheetList"></div>
-    <div class="sheetbtnrow">
-      <button class="accent" id="copyBtn">Copy</button>
-      <button class="accent" id="shareBtn">Share</button>
-      <button class="accent" id="toResultsBtn">Score</button>
+    <div class="sheettop">
+      <button class="backbtn" id="sheetBack">‹ Back</button>
+      <h2 id="sheetTitle">Your Sheet</h2>
     </div>
-    <button class="closebtn" id="closeBtn">Close</button>
+    <div id="sheetList"></div>
+    <button class="lockbtn" id="lockBtn">Lock In Picks</button>
+    <div class="sheetbtnrow">
+      <button class="accent" id="toResultsBtn">Score Tracker</button>
+    </div>
+    <button class="closebtn" id="closeBtn">‹ Back</button>
   </div>
 </div>
 
 <div class="overlay" id="resultsOverlay">
   <div class="sheet">
-    <h2 id="resultsTitle">Score Tracker</h2>
+    <div class="sheettop">
+      <button class="backbtn" id="resultsBack">‹ Back</button>
+      <h2 id="resultsTitle">Score Tracker</h2>
+    </div>
     <div class="liverow">
       <span class="livestatus" id="liveStatus"></span>
       <button class="refreshbtn" id="refreshBtn">Refresh</button>
@@ -442,7 +503,7 @@
     <div class="sheetbtnrow">
       <button id="clearResultsBtn">Clear This Week's Results</button>
     </div>
-    <button class="closebtn" id="resultsClose">Close</button>
+    <button class="closebtn" id="resultsClose">‹ Back</button>
   </div>
 </div>
 
@@ -475,6 +536,28 @@
     <div class="confirmrow">
       <button class="confirmcancel" id="clearResCancel">Cancel</button>
       <button class="confirmyes" id="clearResYes">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="histOverlay">
+  <div class="sheet">
+    <div class="sheettop">
+      <button class="backbtn" id="histBack">‹ Back</button>
+      <h2 id="histTitle">Line History</h2>
+    </div>
+    <div id="histBody"></div>
+    <button class="closebtn" id="histClose">‹ Back</button>
+  </div>
+</div>
+
+<div class="overlay" id="unlockOverlay">
+  <div class="confirmcard">
+    <h2>Picks are locked</h2>
+    <p>You locked this week's sheet so nothing gets changed by accident. Unlock it to reorder games or switch a pick.</p>
+    <div class="confirmrow">
+      <button class="confirmcancel" id="unlockCancel">Keep Locked</button>
+      <button class="confirmyes" id="unlockYes">Unlock</button>
     </div>
   </div>
 </div>
@@ -566,11 +649,12 @@
     catch(e){ return null; }
   }
   let weekFrozen = false;
+  let weekLocked = false;
   let linesStamp = '';
   let linesLoading = false;
 
   function saveAll(){
-    put(picksKey(currentWeek), { frozen: weekFrozen, games: games });
+    put(picksKey(currentWeek), { frozen: weekFrozen, locked: weekLocked, games: games });
     put(resKey(currentWeek), results);
   }
 
@@ -656,14 +740,25 @@
     const byId = {};
     games.forEach(function(g){ byId[g.id] = g; });
 
+    const now = Date.now();
     const merged = newLines.map(function(n){
       const old = byId[n.id];
-      if(!old) return {...n, pick:'fav', removed:false};
-      const moved = (typeof old.spread === 'number' && typeof n.spread === 'number' && old.spread !== n.spread)
-        ? { from: old.spread, fav: favCityOf(old) }
-        : old.moved;
+      if(!old){
+        const seed = (typeof n.spread === 'number')
+          ? [{ sp:n.spread, fav:n.fav, t:now }] : [];
+        return {...n, pick:'fav', removed:false, history: seed};
+      }
+      // History is a log of every distinct line, oldest first.
+      let hist = Array.isArray(old.history) ? old.history.slice() : [];
+      if(typeof n.spread === 'number'){
+        const last = hist[hist.length - 1];
+        if(!last || last.sp !== n.spread || last.fav !== n.fav){
+          hist.push({ sp:n.spread, fav:n.fav, t:now });
+        }
+        if(hist.length > 24) hist = hist.slice(hist.length - 24);
+      }
       return {...old, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
-              home:n.home, fav:n.fav, spread:n.spread, date:n.date, moved: moved};
+              home:n.home, fav:n.fav, spread:n.spread, date:n.date, history: hist};
     });
 
     // chalk ranking for reference, applied as the order only when unfrozen
@@ -688,6 +783,7 @@
     if(!saved || Array.isArray(saved)) return null;
     if(!Array.isArray(saved.games) || !saved.games.length) return null;
     weekFrozen = !!saved.frozen;
+    weekLocked = !!saved.locked;
     return saved.games;
   }
 
@@ -698,8 +794,12 @@
     if(linesLoading) txt = 'Updating Spread (ESPN)…';
     else if(linesStamp) txt = 'Updated Spread (ESPN): ' + linesStamp;
     else txt = 'Spread not loaded yet';
-    if(weekFrozen) txt += ' · order locked';
+    if(weekLocked) txt += ' · PICKS LOCKED';
+    else if(weekFrozen) txt += ' · order locked';
     el.textContent = txt;
+    el.classList.toggle('locked', weekLocked);
+    const ub = document.getElementById('unlockInline');
+    if(ub) ub.style.display = weekLocked ? 'block' : 'none';
   }
 
   function fetchLines(week){
@@ -729,6 +829,7 @@
   function loadWeek(week){
     currentWeek = week;
     weekFrozen = false;
+    weekLocked = false;
     linesStamp = '';
     games = freshGames(week);
     results = {};
@@ -773,6 +874,79 @@
     stampLine(currentWeek);
   }
 
+  /* ---------- line movement ----------
+     Signed from the home team's view so a favorite flip still reads correctly:
+     negative means the home team is favored. */
+  const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000;
+
+  function homeLine(sp, fav){
+    if(typeof sp !== 'number') return null;
+    return fav === 'B' ? -sp : sp;
+  }
+
+  // Returns null, or { dir:'up'|'down', from:<spread>, fromFav:<'A'|'B'> }
+  function lineMove(g){
+    const hist = g.history;
+    if(!Array.isArray(hist) || hist.length < 2) return null;
+    if(typeof g.spread !== 'number') return null;
+    const cutoff = Date.now() - TWO_WEEKS;
+    // earliest entry still inside the window
+    let first = null;
+    for(let i = 0; i < hist.length; i++){
+      if(hist[i].t >= cutoff){ first = hist[i]; break; }
+    }
+    if(!first) return null;
+    const last = hist[hist.length - 1];
+    if(first === last) return null;
+    if(first.sp === last.sp && first.fav === last.fav) return null;
+
+    // Did the team currently favored get stronger or weaker?
+    const nowLine = homeLine(last.sp, last.fav);
+    const thenLine = homeLine(first.sp, first.fav);
+    const strongerForHome = nowLine < thenLine;
+    const dir = (g.fav === 'B') === strongerForHome ? 'up' : 'down';
+    return { dir: dir, from: first.sp, fromFav: first.fav };
+  }
+
+  function moveArrow(g){
+    const m = lineMove(g);
+    if(!m) return '';
+    return '<span class="movearrow ' + m.dir + '" data-role="hist">' +
+           (m.dir === 'up' ? '\u2191' : '\u2193') + '</span>';
+  }
+
+  function favCityFor(g, favSide){ return favSide === 'A' ? g.cityA : g.cityB; }
+
+  function showHistory(g){
+    const hist = Array.isArray(g.history) ? g.history : [];
+    document.getElementById('histTitle').textContent = g.cityA + ' at ' + g.cityB;
+    if(hist.length < 2){
+      document.getElementById('histBody').innerHTML =
+        '<div class="histempty">No line movement recorded yet.</div>';
+    }else{
+      document.getElementById('histBody').innerHTML = hist.map(function(e, i){
+        const when = new Date(e.t).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
+        const label = i === 0 ? 'Opened' : (i === hist.length - 1 ? 'Now' : 'Moved');
+        let delta = '';
+        if(i > 0){
+          const prev = hist[i-1];
+          const d = homeLine(e.sp, e.fav) - homeLine(prev.sp, prev.fav);
+          if(d !== 0){
+            const bigger = Math.abs(homeLine(e.sp, e.fav)) > Math.abs(homeLine(prev.sp, prev.fav));
+            delta = '<span class="histdelta ' + (bigger ? 'up' : 'down') + '">' +
+                    (bigger ? '\u2191' : '\u2193') + Math.abs(d) + '</span>';
+          }
+        }
+        return '<div class="histrow">' +
+          '<span class="histwhen">' + label + '</span>' +
+          '<span class="histline">' + favCityFor(g, e.fav) + ' -' + e.sp + delta + '</span>' +
+          '<span class="histtime">' + when + '</span>' +
+        '</div>';
+      }).join('');
+    }
+    openOverlay(document.getElementById('histOverlay'));
+  }
+
   function favCityOf(g){ return g.fav === 'A' ? g.cityA : g.cityB; }
   function dogCityOf(g){ return g.fav === 'A' ? g.cityB : g.cityA; }
   function pickedCityOf(g){ return g.pick === 'fav' ? favCityOf(g) : dogCityOf(g); }
@@ -807,8 +981,7 @@
       const onFav = g.pick === 'fav';
       const hasLine = typeof g.spread === 'number';
       const pct = hasLine ? Math.round(pickWinProb(g)*100) : 0;
-      const movedTxt = (g.moved && hasLine && g.moved.from !== g.spread)
-        ? ('line ' + g.moved.from + ' \u2192 ' + g.spread) : '';
+      const arrow = hasLine ? moveArrow(g) : '';
 
       li.innerHTML =
         '<div class="rankwrap">' +
@@ -818,13 +991,12 @@
         '<div class="matchup">' +
           '<div class="line1">' +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
-            (hasLine ? '<span class="pspread">(' + (onFav ? '-' : '+') + g.spread + ')</span>' : '') +
+            (hasLine ? '<span class="pspread" data-role="hist">(' + (onFav ? '-' : '+') + g.spread + ')</span>' + arrow : '') +
             (hasLine ? '<span class="pctval">(' + pct + '%)</span>' : '<span class="noline">no line yet</span>') +
           '</div>' +
           '<div class="line2">' +
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
-            (movedTxt ? '<span class="movedtag">' + movedTxt + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="actions">' +
@@ -837,13 +1009,22 @@
 
       li.querySelector('[data-role="swx"]').addEventListener('click', function(e){
         e.stopPropagation();
+        if(weekLocked){ askUnlock(); return; }
         g.pick = (g.pick === 'fav') ? 'dog' : 'fav';
         render();
         saveAll();
       });
 
+      li.querySelectorAll('[data-role="hist"]').forEach(function(el){
+        el.addEventListener('click', function(e){
+          e.stopPropagation();
+          showHistory(g);
+        });
+      });
+
       li.querySelector('[data-role="rm"]').addEventListener('click', function(e){
         e.stopPropagation();
+        if(weekLocked){ askUnlock(); return; }
         if(g.removed){ g.removed = false; render(); saveAll(); return; }
         pendingRemoveId = g.id;
         document.getElementById('removeText').textContent =
@@ -862,6 +1043,14 @@
   listEl.addEventListener('pointerdown', function(e){
     const li = e.target.closest('.game');
     if(!li || e.target.closest('button')) return;
+    if(weekLocked){
+      // Don't interrupt scrolling — only prompt if they actually hold to drag.
+      press = {
+        li: li, id: li.dataset.id, startY: e.clientY, lockedProbe: true,
+        timer: setTimeout(function(){ if(press && press.lockedProbe){ press = null; askUnlock(); } }, 450)
+      };
+      return;
+    }
     press = {
       li: li, id: li.dataset.id, startY: e.clientY, baseY: e.clientY, active:false,
       timer: setTimeout(function(){
@@ -935,6 +1124,10 @@
 
   document.addEventListener('pointermove', function(e){
     if(!press) return;
+    if(press.lockedProbe){
+      if(Math.abs(e.clientY - press.startY) > 10){ clearTimeout(press.timer); press = null; }
+      return;
+    }
     press.lastClientY = e.clientY;
     if(!press.active){
       if(Math.abs(e.clientY - press.startY) > 10) cancelPress();
@@ -965,6 +1158,7 @@
   function cancelPress(){
     if(!press) return;
     clearTimeout(press.timer);
+    if(press.lockedProbe){ press = null; return; }
     if(press.raf) cancelAnimationFrame(press.raf);
     press.li.classList.remove('pressing');
     press = null;
@@ -972,6 +1166,7 @@
   function endPress(){
     if(!press) return;
     clearTimeout(press.timer);
+    if(press.lockedProbe){ press = null; return; }
     if(press.raf) cancelAnimationFrame(press.raf);
     press.li.classList.remove('pressing');
     if(press.active){
@@ -1003,14 +1198,6 @@
     saveAll();
     loadWeek(parseInt(weekPick.value, 10));
   });
-
-  function sheetText(){
-    const lines = activeGames().map(function(g,i){
-      const s = (typeof g.spread === 'number') ? ((g.pick === 'fav' ? ' -' : ' +') + g.spread) : '';
-      return (i+1) + '. ' + pickedCityOf(g) + s;
-    });
-    return 'Week ' + currentWeek + ' Confidence Picks\n' + lines.join('\n');
-  }
 
   /* ---------- overlay open/close with a real scroll lock ----------
      Locks the page behind any popup so the background can't scroll, and
@@ -1060,6 +1247,7 @@
 
   function openSheet(){
     freezeOrder();
+    syncLockBtn();
     document.getElementById('sheetTitle').textContent = 'Week ' + currentWeek + ' Sheet';
     sheetList.innerHTML = activeGames().map(function(g,i){
       const isDog = g.pick === 'dog';
@@ -1073,32 +1261,54 @@
     openOverlay(overlay);
   }
   document.getElementById('doneBtn').addEventListener('click', openSheet);
+  const unlockOverlay = document.getElementById('unlockOverlay');
+  let askedFrom = null;
+
+  function askUnlock(){
+    askedFrom = null;
+    openOverlay(unlockOverlay);
+  }
+  const histOverlay = document.getElementById('histOverlay');
+  document.getElementById('histBack').addEventListener('click', function(){ closeOverlay(histOverlay); });
+  document.getElementById('histClose').addEventListener('click', function(){ closeOverlay(histOverlay); });
+  histOverlay.addEventListener('click', function(e){ if(e.target === histOverlay) closeOverlay(histOverlay); });
+
+  document.getElementById('unlockCancel').addEventListener('click', function(){ closeOverlay(unlockOverlay); });
+  document.getElementById('unlockYes').addEventListener('click', function(){
+    weekLocked = false;
+    saveAll();
+    closeOverlay(unlockOverlay);
+    syncLockBtn();
+    stampLine(currentWeek);
+    render();
+  });
+  unlockOverlay.addEventListener('click', function(e){ if(e.target === unlockOverlay) closeOverlay(unlockOverlay); });
+
+  function syncLockBtn(){
+    const b = document.getElementById('lockBtn');
+    if(!b) return;
+    b.textContent = weekLocked
+      ? '🔒 Picks Locked (Week ' + currentWeek + ') — Tap to Unlock'
+      : 'Lock In Picks (Week ' + currentWeek + ')';
+    b.classList.toggle('on', weekLocked);
+  }
+
+  document.getElementById('unlockInline').addEventListener('click', askUnlock);
+
+  document.getElementById('lockBtn').addEventListener('click', function(){
+    if(weekLocked){ askUnlock(); return; }
+    weekLocked = true;
+    freezeOrder();
+    saveAll();
+    syncLockBtn();
+    stampLine(currentWeek);
+    toast('Picks locked');
+  });
+
+  document.getElementById('sheetBack').addEventListener('click', function(){ closeOverlay(overlay); });
+  document.getElementById('resultsBack').addEventListener('click', closeResults);
   document.getElementById('closeBtn').addEventListener('click', function(){ closeOverlay(overlay); });
   overlay.addEventListener('click', function(e){ if(e.target === overlay) closeOverlay(overlay); });
-
-  document.getElementById('copyBtn').addEventListener('click', function(){
-    const txt = sheetText();
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(function(){ toast('Copied to clipboard'); }).catch(fallbackCopy);
-    }else{ fallbackCopy(); }
-    function fallbackCopy(){
-      const ta = document.createElement('textarea');
-      ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      try{ document.execCommand('copy'); toast('Copied to clipboard'); }
-      catch(err){ toast('Copy not supported here'); }
-      document.body.removeChild(ta);
-    }
-  });
-
-  document.getElementById('shareBtn').addEventListener('click', function(){
-    const txt = sheetText();
-    if(navigator.share){
-      navigator.share({ title: 'Week ' + currentWeek + ' Picks', text: txt }).catch(function(){});
-    }else{
-      toast('Sharing not available — use Copy');
-    }
-  });
 
   /* results */
   const resultsOverlay = document.getElementById('resultsOverlay');
@@ -1181,6 +1391,17 @@
         liveGames = out;
         liveStatus = 'Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
         applyFinals();
+
+        // Same payload carries the odds, so keep spreads current everywhere.
+        const freshLines = gamesFromEvents(data.events);
+        if(freshLines.length){
+          put(linesKey(week), freshLines);
+          games = mergeLines(freshLines, weekFrozen);
+          linesStamp = new Date().toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
+          stampLine(week);
+          render();
+          saveAll();
+        }
       })
       .catch(function(){
         liveStatus = 'Could not load scores — mark them by hand';
@@ -1271,7 +1492,9 @@
       const isFav = city === favCityOf(g);
       return '<div class="trow' + (isMine ? ' mine' : '') + (leader === ab ? ' leading' : '') + '">' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
-          (isFav && typeof g.spread === 'number' ? '<b class="tspread">(-' + g.spread + ')</b>' : '') + '</span>' +
+          (isFav && typeof g.spread === 'number'
+            ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">(-' + g.spread + ')</b>' + moveArrow(g)
+            : '') + '</span>' +
         '<span class="tscore">' + (started && score !== null ? score : '–') + '</span>' +
         '<span class="tmark">' + (leader === ab ? '\u25C0' : '') + '</span>' +
       '</div>';
@@ -1325,6 +1548,15 @@
     resultsList.innerHTML = active.map(function(g,i){
       return gameCard(g, i + 1, results[g.id]);
     }).join('');
+
+    resultsList.querySelectorAll('[data-role="hist"]').forEach(function(el){
+      el.addEventListener('click', function(){
+        const card = el.closest ? el.closest('.gcard') : null;
+        const gid = el.dataset.gid || (card && card.dataset.id);
+        const g = games.filter(function(x){ return x.id === gid; })[0];
+        if(g) showHistory(g);
+      });
+    });
 
     const sc = weekScore(games, results);
     document.getElementById('scoreBig').textContent = sc.earned;
@@ -1419,7 +1651,10 @@
   });
 
   const confirmOverlay = document.getElementById('confirmOverlay');
-  document.getElementById('resetBtn').addEventListener('click', function(){ openOverlay(confirmOverlay); });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    if(weekLocked){ askUnlock(); return; }
+    openOverlay(confirmOverlay);
+  });
   document.getElementById('confirmCancel').addEventListener('click', function(){ closeOverlay(confirmOverlay); });
   document.getElementById('confirmYes').addEventListener('click', function(){
     weekFrozen = false;
