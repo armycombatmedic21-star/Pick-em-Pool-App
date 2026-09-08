@@ -103,15 +103,15 @@
     font-size:0.85rem; font-weight:800; text-decoration:underline;
   }
 
-  .sheettop{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .sheettop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
   .sheettop h2{ margin:0; }
   .backbtn{
-    flex:none; padding:7px 12px; border-radius:7px;
+    flex:none; padding:5px 11px; border-radius:7px;
     border:1px solid var(--line); background: var(--panel-hi);
     color: var(--cyan); font-size:0.85rem; font-weight:800;
   }
   .lockbtn{
-    width:100%; margin-top:14px; padding:14px; border-radius:9px;
+    width:100%; margin-top:10px; padding:11px; border-radius:9px;
     border:1px solid var(--gold); background: rgba(244,196,61,0.12);
     color: var(--gold); font-size:1rem; font-weight:800; letter-spacing:0.3px;
   }
@@ -269,10 +269,10 @@
     width:100%; max-width:480px; max-height:88vh; overflow-y:auto;
     -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
     background: var(--panel); border:1px solid var(--cyan-dim); border-radius:16px 16px 0 0;
-    padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
     box-shadow: 0 -10px 30px rgba(53,208,255,0.12);
   }
-  .sheet h2{ margin:0 0 12px; color: var(--cyan); font-size:1.2rem; text-shadow: 0 0 10px rgba(53,208,255,0.3); }
+  .sheet h2{ margin:0; color: var(--cyan); font-size:1.1rem; text-shadow: 0 0 10px rgba(53,208,255,0.3); }
   #resultsTitle{
     color: var(--gold);
     text-shadow: 0 0 10px rgba(244,196,61,0.6);
@@ -284,8 +284,8 @@
   }
   @media (prefers-reduced-motion: reduce){ #resultsTitle{ animation:none; } }
   .sheetrow{
-    display:flex; align-items:center; gap:10px; padding:10px 0;
-    border-bottom:1px solid var(--line); font-size:1.1rem;
+    display:flex; align-items:center; gap:10px; padding:6px 0;
+    border-bottom:1px solid rgba(28,51,80,0.55); font-size:1.05rem;
   }
   .sheetnum{ font-family: "SF Mono", ui-monospace, monospace; color: var(--cyan); font-weight:800; min-width:28px; }
   .sheetcity{ font-weight:700; flex:1; min-width:0; }
@@ -300,9 +300,9 @@
   @media (prefers-reduced-motion: reduce){ .watchbadge{ animation:none; } }
   .sheetspread{ font-family: "SF Mono", ui-monospace, monospace; font-weight:800; white-space:nowrap; }
 
-  .sheetbtnrow{ display:flex; gap:8px; margin-top:16px; }
+  .sheetbtnrow{ display:flex; gap:8px; margin-top:8px; }
   .sheetbtnrow button{
-    flex:1; padding:13px 6px; border-radius:8px; font-size:0.92rem; font-weight:800;
+    flex:1; padding:10px 6px; border-radius:8px; font-size:0.9rem; font-weight:800;
     border:1px solid var(--line); background: transparent; color: var(--text);
   }
   .sheetbtnrow button.accent{ border-color: var(--cyan-dim); color: var(--cyan); }
@@ -421,7 +421,7 @@
   .seasonempty{ color: var(--muted); font-size:0.88rem; font-weight:600; line-height:1.4; }
 
   .closebtn{
-    width:100%; margin-top:16px; padding:13px; border-radius:8px;
+    width:100%; margin-top:8px; padding:10px; border-radius:8px;
     border:1px solid var(--line); background: transparent; color: var(--text); font-size:1rem; font-weight:700;
   }
 
@@ -1025,6 +1025,21 @@
   function activeGames(){ return games.filter(g => !g.removed); }
 
   function render(){
+    // If the same games are already on screen in the same order, update them in
+    // place — rebuilding would re-create every <img> and make the logos blink.
+    const kids = Array.prototype.slice.call(listEl.children);
+    if(kids.length === games.length && kids.length > 0){
+      let sameOrder = true;
+      for(let i = 0; i < kids.length; i++){
+        if(kids[i].dataset.id !== games[i].id){ sameOrder = false; break; }
+      }
+      if(sameOrder){
+        games.forEach(updateRow);
+        renumber();
+        return;
+      }
+    }
+
     listEl.innerHTML = '';
     const has = games.length > 0;
     emptyEl.style.display = has ? 'none' : 'block';
@@ -1079,7 +1094,7 @@
         e.stopPropagation();
         if(weekLocked){ askUnlock(); return; }
         g.pick = (g.pick === 'fav') ? 'dog' : 'fav';
-        render();
+        updateRow(g);
         saveAll();
       });
 
@@ -1093,7 +1108,7 @@
       li.querySelector('[data-role="rm"]').addEventListener('click', function(e){
         e.stopPropagation();
         if(weekLocked){ askUnlock(); return; }
-        if(g.removed){ g.removed = false; render(); saveAll(); return; }
+        if(g.removed){ g.removed = false; updateRow(g); renumber(); saveAll(); return; }
         pendingRemoveId = g.id;
         document.getElementById('removeText').textContent =
           favCity + ' vs ' + dogCity + ' will be shaded out and left off your sheet. You can bring it back anytime.';
@@ -1102,6 +1117,71 @@
 
       listEl.appendChild(li);
     });
+  }
+
+  /* Updates one row in place. Reusing the existing <img> elements is what stops
+     every logo on the list from flashing when a single pick changes. */
+  function updateRow(g){
+    const li = listEl.querySelector('.game[data-id="' + g.id + '"]');
+    if(!li) return;
+
+    const favCity = favCityOf(g), dogCity = dogCityOf(g);
+    const onFav = g.pick === 'fav';
+    const hasLine = typeof g.spread === 'number';
+    const pct = hasLine ? Math.round(pickWinProb(g)*100) : 0;
+    const pickCity = pickedCityOf(g);
+    const otherCity = onFav ? dogCity : favCity;
+
+    li.className = 'game' + (g.removed ? ' removed' : '');
+
+    const l1 = li.querySelector('.line1');
+    const l2 = li.querySelector('.line2');
+    if(l1){
+      const img1 = l1.querySelector('.plogo img');
+      const url1 = logoForCity(g, pickCity);
+      if(img1 && url1 && img1.getAttribute('src') !== url1){ img1.setAttribute('src', url1); }
+      const nameEl = l1.querySelector('.goldcity');
+      if(nameEl) nameEl.textContent = pickCity;
+      const sp = l1.querySelector('.pspread');
+      if(sp && hasLine) sp.textContent = '(' + (onFav ? '-' : '+') + g.spread + ')';
+      const mv = lineMove(g);
+      let arr = l1.querySelector('.movearrow');
+      if(mv && hasLine){
+        if(!arr && sp){
+          arr = document.createElement('span');
+          arr.setAttribute('data-role', 'hist');
+          arr.addEventListener('click', function(e){ e.stopPropagation(); showHistory(g); });
+          if(sp.after) sp.after(arr); else l1.appendChild(arr);
+        }
+        if(arr){
+          arr.className = 'movearrow ' + mv.dir;
+          arr.textContent = mv.dir === 'up' ? '\u2191' : '\u2193';
+        }
+      }else if(arr && arr.remove){
+        arr.remove();
+      }
+      const pc = l1.querySelector('.pctval');
+      if(pc && hasLine) pc.textContent = '(' + pct + '%)';
+    }
+    if(l2){
+      const vw = l2.querySelector('.vsword');
+      if(vw) vw.textContent = venueWordFor(pickCity, g);
+      const img2 = l2.querySelector('.plogo img');
+      const url2 = logoForCity(g, otherCity);
+      if(img2 && url2 && img2.getAttribute('src') !== url2){ img2.setAttribute('src', url2); }
+      const oth = l2.querySelector('.mutedcity');
+      if(oth) oth.textContent = otherCity;
+    }
+
+    const swx = li.querySelector('.swx');
+    if(swx){
+      swx.classList.toggle('fav', onFav);
+      swx.classList.toggle('dog', !onFav);
+      const lbl = swx.querySelector('.swx-label');
+      if(lbl) lbl.textContent = onFav ? 'FAVORITE' : 'UNDERDOG';
+    }
+    const rm = li.querySelector('.rmbtn');
+    if(rm) rm.textContent = g.removed ? 'Restore' : 'Remove';
   }
 
   /* drag */
@@ -1214,12 +1294,26 @@
       const g = games.find(function(x){ return x.id === child.dataset.id; });
       const badge = child.querySelector('.points');
       if(!g || !badge) return;
+      const wrap = child.querySelector('.rankwrap');
+      let was = child.querySelector('.wasrank');
       if(g.removed){ badge.textContent = '–'; }
       else{
         n++;
         badge.textContent = n;
         badge.classList.remove('tone-a','tone-b');
         badge.classList.add(n % 2 === 0 ? 'tone-b' : 'tone-a');
+      }
+      // keep the "was N" tag honest without rebuilding the row
+      const showWas = !g.removed && n !== g.baseRank;
+      if(showWas){
+        if(!was && wrap){
+          was = document.createElement('div');
+          was.className = 'wasrank';
+          wrap.appendChild(was);
+        }
+        if(was) was.textContent = 'was ' + g.baseRank;
+      }else if(was && was.remove){
+        was.remove();
       }
     });
   }
@@ -1767,7 +1861,9 @@
     if(g) g.removed = true;
     pendingRemoveId = null;
     closeOverlay(removeOverlay);
-    render(); saveAll();
+    if(g) updateRow(g);
+    renumber();
+    saveAll();
   });
   removeOverlay.addEventListener('click', function(e){
     if(e.target === removeOverlay){ pendingRemoveId = null; closeOverlay(removeOverlay); }
