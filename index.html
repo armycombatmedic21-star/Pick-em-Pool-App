@@ -191,6 +191,14 @@
   .wasrank{ font-size:0.68rem; font-weight:700; color: var(--gold); white-space:nowrap; }
 
   .matchup{ flex:1; min-width:0; overflow-wrap:anywhere; }
+  .line1, .line2{ display:flex; align-items:center; }
+  .plogo{
+    flex:none; width:20px; height:20px; margin-right:6px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .plogo img{ width:20px; height:20px; object-fit:contain; display:block; }
+  .plogo.small{ width:16px; height:16px; margin-right:5px; }
+  .plogo.small img{ width:16px; height:16px; opacity:0.75; }
   .line1{ font-size:0.98rem; line-height:1.2; }
   .line2{ font-size:0.86rem; line-height:1.2; margin-top:1px; }
   .goldcity{ color: var(--gold); font-weight:800; }
@@ -696,6 +704,26 @@
     return null;
   }
 
+  /* ESPN ships a dark-background variant for most teams. The standard mark is
+     drawn for white paper and can vanish on this UI, so prefer the dark one. */
+  function pickLogo(team){
+    if(!team) return null;
+    const arr = team.logos || [];
+    let dark = null, plain = null;
+    for(let i = 0; i < arr.length; i++){
+      const rel = arr[i].rel || [];
+      const href = arr[i].href;
+      if(!href) continue;
+      if(rel.indexOf('dark') !== -1) dark = href;
+      else if(!plain) plain = href;
+    }
+    if(dark) return dark;
+    const base = plain || team.logo || null;
+    // Fall back to the CDN's own dark path when the payload didn't list one.
+    if(base && base.indexOf('/500/') !== -1) return base.replace('/500/', '/500-dark/');
+    return base;
+  }
+
   function gamesFromEvents(events){
     const out = [];
     (events || []).forEach(function(ev){
@@ -710,6 +738,8 @@
 
       const odds = parseOdds(comp, awayAb, homeAb);
       out.push({
+        logoA: pickLogo(away.team),
+        logoB: pickLogo(home.team),
         id: 'e' + ev.id,
         cityA: cityLabel(away.team),   // away
         cityB: cityLabel(home.team),   // home
@@ -765,6 +795,7 @@
         if(hist.length > 24) hist = hist.slice(hist.length - 24);
       }
       return {...old, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
+              logoA:n.logoA, logoB:n.logoB,
               home:n.home, fav:n.fav, spread:n.spread, date:n.date, history: hist};
     });
 
@@ -954,6 +985,18 @@
     openOverlay(document.getElementById('histOverlay'));
   }
 
+  function logoTag(url, cls){
+    return '<span class="' + (cls || 'tlogo') + '">' +
+      (url ? '<img src="' + url + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') +
+    '</span>';
+  }
+
+  function logoForCity(g, city){
+    if(city === g.cityA) return g.logoA || null;
+    if(city === g.cityB) return g.logoB || null;
+    return null;
+  }
+
   function favCityOf(g){ return g.fav === 'A' ? g.cityA : g.cityB; }
   function dogCityOf(g){ return g.fav === 'A' ? g.cityB : g.cityA; }
   function pickedCityOf(g){ return g.pick === 'fav' ? favCityOf(g) : dogCityOf(g); }
@@ -997,12 +1040,14 @@
         '</div>' +
         '<div class="matchup">' +
           '<div class="line1">' +
+            logoTag(logoForCity(g, pickedCityOf(g)), 'plogo') +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
             (hasLine ? '<span class="pspread" data-role="hist">(' + (onFav ? '-' : '+') + g.spread + ')</span>' + arrow : '') +
             (hasLine ? '<span class="pctval">(' + pct + '%)</span>' : '<span class="noline">no line yet</span>') +
           '</div>' +
           '<div class="line2">' +
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
+            logoTag(logoForCity(g, onFav ? dogCity : favCity), 'plogo small') +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
           '</div>' +
         '</div>' +
@@ -1389,8 +1434,7 @@
             if(!a) return;
             abbrs.push(a);
             scores[a] = parseInt(c.score, 10);
-            const lg = c.team.logos && c.team.logos[0] && c.team.logos[0].href;
-            if(lg || c.team.logo) logos[a] = lg || c.team.logo;
+            logos[a] = pickLogo(c.team);
           });
           const st = (ev.status && ev.status.type) || {};
           const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
@@ -1512,7 +1556,7 @@
       const atHome = lg ? (ab === lg.home) : (city === homeCityOf(g));
       const score = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
       const isFav = city === favCityOf(g);
-      const logo = lg && lg.logos ? lg.logos[ab] : null;
+      const logo = (lg && lg.logos && lg.logos[ab]) || logoForCity(g, city);
       return '<div class="trow' + (isMine ? ' mine' : '') + (leader === ab ? ' leading' : '') + '">' +
         '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</span>' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
