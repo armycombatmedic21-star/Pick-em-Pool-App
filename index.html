@@ -544,6 +544,7 @@
     return 0.95;
   }
   function pickWinProb(g){
+    if(typeof g.spread !== 'number') return 0.5;
     const p = favWinProb(g.spread);
     return g.pick === 'fav' ? p : (1 - p);
   }
@@ -564,61 +565,175 @@
     try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
     catch(e){ return null; }
   }
+  let weekFrozen = false;
+  let linesStamp = '';
+  let linesLoading = false;
+
   function saveAll(){
-    put(picksKey(currentWeek), { rev: lineRev(currentWeek), games: games });
+    put(picksKey(currentWeek), { frozen: weekFrozen, games: games });
     put(resKey(currentWeek), results);
   }
 
-  // Bumped whenever a week's spreads change. Saved picks carrying an older rev
-  // are discarded so the list rebuilds in chalk order with fresh percentages.
-  function lineRev(week){
-    const m = WEEK_META[week];
-    return m ? m.rev : 0;
+  /* ---------- week lines: pulled live from ESPN ----------
+     The scoreboard endpoint returns the schedule AND the odds for each game,
+     so the app builds its own week list instead of shipping hardcoded spreads. */
+
+  const linesKey = w => 'pickem-w' + w + '-lines';
+
+  // Teams that share a city label need disambiguating; everything else uses
+  // ESPN's own location string.
+  const CITY_OVERRIDE = { NYJ:'NY Jets', NYG:'NY Giants', LAR:'LA Rams', LAC:'LA Chargers', WSH:'Washington' };
+  function cityLabel(team){
+    if(!team) return '';
+    return CITY_OVERRIDE[team.abbreviation] || team.location || team.shortDisplayName || team.abbreviation;
   }
 
-  function baseOrder(week){
-    const data = WEEK_DATA[week] || [];
-    return JSON.parse(JSON.stringify(data)).sort((a,b) => a.spread - b.spread);
+  // Pull "DET -7.0" style odds off a competition. Returns null if none posted.
+  function parseOdds(comp, awayAb, homeAb){
+    const o = (comp.odds || [])[0];
+    if(!o) return null;
+    if(typeof o.details === 'string'){
+      const d = o.details.trim();
+      if(/^even$/i.test(d)) return { favAb: homeAb, spread: 0 };
+      const m = d.match(/^([A-Za-z]{2,4})\s*([-+]?[0-9.]+)/);
+      if(m) return { favAb: m[1].toUpperCase(), spread: Math.abs(parseFloat(m[2])) };
+    }
+    if(typeof o.spread === 'number'){
+      // ESPN's bare `spread` is from the home team's perspective
+      return { favAb: o.spread <= 0 ? homeAb : awayAb, spread: Math.abs(o.spread) };
+    }
+    return null;
   }
-  function freshGames(week){
-    return baseOrder(week).map((g,i) => ({...g, baseRank:i+1, pick:'fav', removed:false}));
-  }
-  function migrate(saved, week){
-    const base = baseOrder(week);
-    const byId = {};
-    saved.forEach(g => byId[g.id] = g);
-    base.forEach((b,i) => {
-      if(byId[b.id]){ byId[b.id].baseRank = i+1; byId[b.id].spread = b.spread; }
-    });
-    const out = saved.filter(g => base.some(b => b.id === g.id));
-    base.forEach((b,i) => {
-      if(!out.some(g => g.id === b.id)) out.push({...b, baseRank:i+1, pick:'fav', removed:false});
+
+  function gamesFromEvents(events){
+    const out = [];
+    (events || []).forEach(function(ev){
+      const comp = (ev.competitions || [])[0];
+      if(!comp) return;
+      const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
+      const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
+      if(!away || !home) return;
+      const awayAb = away.team && away.team.abbreviation;
+      const homeAb = home.team && home.team.abbreviation;
+      if(!awayAb || !homeAb) return;
+
+      const odds = parseOdds(comp, awayAb, homeAb);
+      out.push({
+        id: 'e' + ev.id,
+        cityA: cityLabel(away.team),   // away
+        cityB: cityLabel(home.team),   // home
+        abbrA: awayAb,
+        abbrB: homeAb,
+        home: 'B',
+        fav: odds ? (odds.favAb === awayAb ? 'A' : 'B') : 'B',
+        spread: odds ? odds.spread : null,     // null = no line posted yet
+        date: ev.date || ''
+      });
     });
     return out;
   }
 
-  // Returns the games to show, or null if the save is from an older set of lines.
+  // Games with no posted line sort to the end rather than jumping to rank 1.
+  function bySpread(a,b){
+    const sa = (typeof a.spread === 'number') ? a.spread : 999;
+    const sb = (typeof b.spread === 'number') ? b.spread : 999;
+    return sa - sb;
+  }
+
+  // Cached lines first, then the hardcoded fallback for week 1.
+  function baseOrder(week){
+    const cached = getLocal(linesKey(week));
+    const src = (cached && cached.length) ? cached : (WEEK_DATA[week] || []);
+    return JSON.parse(JSON.stringify(src)).sort(bySpread);
+  }
+  function freshGames(week){
+    return baseOrder(week).map((g,i) => ({...g, baseRank:i+1, pick:'fav', removed:false}));
+  }
+
+  // Merge a new set of lines into the games already on screen.
+  // Keeps your picks, your removals, and — once frozen — your order.
+  function mergeLines(newLines, frozen){
+    const byId = {};
+    games.forEach(function(g){ byId[g.id] = g; });
+
+    const merged = newLines.map(function(n){
+      const old = byId[n.id];
+      if(!old) return {...n, pick:'fav', removed:false};
+      const moved = (typeof old.spread === 'number' && typeof n.spread === 'number' && old.spread !== n.spread)
+        ? { from: old.spread, fav: favCityOf(old) }
+        : old.moved;
+      return {...old, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
+              home:n.home, fav:n.fav, spread:n.spread, date:n.date, moved: moved};
+    });
+
+    // chalk ranking for reference, applied as the order only when unfrozen
+    const chalk = merged.slice().sort(bySpread);
+    chalk.forEach(function(g,i){ g.baseRank = i + 1; });
+
+    if(frozen){
+      // preserve the order currently on screen; new games land at the end
+      const pos = {};
+      games.forEach(function(g,i){ pos[g.id] = i; });
+      merged.sort(function(a,b){
+        const pa = (a.id in pos) ? pos[a.id] : 900 + chalk.indexOf(a);
+        const pb = (b.id in pos) ? pos[b.id] : 900 + chalk.indexOf(b);
+        return pa - pb;
+      });
+      return merged;
+    }
+    return chalk;
+  }
+
   function fromSaved(saved, week){
-    if(!saved) return null;
-    if(Array.isArray(saved)) return null;              // pre-revision save, treat as stale
-    if(saved.rev !== lineRev(week)) return null;        // spreads changed since this save
-    if(!Array.isArray(saved.games)) return null;
-    return migrate(saved.games, week);
+    if(!saved || Array.isArray(saved)) return null;
+    if(!Array.isArray(saved.games) || !saved.games.length) return null;
+    weekFrozen = !!saved.frozen;
+    return saved.games;
   }
 
   function stampLine(week){
     const el = document.getElementById('lineStamp');
     if(!el) return;
-    const m = WEEK_META[week];
-    el.textContent = m ? (m.book + ' lines · pulled ' + m.pulled) : 'No lines loaded for this week';
+    let txt;
+    if(linesLoading) txt = 'Updating Spread (ESPN)…';
+    else if(linesStamp) txt = 'Updated Spread (ESPN): ' + linesStamp;
+    else txt = 'Spread not loaded yet';
+    if(weekFrozen) txt += ' · order locked';
+    el.textContent = txt;
+  }
+
+  function fetchLines(week){
+    if(typeof fetch !== 'function'){ linesLoading = false; stampLine(week); return; }
+    linesLoading = true;
+    stampLine(week);
+    const w = week;
+    fetch(scoreboardUrl(w))
+      .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
+      .then(function(data){
+        if(w !== currentWeek) return;
+        const fresh = gamesFromEvents(data.events);
+        if(!fresh.length) throw new Error('no games');
+        put(linesKey(w), fresh);
+        games = mergeLines(fresh, weekFrozen);
+        linesStamp = new Date().toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
+        render();
+        saveAll();
+      })
+      .catch(function(){ /* keep whatever is already on screen */ })
+      .then(function(){
+        linesLoading = false;
+        if(w === currentWeek) stampLine(w);
+      });
   }
 
   function loadWeek(week){
     currentWeek = week;
+    weekFrozen = false;
+    linesStamp = '';
     games = freshGames(week);
     results = {};
 
-    // Draw immediately from defaults + localStorage. Nothing async can block this.
+    // Draw immediately from cache. Nothing async blocks the first paint.
     const restored = fromSaved(getLocal(picksKey(week)), week);
     const savedRes = getLocal(resKey(week));
     if(restored) games = restored;
@@ -626,8 +741,8 @@
     stampLine(week);
     render();
 
-    // If localStorage is unavailable (artifact sandbox), try the fallback store
-    // in the background and redraw only if it actually returns something.
+    fetchLines(week);
+
     if(!hasLocal && hasArt){
       const w = week;
       Promise.resolve()
@@ -648,6 +763,14 @@
         })
         .catch(function(){});
     }
+  }
+
+  // Locking happens the moment you take ownership of the order.
+  function freezeOrder(){
+    if(weekFrozen) return;
+    weekFrozen = true;
+    saveAll();
+    stampLine(currentWeek);
   }
 
   function favCityOf(g){ return g.fav === 'A' ? g.cityA : g.cityB; }
@@ -682,7 +805,10 @@
 
       const favCity = favCityOf(g), dogCity = dogCityOf(g);
       const onFav = g.pick === 'fav';
-      const pct = Math.round(pickWinProb(g)*100);
+      const hasLine = typeof g.spread === 'number';
+      const pct = hasLine ? Math.round(pickWinProb(g)*100) : 0;
+      const movedTxt = (g.moved && hasLine && g.moved.from !== g.spread)
+        ? ('line ' + g.moved.from + ' \u2192 ' + g.spread) : '';
 
       li.innerHTML =
         '<div class="rankwrap">' +
@@ -692,12 +818,13 @@
         '<div class="matchup">' +
           '<div class="line1">' +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
-            '<span class="pspread">(' + (onFav ? '-' : '+') + g.spread + ')</span>' +
-            '<span class="pctval">(' + pct + '%)</span>' +
+            (hasLine ? '<span class="pspread">(' + (onFav ? '-' : '+') + g.spread + ')</span>' : '') +
+            (hasLine ? '<span class="pctval">(' + pct + '%)</span>' : '<span class="noline">no line yet</span>') +
           '</div>' +
           '<div class="line2">' +
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
+            (movedTxt ? '<span class="movedtag">' + movedTxt + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="actions">' +
@@ -852,6 +979,7 @@
       press.li.classList.remove('dragging');
       document.body.classList.remove('dragmode');
       document.removeEventListener('touchmove', blockScroll, {passive:false});
+      freezeOrder();
       render();
       saveAll();
     }
@@ -878,8 +1006,8 @@
 
   function sheetText(){
     const lines = activeGames().map(function(g,i){
-      const s = g.pick === 'fav' ? ('-' + g.spread) : ('+' + g.spread);
-      return (i+1) + '. ' + pickedCityOf(g) + ' ' + s;
+      const s = (typeof g.spread === 'number') ? ((g.pick === 'fav' ? ' -' : ' +') + g.spread) : '';
+      return (i+1) + '. ' + pickedCityOf(g) + s;
     });
     return 'Week ' + currentWeek + ' Confidence Picks\n' + lines.join('\n');
   }
@@ -931,10 +1059,11 @@
   const sheetList = document.getElementById('sheetList');
 
   function openSheet(){
+    freezeOrder();
     document.getElementById('sheetTitle').textContent = 'Week ' + currentWeek + ' Sheet';
     sheetList.innerHTML = activeGames().map(function(g,i){
       const isDog = g.pick === 'dog';
-      const s = isDog ? ('+' + g.spread) : ('-' + g.spread);
+      const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('-' + g.spread));
       return '<div class="sheetrow">' +
         '<span class="sheetnum">' + (i+1) + '</span>' +
         '<span class="sheetcity">' + pickedCityOf(g) + (isDog ? '<span class="watchbadge">WATCH</span>' : '') + '</span>' +
@@ -1060,7 +1189,7 @@
   }
 
   function liveFor(g){
-    const a = ABBR[g.cityA], b = ABBR[g.cityB];
+    const a = g.abbrA || ABBR[g.cityA], b = g.abbrB || ABBR[g.cityB];
     if(!a || !b) return null;
     for(let i=0;i<liveGames.length;i++){
       const lg = liveGames[i];
@@ -1078,7 +1207,8 @@
       if(results[g.id]) return;
       const lg = liveFor(g);
       if(!lg || !lg.completed) return;
-      const mine = ABBR[g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)];
+      const mine = (g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)) === g.cityA
+        ? (g.abbrA || ABBR[g.cityA]) : (g.abbrB || ABBR[g.cityB]);
       const other = lg.abbrs.filter(function(x){ return x !== mine; })[0];
       const myScore = lg.scores[mine], theirScore = lg.scores[other];
       if(typeof myScore !== 'number' || typeof theirScore !== 'number') return;
@@ -1115,15 +1245,16 @@
   // One card per game: both teams, both scores, my pick flagged.
   function gameCard(g, pts, r){
     const lg = liveFor(g);
-    const mine = ABBR[g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)];
+    const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+    const mine = (g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)) === g.cityA ? abA : abB;
     const cityByAbbr = {};
-    cityByAbbr[ABBR[g.cityA]] = g.cityA;
-    cityByAbbr[ABBR[g.cityB]] = g.cityB;
+    cityByAbbr[abA] = g.cityA;
+    cityByAbbr[abB] = g.cityB;
 
     // away first, home second — falls back to data order if ESPN didn't answer
-    let order = lg ? [lg.away, lg.home] : [ABBR[g.cityA], ABBR[g.cityB]];
+    let order = lg ? [lg.away, lg.home] : [abA, abB];
     order = order.filter(function(a){ return !!cityByAbbr[a]; });
-    if(order.length !== 2) order = [ABBR[g.cityA], ABBR[g.cityB]];
+    if(order.length !== 2) order = [abA, abB];
 
     const started = lg && lg.state !== 'pre';
     let leader = null;
@@ -1140,7 +1271,7 @@
       const isFav = city === favCityOf(g);
       return '<div class="trow' + (isMine ? ' mine' : '') + (leader === ab ? ' leading' : '') + '">' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
-          (isFav ? '<b class="tspread">(-' + g.spread + ')</b>' : '') + '</span>' +
+          (isFav && typeof g.spread === 'number' ? '<b class="tspread">(-' + g.spread + ')</b>' : '') + '</span>' +
         '<span class="tscore">' + (started && score !== null ? score : '–') + '</span>' +
         '<span class="tmark">' + (leader === ab ? '\u25C0' : '') + '</span>' +
       '</div>';
@@ -1291,6 +1422,7 @@
   document.getElementById('resetBtn').addEventListener('click', function(){ openOverlay(confirmOverlay); });
   document.getElementById('confirmCancel').addEventListener('click', function(){ closeOverlay(confirmOverlay); });
   document.getElementById('confirmYes').addEventListener('click', function(){
+    weekFrozen = false;
     games = freshGames(currentWeek);
     closeOverlay(confirmOverlay);
     render(); saveAll();
