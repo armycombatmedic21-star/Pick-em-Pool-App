@@ -270,62 +270,59 @@
 
   .gcard{
     background: var(--panel-hi); border:1px solid var(--line);
-    border-radius:10px; padding:8px 10px 9px; margin-bottom:7px;
+    border-radius:10px; padding:6px 10px 7px; margin-bottom:6px;
   }
   .gcard.won{ border-color: rgba(61,220,132,0.5); }
-  .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.62; }
+  .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.6; }
 
-  .ghead{
-    display:flex; align-items:baseline; gap:8px; margin-bottom:5px;
-    font-family:"SF Mono", ui-monospace, monospace;
-  }
+  .ghead{ margin-bottom:2px; }
   .gpts{
-    font-size:0.9rem; font-weight:800; color: var(--cyan);
-    text-shadow: 0 0 10px rgba(53,208,255,0.35);
-  }
-  .tspread{
     font-family:"SF Mono", ui-monospace, monospace;
-    font-size:0.72rem; font-weight:700; color: var(--muted);
-    opacity:0.8; margin-left:5px;
+    font-size:0.78rem; font-weight:800; color: var(--cyan);
+    text-shadow: 0 0 10px rgba(53,208,255,0.3);
   }
 
-  .gbody{ display:flex; align-items:stretch; gap:10px; }
+  .gbody{ display:flex; align-items:center; gap:10px; }
   .gteams{ flex:1; min-width:0; }
 
-  .trow{ display:flex; align-items:center; gap:8px; padding:2px 0; }
+  .trow{ display:flex; align-items:center; gap:8px; padding:1px 0; }
   .tname{
-    flex:1; min-width:0; font-size:0.98rem; font-weight:600;
+    flex:1; min-width:0; font-size:0.95rem; font-weight:600; line-height:1.3;
     color: var(--text); opacity:0.6;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .tname i{ font-style:normal; color: var(--muted); opacity:0.7; margin-right:3px; font-size:0.85rem; }
+  .tname i{ font-style:normal; color: var(--muted); opacity:0.7; margin-right:3px; font-size:0.82rem; }
   .trow.leading .tname{ opacity:1; }
   .trow.mine .tname{ color: var(--gold); opacity:1; font-weight:800; }
-  .tscore{
-    flex:none; min-width:30px; text-align:right;
+  .tspread{
     font-family:"SF Mono", ui-monospace, monospace;
-    font-size:1.05rem; font-weight:800; color: var(--text); opacity:0.6;
+    font-size:0.68rem; font-weight:700; color: var(--muted);
+    opacity:0.75; margin-left:5px;
   }
-  .trow.leading .tscore{ opacity:1; }
-  .trow.mine .tscore{ opacity:1; }
-  .tmark{ flex:none; width:9px; font-size:0.55rem; color: var(--cyan); }
+  .tscore{
+    flex:none; min-width:28px; text-align:right;
+    font-family:"SF Mono", ui-monospace, monospace;
+    font-size:1rem; font-weight:800; color: var(--text); opacity:0.6;
+  }
+  .trow.leading .tscore, .trow.mine .tscore{ opacity:1; }
+  .tmark{ flex:none; width:9px; font-size:0.52rem; color: var(--cyan); }
 
   .gstatus{
-    flex:none; width:96px; padding-left:10px;
+    flex:none; width:88px; padding-left:10px;
     border-left:1px solid var(--line);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:2px; text-align:center;
+    gap:1px; text-align:center;
   }
-  .gstatus .s1{ font-size:0.76rem; font-weight:800; color: var(--text); opacity:0.9; }
+  .gstatus .s1{ font-size:0.74rem; font-weight:800; color: var(--text); opacity:0.9; }
   .gstatus .s2{
-    font-size:0.7rem; font-weight:700; color: var(--muted);
+    font-size:0.68rem; font-weight:700; color: var(--muted);
     font-family:"SF Mono", ui-monospace, monospace;
   }
   .gstatus.live .s2{ color: var(--red); }
   .livetag{
     display:inline-flex; align-items:center; gap:4px;
     background: var(--red); color:#fff; border-radius:4px;
-    padding:1px 6px; font-size:0.62rem; font-weight:800; letter-spacing:0.5px;
+    padding:1px 6px; font-size:0.6rem; font-weight:800; letter-spacing:0.5px;
     box-shadow: 0 0 10px rgba(255,59,78,0.5);
   }
   .livedot{
@@ -335,20 +332,12 @@
   @keyframes livepulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.2; } }
   @media (prefers-reduced-motion: reduce){ .livedot{ animation:none; } }
 
-  .gbtns{ display:flex; gap:5px; margin-top:4px; width:100%; }
-  .resbtn{
-    flex:1; padding:7px 2px; border-radius:6px; font-size:0.68rem; font-weight:800;
-    background: transparent; border:1px solid var(--line); color: var(--muted);
+  .restag{
+    margin-top:2px; font-size:0.6rem; font-weight:800; letter-spacing:0.5px;
+    padding:1px 6px; border-radius:4px;
   }
-  .resbtn.win{ border-color: rgba(61,220,132,0.45); color: var(--green); }
-  .resbtn.loss{ border-color: rgba(255,59,78,0.4); color: var(--red); }
-  .undobtn{
-    margin-top:3px; padding:3px 8px; border-radius:5px;
-    font-size:0.63rem; font-weight:800; background: transparent;
-    border:1px solid var(--line); color: var(--muted);
-  }
-  .gcard.won .undobtn{ color: var(--green); border-color: rgba(61,220,132,0.45); }
-  .gcard.lost .undobtn{ color: var(--red); border-color: rgba(255,59,78,0.4); }
+  .restag.win{ color: var(--green); border:1px solid rgba(61,220,132,0.5); }
+  .restag.loss{ color: var(--red); border:1px solid rgba(255,59,78,0.45); }
 
   .seasonbox{ margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
   .seasonbox h3{ font-size:0.95rem; margin:0 0 10px; color: var(--cyan); }
@@ -1173,14 +1162,8 @@
     }
 
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
-    // Marked games collapse their buttons to a small undo chip; unmarked games
-    // keep full-size targets so they stay easy to hit.
-    const btns = r
-      ? '<button class="undobtn" data-mark="' + r + '">' + (r === 'win' ? '✓ Won' : '✕ Lost') + '</button>'
-      : '<div class="gbtns">' +
-          '<button class="resbtn win" data-mark="win">✓ Won</button>' +
-          '<button class="resbtn loss" data-mark="loss">✕ Lost</button>' +
-        '</div>';
+    // Results fill in automatically when a game goes final — no buttons needed.
+    const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
 
     return '<div class="gcard' + cardCls + '" data-id="' + g.id + '">' +
       '<div class="ghead">' +
@@ -1191,7 +1174,7 @@
         '<div class="gstatus ' + sCls + '">' +
           '<span class="s1">' + s1 + '</span>' +
           (s2 ? '<span class="s2">' + s2 + '</span>' : '') +
-          btns +
+          resTag +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1212,18 +1195,6 @@
       return gameCard(g, i + 1, results[g.id]);
     }).join('');
 
-    resultsList.querySelectorAll('.resbtn, .undobtn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        const row = btn.closest('.gcard');
-        const id = row.dataset.id;
-        const mark = btn.dataset.mark;
-        if(results[id] === mark) delete results[id];
-        else results[id] = mark;
-        saveAll();
-        openResults(true);
-      });
-    });
-
     const sc = weekScore(games, results);
     document.getElementById('scoreBig').textContent = sc.earned;
     document.getElementById('scoreLabel').textContent =
@@ -1231,7 +1202,7 @@
 
     const cmp = document.getElementById('scoreCompare');
     if(sc.decided === 0){
-      cmp.textContent = 'Tap ✓ or ✕ as games finish.';
+      cmp.textContent = 'Results fill in as games go final.';
       cmp.style.color = 'var(--muted)';
     }else{
       const diff = sc.earned - sc.chalk;
