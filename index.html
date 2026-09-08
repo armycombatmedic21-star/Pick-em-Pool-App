@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#060b16">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link id="manifestLink" rel="manifest">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Confidence Pool">
 <meta name="mobile-web-app-capable" content="yes">
@@ -24,8 +25,10 @@
     --muted: #93aec8;
   }
   *{ box-sizing: border-box; }
+  html{ overscroll-behavior-y: contain; }
   body{
     margin:0;
+    overscroll-behavior-y: contain;
     background:
       radial-gradient(circle at 15% 0%, rgba(53,208,255,0.08), transparent 45%),
       radial-gradient(circle at 100% 100%, rgba(53,208,255,0.05), transparent 50%),
@@ -53,7 +56,7 @@
   @media (prefers-reduced-motion: reduce){ .brand-bar{ animation:none; } }
   .brand-text{ display:flex; flex-direction:column; justify-content:center; min-width:0; }
   .kicker{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.58rem; font-weight:800; letter-spacing:2.6px;
     color: var(--cyan); opacity:0.72; line-height:1;
     margin-bottom:3px;
@@ -70,7 +73,7 @@
   .weekpick{
     background: var(--panel); color: #ffffff; border:1px solid var(--cyan);
     border-radius:8px; padding:8px 30px 8px 12px; font-size:0.9rem; font-weight:800;
-    font-family: "SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     -webkit-appearance:none; appearance:none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat:no-repeat;
@@ -81,7 +84,7 @@
   .sub{ color: var(--muted); font-size: 0.86rem; margin: 0 0 12px; line-height: 1.4; font-weight:500; }
 
   .linestamp{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.76rem; font-weight:800; letter-spacing:0.2px;
     color: var(--cyan);
     background: rgba(53,208,255,0.09);
@@ -182,7 +185,7 @@
     gap:3px; flex:none; min-width:34px;
   }
   .points{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:1.45rem; font-weight:800; line-height:1;
     color: var(--cyan);
     text-shadow: 0 0 12px rgba(53,208,255,0.35);
@@ -200,7 +203,7 @@
   .plogo.small img{ width:16px; height:16px; opacity:0.75; }
   .kickoff{
     margin-left:auto; padding-left:8px;
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.68rem; font-weight:700; color: var(--muted);
     opacity:0.75; white-space:nowrap;
   }
@@ -215,7 +218,7 @@
   @keyframes pulsered{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
   .vsword{ color: var(--muted); font-size:0.82rem; font-weight:600; margin-right:4px; opacity:0.7; }
   .pspread{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.88rem; font-weight:800; margin-left:8px;
   }
   .pspread.up{ color: var(--green); }
@@ -235,14 +238,14 @@
   }
   .histline{ flex:1; min-width:0; font-size:0.98rem; font-weight:700; color: var(--text); }
   .histdelta{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.75rem; font-weight:800; margin-left:8px;
   }
   .histdelta.up{ color: var(--green); }
   .histdelta.down{ color: var(--red); }
   .histtime{
     flex:none; font-size:0.7rem; font-weight:700; color: var(--muted);
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
   .histempty{ color: var(--muted); font-size:0.9rem; font-weight:600; padding:16px 0; text-align:center; }
 
@@ -324,7 +327,7 @@
     display:flex; align-items:center; gap:10px; padding:6px 0;
     border-bottom:1px solid rgba(28,51,80,0.55); font-size:1.05rem;
   }
-  .sheetnum{ font-family: "SF Mono", ui-monospace, monospace; color: var(--cyan); font-weight:800; min-width:28px; }
+  .sheetnum{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; color: var(--cyan); font-weight:800; min-width:28px; }
   .sheetcity{ font-weight:700; flex:1; min-width:0; }
   .watchbadge{
     font-size:0.65rem; font-weight:800; color: var(--red);
@@ -335,7 +338,7 @@
   }
   @keyframes watchpulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
   @media (prefers-reduced-motion: reduce){ .watchbadge{ animation:none; } }
-  .sheetspread{ font-family: "SF Mono", ui-monospace, monospace; font-weight:800; white-space:nowrap; }
+  .sheetspread{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; white-space:nowrap; }
 
   .sheetbtnrow{ display:flex; gap:8px; margin-top:8px; }
   .sheetbtnrow button{
@@ -349,7 +352,7 @@
   }
   .livestatus{
     flex:1; min-width:0; font-size:0.76rem; font-weight:700; color: var(--muted);
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
   .refreshbtn{
     flex:none; padding:7px 14px; border-radius:7px;
@@ -362,7 +365,7 @@
     padding:14px; margin-bottom:14px; text-align:center;
   }
   .scorebig{
-    font-family:"SF Mono", ui-monospace, monospace; font-size:2rem; font-weight:800; color: var(--cyan);
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-size:2rem; font-weight:800; color: var(--cyan);
     line-height:1.1;
   }
   .scorelabel{ font-size:0.85rem; font-weight:700; color: var(--muted); margin-top:4px; }
@@ -377,7 +380,7 @@
 
   .ghead{ margin-bottom:2px; }
   .gpts{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.78rem; font-weight:800; color: var(--cyan);
     text-shadow: 0 0 10px rgba(53,208,255,0.3);
   }
@@ -402,13 +405,13 @@
   .trow.leading .tname{ opacity:1; }
   .trow.mine .tname{ color: var(--gold); opacity:1; font-weight:800; }
   .tspread{
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:0.68rem; font-weight:700; color: var(--muted);
     opacity:0.75; margin-left:5px;
   }
   .tscore{
     flex:none; min-width:28px; text-align:right;
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
     font-size:1rem; font-weight:800; color: var(--text); opacity:0.6;
   }
   .trow.leading .tscore, .trow.mine .tscore{ opacity:1; }
@@ -423,7 +426,7 @@
   .gstatus .s1{ font-size:0.74rem; font-weight:800; color: var(--text); opacity:0.9; }
   .gstatus .s2{
     font-size:0.68rem; font-weight:700; color: var(--muted);
-    font-family:"SF Mono", ui-monospace, monospace;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
   .gstatus.live .s2{ color: var(--red); }
   .livetag{
@@ -452,9 +455,9 @@
     display:flex; align-items:center; gap:10px; padding:7px 0;
     font-size:0.92rem; font-weight:700; border-bottom:1px solid rgba(28,51,80,0.5);
   }
-  .seasonwk{ min-width:56px; color: var(--muted); font-family:"SF Mono", ui-monospace, monospace; }
+  .seasonwk{ min-width:56px; color: var(--muted); font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; }
   .seasonscore{ flex:1; }
-  .seasondelta{ font-family:"SF Mono", ui-monospace, monospace; font-weight:800; }
+  .seasondelta{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; }
   .seasonempty{ color: var(--muted); font-size:0.88rem; font-weight:600; line-height:1.4; }
 
   .closebtn{
@@ -1434,6 +1437,51 @@
     saveView('main');
   });
 
+  /* ---------- Android support ----------
+     A manifest is normally a separate file; this builds one at runtime and
+     hands it over as a blob so the app still ships as a single HTML file. */
+  (function installManifest(){
+    try{
+      const manifest = {
+        name: "Confidence Pool",
+        short_name: "Pool",
+        start_url: ".",
+        display: "standalone",
+        background_color: "#060b16",
+        theme_color: "#060b16",
+        orientation: "portrait",
+        icons: [{
+          src: "data:image/svg+xml," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
+            '<rect width="192" height="192" rx="34" fill="#0d1626"/>' +
+            '<text x="96" y="126" font-family="Helvetica,Arial,sans-serif" font-size="104" ' +
+            'font-weight="bold" fill="#35d0ff" text-anchor="middle">CP</text></svg>'),
+          sizes: "192x192",
+          type: "image/svg+xml",
+          purpose: "any"
+        }]
+      };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'}));
+      const link = document.getElementById('manifestLink');
+      if(link) link.setAttribute('href', url);
+    }catch(e){ /* iOS uses its own meta tags; nothing to do */ }
+  })();
+
+  /* Android's back gesture should dismiss a popup, not leave the app.
+     Each overlay pushes a history entry that back pops. */
+  let overlayStack = [];
+  let popping = false;
+  let pendingBack = 0;   // history.back() calls we made ourselves
+
+  window.addEventListener('popstate', function(){
+    // Ignore the pop caused by our own history.back() when closing via tap.
+    if(pendingBack > 0){ pendingBack--; return; }
+    if(!overlayStack.length) return;
+    popping = true;
+    closeOverlay(overlayStack[overlayStack.length - 1], true);
+    popping = false;
+  });
+
   /* ---------- overlay open/close with a real scroll lock ----------
      Locks the page behind any popup so the background can't scroll, and
      always returns the popup to the top when it opens. */
@@ -1451,14 +1499,23 @@
       document.body.style.width = '100%';
     }
     openOverlays++;
+    overlayStack.push(el);
+    try{ history.pushState({ overlay: overlayStack.length }, ''); }catch(e){}
     el.classList.add('show');
     const panel = el.querySelector('.sheet') || el.querySelector('.confirmcard');
     if(panel && typeof panel.scrollTop === 'number') panel.scrollTop = 0;
   }
 
-  function closeOverlay(el){
+  function closeOverlay(el, fromBack){
     if(!el.classList.contains('show')) return;
     el.classList.remove('show');
+    const at = overlayStack.lastIndexOf(el);
+    if(at !== -1) overlayStack.splice(at, 1);
+    // Closing by tap must also unwind the history entry we pushed.
+    if(!fromBack && !popping){
+      pendingBack++;
+      try{ history.back(); }catch(e){ pendingBack--; }
+    }
     openOverlays = Math.max(0, openOverlays - 1);
     if(openOverlays === 0){
       document.body.style.position = '';
