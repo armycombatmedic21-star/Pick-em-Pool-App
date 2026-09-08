@@ -1181,7 +1181,16 @@
     press = null;
   }
 
-  document.addEventListener('visibilitychange', function(){ if(document.hidden) saveAll(); });
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ saveAll(); return; }
+    // Coming back from the background — everything on screen may be stale.
+    if(resultsOverlay && resultsOverlay.classList.contains('show')){
+      refreshScores();
+      startLiveTimer();
+    }else{
+      fetchLines(currentWeek);
+    }
+  });
   window.addEventListener('pagehide', saveAll);
   window.addEventListener('beforeunload', saveAll);
 
@@ -1348,6 +1357,7 @@
   let liveStatus = '';     // text shown under the refresh row
   let liveLoading = false;
   let liveTimer = null;
+  let liveTimerRate = 0;
 
   function scoreboardUrl(week){
     return 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard' +
@@ -1389,7 +1399,8 @@
           });
         });
         liveGames = out;
-        liveStatus = 'Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        liveStatus = 'Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
+          (anyGameLive() ? ' (auto refreshes every 20 seconds)' : ' (auto refreshes every 5 minutes)');
         applyFinals();
 
         // Same payload carries the odds, so keep spreads current everywhere.
@@ -1404,7 +1415,7 @@
         }
       })
       .catch(function(){
-        liveStatus = 'Could not load scores — mark them by hand';
+        liveStatus = 'Could not load scores — check your connection';
       })
       .then(function(){ liveLoading = false; done(); });
   }
@@ -1536,7 +1547,14 @@
 
   function refreshScores(){
     document.getElementById('liveStatus').textContent = 'Loading scores…';
-    fetchScores(currentWeek, function(){ openResults(true); });
+    fetchScores(currentWeek, function(){
+      openResults(true);
+      // A game may have just kicked off or gone final — retune the interval.
+      if(liveTimer){
+        const want = anyGameLive() ? 20000 : 300000;
+        if(want !== liveTimerRate) startLiveTimer();
+      }
+    });
   }
 
   function openResults(skipFetch){
@@ -1579,13 +1597,33 @@
 
     if(!skipFetch){
       refreshScores();
-      if(liveTimer) clearInterval(liveTimer);
-      // quiet auto-refresh while the tracker is open
-      liveTimer = setInterval(function(){
-        if(!resultsOverlay.classList.contains('show')){ clearInterval(liveTimer); liveTimer = null; return; }
-        fetchScores(currentWeek, function(){ openResults(true); });
-      }, 45000);
+      startLiveTimer();
     }
+  }
+
+  // 20s while anything is actually being played, 5 min otherwise.
+  function anyGameLive(){
+    for(let i = 0; i < liveGames.length; i++){
+      if(liveGames[i].state === 'in') return true;
+    }
+    return false;
+  }
+
+  function startLiveTimer(){
+    if(liveTimer) clearInterval(liveTimer);
+    const every = anyGameLive() ? 20000 : 300000;
+    liveTimerRate = every;
+    liveTimer = setInterval(function(){
+      if(!resultsOverlay.classList.contains('show')){
+        clearInterval(liveTimer); liveTimer = null; return;
+      }
+      fetchScores(currentWeek, function(){
+        openResults(true);
+        // speed up or slow down as games kick off and finish
+        const want = anyGameLive() ? 20000 : 300000;
+        if(want !== liveTimerRate) startLiveTimer();
+      });
+    }, every);
   }
 
   function renderSeason(){
