@@ -121,8 +121,12 @@
   }
   .navrow{ display:flex; gap:7px; margin: 0 0 10px; }
   .navrow button{
-    flex:1; padding:10px 6px; border-radius:8px; border:1px solid var(--line);
-    background: var(--panel); color: var(--cyan); font-size:0.82rem; font-weight:700;
+    flex:1; padding:11px 6px; border-radius:8px; border:1px solid var(--line);
+    background: var(--panel); color: var(--cyan); font-size:0.9rem; font-weight:800;
+  }
+  .navrow button.minor{
+    flex:0 0 88px; padding:9px 6px; font-size:0.78rem; font-weight:700;
+    color: var(--muted); background: transparent;
   }
   #resultsBtn{
     color: var(--gold); font-weight:800;
@@ -173,22 +177,17 @@
   .game.removed{ opacity:0.38; }
   .game.removed .line1{ text-decoration: line-through; }
 
-  .rankwrap{ display:flex; flex-direction:column; align-items:center; gap:2px; flex:none; min-width:38px; }
+  .rankwrap{
+    display:flex; align-items:center; justify-content:flex-end;
+    gap:3px; flex:none; min-width:34px;
+  }
   .points{
-    min-width:34px; height:34px; border-radius:50%;
-    font-weight:800; font-family: "SF Mono", ui-monospace, monospace;
-    display:flex; align-items:center; justify-content:center; font-size:0.98rem;
+    font-family:"SF Mono", ui-monospace, monospace;
+    font-size:1.45rem; font-weight:800; line-height:1;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(53,208,255,0.35);
   }
-  .points.tone-a{
-    background: var(--panel-hi); border:1px solid var(--cyan-dim); color: var(--cyan);
-    box-shadow: 0 0 8px rgba(53,208,255,0.25) inset;
-  }
-  .points.tone-b{
-    background: rgba(53,208,255,0.9); border:1px solid var(--cyan); color: #04121c;
-    box-shadow: 0 0 10px rgba(53,208,255,0.35);
-  }
-  .game.removed .points{ background: transparent !important; border:1px dashed var(--line) !important; color: var(--muted) !important; box-shadow:none !important; }
-  .wasrank{ font-size:0.68rem; font-weight:700; color: var(--gold); white-space:nowrap; }
+  .game.removed .points{ color: var(--muted); opacity:0.6; text-shadow:none; }
 
   .matchup{ flex:1; min-width:0; overflow-wrap:anywhere; }
   .line1, .line2{ display:flex; align-items:center; }
@@ -199,6 +198,12 @@
   .plogo img{ width:20px; height:20px; object-fit:contain; display:block; }
   .plogo.small{ width:16px; height:16px; margin-right:5px; }
   .plogo.small img{ width:16px; height:16px; opacity:0.75; }
+  .kickoff{
+    margin-left:auto; padding-left:8px;
+    font-family:"SF Mono", ui-monospace, monospace;
+    font-size:0.68rem; font-weight:700; color: var(--muted);
+    opacity:0.75; white-space:nowrap;
+  }
   .line1{ font-size:0.98rem; line-height:1.2; }
   .line2{ font-size:0.86rem; line-height:1.2; margin-top:1px; }
   .goldcity{ color: var(--gold); font-weight:800; }
@@ -209,7 +214,39 @@
   .pulse{ animation: pulsered 1.1s ease-in-out infinite; }
   @keyframes pulsered{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
   .vsword{ color: var(--muted); font-size:0.82rem; font-weight:600; margin-right:4px; opacity:0.7; }
-  .pctval{ font-size:0.82rem; margin-left:5px; color: var(--cyan); font-weight:800; }
+  .pspread{
+    font-family:"SF Mono", ui-monospace, monospace;
+    font-size:0.88rem; font-weight:800; margin-left:8px;
+  }
+  .pspread.up{ color: var(--green); }
+  .pspread.down{ color: var(--red); }
+  .noline{ font-size:0.78rem; font-weight:700; color: var(--muted); opacity:0.7; margin-left:8px; }
+  .movearrow{ font-size:0.85rem; font-weight:900; margin-left:3px; line-height:1; }
+  .movearrow.up{ color: var(--green); text-shadow: 0 0 8px rgba(61,220,132,0.5); }
+  .movearrow.down{ color: var(--red); text-shadow: 0 0 8px rgba(255,59,78,0.5); }
+
+  .histrow{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 0; border-bottom:1px solid var(--line);
+  }
+  .histwhen{
+    flex:none; width:58px; font-size:0.72rem; font-weight:800;
+    color: var(--muted); letter-spacing:0.3px;
+  }
+  .histline{ flex:1; min-width:0; font-size:0.98rem; font-weight:700; color: var(--text); }
+  .histdelta{
+    font-family:"SF Mono", ui-monospace, monospace;
+    font-size:0.75rem; font-weight:800; margin-left:8px;
+  }
+  .histdelta.up{ color: var(--green); }
+  .histdelta.down{ color: var(--red); }
+  .histtime{
+    flex:none; font-size:0.7rem; font-weight:700; color: var(--muted);
+    font-family:"SF Mono", ui-monospace, monospace;
+  }
+  .histempty{ color: var(--muted); font-size:0.9rem; font-weight:600; padding:16px 0; text-align:center; }
+
+  .pctval{ font-size:0.8rem; margin-left:6px; color: var(--muted); font-weight:600; opacity:0.85; }
 
   .actions{ display:flex; flex-direction:column; gap:4px; flex:none; align-items:stretch; width:86px; }
 
@@ -458,11 +495,11 @@
   </div>
   <select class="weekpick" id="weekPick"></select>
 </div>
-<p class="sub">Closest game gets the fewest points, biggest favorite gets the most. Use the Favorite / Underdog switch to set each pick.</p>
+<p class="sub">Lowest number = least confident. Highest = your safest lock.</p>
 
 <div class="navrow">
-  <button id="resetBtn">Reset Order</button>
   <button id="resultsBtn">Score Tracker</button>
+  <button id="resetBtn" class="minor">Reset</button>
 </div>
 
 <div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
@@ -477,7 +514,7 @@
 <p class="footer-note">Your picks save automatically on this device.</p>
 
 <div class="donebar">
-  <button class="donebtn" id="doneBtn">Done — Show Sheet</button>
+  <button class="donebtn" id="doneBtn">View Sheet</button>
 </div>
 
 <div class="overlay" id="overlay">
@@ -894,6 +931,7 @@
     if(restored) games = restored;
     if(savedRes) results = savedRes;
     stampLine(week);
+    syncHint();
     render();
 
     fetchLines(week);
@@ -921,6 +959,24 @@
   }
 
   // Locking happens the moment you take ownership of the order.
+  /* The drag hint shows until you actually move a game, then never again
+     on this device. Saved separately from picks so it survives week changes. */
+  const HINT_KEY = 'pickem-draghint';
+  function hintDismissed(){
+    const v = getLocal(HINT_KEY);
+    return !!(v && v.done);
+  }
+  function dismissHint(){
+    if(hintDismissed()) return;
+    put(HINT_KEY, { done: true });
+    syncHint();
+  }
+  function syncHint(){
+    const el = document.getElementById('dragHint');
+    if(!el) return;
+    el.style.display = (hintDismissed() || !games.length) ? 'none' : 'block';
+  }
+
   function freezeOrder(){
     if(weekFrozen) return;
     weekFrozen = true;
@@ -1001,6 +1057,15 @@
     openOverlay(document.getElementById('histOverlay'));
   }
 
+  // "Thu 8:15" — only useful on the picker for non-Sunday-afternoon games.
+  function kickoffShort(g){
+    if(!g.date) return '';
+    const d = new Date(g.date);
+    if(isNaN(d)) return '';
+    return d.toLocaleDateString([], {weekday:'short'}) + ' ' +
+           d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  }
+
   function logoTag(url, cls){
     return '<span class="' + (cls || 'tlogo') + '">' +
       (url ? '<img src="' + url + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') +
@@ -1043,7 +1108,8 @@
     listEl.innerHTML = '';
     const has = games.length > 0;
     emptyEl.style.display = has ? 'none' : 'block';
-    document.getElementById('dragHint').style.display = has ? 'block' : 'none';
+    if(!has) document.getElementById('dragHint').style.display = 'none';
+    else syncHint();
 
     let n = 0;
     games.forEach(g => {
@@ -1051,35 +1117,34 @@
       li.className = 'game' + (g.removed ? ' removed' : '');
       li.dataset.id = g.id;
 
-      let label = '–', rank = null, tone = 'tone-a';
-      if(!g.removed){
-        n++; label = n; rank = n;
-        tone = n % 2 === 0 ? 'tone-b' : 'tone-a';
-      }
-      const showWas = !g.removed && rank !== g.baseRank;
+      let label = '–', rank = null;
+      if(!g.removed){ n++; label = n; rank = n; }
+
 
       const favCity = favCityOf(g), dogCity = dogCityOf(g);
       const onFav = g.pick === 'fav';
       const hasLine = typeof g.spread === 'number';
       const pct = hasLine ? Math.round(pickWinProb(g)*100) : 0;
       const arrow = hasLine ? moveArrow(g) : '';
+      const kickTxt = kickoffShort(g);
 
       li.innerHTML =
         '<div class="rankwrap">' +
-          '<div class="points ' + tone + '">' + label + '</div>' +
-          (showWas ? '<div class="wasrank">was ' + g.baseRank + '</div>' : '') +
+          '<div class="points">' + label + '</div>' +
         '</div>' +
         '<div class="matchup">' +
           '<div class="line1">' +
             logoTag(logoForCity(g, pickedCityOf(g)), 'plogo') +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
-            (hasLine ? '<span class="pspread" data-role="hist">(' + (onFav ? '-' : '+') + g.spread + ')</span>' + arrow : '') +
+            (hasLine ? '<span class="pspread ' + (onFav ? 'up' : 'down') + '" data-role="hist">' +
+              (onFav ? '-' : '+') + g.spread + '</span>' + arrow : '') +
             (hasLine ? '<span class="pctval">(' + pct + '%)</span>' : '<span class="noline">no line yet</span>') +
           '</div>' +
           '<div class="line2">' +
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
             logoTag(logoForCity(g, onFav ? dogCity : favCity), 'plogo small') +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
+            (kickTxt ? '<span class="kickoff">' + kickTxt + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="actions">' +
@@ -1143,7 +1208,11 @@
       const nameEl = l1.querySelector('.goldcity');
       if(nameEl) nameEl.textContent = pickCity;
       const sp = l1.querySelector('.pspread');
-      if(sp && hasLine) sp.textContent = '(' + (onFav ? '-' : '+') + g.spread + ')';
+      if(sp && hasLine){
+        sp.textContent = (onFav ? '-' : '+') + g.spread;
+        sp.classList.toggle('up', onFav);
+        sp.classList.toggle('down', !onFav);
+      }
       const mv = lineMove(g);
       let arr = l1.querySelector('.movearrow');
       if(mv && hasLine){
@@ -1171,6 +1240,8 @@
       if(img2 && url2 && img2.getAttribute('src') !== url2){ img2.setAttribute('src', url2); }
       const oth = l2.querySelector('.mutedcity');
       if(oth) oth.textContent = otherCity;
+      const ko = l2.querySelector('.kickoff');
+      if(ko) ko.textContent = kickoffShort(g);
     }
 
     const swx = li.querySelector('.swx');
@@ -1241,6 +1312,7 @@
         else listEl.insertBefore(press.li, kids[i]);
         press.baseY = press.lastClientY + window.scrollY;
         press.li.style.transform = 'translateY(0px)';
+        press.moved = true;
         renumber();
         break;
       }
@@ -1294,27 +1366,8 @@
       const g = games.find(function(x){ return x.id === child.dataset.id; });
       const badge = child.querySelector('.points');
       if(!g || !badge) return;
-      const wrap = child.querySelector('.rankwrap');
-      let was = child.querySelector('.wasrank');
       if(g.removed){ badge.textContent = '–'; }
-      else{
-        n++;
-        badge.textContent = n;
-        badge.classList.remove('tone-a','tone-b');
-        badge.classList.add(n % 2 === 0 ? 'tone-b' : 'tone-a');
-      }
-      // keep the "was N" tag honest without rebuilding the row
-      const showWas = !g.removed && n !== g.baseRank;
-      if(showWas){
-        if(!was && wrap){
-          was = document.createElement('div');
-          was.className = 'wasrank';
-          wrap.appendChild(was);
-        }
-        if(was) was.textContent = 'was ' + g.baseRank;
-      }else if(was && was.remove){
-        was.remove();
-      }
+      else{ n++; badge.textContent = n; }
     });
   }
   function cancelPress(){
@@ -1337,6 +1390,7 @@
       document.body.classList.remove('dragmode');
       document.removeEventListener('touchmove', blockScroll, {passive:false});
       freezeOrder();
+      if(press.moved) dismissHint();
       render();
       saveAll();
     }
@@ -1639,15 +1693,6 @@
     return 'Kickoff TBD';
   }
 
-  function statusChip(lg, g){
-    if(!lg) return '<span class="chip chip-none">No score data</span>';
-    if(lg.state === 'in'){
-      const clk = lg.clock ? (' · ' + (lg.period ? 'Q' + lg.period + ' ' : '') + lg.clock) : '';
-      return '<span class="chip chip-live"><span class="livedot"></span>LIVE' + clk + '</span>';
-    }
-    if(lg.state === 'post') return '<span class="chip chip-final">FINAL</span>';
-    return '<span class="chip chip-pre">' + kickoffText(lg, g) + '</span>';
-  }
 
   // One card per game: both teams, both scores, my pick flagged.
   function gameCard(g, pts, r){
