@@ -27,6 +27,9 @@
   }
   *{ box-sizing: border-box; }
   html{
+    /* Pinned so the layout doesn't inflate with the phone's system font-size
+       setting — rem units then mean the same thing on every device. */
+    font-size: 16px;
     overscroll-behavior-y: contain;
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
@@ -34,6 +37,7 @@
   }
   body{
     margin:0;
+    font-size: 16px;
     overscroll-behavior-y: contain;
     background:
       radial-gradient(circle at 15% 0%, rgba(53,208,255,0.08), transparent 45%),
@@ -826,8 +830,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.7.1';
-  const APP_BUILT = 'Sep 8, 1:05 PM';
+  const APP_VERSION = '1.7.2';
+  const APP_BUILT = 'Sep 8, 1:35 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1669,6 +1673,8 @@
     if(resultsOverlay && resultsOverlay.classList.contains('show')){
       refreshScores();
       startLiveTimer();
+      syncPool();
+      startBoardTimer();
     }else{
       fetchLines(currentWeek);
     }
@@ -1911,6 +1917,7 @@
   let liveLoading = false;
   let liveTimer = null;
   let liveTimerRate = 0;
+  let boardTimer = null;
 
   function scoreboardUrl(week){
     return 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard' +
@@ -2161,6 +2168,8 @@
     if(!skipFetch){
       refreshScores();
       startLiveTimer();
+      syncPool();
+      startBoardTimer();
     }
   }
 
@@ -2170,6 +2179,17 @@
       if(liveGames[i].state === 'in') return true;
     }
     return false;
+  }
+
+  // The leaderboard is tiny, so it can poll faster than the scoreboard.
+  function startBoardTimer(){
+    if(boardTimer) clearInterval(boardTimer);
+    boardTimer = setInterval(function(){
+      if(!resultsOverlay.classList.contains('show')){
+        clearInterval(boardTimer); boardTimer = null; return;
+      }
+      fetchBoard(currentWeek, renderBoard);
+    }, 5000);
   }
 
   function startLiveTimer(){
@@ -2214,6 +2234,7 @@
     saveView('main');
     closeOverlay(resultsOverlay);
     if(liveTimer){ clearInterval(liveTimer); liveTimer = null; }
+    if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
   }
 
   document.getElementById('resultsBtn').addEventListener('click', function(){ openResults(); });
