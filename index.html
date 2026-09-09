@@ -781,8 +781,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.6.1';
-  const APP_BUILT = 'Sep 8, 12:05 PM';
+  const APP_VERSION = '1.6.2';
+  const APP_BUILT = 'Sep 8, 12:20 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1783,6 +1783,7 @@
   document.getElementById('unlockYes').addEventListener('click', function(){
     weekLocked = false;
     saveAll();
+    removeScore(currentWeek);
     closeOverlay(unlockOverlay);
     syncLockBtn();
     stampLine(currentWeek);
@@ -2253,6 +2254,15 @@
     }).catch(function(){});
   }
 
+  // Unlocking means you're still deciding — pull yourself off the board.
+  function removeScore(week){
+    const me = player();
+    if(!me.id || typeof fetch !== 'function') return;
+    fetch(entryUrl(week, me.id), { method: 'DELETE' })
+      .then(function(){ fetchBoard(week, renderBoard); })
+      .catch(function(){});
+  }
+
   function fetchBoard(week, done){
     if(typeof fetch !== 'function'){ done && done(); return; }
     fetch(boardUrl(week))
@@ -2420,6 +2430,24 @@
 
   // First run: introduce yourself to the pool.
   if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
+
+  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
+     Earlier builds never deleted board entries, so an unlocked week could
+     leave a stale score behind. Clears it once, then never runs again. */
+  (function cleanupStaleEntry(){
+    const FLAG = 'pickem-cleanup-162';
+    if(getLocal(FLAG)) return;
+    put(FLAG, { done: true });
+    const me = getLocal(PLAYER_KEY);
+    if(!me || !me.id || typeof fetch !== 'function') return;
+    for(let w = 1; w <= MAX_WEEK; w++){
+      const saved = getLocal(picksKey(w));
+      const stillLocked = saved && saved.locked;
+      if(!stillLocked){
+        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
+      }
+    }
+  })();
     openOverlay(document.getElementById('devOverlay'));
   });
   const slotOverlay = document.getElementById('slotOverlay');
@@ -2444,6 +2472,24 @@
 
   // First run: introduce yourself to the pool.
   if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
+
+  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
+     Earlier builds never deleted board entries, so an unlocked week could
+     leave a stale score behind. Clears it once, then never runs again. */
+  (function cleanupStaleEntry(){
+    const FLAG = 'pickem-cleanup-162';
+    if(getLocal(FLAG)) return;
+    put(FLAG, { done: true });
+    const me = getLocal(PLAYER_KEY);
+    if(!me || !me.id || typeof fetch !== 'function') return;
+    for(let w = 1; w <= MAX_WEEK; w++){
+      const saved = getLocal(picksKey(w));
+      const stillLocked = saved && saved.locked;
+      if(!stillLocked){
+        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
+      }
+    }
+  })();
     if(resultsOverlay.classList.contains('show')) refreshScores();
   });
 
@@ -2451,6 +2497,24 @@
 
   // First run: introduce yourself to the pool.
   if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
+
+  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
+     Earlier builds never deleted board entries, so an unlocked week could
+     leave a stale score behind. Clears it once, then never runs again. */
+  (function cleanupStaleEntry(){
+    const FLAG = 'pickem-cleanup-162';
+    if(getLocal(FLAG)) return;
+    put(FLAG, { done: true });
+    const me = getLocal(PLAYER_KEY);
+    if(!me || !me.id || typeof fetch !== 'function') return;
+    for(let w = 1; w <= MAX_WEEK; w++){
+      const saved = getLocal(picksKey(w));
+      const stillLocked = saved && saved.locked;
+      if(!stillLocked){
+        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
+      }
+    }
+  })();
 
   (function start(){
     const last = readView();
