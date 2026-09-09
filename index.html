@@ -26,7 +26,12 @@
     --muted: #93aec8;
   }
   *{ box-sizing: border-box; }
-  html{ overscroll-behavior-y: contain; }
+  html{
+    overscroll-behavior-y: contain;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   body{
     margin:0;
     overscroll-behavior-y: contain;
@@ -247,8 +252,11 @@
   }
   .game.removed .points{ color: var(--muted); opacity:0.6; text-shadow:none; }
 
-  .matchup{ flex:1; min-width:0; overflow-wrap:anywhere; }
-  .line1, .line2{ display:flex; align-items:center; }
+  .matchup{ flex:1; min-width:0; overflow-wrap:normal; word-break:normal; }
+  .line1, .line2{ display:flex; align-items:center; min-width:0; }
+  .goldcity, .mutedcity{
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+  }
   .plogo{
     flex:none; width:20px; height:20px; margin-right:6px;
     display:inline-flex; align-items:center; justify-content:center;
@@ -341,6 +349,30 @@
     font-size:0.65rem; font-weight:700; padding:4px 3px; border-radius:6px; white-space:nowrap;
   }
   .game.removed .rmbtn{ color: var(--cyan); border-color: var(--cyan-dim); }
+
+  /* Small screens: trim the fixed-width column and ease the type down so a
+     row can never be squeezed into wrapping. */
+  @media (max-width: 400px){
+    .actions{ width:76px; }
+    .togglebtn, .swx{ width:76px; }
+    .swx.dog .swx-knob{ left:54px; }
+    .line1{ font-size:0.92rem; }
+    .line2{ font-size:0.8rem; }
+    .kickoff{ font-size:0.62rem; }
+    .pspread{ font-size:0.8rem; margin-left:6px; }
+    .pctval{ font-size:0.74rem; margin-left:4px; }
+    .plogo{ width:17px; height:17px; margin-right:5px; }
+    .plogo img{ width:17px; height:17px; }
+    .points{ font-size:1.3rem; }
+    .gstatus{ width:86px; }
+    .tname{ font-size:0.9rem; }
+  }
+  @media (max-width: 340px){
+    .kickoff{ display:none; }
+    .actions{ width:70px; }
+    .swx{ width:70px; }
+    .swx.dog .swx-knob{ left:48px; }
+  }
 
   .footer-note{ text-align:center; color: var(--muted); font-size:0.8rem; font-weight:600; margin-top:16px; line-height:1.5; }
 
@@ -457,11 +489,24 @@
   .scorecompare{ font-size:0.88rem; font-weight:700; margin-top:8px; }
 
   .gcard{
+    position:relative; overflow:hidden;
     background: var(--panel-hi); border:1px solid var(--line);
     border-radius:10px; padding:6px 10px 7px; margin-bottom:6px;
   }
-  .gcard.won{ border-color: rgba(61,220,132,0.5); }
-  .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.6; }
+  .gcard.won{
+    border:2px solid var(--green);
+    box-shadow: 0 0 14px rgba(61,220,132,0.28);
+    padding:5px 9px 6px;
+  }
+  .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.62; }
+  /* a faint X drawn corner to corner across a lost game */
+  .gcard.lost::before, .gcard.lost::after{
+    content:''; position:absolute; left:-8%; top:50%;
+    width:116%; height:2px; background: rgba(255,59,78,0.32);
+    pointer-events:none;
+  }
+  .gcard.lost::before{ transform: rotate(11deg); }
+  .gcard.lost::after{ transform: rotate(-11deg); }
 
   .ghead{ margin-bottom:2px; }
   .gpts{
@@ -470,8 +515,8 @@
     font-size:1.15rem; font-weight:800; color: #ffffff; line-height:1;
   }
   .gpts em{ font-style:normal; font-size:0.66rem; font-weight:800; opacity:0.7; }
-  .gpts.won{ color: var(--green); text-shadow: 0 0 12px rgba(61,220,132,0.45); }
-  .gpts.lost{ color: var(--red); text-shadow: 0 0 12px rgba(255,59,78,0.4); }
+  .gpts.won{ color: var(--green); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(61,220,132,0.5); }
+  .gpts.lost{ color: var(--red); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(255,59,78,0.45); }
 
   .gbody{ display:flex; align-items:center; gap:10px; }
   .gteams{ flex:1; min-width:0; }
@@ -781,8 +826,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.6.2';
-  const APP_BUILT = 'Sep 8, 12:20 PM';
+  const APP_VERSION = '1.7.1';
+  const APP_BUILT = 'Sep 8, 1:05 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2357,35 +2402,51 @@
     return active.map(function(g, i){
       const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
       const seed = seedOf(g.id);
-      const bucket = i % 3;                       // final / live / upcoming
+      // Four states so the preview always shows a win, a loss, a live game
+      // and one still to come — the whole range, not whatever chance gives.
+      const bucket = i % 4;   // 0 win · 1 loss · 2 live · 3 upcoming
       const scores = {};
 
-      if(bucket === 2){
+      if(bucket === 3){
         scores[abA] = 0; scores[abB] = 0;
         return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
                  state:'pre', completed:false, detail:'', clock:'', period:0, date:g.date };
       }
 
-      // A drive every few minutes, split between the teams by seed.
-      const drives = bucket === 0 ? 9 : 3 + (minute % 5);
-      let a = 0, b = 0;
+      // Build two believable scores, then assign them so the outcome matches
+      // the bucket relative to whichever side you picked.
+      const drives = bucket === 2 ? (3 + (minute % 5)) : 9;
+      let hi = 0, lo = 0;
       for(let d = 0; d < drives; d++){
         const r = (seed + d * 37) % 10;
         const pts = r < 4 ? 7 : (r < 7 ? 3 : 0);
-        if((seed + d) % 2 === 0) a += pts; else b += pts;
+        if(d % 2 === 0) hi += pts; else lo += pts;
       }
-      scores[abA] = a; scores[abB] = b;
+      if(hi === lo) hi += 3;                       // never a tie
+      if(hi < lo){ const t = hi; hi = lo; lo = t; }
 
-      if(bucket === 0){
+      const mineIsA = (g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)) === g.cityA;
+      const mineAb = mineIsA ? abA : abB;
+      const otherAb = mineIsA ? abB : abA;
+
+      let winnerIsMine;
+      if(bucket === 0) winnerIsMine = true;        // your pick wins
+      else if(bucket === 1) winnerIsMine = false;  // your pick loses
+      else winnerIsMine = (seed % 2 === 0);        // live: either way
+
+      scores[mineAb] = winnerIsMine ? hi : lo;
+      scores[otherAb] = winnerIsMine ? lo : hi;
+
+      if(bucket === 2){
+        const period = 1 + (minute % 4);
+        const secs = 60 * (14 - (minute % 15));
+        const clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
         return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
-                 state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
+                 state:'in', completed:false, detail:'Q' + period + ' ' + clock,
+                 clock:clock, period:period, date:g.date };
       }
-      const period = 1 + (minute % 4);
-      const secs = 60 * (14 - (minute % 15));
-      const clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
       return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
-               state:'in', completed:false, detail:'Q' + period + ' ' + clock,
-               clock:clock, period:period, date:g.date };
+               state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
     });
   }
 
