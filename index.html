@@ -514,12 +514,12 @@
   .gcard{
     position:relative; overflow:hidden;
     background: var(--panel-hi); border:1px solid var(--line);
-    border-radius:10px; padding:6px 10px 7px; margin-bottom:6px;
+    border-radius:12px; padding:10px 12px 12px; margin-bottom:9px;
   }
   .gcard.won{
     border:2px solid var(--green);
     box-shadow: 0 0 14px rgba(61,220,132,0.28);
-    padding:5px 9px 6px;
+    padding:9px 11px 11px;
   }
   .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.62; }
   /* a faint X drawn corner to corner across a lost game */
@@ -541,19 +541,19 @@
   .gpts.won{ color: var(--green); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(61,220,132,0.5); }
   .gpts.lost{ color: var(--red); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(255,59,78,0.45); }
 
-  .gbody{ display:flex; align-items:center; gap:10px; }
+  .gbody{ display:flex; align-items:center; gap:12px; }
   .gteams{ flex:1; min-width:0; }
 
-  .trow{ display:flex; align-items:center; gap:7px; padding:1px 0; }
+  .trow{ display:flex; align-items:center; gap:10px; padding:4px 0; }
   .tlogo{
-    flex:none; width:20px; height:20px;
+    flex:none; width:26px; height:26px;
     display:flex; align-items:center; justify-content:center;
   }
-  .tlogo img{ width:20px; height:20px; object-fit:contain; display:block; }
+  .tlogo img{ width:26px; height:26px; object-fit:contain; display:block; }
   .trow .tname{ opacity:0.6; }
   .trow:not(.leading):not(.mine) .tlogo img{ opacity:0.55; }
   .tname{
-    flex:1; min-width:0; font-size:0.95rem; font-weight:600; line-height:1.3;
+    flex:1; min-width:0; font-size:1.12rem; font-weight:600; line-height:1.35;
     color: var(--text); opacity:0.6;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
@@ -566,9 +566,9 @@
     opacity:0.75; margin-left:5px;
   }
   .tscore{
-    flex:none; min-width:28px; text-align:right;
+    flex:none; min-width:30px; text-align:right;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1rem; font-weight:800; color: var(--text); opacity:0.6;
+    font-size:1.15rem; font-weight:800; color: var(--text); opacity:0.6;
   }
   .trow.leading .tscore, .trow.mine .tscore{ opacity:1; }
   .tmark{
@@ -577,14 +577,15 @@
   }
 
   .gstatus{
-    flex:none; width:96px; padding-left:10px;
+    flex:none; width:104px; padding-left:12px;
+    align-self:stretch; min-height:62px;
     border-left:1px solid var(--line);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:1px; text-align:center;
+    gap:2px; text-align:center;
   }
-  .gstatus .s1{ font-size:0.92rem; font-weight:800; color: var(--text); opacity:0.95; }
+  .gstatus .s1{ font-size:1.02rem; font-weight:700; color: var(--text); opacity:0.95; line-height:1.25; }
   .gstatus .s2{
-    font-size:0.85rem; font-weight:800; color: var(--muted);
+    font-size:0.98rem; font-weight:700; color: var(--muted);
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
   .gstatus.live .s2{ color: var(--red); }
@@ -865,6 +866,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>1.12.0</b> Bigger, roomier game cards in the Score Tracker. Kickoff now reads "Today" or "Tomorrow" when it's that close, otherwise the date, with the time underneath.</div>
       <div class="cl"><b>1.11.2</b> The Score Tracker now opens no matter what. If the leaderboard or standings ever hit trouble, only that section says so — your scores still show.</div>
       <div class="cl"><b>1.11.1</b> Season Standings moved back below the game cards.</div>
       <div class="cl"><b>1.11.0</b> Season Standings is now a button, sitting just under the Leaderboard instead of buried at the bottom. It shows who's leading and where you stand without opening it, and glows for your first few visits so it's easy to find.</div>
@@ -935,8 +937,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.11.2';
-  const APP_BUILT = 'Sep 9, 6:20 PM';
+  const APP_VERSION = '1.12.0';
+  const APP_BUILT = 'Sep 9, 7:05 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2212,16 +2214,28 @@
   }
 
   // "Sun 1:00 PM" for games that haven't kicked off.
+  /* Kickoff for the card's right column: day on top, time underneath.
+     "Today" and "Tomorrow" read faster than a weekday when it's that close. */
+  function sameDay(a, b){
+    return a.getFullYear() === b.getFullYear() &&
+           a.getMonth() === b.getMonth() &&
+           a.getDate() === b.getDate();
+  }
   function kickoffText(lg, g){
     if(lg && lg.date){
       const d = new Date(lg.date);
       if(!isNaN(d)){
-        return d.toLocaleDateString([], {weekday:'short'}) + ' ' +
-               d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+        const now = new Date();
+        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        let day;
+        if(sameDay(d, now)) day = 'Today';
+        else if(sameDay(d, tomorrow)) day = 'Tomorrow';
+        else day = d.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'});
+        return { day: day, time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
       }
     }
-    if(lg && lg.detail) return lg.detail;
-    return 'Kickoff TBD';
+    if(lg && lg.detail) return { day: lg.detail, time: '' };
+    return { day: 'Kickoff', time: 'TBD' };
   }
 
 
@@ -2273,9 +2287,9 @@
       sCls = 'live';
     }else if(lg.state === 'post'){ s1 = 'Final'; s2 = ''; sCls = 'final'; }
     else{
-      const parts = kickoffText(lg, g).split(' ');
-      s1 = parts.shift();
-      s2 = parts.join(' ');
+      const k = kickoffText(lg, g);
+      s1 = k.day;
+      s2 = k.time;
       sCls = 'pre';
     }
 
