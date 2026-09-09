@@ -75,6 +75,20 @@
     background: transparent; border:1px solid var(--line); color: var(--muted);
   }
   .devtoggle.on{ background: var(--gold); border-color: var(--gold); color:#20180a; }
+  .changelog{ margin-top:6px; }
+  .changelog h3{
+    font-size:0.8rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;
+    color: var(--muted); margin:0 0 8px;
+  }
+  .cl{
+    font-size:0.82rem; font-weight:600; color: var(--muted);
+    line-height:1.45; padding:7px 0; border-bottom:1px solid rgba(28,51,80,0.55);
+  }
+  .cl b{
+    display:inline-block; min-width:42px; color: var(--cyan); font-weight:800;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+  }
+
   .devmeta{
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
     font-size:0.76rem; font-weight:700; color: var(--muted);
@@ -348,11 +362,16 @@
   .swx.dog .swx-label{ padding-left:2px; padding-right:20px; color: var(--red); }
   @keyframes flashred{ 0%{ background: var(--red); color:#fff; } 100%{ background: transparent; } }
   @keyframes flashgreen{ 0%{ background: var(--green); color:#00220f; } 100%{ background: transparent; } }
-  .rmbtn{
+  .rmx{
+    align-self:flex-end;
+    width:26px; height:22px; padding:0; border-radius:6px;
     background:none; border:1px solid var(--line); color: var(--muted);
-    font-size:0.65rem; font-weight:700; padding:4px 3px; border-radius:6px; white-space:nowrap;
+    font-size:0.9rem; font-weight:700; line-height:1;
   }
-  .game.removed .rmbtn{ color: var(--cyan); border-color: var(--cyan-dim); }
+  .restorebtn{
+    background:none; border:1px solid var(--cyan-dim); color: var(--cyan);
+    font-size:0.68rem; font-weight:800; padding:5px 3px; border-radius:6px; white-space:nowrap;
+  }
 
   /* Small screens: trim the fixed-width column and ease the type down so a
      row can never be squeezed into wrapping. */
@@ -589,8 +608,39 @@
   .restag.win{ color: var(--green); border:1px solid rgba(61,220,132,0.5); }
   .restag.loss{ color: var(--red); border:1px solid rgba(255,59,78,0.45); }
 
-  .seasonbox{ margin-top:18px; border-top:1px solid var(--line); padding-top:14px; }
-  .seasonbox h3{ font-size:0.95rem; margin:0 0 10px; color: var(--cyan); }
+  .seasonbox{ margin:16px 0 4px; border-top:1px solid var(--line); padding-top:16px; }
+  .seasonbtn{
+    width:100%; display:flex; align-items:center; gap:10px;
+    padding:12px 14px; border-radius:12px;
+    border:1px solid var(--line); background: var(--panel-hi);
+    color: var(--text); text-align:left; font: inherit; cursor:pointer;
+  }
+  .seasonbtn:active{ background: var(--line); }
+  .seasontext{ flex:1; min-width:0; display:block; }
+  .seasontext b{ display:block; font-size:0.98rem; color: var(--cyan); }
+  .seasonsub{
+    display:block; margin-top:2px; font-size:0.78rem; font-weight:600;
+    color: var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .seasonchev{
+    flex:none; font-size:1.5rem; line-height:1; color: var(--cyan);
+    transition: transform 0.18s ease;
+  }
+  .seasonbtn.open .seasonchev{ transform: rotate(90deg); }
+  .seasonpanel{ padding-top:12px; }
+
+  /* First few visits only, then it never runs again. A slow breathe, not a
+     blink — enough to say "this is a button", not enough to nag. */
+  @keyframes seasonbreathe{
+    0%,100%{ box-shadow: 0 0 0 rgba(53,208,255,0); border-color: var(--line); }
+    50%{ box-shadow: 0 0 14px rgba(53,208,255,0.35); border-color: var(--cyan-dim); }
+  }
+  .seasonbtn.hintme{ animation: seasonbreathe 2.4s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce){
+    .seasonbtn.hintme{ animation:none; border-color: var(--cyan-dim); }
+    .seasonchev{ transition:none; }
+  }
+
   .seasonrow{
     display:flex; align-items:center; gap:10px; padding:7px 0;
     font-size:0.92rem; font-weight:700; border-bottom:1px solid rgba(28,51,80,0.5);
@@ -599,6 +649,34 @@
   .seasonscore{ flex:1; }
   .seasondelta{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; }
   .seasonempty{ color: var(--muted); font-size:0.88rem; font-weight:600; line-height:1.4; }
+
+  /* Season table: name and total stay put, the weeks scroll sideways. */
+  .seasonwrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .stable{ border-collapse:collapse; font-size:0.85rem; }
+  .stable th, .stable td{
+    padding:7px 9px; text-align:center; white-space:nowrap; font-weight:700;
+  }
+  .stable thead th{
+    color: var(--muted); font-size:0.66rem; letter-spacing:0.6px;
+    border-bottom:1px solid var(--line);
+  }
+  .stable tbody tr{ border-bottom:1px solid rgba(28,51,80,0.5); }
+  .sname{
+    position:sticky; left:0; z-index:2; text-align:left;
+    background: var(--panel); width:92px; max-width:92px;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .stot{
+    position:sticky; left:92px; z-index:2; background: var(--panel);
+    color: var(--gold); border-right:1px solid var(--line);
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+  }
+  .swk{ font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace; }
+  .swk.blank{ color: var(--muted); opacity:0.5; }
+  .swk.live{ color: var(--cyan); }
+  .strow.me .sname{ color: var(--cyan); }
+  .seasonnote{ margin-top:9px; color: var(--muted); font-size:0.82rem; font-weight:600; }
+  .seasonnote b{ color: var(--text); }
 
   .closebtn{
     width:100%; margin-top:8px; padding:10px; border-radius:8px;
@@ -709,8 +787,16 @@
     </div>
     <div id="resultsList"></div>
     <div class="seasonbox">
-      <h3>Season Log</h3>
-      <div id="seasonLog"></div>
+      <button class="seasonbtn" id="seasonBtn" aria-expanded="false" aria-controls="seasonPanel">
+        <span class="seasontext">
+          <b>Season Standings</b>
+          <span class="seasonsub" id="seasonSub">Every week, everyone</span>
+        </span>
+        <span class="seasonchev" id="seasonChev">&#8250;</span>
+      </button>
+      <div class="seasonpanel" id="seasonPanel" hidden>
+        <div id="seasonLog"></div>
+      </div>
     </div>
     <button class="closebtn" id="resultsClose">‹ Back</button>
   </div>
@@ -777,6 +863,25 @@
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
     <div class="devmeta" id="devMeta"></div>
+    <div class="changelog">
+      <h3>What's new</h3>
+      <div class="cl"><b>1.11.2</b> The Score Tracker now opens no matter what. If the leaderboard or standings ever hit trouble, only that section says so — your scores still show.</div>
+      <div class="cl"><b>1.11.1</b> Season Standings moved back below the game cards.</div>
+      <div class="cl"><b>1.11.0</b> Season Standings is now a button, sitting just under the Leaderboard instead of buried at the bottom. It shows who's leading and where you stand without opening it, and glows for your first few visits so it's easy to find.</div>
+      <div class="cl"><b>1.10.1</b> Season Standings keep themselves up to date — no need to hit Refresh. They also show instantly from the last copy on your phone instead of sitting blank while they load.</div>
+      <div class="cl"><b>1.10.0</b> Season Standings replaces the old season log: every player, every week, side by side, with a running total. Past weeks are rescored from the final scoreboard so a score can't get stuck because someone closed the app early.</div>
+      <div class="cl"><b>1.9.0</b> The app now opens on the week the league is actually on. The Score Tracker says "final" once every game of the week is played — Monday night included — and stops refreshing. Nothing gets deleted; each week keeps its own leaderboard.</div>
+      <div class="cl"><b>1.8.2</b> Fixed the Score Tracker refusing to open once an earlier week had results saved. Simulated games can no longer post a fake score to the pool. Removed games stay parked at the bottom after a spread refresh. Your score now posts on every auto-refresh, not just manual ones.</div>
+      <div class="cl"><b>1.8.1</b> Removed games drop to the bottom of the list. Restoring puts them back at their spread position.</div>
+      <div class="cl"><b>1.8.0</b> Leaderboard scores now update for everyone even while their app is closed. Remove is a small ✕ in the corner; Restore works properly again. Added this change log.</div>
+      <div class="cl"><b>1.7.2</b> Fixed the layout blowing up on Android phones with larger system font settings. Leaderboard refreshes every 5 seconds.</div>
+      <div class="cl"><b>1.7.1</b> Stopped city names breaking in half on narrow screens.</div>
+      <div class="cl"><b>1.7.0</b> Simulation now shows wins, losses, live and upcoming games. Won cards get a green border, lost cards a red X.</div>
+      <div class="cl"><b>1.6.2</b> Unlocking removes you from the leaderboard.</div>
+      <div class="cl"><b>1.6.0</b> Added the pool leaderboard.</div>
+      <div class="cl"><b>1.5.0</b> Tap a confidence number to move a game straight to that slot.</div>
+      <div class="cl"><b>1.4.0</b> Added this preview menu and the simulate-games option.</div>
+    </div>
     <button class="closebtn" id="devClose">‹ Back</button>
   </div>
 </div>
@@ -830,8 +935,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.7.2';
-  const APP_BUILT = 'Sep 8, 1:35 PM';
+  const APP_VERSION = '1.11.2';
+  const APP_BUILT = 'Sep 9, 6:20 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1042,9 +1147,9 @@
         const pb = (b.id in pos) ? pos[b.id] : 900 + chalk.indexOf(b);
         return pa - pb;
       });
-      return merged;
+      return parkRemoved(merged);
     }
-    return chalk;
+    return parkRemoved(chalk);
   }
 
   function fromSaved(saved, week){
@@ -1125,6 +1230,7 @@
     if(savedRes) results = savedRes;
     stampLine(week);
     syncHint();
+    reflowRemoved();
     render();
 
     fetchLines(week);
@@ -1345,14 +1451,19 @@
             '<span class="swx-knob"></span>' +
             '<span class="swx-label">' + (onFav?'FAVORITE':'UNDERDOG') + '</span>' +
           '</button>' +
-          '<button class="rmbtn" data-role="rm">' + (g.removed?'Restore':'Remove') + '</button>' +
+          '<button class="' + (g.removed ? 'restorebtn' : 'rmx') + '" data-role="rm">' +
+            (g.removed ? 'Restore' : '\u00D7') + '</button>' +
         '</div>';
+
+      const gid = g.id;
 
       li.querySelector('[data-role="swx"]').addEventListener('click', function(e){
         e.stopPropagation();
         if(weekLocked){ askUnlock(); return; }
-        g.pick = (g.pick === 'fav') ? 'dog' : 'fav';
-        updateRow(g);
+        const cur = gameById(gid);
+        if(!cur) return;
+        cur.pick = (cur.pick === 'fav') ? 'dog' : 'fav';
+        updateRow(cur);
         saveAll();
       });
 
@@ -1360,24 +1471,34 @@
       if(rankBtn){
         rankBtn.addEventListener('click', function(e){
           e.stopPropagation();
-          openSlotPicker(g);
+          const cur = gameById(gid);
+          if(cur) openSlotPicker(cur);
         });
       }
 
       li.querySelectorAll('[data-role="hist"]').forEach(function(el){
         el.addEventListener('click', function(e){
           e.stopPropagation();
-          showHistory(g);
+          const cur = gameById(gid);
+          if(cur) showHistory(cur);
         });
       });
 
       li.querySelector('[data-role="rm"]').addEventListener('click', function(e){
         e.stopPropagation();
         if(weekLocked){ askUnlock(); return; }
-        if(g.removed){ g.removed = false; updateRow(g); renumber(); saveAll(); return; }
-        pendingRemoveId = g.id;
+        const cur = gameById(gid);
+        if(!cur) return;
+        if(cur.removed){
+          // Restoring is harmless — no confirmation needed.
+          restoreToChalk(cur);
+          render();
+          saveAll();
+          return;
+        }
+        pendingRemoveId = gid;
         document.getElementById('removeText').textContent =
-          favCity + ' vs ' + dogCity + ' will be shaded out and left off your sheet. You can bring it back anytime.';
+          favCityOf(cur) + ' vs ' + dogCityOf(cur) + ' will be shaded out and left off your sheet. You can bring it back anytime.';
         openOverlay(document.getElementById('removeOverlay'));
       });
 
@@ -1389,6 +1510,39 @@
      The alternative to dragging: pick the confidence slot directly and
      everything between shifts by one, exactly like a drag would. */
   let slotGameId = null;
+
+  /* Removed games are parked at the bottom, in chalk order among themselves,
+     so they stay out of the way of the list you're actually ranking.
+     Restoring drops a game back in at its chalk position. */
+  function parkRemoved(list){
+    const active = list.filter(function(g){ return !g.removed; });
+    const parked = list.filter(function(g){ return g.removed; })
+                       .sort(function(a,b){ return (a.baseRank||99) - (b.baseRank||99); });
+    return active.concat(parked);
+  }
+  function reflowRemoved(){ games = parkRemoved(games); }
+
+  function restoreToChalk(g){
+    g.removed = false;
+    const rest = games.filter(function(x){ return x.id !== g.id; });
+    const active = rest.filter(function(x){ return !x.removed; });
+    const parked = rest.filter(function(x){ return x.removed; });
+    // Drop it in just after the last game that outranks it on chalk. Works
+    // whether or not the list has been rearranged by hand.
+    let at = 0;
+    for(let i = 0; i < active.length; i++){
+      if((active[i].baseRank || 99) < (g.baseRank || 99)) at = i + 1;
+    }
+    active.splice(at, 0, g);
+    games = active.concat(parked.sort(function(a,b){ return (a.baseRank||99) - (b.baseRank||99); }));
+  }
+
+  // Always read the live object out of the array — rows outlive the objects
+  // they were built from, because a spread refresh rebuilds them.
+  function gameById(id){
+    for(let i = 0; i < games.length; i++){ if(games[i].id === id) return games[i]; }
+    return null;
+  }
 
   function activeOrder(){
     return games.filter(function(g){ return !g.removed; });
@@ -1437,12 +1591,7 @@
     const moved = active.splice(from, 1)[0];
     active.splice(to, 0, moved);
 
-    const out = [];
-    let ai = 0;
-    games.forEach(function(g){
-      out.push(g.removed ? g : active[ai++]);
-    });
-    games = out;
+    games = active.concat(games.filter(function(g){ return g.removed; }));
 
     freezeOrder();
     dismissHint();
@@ -1517,8 +1666,11 @@
       const lbl = swx.querySelector('.swx-label');
       if(lbl) lbl.textContent = onFav ? 'FAVORITE' : 'UNDERDOG';
     }
-    const rm = li.querySelector('.rmbtn');
-    if(rm) rm.textContent = g.removed ? 'Restore' : 'Remove';
+    const rm = li.querySelector('[data-role="rm"]');
+    if(rm){
+      rm.className = g.removed ? 'restorebtn' : 'rmx';
+      rm.textContent = g.removed ? 'Restore' : '\u00D7';
+    }
   }
 
   /* drag */
@@ -1697,6 +1849,7 @@
   }
   weekPick.value = currentWeek;
   weekPick.addEventListener('change', function(){
+    weekTouched = true;
     saveAll();
     loadWeek(parseInt(weekPick.value, 10));
     saveView('main');
@@ -1924,6 +2077,38 @@
            '?seasontype=2&week=' + week + '&dates=2026';
   }
 
+  /* ---------- which week is it? ----------
+     Called with no week, ESPN's scoreboard answers with the week it considers
+     current — it rolls over Tuesday morning, after Monday night is in the
+     books. Cached for six hours so a reopen doesn't wait on the network. */
+  const CURWEEK_KEY = 'pickem-curweek';
+  const CURWEEK_TTL = 6 * 60 * 60 * 1000;
+  let weekTouched = false;      // set once you pick a week by hand
+
+  function cachedCurrentWeek(){
+    const v = getLocal(CURWEEK_KEY);
+    if(!v || typeof v.week !== 'number' || typeof v.t !== 'number') return null;
+    if(Date.now() - v.t > CURWEEK_TTL) return null;
+    return v.week;
+  }
+
+  function detectCurrentWeek(done){
+    if(typeof fetch !== 'function'){ done(null); return; }
+    fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard')
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(data){
+        const w = data && data.week && data.week.number;
+        const st = data && data.season && data.season.type;
+        // Only trust regular-season answers. Preseason and playoffs number
+        // their weeks from 1 too, and would drag the app back to Week 1.
+        if(typeof w !== 'number' || w < 1 || w > MAX_WEEK) throw new Error('no week');
+        if(typeof st === 'number' && st !== 2) throw new Error('not regular season');
+        put(CURWEEK_KEY, { week: w, t: Date.now() });
+        done(w);
+      })
+      .catch(function(){ done(null); });
+  }
+
   function fetchScores(week, done){
     if(demoOn()){
       liveGames = simulateScoreboard();
@@ -1964,6 +2149,7 @@
             home: home && home.team ? home.team.abbreviation : abbrs[1],
             state: st.state || 'pre',            // pre | in | post
             completed: !!st.completed,
+            statusName: st.name || '',
             detail: st.shortDetail || '',
             clock: (ev.status && ev.status.displayClock) || '',
             period: (ev.status && ev.status.period) || 0,
@@ -1971,8 +2157,10 @@
           });
         });
         liveGames = out;
-        liveStatus = 'Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
-          (anyGameLive() ? ' (auto refreshes every 20 seconds)' : ' (auto refreshes every 5 minutes)');
+        liveStatus = weekComplete()
+          ? ('Week ' + week + ' is final — all games played')
+          : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
+             (anyGameLive() ? ' (auto refreshes every 20 seconds)' : ' (auto refreshes every 5 minutes)'));
         applyFinals();
 
         // Same payload carries the odds, so keep spreads current everywhere.
@@ -2113,11 +2301,14 @@
 
   function refreshScores(){
     document.getElementById('liveStatus').textContent = 'Loading scores…';
+    if(!seasonLoading) fetchSeason(renderSeason);
     fetchScores(currentWeek, function(){
       openResults(true);
       syncPool();
       // A game may have just kicked off or gone final — retune the interval.
-      if(liveTimer){
+      if(weekComplete() && !demoOn()){
+        if(liveTimer){ clearInterval(liveTimer); liveTimer = null; liveTimerRate = 0; }
+      }else if(liveTimer){
         const want = anyGameLive() ? 20000 : 300000;
         if(want !== liveTimerRate) startLiveTimer();
       }
@@ -2126,6 +2317,7 @@
 
   function openResults(skipFetch){
     document.getElementById('resultsTitle').textContent = 'Week ' + currentWeek + ' Score Tracker';
+    hydrateSeason();
     const active = activeGames();
 
     document.getElementById('liveStatus').textContent = liveLoading ? 'Loading scores…' : liveStatus;
@@ -2160,16 +2352,29 @@
       else { cmp.textContent = 'Even with all-favorites'; cmp.style.color = 'var(--muted)'; }
     }
 
-    renderBoard();
-    renderSeason();
+    // Open first. The leaderboard and the season table are extras — if either
+    // one hits something unexpected, you still get your scores.
     openOverlay(resultsOverlay);
+    try{ renderBoard(); }catch(e){
+      const n = document.getElementById('lbNote');
+      if(n) n.textContent = 'Leaderboard unavailable right now.';
+    }
+    try{ renderSeason(); }catch(e){
+      const b = document.getElementById('seasonLog');
+      if(b) b.innerHTML = '<div class="seasonempty">Standings unavailable right now.</div>';
+    }
     saveView('results');
 
     if(!skipFetch){
+      countSeasonVisit();
+      syncSeasonBtn();
       refreshScores();
       startLiveTimer();
       syncPool();
       startBoardTimer();
+      // Whole-season read: once per visit, not on every 20-second tick.
+      if(!seasonLoading) fetchSeason(renderSeason);
+      startSeasonTimer();
     }
   }
 
@@ -2181,19 +2386,43 @@
     return false;
   }
 
+  /* Is the week actually over? Every game on ESPN's board for this week has to
+     be final — not just the ones on your sheet — so a Monday nighter still
+     counts as unfinished on Sunday evening. Games that will never be played
+     (postponed, canceled, suspended) don't hold the week open forever. */
+  const DEAD_STATUS = /POSTPONED|CANCEL|SUSPEND/i;
+  function stillPending(lg){
+    if(lg.completed) return false;
+    if(DEAD_STATUS.test(lg.statusName || '')) return false;
+    return true;
+  }
+  function weekComplete(){
+    if(!liveGames.length) return false;
+    for(let i = 0; i < liveGames.length; i++){
+      if(stillPending(liveGames[i])) return false;
+    }
+    return true;
+  }
+
   // The leaderboard is tiny, so it can poll faster than the scoreboard.
   function startBoardTimer(){
     if(boardTimer) clearInterval(boardTimer);
+    // Final weeks can still shift for a minute or two while other phones post
+    // their last score, so keep checking — just far less often.
+    const every = (weekComplete() && !demoOn()) ? 60000 : 5000;
     boardTimer = setInterval(function(){
       if(!resultsOverlay.classList.contains('show')){
         clearInterval(boardTimer); boardTimer = null; return;
       }
       fetchBoard(currentWeek, renderBoard);
-    }, 5000);
+    }, every);
   }
 
   function startLiveTimer(){
     if(liveTimer) clearInterval(liveTimer);
+    liveTimerRate = 0;
+    // Nothing left to poll for once every game is in the books.
+    if(weekComplete() && !demoOn()) return;
     const every = anyGameLive() ? 20000 : 300000;
     liveTimerRate = every;
     liveTimer = setInterval(function(){
@@ -2202,6 +2431,7 @@
       }
       fetchScores(currentWeek, function(){
         openResults(true);
+        syncPool();          // keep your published score current while you sit here
         // speed up or slow down as games kick off and finish
         const want = anyGameLive() ? 20000 : 300000;
         if(want !== liveTimerRate) startLiveTimer();
@@ -2209,25 +2439,346 @@
     }, every);
   }
 
+  /* Picks are stored as { frozen, locked, games:[...] }. Very old saves were a
+     bare array. Either way, hand back a plain list of games or null. */
+  function savedGames(week){
+    const s = getLocal(picksKey(week));
+    if(!s) return null;
+    if(Array.isArray(s)) return s;
+    return Array.isArray(s.games) ? s.games : null;
+  }
+
+  /* ---------- season standings (everyone, week by week) ----------
+     One read of /pickem gives every week's entries. The `points` field is
+     whatever that player's phone last published, which can be stale if they
+     closed the app before the late games ended. So for any past week that
+     still looks unfinished, this pulls that week's final scoreboard once and
+     recomputes every entry from their stored picks — then caches the result,
+     because a finished week can never change again. */
+  const seasonCacheKey = w => 'pickem-final-w' + w;
+  const SEASON_SNAP = 'pickem-season-snap';
+  let seasonTimer = null;
+  let seasonWeeks = [];       // [{week, rows:[{id,name,points,live}]}]
+  let seasonNote = '';
+  let seasonLoading = false;
+  let seasonTried = false;
+
+  // eventId -> { a:awayScore, b:homeScore, done }
+  function scoreMapFrom(data){
+    const map = {};
+    let pending = false, any = false;
+    (data.events || []).forEach(function(ev){
+      const comp = (ev.competitions || [])[0];
+      if(!comp) return;
+      const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
+      const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
+      if(!away || !home) return;
+      const st = (ev.status && ev.status.type) || {};
+      any = true;
+      if(!st.completed && !DEAD_STATUS.test(st.name || '')) pending = true;
+      map['e' + ev.id] = {
+        a: parseInt(away.score, 10),
+        b: parseInt(home.score, 10),
+        done: !!st.completed
+      };
+    });
+    return { map: map, allDone: any && !pending };
+  }
+
+  /* Confidence points are the position in the player's own picks list, so this
+     works without knowing anything about their sheet. 'a' is the away team,
+     'b' is the home team — the same convention the picks were written with. */
+  function scoreWithMap(e, map){
+    if(!Array.isArray(e.picks) || !e.picks.length){
+      return { points: e.points || 0, decided: e.decided || 0, total: e.total || 0 };
+    }
+    let points = 0, decided = 0;
+    e.picks.forEach(function(pk, idx){
+      const g = map[pk.i];
+      if(!g || !g.done) return;
+      const mine = pk.p === 'a' ? g.a : g.b;
+      const theirs = pk.p === 'a' ? g.b : g.a;
+      if(typeof mine !== 'number' || typeof theirs !== 'number' || mine === theirs) return;
+      decided++;
+      if(mine > theirs) points += (idx + 1);
+    });
+    return { points: points, decided: decided, total: e.picks.length };
+  }
+
+  function entriesToRows(data){
+    const rows = [];
+    Object.keys(data || {}).forEach(function(id){
+      const e = data[id];
+      if(!e || !e.name || typeof e.points !== 'number') return;
+      rows.push({ id: id, name: e.name, points: e.points,
+                  decided: e.decided || 0, total: e.total || 0 });
+    });
+    return rows;
+  }
+
+  // A week needs a rebuild if anyone's entry hasn't finished scoring.
+  function looksUnfinished(data){
+    let bad = false;
+    Object.keys(data || {}).forEach(function(id){
+      const e = data[id];
+      if(!e || !e.name) return;
+      const total = e.total || (Array.isArray(e.picks) ? e.picks.length : 0);
+      if(!total) return;
+      if((e.decided || 0) < total) bad = true;
+    });
+    return bad;
+  }
+
+  function fetchSeason(done){
+    if(typeof fetch !== 'function'){ done && done(); return; }
+    seasonLoading = true;
+    fetch(DB_URL + '/pickem.json')
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(all){
+        const weeks = [];
+        const needs = [];
+        Object.keys(all || {}).forEach(function(key){
+          const w = parseInt(String(key).replace(/^w/, ''), 10);
+          if(!(w >= 1 && w <= MAX_WEEK)) return;
+          const data = all[key];
+          const rows = entriesToRows(data);
+          if(!rows.length) return;
+          const cached = getLocal(seasonCacheKey(w));
+          if(cached && Array.isArray(cached.rows)){
+            weeks.push({ week: w, rows: cached.rows, live: false });
+          }else if(w !== currentWeek && looksUnfinished(data)){
+            weeks.push({ week: w, rows: rows, live: false });
+            needs.push({ week: w, data: data });
+          }else{
+            weeks.push({ week: w, rows: rows, live: w === currentWeek });
+          }
+        });
+        weeks.sort(function(a,b){ return a.week - b.week; });
+        seasonWeeks = weeks;
+        seasonNote = '';
+        put(SEASON_SNAP, { weeks: weeks, t: Date.now() });
+        // Repair at most four weeks per visit so this never turns into a
+        // pile of requests on an old phone.
+        return rebuildWeeks(needs.slice(0, 4));
+      })
+      .catch(function(){ seasonNote = "Can't reach the pool"; })
+      .then(function(){
+        seasonLoading = false;
+        seasonTried = true;
+        if(seasonWeeks.length) put(SEASON_SNAP, { weeks: seasonWeeks, t: Date.now() });
+        done && done();
+      });
+  }
+
+  /* Last known standings, straight from this device, so opening the tracker
+     never shows an empty table while the network catches up. */
+  function hydrateSeason(){
+    if(seasonWeeks.length) return;
+    const snap = getLocal(SEASON_SNAP);
+    if(snap && Array.isArray(snap.weeks) && snap.weeks.length) seasonWeeks = snap.weeks;
+  }
+
+  function rebuildWeeks(list){
+    if(!list.length) return null;
+    return list.reduce(function(chain, item){
+      return chain.then(function(){
+        return fetch(scoreboardUrl(item.week))
+          .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+          .then(function(sb){
+            const built = scoreMapFrom(sb);
+            const rows = [];
+            Object.keys(item.data).forEach(function(id){
+              const e = item.data[id];
+              if(!e || !e.name) return;
+              const sc = scoreWithMap(e, built.map);
+              rows.push({ id: id, name: e.name, points: sc.points,
+                          decided: sc.decided, total: sc.total });
+            });
+            for(let i = 0; i < seasonWeeks.length; i++){
+              if(seasonWeeks[i].week === item.week) seasonWeeks[i].rows = rows;
+            }
+            // Only freeze it if the week really is over.
+            if(built.allDone) put(seasonCacheKey(item.week), { rows: rows, t: Date.now() });
+          })
+          .catch(function(){});
+      });
+    }, Promise.resolve());
+  }
+
+  /* Your own season line against all-favorites, computed from this device's
+     saved results. Kept because nobody else's data can tell you this. */
+  function chalkDelta(){
+    let diff = 0, weeks = 0;
+    for(let w = 1; w <= MAX_WEEK; w++){
+      const picks = (w === currentWeek) ? games : savedGames(w);
+      const res = (w === currentWeek) ? results : getLocal(resKey(w));
+      if(!picks || !picks.length || !res || Object.keys(res).length === 0) continue;
+      const sc = weekScore(picks, res);
+      diff += sc.earned - sc.chalk;
+      weeks++;
+    }
+    return { diff: diff, weeks: weeks };
+  }
+
+  /* The standings barely move: finished weeks are frozen and cached, and the
+     current week's column already rides the live leaderboard. This slow tick
+     only exists to catch someone joining or locking in mid-visit — so ten
+     minutes is plenty, and it stops the moment you leave the tracker. */
+  function startSeasonTimer(){
+    if(seasonTimer) clearInterval(seasonTimer);
+    seasonTimer = setInterval(function(){
+      if(!resultsOverlay.classList.contains('show')){
+        clearInterval(seasonTimer); seasonTimer = null; return;
+      }
+      if(!seasonLoading) fetchSeason(renderSeason);
+    }, 600000);
+  }
+
+  /* ---------- the Season Standings button ----------
+     Collapsed by default so Sunday's scores stay the first thing you see.
+     Whether it's open is remembered per device. The glow runs for the first
+     three visits and never again once it's been tapped even once. */
+  const SEASON_OPEN_KEY = 'pickem-season-open';
+  const SEASON_HINT_KEY = 'pickem-season-hint';
+  const HINT_VISITS = 3;
+
+  function seasonIsOpen(){
+    const v = getLocal(SEASON_OPEN_KEY);
+    return !!(v && v.open);
+  }
+  function hintState(){
+    const v = getLocal(SEASON_HINT_KEY);
+    return { visits: (v && v.visits) || 0, tapped: !!(v && v.tapped) };
+  }
+  function shouldHint(){
+    const h = hintState();
+    return !h.tapped && h.visits <= HINT_VISITS;
+  }
+  // Called once each time the tracker is opened.
+  function countSeasonVisit(){
+    const h = hintState();
+    if(h.tapped) return;
+    put(SEASON_HINT_KEY, { visits: h.visits + 1, tapped: false });
+  }
+
+  function syncSeasonBtn(){
+    const btn = document.getElementById('seasonBtn');
+    const panel = document.getElementById('seasonPanel');
+    if(!btn || !panel) return;
+    const open = seasonIsOpen();
+    panel.hidden = !open;
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // Never glow while it's sitting open — there'd be nothing to discover.
+    btn.classList.toggle('hintme', !open && shouldHint());
+  }
+
+  function toggleSeason(){
+    const open = !seasonIsOpen();
+    put(SEASON_OPEN_KEY, { open: open });
+    const h = hintState();
+    if(!h.tapped) put(SEASON_HINT_KEY, { visits: h.visits, tapped: true });
+    syncSeasonBtn();
+    if(open) renderSeason();
+  }
+
+  /* The one-line summary on the button face — who's leading and where you
+     stand. It's the reason to tap, so it shows even while collapsed. */
+  function seasonSummary(players, me){
+    if(!players.length) return 'Every week, everyone';
+    const leader = players[0];
+    let mine = -1;
+    for(let i = 0; i < players.length; i++){ if(players[i].id === me.id) mine = i; }
+    const weeks = seasonWeeks.length;
+    const wkTxt = weeks + ' week' + (weeks === 1 ? '' : 's');
+    if(mine === 0) return 'You lead with ' + leader.total + ' pts · ' + wkTxt;
+    if(mine > 0){
+      return esc(leader.name) + ' leads · you\u2019re ' + ordinal(mine + 1) +
+             ' of ' + players.length + ' · ' + wkTxt;
+    }
+    return esc(leader.name) + ' leads with ' + leader.total + ' pts · ' + wkTxt;
+  }
+  function ordinal(n){
+    const s = ['th','st','nd','rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
   function renderSeason(){
     const box = document.getElementById('seasonLog');
-    const rows = [];
-    for(let w = 1; w <= MAX_WEEK; w++){
-      const picks = (w === currentWeek) ? games : getLocal(picksKey(w));
-      const res = (w === currentWeek) ? results : getLocal(resKey(w));
-      if(!picks || !res || Object.keys(res).length === 0) continue;
-      const sc = weekScore(picks, res);
-      const diff = sc.earned - sc.chalk;
-      const color = diff > 0 ? 'var(--green)' : (diff < 0 ? 'var(--red)' : 'var(--muted)');
-      const sign = diff > 0 ? '+' : '';
-      rows.push('<div class="seasonrow">' +
-        '<span class="seasonwk">WK ' + w + '</span>' +
-        '<span class="seasonscore">' + sc.earned + ' / ' + sc.possible + ' pts</span>' +
-        '<span class="seasondelta" style="color:' + color + '">' + sign + diff + ' vs chalk</span>' +
-      '</div>');
+    if(!box) return;
+
+    // The current week's column comes from the live board, which is already
+    // being recomputed from finals — no reason to show a staler copy.
+    if(board.length){
+      let found = false;
+      for(let i = 0; i < seasonWeeks.length; i++){
+        if(seasonWeeks[i].week === currentWeek){
+          seasonWeeks[i] = { week: currentWeek, rows: board, live: true };
+          found = true;
+        }
+      }
+      if(!found){
+        seasonWeeks.push({ week: currentWeek, rows: board, live: true });
+        seasonWeeks.sort(function(a,b){ return a.week - b.week; });
+      }
     }
-    box.innerHTML = rows.length ? rows.join('') :
-      '<div class="seasonempty">No weeks scored yet. Marks you enter here build the log.</div>';
+
+    const sub = document.getElementById('seasonSub');
+
+    if(!seasonWeeks.length){
+      if(sub) sub.textContent = seasonLoading ? 'Loading…' : 'Every week, everyone';
+      box.innerHTML = '<div class="seasonempty">' +
+        (seasonLoading ? 'Loading the pool\u2019s season…' :
+         (seasonNote || 'No weeks scored yet. Once sheets are locked in, every week shows up here.')) +
+        '</div>';
+      return;
+    }
+
+    // One row per player, one column per week that has any scores.
+    const byPlayer = {};
+    seasonWeeks.forEach(function(wk){
+      wk.rows.forEach(function(r){
+        if(!byPlayer[r.id]) byPlayer[r.id] = { id: r.id, name: r.name, total: 0, wk: {} };
+        byPlayer[r.id].name = r.name;          // latest name they used wins
+        byPlayer[r.id].wk[wk.week] = r.points;
+        byPlayer[r.id].total += r.points;
+      });
+    });
+
+    const me = player();
+    const players = Object.keys(byPlayer).map(function(k){ return byPlayer[k]; });
+    players.sort(function(a,b){ return b.total - a.total; });
+
+    if(sub) sub.innerHTML = seasonSummary(players, me);
+
+    let head = '<tr><th class="sname">Player</th><th class="stot">TOT</th>';
+    seasonWeeks.forEach(function(wk){ head += '<th class="swk">W' + wk.week + '</th>'; });
+    head += '</tr>';
+
+    const body = players.map(function(p){
+      let tds = '<td class="sname">' + esc(p.name) + '</td>' +
+                '<td class="stot">' + p.total + '</td>';
+      seasonWeeks.forEach(function(wk){
+        const v = p.wk[wk.week];
+        const cls = 'swk' + (typeof v !== 'number' ? ' blank' : (wk.live ? ' live' : ''));
+        tds += '<td class="' + cls + '">' + (typeof v === 'number' ? v : '\u2013') + '</td>';
+      });
+      return '<tr class="strow' + (p.id === me.id ? ' me' : '') + '">' + tds + '</tr>';
+    }).join('');
+
+    const cd = chalkDelta();
+    let note = '';
+    if(cd.weeks){
+      const word = cd.diff > 0 ? 'ahead of' : (cd.diff < 0 ? 'behind' : 'even with');
+      note = '<div class="seasonnote">You\u2019re <b>' +
+             (cd.diff > 0 ? '+' : '') + cd.diff + '</b> ' + word +
+             ' all-favorites across ' + cd.weeks + ' week' + (cd.weeks === 1 ? '' : 's') + '.</div>';
+    }
+
+    box.innerHTML =
+      '<div class="seasonwrap"><table class="stable"><thead>' + head +
+      '</thead><tbody>' + body + '</tbody></table></div>' + note +
+      (seasonNote ? '<div class="seasonnote">' + seasonNote + '</div>' : '');
   }
 
   function closeResults(){
@@ -2235,6 +2786,7 @@
     closeOverlay(resultsOverlay);
     if(liveTimer){ clearInterval(liveTimer); liveTimer = null; }
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
+    if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
   }
 
   document.getElementById('resultsBtn').addEventListener('click', function(){ openResults(); });
@@ -2244,6 +2796,7 @@
     openResults();
   });
   document.getElementById('resultsClose').addEventListener('click', closeResults);
+  document.getElementById('seasonBtn').addEventListener('click', toggleSeason);
   resultsOverlay.addEventListener('click', function(e){ if(e.target === resultsOverlay) closeResults(); });
 
 
@@ -2254,11 +2807,10 @@
   });
   document.getElementById('removeYes').addEventListener('click', function(){
     const g = games.find(function(x){ return x.id === pendingRemoveId; });
-    if(g) g.removed = true;
+    if(g){ g.removed = true; reflowRemoved(); }
     pendingRemoveId = null;
     closeOverlay(removeOverlay);
-    if(g) updateRow(g);
-    renumber();
+    render();
     saveAll();
   });
   removeOverlay.addEventListener('click', function(e){
@@ -2296,6 +2848,13 @@
     return p;
   }
 
+  // Names come from other people's phones, so don't drop them into HTML raw.
+  function esc(s){
+    return String(s || '').replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+
   function entryUrl(week, id){ return DB_URL + '/pickem/w' + week + '/' + id + '.json'; }
   function boardUrl(week){ return DB_URL + '/pickem/w' + week + '.json'; }
 
@@ -2304,13 +2863,21 @@
     const me = player();
     if(!me.name || !weekLocked) return;
     if(typeof fetch !== 'function') return;
-    const sc = weekScore(games, activeResults());
+    // Always `results`, never activeResults() — simulated wins must never
+    // reach the pool, even while the preview toggle is on.
+    const sc = weekScore(games, results);
+    // Picks ride along so other devices can score this sheet from live data
+    // even while this phone is closed. They are never displayed to anyone.
+    const picks = activeGames().map(function(g){
+      return { i: g.id, p: (g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)) === g.cityA ? 'a' : 'b' };
+    });
     const body = {
       name: me.name,
       points: sc.earned,
       decided: sc.decided,
       total: sc.total,
       possible: sc.possible,
+      picks: picks,
       updated: Date.now()
     };
     fetch(entryUrl(currentWeek, me.id), {
@@ -2329,6 +2896,32 @@
       .catch(function(){});
   }
 
+  /* Recomputes an entry's score from the games that are final right now, so a
+     player who locked in and closed the app still climbs the board. Falls back
+     to the number they published if their picks aren't stored. */
+  function scoreEntry(e){
+    // In preview mode liveGames are fake, so leave everyone's published
+    // numbers alone rather than scoring them off invented finals.
+    if(demoOn() || !Array.isArray(e.picks) || !e.picks.length || !liveGames.length){
+      return { points: e.points, decided: e.decided || 0 };
+    }
+    let points = 0, decided = 0;
+    e.picks.forEach(function(pk, idx){
+      const g = gameById(pk.i);
+      if(!g) return;
+      const lg = liveFor(g);
+      if(!lg || !lg.completed) return;
+      const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+      const mine = pk.p === 'a' ? abA : abB;
+      const other = pk.p === 'a' ? abB : abA;
+      const a = lg.scores[mine], b = lg.scores[other];
+      if(typeof a !== 'number' || typeof b !== 'number' || a === b) return;
+      decided++;
+      if(a > b) points += (idx + 1);
+    });
+    return { points: points, decided: decided };
+  }
+
   function fetchBoard(week, done){
     if(typeof fetch !== 'function'){ done && done(); return; }
     fetch(boardUrl(week))
@@ -2339,7 +2932,8 @@
           Object.keys(data).forEach(function(id){
             const e = data[id];
             if(!e || typeof e.points !== 'number' || !e.name) return;
-            rows.push({ id: id, name: e.name, points: e.points, decided: e.decided || 0 });
+            const sc = scoreEntry(e);
+            rows.push({ id: id, name: e.name, points: sc.points, decided: sc.decided });
           });
         }
         rows.sort(function(a,b){ return b.points - a.points; });
@@ -2369,11 +2963,13 @@
     el.innerHTML = board.slice(0, 8).map(function(r, i){
       return '<div class="lbrow' + (r.id === me.id ? ' me' : '') + '">' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
-        '<span class="lbname">' + r.name + '</span>' +
+        '<span class="lbname">' + esc(r.name) + '</span>' +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
-    note.textContent = boardNote || (weekLocked ? '' : 'Lock in to post your score.');
+    const finalNote = (weekComplete() && !demoOn())
+      ? ('Final standings — Week ' + currentWeek) : '';
+    note.textContent = boardNote || finalNote || (weekLocked ? '' : 'Lock in to post your score.');
   }
 
   function syncPool(){
@@ -2509,27 +3105,6 @@
 
   document.getElementById('verBadge').addEventListener('click', function(){
     syncDemoUI();
-
-  // First run: introduce yourself to the pool.
-  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
-
-  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
-     Earlier builds never deleted board entries, so an unlocked week could
-     leave a stale score behind. Clears it once, then never runs again. */
-  (function cleanupStaleEntry(){
-    const FLAG = 'pickem-cleanup-162';
-    if(getLocal(FLAG)) return;
-    put(FLAG, { done: true });
-    const me = getLocal(PLAYER_KEY);
-    if(!me || !me.id || typeof fetch !== 'function') return;
-    for(let w = 1; w <= MAX_WEEK; w++){
-      const saved = getLocal(picksKey(w));
-      const stillLocked = saved && saved.locked;
-      if(!stillLocked){
-        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
-      }
-    }
-  })();
     openOverlay(document.getElementById('devOverlay'));
   });
   const slotOverlay = document.getElementById('slotOverlay');
@@ -2551,27 +3126,6 @@
     liveGames = [];
     demoResults = {};
     syncDemoUI();
-
-  // First run: introduce yourself to the pool.
-  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
-
-  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
-     Earlier builds never deleted board entries, so an unlocked week could
-     leave a stale score behind. Clears it once, then never runs again. */
-  (function cleanupStaleEntry(){
-    const FLAG = 'pickem-cleanup-162';
-    if(getLocal(FLAG)) return;
-    put(FLAG, { done: true });
-    const me = getLocal(PLAYER_KEY);
-    if(!me || !me.id || typeof fetch !== 'function') return;
-    for(let w = 1; w <= MAX_WEEK; w++){
-      const saved = getLocal(picksKey(w));
-      const stillLocked = saved && saved.locked;
-      if(!stillLocked){
-        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
-      }
-    }
-  })();
     if(resultsOverlay.classList.contains('show')) refreshScores();
   });
 
@@ -2580,32 +3134,34 @@
   // First run: introduce yourself to the pool.
   if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
 
-  /* ONE-TIME CLEANUP — REMOVE IN THE NEXT UPDATE (added v1.6.2)
-     Earlier builds never deleted board entries, so an unlocked week could
-     leave a stale score behind. Clears it once, then never runs again. */
-  (function cleanupStaleEntry(){
-    const FLAG = 'pickem-cleanup-162';
-    if(getLocal(FLAG)) return;
-    put(FLAG, { done: true });
-    const me = getLocal(PLAYER_KEY);
-    if(!me || !me.id || typeof fetch !== 'function') return;
-    for(let w = 1; w <= MAX_WEEK; w++){
-      const saved = getLocal(picksKey(w));
-      const stillLocked = saved && saved.locked;
-      if(!stillLocked){
-        fetch(DB_URL + '/pickem/w' + w + '/' + me.id + '.json', { method: 'DELETE' }).catch(function(){});
-      }
-    }
-  })();
-
   (function start(){
     const last = readView();
-    const startWeek = (last && last.week >= 1 && last.week <= MAX_WEEK) ? last.week : 1;
+    const recentView = !!(last && (Date.now() - last.t) < VIEW_MAX_AGE);
+    const savedWeek = (last && last.week >= 1 && last.week <= MAX_WEEK) ? last.week : null;
+    const cached = cachedCurrentWeek();
+
+    // Where you just were wins for four hours. After that, it's whatever week
+    // the league is actually on — nobody should open this and see a stale sheet.
+    let startWeek = 1;
+    if(recentView && savedWeek) startWeek = savedWeek;
+    else if(cached) startWeek = cached;
+    else if(savedWeek) startWeek = savedWeek;
+
     weekPick.value = startWeek;
     loadWeek(startWeek);
-    if(last && last.view === 'results' && (Date.now() - last.t) < VIEW_MAX_AGE){
+    if(last && last.view === 'results' && recentView){
       openResults();
     }
+
+    // Confirm against ESPN in the background and move if we guessed wrong.
+    detectCurrentWeek(function(w){
+      if(!w || weekTouched) return;
+      if(recentView && savedWeek) return;
+      if(w === currentWeek) return;
+      weekPick.value = w;
+      loadWeek(w);
+      toast('Week ' + w + ' is up');
+    });
   })();
 })();
 </script>
