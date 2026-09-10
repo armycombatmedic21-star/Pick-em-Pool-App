@@ -693,6 +693,10 @@
   .confirmrow button{ flex:1; padding:13px; border-radius:8px; font-size:0.98rem; font-weight:800; }
   .confirmcancel{ background: transparent; border:1px solid var(--line); color: var(--text); }
   .confirmyes{ background: var(--red); border:none; color:#fff; }
+  /* Not every dialog is a warning. */
+  .confirmcard.calm{ border-color: var(--cyan-dim); }
+  .confirmcard.calm h2{ color: var(--cyan); }
+  .confirmcard.calm .confirmyes{ background: var(--cyan); color:#00131c; }
 
   .toast{
     position:fixed; left:50%; bottom:110px; transform:translateX(-50%);
@@ -860,6 +864,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.2.1</b> Android now goes straight to Chrome's own Install dialog instead of showing a warning-looking popup first.</div>
       <div class="cl"><b>2.2.0</b> Cleaner first run. New phones get one popup offering to add the app to the home screen — worth doing, it stops the browser clearing your picks. You're only asked your name when it matters: locking in, or opening Live. Add to Home Screen also lives in this menu.</div>
       <div class="cl"><b>2.1.0</b> New phones get a one-time offer to add the pool to their home screen, and there's an Add to Home Screen button in this menu any time. Worth doing — a home-screen copy keeps the browser from clearing your saved picks.</div>
       <div class="cl"><b>2.0.2</b> Fixed locked sheets getting wiped when the live schedule loaded — picks, order and dropped games are now matched by the teams playing, not by an internal id that could change.</div>
@@ -906,12 +911,11 @@
 </div>
 
 <div class="overlay" id="installOverlay">
-  <div class="confirmcard">
-    <h2 id="installTitle">Add the app to your home screen?</h2>
+  <div class="confirmcard calm">
+    <h2>Add to Home Screen</h2>
     <p id="installText"></p>
     <div class="confirmrow">
-      <button class="confirmcancel" id="installClose">Not now</button>
-      <button class="confirmyes" id="installGo">Show me how</button>
+      <button class="confirmcancel" id="installClose">Got it</button>
     </div>
   </div>
 </div>
@@ -954,8 +958,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.2.0';
-  const APP_BUILT = 'Sep 10, 2:20 AM';
+  const APP_VERSION = '2.2.1';
+  const APP_BUILT = 'Sep 10, 2:45 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2902,17 +2906,23 @@
   document.getElementById('seasonBtn').addEventListener('click', toggleSeason);
 
   /* ---------- add to home screen ----------
-     The app is one file with no service worker, so Chrome will never fire its
-     own install prompt. What it will do is add a home-screen shortcut from its
-     menu, which is what actually matters here: the pool opens without browser
-     chrome, and its saved picks stop being throwaway site data the browser can
-     clear out from under someone. So this walks people to that menu item. */
+     Chrome on Android offers its own Install/Cancel dialog, so when it's on
+     hand we fire that and add nothing of our own. Everywhere else — iPhone
+     always, and any Android that doesn't offer one — we show where the menu
+     item lives instead. Either way it's offered once and never again. Worth
+     doing: from the home screen the app's saved picks stop being throwaway
+     site data the browser can clear out from under someone. */
   const INSTALL_KEY = 'pickem-install-asked';
   let installEvent = null;
+
+  let offerPending = false;
 
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     installEvent = e;
+    // Chrome sometimes answers a moment after load. If we were waiting to
+    // make the offer, make it now — with the real dialog, not instructions.
+    if(offerPending){ offerPending = false; fireOffer(); }
   });
 
   function isInstalled(){
@@ -2944,45 +2954,33 @@
   }
 
   const installOverlay = document.getElementById('installOverlay');
-  const installGo = document.getElementById('installGo');
-  const installTitle = document.getElementById('installTitle');
   const installText = document.getElementById('installText');
-  const installClose = document.getElementById('installClose');
 
-  // First pane: why you'd want to.
-  function openInstallPopup(){
-    installTitle.textContent = 'Add the app to your home screen?';
-    installText.textContent =
-      'The pool will open like an app instead of a browser tab \u2014 and your ' +
-      'picks stop being treated as browser data that can get cleared out.';
-    installGo.style.display = '';
-    installClose.textContent = 'Not now';
-    openOverlay(installOverlay);
-  }
-
-  // Second pane: the actual tap-by-tap steps.
-  function showInstallSteps(){
-    // A real prompt beats instructions, on the rare browser that offers one.
+  /* Android hands us a proper Install/Cancel dialog, so use it and say
+     nothing ourselves. iPhone never offers one, so there we explain where the
+     Share-sheet item lives. Same entry point either way. */
+  function fireOffer(){
     if(installEvent){
       installEvent.prompt();
       installEvent = null;
-      if(installOverlay.classList.contains('show')) closeOverlay(installOverlay);
       return;
     }
-    installTitle.textContent = 'Add to Home Screen';
-    installText.textContent = installSteps();
-    installGo.style.display = 'none';
-    installClose.textContent = 'Got it';
-    if(!installOverlay.classList.contains('show')) openOverlay(installOverlay);
+    openInstallPopup();
   }
 
-  installGo.addEventListener('click', showInstallSteps);
-  installClose.addEventListener('click', function(){ closeOverlay(installOverlay); });
+  // Fallback, for phones with no install dialog of their own (iPhone always).
+  function openInstallPopup(){
+    document.getElementById('installText').textContent = installSteps();
+    openOverlay(installOverlay);
+  }
+
+  document.getElementById('installClose').addEventListener('click', function(){
+    closeOverlay(installOverlay);
+  });
   installOverlay.addEventListener('click', function(e){
     if(e.target === installOverlay) closeOverlay(installOverlay);
   });
-  // From the version menu you already know what it is, so skip the pitch.
-  document.getElementById('installBtn').addEventListener('click', showInstallSteps);
+  document.getElementById('installBtn').addEventListener('click', fireOffer);
 
   (function syncInstallRow(){
     const row = document.getElementById('installRow');
@@ -2990,15 +2988,18 @@
   })();
 
   /* Offered once, on the first visit, before anything else asks for anything.
-     Never shown again on that phone, whichever button they press. */
+     Never shown again on that phone, however they answer. */
   (function offerInstall(){
     if(isInstalled()) return;
     if(devicePlatform() === 'other') return;
     if((getLocal(INSTALL_KEY) || {}).asked) return;
     put(INSTALL_KEY, { asked: true });
+    offerPending = true;
     setTimeout(function(){
-      if(openOverlays === 0) openInstallPopup();
-    }, 600);
+      if(!offerPending) return;          // the real dialog already went up
+      offerPending = false;
+      if(openOverlays === 0) fireOffer();
+    }, 1500);
   })();
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
