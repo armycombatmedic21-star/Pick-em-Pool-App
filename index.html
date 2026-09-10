@@ -864,6 +864,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.3.1</b> Fixed duplicate names piling up on the leaderboard. If your phone's storage gets cleared, your old entry is now cleaned up when you post again instead of sitting there forever.</div>
       <div class="cl"><b>2.3.0</b> Locked sheets are now protected: a short or failed schedule response can no longer drop games off a sheet you already locked, and an old saved sheet is never discarded just because the app changed. The add-to-home-screen offer no longer appears on its own — it lives in this menu.</div>
       <div class="cl"><b>2.2.1</b> Android now goes straight to Chrome's own Install dialog instead of showing a warning-looking popup first.</div>
       <div class="cl"><b>2.2.0</b> Cleaner first run. New phones get one popup offering to add the app to the home screen — worth doing, it stops the browser clearing your picks. You're only asked your name when it matters: locking in, or opening Live. Add to Home Screen also lives in this menu.</div>
@@ -959,8 +960,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.3.0';
-  const APP_BUILT = 'Sep 10, 3:20 AM';
+  const APP_VERSION = '2.3.1';
+  const APP_BUILT = 'Sep 10, 3:55 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3008,6 +3009,22 @@
     if(row) row.style.display = isInstalled() ? 'none' : '';
   })();
 
+  /* ===================================================================
+     TEMPORARY — REMOVE AFTER THE WEEK 1 CLEANUP IS DONE
+     Clears the duplicate "dad 2" rows left on the leaderboard by a phone
+     whose storage got wiped between visits. Runs once per device, then
+     never again. Delete this block, and purgeName() above it, once every
+     phone in the pool has loaded a build containing it.
+     =================================================================== */
+  (function cleanupDuplicates(){
+    const DONE_KEY = 'pickem-cleanup-dad2';
+    if(getLocal(DONE_KEY)) return;
+    put(DONE_KEY, { done: true });
+    purgeName('dad 2', function(n){
+      if(n > 0) toast('Removed ' + n + ' old leaderboard ' + (n === 1 ? 'entry' : 'entries'));
+    });
+  })();
+
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
 
@@ -3095,7 +3112,59 @@
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
-    }).catch(function(){});
+    })
+      .then(function(){ sweepOrphans(currentWeek, me.name, me.id); })
+      .catch(function(){});
+  }
+
+  /* Your identity lives in this browser's storage. Clear it — or let the
+     browser clear it for you — and the next visit mints a new id while the
+     old entry sits on the leaderboard forever under your name. So every time
+     you publish, any older entry using your name gets swept up. */
+  function sameName(a, b){
+    return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+  }
+
+  function sweepOrphans(week, name, keepId){
+    if(!name || typeof fetch !== 'function') return;
+    fetch(boardUrl(week))
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){
+        Object.keys(data || {}).forEach(function(id){
+          const e = data[id];
+          if(!e || id === keepId) return;
+          if(!sameName(e.name, name)) return;
+          fetch(entryUrl(week, id), { method: 'DELETE' }).catch(function(){});
+        });
+      })
+      .catch(function(){});
+  }
+
+  /* Wipes a name from every week. Used to clear out duplicates left behind by
+     earlier visits; the name itself stays free to use again. */
+  function purgeName(name, done){
+    if(!name || typeof fetch !== 'function'){ done(0); return; }
+    let removed = 0;
+    const weeks = [];
+    for(let w = 1; w <= MAX_WEEK; w++) weeks.push(w);
+    weeks.reduce(function(chain, w){
+      return chain.then(function(){
+        return fetch(boardUrl(w))
+          .then(function(r){ return r.ok ? r.json() : null; })
+          .then(function(data){
+            const hits = Object.keys(data || {}).filter(function(id){
+              return data[id] && sameName(data[id].name, name);
+            });
+            return hits.reduce(function(c2, id){
+              return c2.then(function(){
+                removed++;
+                return fetch(entryUrl(w, id), { method: 'DELETE' }).catch(function(){});
+              });
+            }, Promise.resolve());
+          })
+          .catch(function(){});
+      });
+    }, Promise.resolve()).then(function(){ done(removed); });
   }
 
   // Unlocking means you're still deciding — pull yourself off the board.
