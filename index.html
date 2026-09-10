@@ -580,9 +580,22 @@
     font-size:1.15rem; font-weight:800; color: var(--text); opacity:0.6;
   }
   .trow.leading .tscore, .trow.mine .tscore{ opacity:1; }
-  .tmark{
-    flex:none; width:13px; font-size:0.8rem; line-height:1;
-    color: var(--green); text-shadow: 0 0 8px rgba(61,220,132,0.55);
+  /* the football sits right after the score of whoever has the ball */
+  .tposs{ flex:none; width:15px; font-size:0.72rem; line-height:1; text-align:left; }
+  .ballicon{ opacity:0.95; }
+  .trow.leading .tscore{ color: var(--green); opacity:1; }
+
+  /* down and distance, spanning under the two team rows */
+  .gdd{
+    margin-top:3px; font-size:0.82rem; font-weight:700;
+    color: var(--muted); letter-spacing:0.2px;
+  }
+  .gdd[hidden]{ display:none; }
+
+  /* a game in progress, without moving it out of your ranked order */
+  .gcard.islive{
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px rgba(61,220,132,0.25), 0 0 16px rgba(61,220,132,0.16);
   }
 
   .gstatus{
@@ -597,19 +610,9 @@
     font-size:0.98rem; font-weight:700; color: var(--muted);
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
-  .gstatus.live .s2{ color: var(--red); }
-  .livetag{
-    display:inline-flex; align-items:center; gap:4px;
-    background: var(--red); color:#fff; border-radius:4px;
-    padding:2px 8px; font-size:0.72rem; font-weight:800; letter-spacing:0.5px;
-    box-shadow: 0 0 10px rgba(255,59,78,0.5);
-  }
-  .livedot{
-    width:5px; height:5px; border-radius:50%; background:#fff;
-    animation: livepulse 1.2s ease-in-out infinite;
-  }
-  @keyframes livepulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.2; } }
-  @media (prefers-reduced-motion: reduce){ .livedot{ animation:none; } }
+  .gstatus.live .s1{ color: var(--green); font-weight:800; }
+  .gstatus.live .s2{ color: var(--green); }
+  .s2[hidden]{ display:none; }
 
   .restag{
     margin-top:2px; font-size:0.6rem; font-weight:800; letter-spacing:0.5px;
@@ -617,6 +620,11 @@
   }
   .restag.win{ color: var(--green); border:1px solid rgba(61,220,132,0.5); }
   .restag.loss{ color: var(--red); border:1px solid rgba(255,59,78,0.45); }
+
+  .weekhead{
+    font-size:1.05rem; font-weight:800; color: var(--text);
+    margin:2px 0 9px;
+  }
 
   .seasonbox{ margin:16px 0 4px; border-top:1px solid var(--line); padding-top:16px; }
   .seasonbtn{
@@ -796,6 +804,7 @@
         <div class="lbnote" id="lbNote"></div>
       </div>
     </div>
+    <div class="weekhead" id="weekHead"></div>
     <div id="resultsList"></div>
     <div class="seasonbox">
       <button class="seasonbtn" id="seasonBtn" aria-expanded="false" aria-controls="seasonPanel">
@@ -876,6 +885,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>1.14.0</b> Live games now show the clock in green, who has the ball, and the down and distance — and say "Halftime" instead of "Q2 0:00". Logos no longer blink on refresh, and live games refresh every 10 seconds. Added a Week # of 18 header.</div>
       <div class="cl"><b>1.13.1</b> Tightened up the Score Tracker — about two more games fit on screen without scrolling. Nothing moved, just less empty space.</div>
       <div class="cl"><b>1.13.0</b> The banner now says whether your picks are locked or unlocked, and there's a gold Lock In Picks button right on the main screen — no need to open the sheet first.</div>
       <div class="cl"><b>1.12.1</b> Fixed dragging games on Android — cards no longer get dropped when the page scrolls out from under them. The banner no longer claims your order is locked when it isn't.</div>
@@ -950,8 +960,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.13.1';
-  const APP_BUILT = 'Sep 9, 9:50 PM';
+  const APP_VERSION = '1.14.0';
+  const APP_BUILT = 'Sep 9, 10:30 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2145,7 +2155,7 @@
       liveGames = simulateScoreboard();
       computeDemoResults();
       liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
-        ' (auto refreshes every 20 seconds)';
+        ' (auto refreshes every 10 seconds)';
       liveLoading = false;
       done();                      // deliberately skips applyFinals — fake games never score your week
       return;
@@ -2162,13 +2172,22 @@
           const scores = {};
           const abbrs = [];
           const logos = {};
+          const idToAbbr = {};
           (comp.competitors || []).forEach(function(c){
             const a = c.team && c.team.abbreviation;
             if(!a) return;
             abbrs.push(a);
             scores[a] = parseInt(c.score, 10);
             logos[a] = pickLogo(c.team);
+            if(c.team.id) idToAbbr[String(c.team.id)] = a;
           });
+          // Live drive info: who has the ball and where it sits.
+          const sit = comp.situation || {};
+          const possAbbr = sit.possession ? idToAbbr[String(sit.possession)] : '';
+          let dd = sit.downDistanceText || '';
+          if(!dd && sit.shortDownDistanceText){
+            dd = sit.shortDownDistanceText + (sit.possessionText ? ' at ' + sit.possessionText : '');
+          }
           const st = (ev.status && ev.status.type) || {};
           const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
           const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
@@ -2184,6 +2203,8 @@
             detail: st.shortDetail || '',
             clock: (ev.status && ev.status.displayClock) || '',
             period: (ev.status && ev.status.period) || 0,
+            poss: possAbbr || '',
+            downDistance: dd,
             date: ev.date || ''
           });
         });
@@ -2191,7 +2212,7 @@
         liveStatus = weekComplete()
           ? ('Week ' + week + ' is final — all games played')
           : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
-             (anyGameLive() ? ' (auto refreshes every 20 seconds)' : ' (auto refreshes every 5 minutes)'));
+             (anyGameLive() ? ' (auto refreshes every 10 seconds)' : ' (auto refreshes every 5 minutes)'));
         applyFinals();
 
         // Same payload carries the odds, so keep spreads current everywhere.
@@ -2250,6 +2271,26 @@
            a.getMonth() === b.getMonth() &&
            a.getDate() === b.getDate();
   }
+  /* What the clock should read for a game in progress. "Q2 0:00" is what you
+     get from trusting the raw period and clock — ESPN tells you it's halftime
+     in the status name, so use that. Same for end of quarter and overtime. */
+  function liveClock(lg){
+    const n = (lg.statusName || '').toUpperCase();
+    if(n.indexOf('HALFTIME') >= 0) return 'Halftime';
+    if(n.indexOf('END_PERIOD') >= 0 || n.indexOf('END_OF') >= 0){
+      if(lg.period === 2) return 'Halftime';
+      return 'End Q' + (lg.period || '');
+    }
+    if(n.indexOf('DELAY') >= 0) return 'Delayed';
+    const p = lg.period || 0;
+    const label = p > 4 ? (p === 5 ? 'OT' : 'OT' + (p - 4)) : 'Q' + p;
+    // A quarter that has run out but hasn't been called yet
+    if(p && lg.clock === '0:00') return p === 2 ? 'Halftime' : 'End ' + label;
+    if(p && lg.clock) return label + ' - ' + lg.clock;
+    if(p) return label;
+    return lg.detail || 'In progress';
+  }
+
   function kickoffText(lg, g){
     if(lg && lg.date){
       const d = new Date(lg.date);
@@ -2296,23 +2337,25 @@
       const score = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
       const isFav = city === favCityOf(g);
       const logo = (lg && lg.logos && lg.logos[ab]) || logoForCity(g, city);
-      return '<div class="trow' + (isMine ? ' mine' : '') + (leader === ab ? ' leading' : '') + '">' +
+      const hasBall = !!(lg && lg.state === 'in' && lg.poss && lg.poss === ab);
+      return '<div class="trow' + (isMine ? ' mine' : '') + (leader === ab ? ' leading' : '') +
+             '" data-ab="' + ab + '">' +
         '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</span>' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
           (isFav && typeof g.spread === 'number'
             ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">(-' + g.spread + ')</b>' + moveArrow(g)
             : '') + '</span>' +
-        '<span class="tscore">' + (started && score !== null ? score : '–') + '</span>' +
-        '<span class="tmark">' + (leader === ab ? '\u25C0' : '') + '</span>' +
+        '<span class="tscore" data-role="score">' + (started && score !== null ? score : '–') + '</span>' +
+        '<span class="tposs" data-role="poss">' + (hasBall ? BALL : '') + '</span>' +
       '</div>';
     }).join('');
 
-    // status column: LIVE clock / FINAL / kickoff day + time
+    // status column: green clock while live / FINAL / kickoff day + time
     let s1 = '', s2 = '', sCls = '';
     if(!lg){ s1 = 'No data'; s2 = ''; sCls = 'pre'; }
     else if(lg.state === 'in'){
-      s1 = '<span class="livetag"><span class="livedot"></span>LIVE</span>';
-      s2 = (lg.period ? 'Q' + lg.period + ' ' : '') + (lg.clock || '');
+      s1 = liveClock(lg);
+      s2 = '';
       sCls = 'live';
     }else if(lg.state === 'post'){ s1 = 'Final'; s2 = ''; sCls = 'final'; }
     else{
@@ -2322,24 +2365,123 @@
       sCls = 'pre';
     }
 
+    // "1st & 10 at NE 46" — only exists while a game is being played
+    const dd = (lg && lg.state === 'in' && lg.downDistance) ? esc(lg.downDistance) : '';
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
     // Results fill in automatically when a game goes final — no buttons needed.
     const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
 
-    return '<div class="gcard' + cardCls + '" data-id="' + g.id + '">' +
+    const liveCls = (lg && lg.state === 'in') ? ' islive' : '';
+    return '<div class="gcard' + cardCls + liveCls + '" data-id="' + g.id + '">' +
       '<div class="ghead">' +
         '<span class="gpts' + (r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '')) + '">' +
           pts + '<em>pt' + (pts===1?'':'s') + '</em></span>' +
       '</div>' +
       '<div class="gbody">' +
         '<div class="gteams">' + teamRows + '</div>' +
-        '<div class="gstatus ' + sCls + '">' +
-          '<span class="s1">' + s1 + '</span>' +
-          (s2 ? '<span class="s2">' + s2 + '</span>' : '') +
-          resTag +
+        '<div class="gstatus ' + sCls + '" data-role="status">' +
+          '<span class="s1" data-role="s1">' + s1 + '</span>' +
+          '<span class="s2" data-role="s2"' + (s2 ? '' : ' hidden') + '>' + s2 + '</span>' +
+          '<span data-role="restag">' + resTag + '</span>' +
         '</div>' +
       '</div>' +
+      '<div class="gdd" data-role="dd"' + (dd ? '' : ' hidden') + '>' + dd + '</div>' +
     '</div>';
+  }
+
+  const BALL = '<span class="ballicon">\uD83C\uDFC8</span>';
+
+  /* Rebuilding the whole list every 20 seconds destroys and recreates every
+     logo <img>, which is why they flashed on each refresh. The set of games
+     in a week doesn't change, so build once and then only touch the handful
+     of things that actually move: scores, the clock, possession, down and
+     distance, and the win/loss marks. */
+  function paintCards(active, shown){
+    const ids = active.map(function(g){ return g.id; }).join(',');
+    if(resultsList.dataset.ids !== ids){
+      resultsList.innerHTML = active.map(function(g,i){
+        return gameCard(g, i + 1, shown[g.id]);
+      }).join('');
+      resultsList.dataset.ids = ids;
+      wireHistory();
+      return;
+    }
+    active.forEach(function(g, i){ updateCard(g, i + 1, shown[g.id]); });
+  }
+
+  function setText(el, txt){ if(el && el.textContent !== txt) el.textContent = txt; }
+
+  function updateCard(g, pts, r){
+    const card = resultsList.querySelector('.gcard[data-id="' + g.id + '"]');
+    if(!card) return;
+    const lg = liveFor(g);
+    const started = lg && lg.state !== 'pre';
+    const live = !!(lg && lg.state === 'in');
+
+    // scores and possession, per team row
+    let leader = null;
+    if(lg){
+      const a = lg.away, b = lg.home;
+      if(started && typeof lg.scores[a] === 'number' && typeof lg.scores[b] === 'number'){
+        if(lg.scores[a] > lg.scores[b]) leader = a;
+        else if(lg.scores[b] > lg.scores[a]) leader = b;
+      }
+    }
+    card.querySelectorAll('.trow').forEach(function(row){
+      const ab = row.dataset.ab;
+      const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
+      setText(row.querySelector('[data-role="score"]'), (started && sc !== null) ? String(sc) : '\u2013');
+      row.classList.toggle('leading', leader === ab);
+      const poss = row.querySelector('[data-role="poss"]');
+      const hasBall = live && lg.poss === ab;
+      if(poss && (poss.innerHTML !== '') !== hasBall) poss.innerHTML = hasBall ? BALL : '';
+    });
+
+    // status column
+    const status = card.querySelector('[data-role="status"]');
+    if(status){
+      let s1 = '', s2 = '', cls = 'pre';
+      if(!lg){ s1 = 'No data'; }
+      else if(live){ s1 = liveClock(lg); cls = 'live'; }
+      else if(lg.state === 'post'){ s1 = 'Final'; cls = 'final'; }
+      else{ const k = kickoffText(lg, g); s1 = k.day; s2 = k.time; }
+      status.className = 'gstatus ' + cls;
+      setText(status.querySelector('[data-role="s1"]'), s1);
+      const el2 = status.querySelector('[data-role="s2"]');
+      setText(el2, s2);
+      if(el2) el2.hidden = !s2;
+      const rt = status.querySelector('[data-role="restag"]');
+      const want = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '\u2713 WON' : '\u2715 LOST') + '</span>' : '';
+      if(rt && rt.innerHTML !== want) rt.innerHTML = want;
+    }
+
+    // down and distance
+    const dd = card.querySelector('[data-role="dd"]');
+    if(dd){
+      const txt = (live && lg.downDistance) ? lg.downDistance : '';
+      setText(dd, txt);
+      dd.hidden = !txt;
+    }
+
+    card.classList.toggle('islive', live);
+    card.classList.toggle('won', r === 'win');
+    card.classList.toggle('lost', r === 'loss');
+    const badge = card.querySelector('.gpts');
+    if(badge){
+      badge.classList.toggle('won', r === 'win');
+      badge.classList.toggle('lost', r === 'loss');
+    }
+  }
+
+  function wireHistory(){
+    resultsList.querySelectorAll('[data-role="hist"]').forEach(function(el){
+      el.addEventListener('click', function(){
+        const card = el.closest ? el.closest('.gcard') : null;
+        const gid = el.dataset.gid || (card && card.dataset.id);
+        const g = games.filter(function(x){ return x.id === gid; })[0];
+        if(g) showHistory(g);
+      });
+    });
   }
 
   function refreshScores(){
@@ -2352,7 +2494,7 @@
       if(weekComplete() && !demoOn()){
         if(liveTimer){ clearInterval(liveTimer); liveTimer = null; liveTimerRate = 0; }
       }else if(liveTimer){
-        const want = anyGameLive() ? 20000 : 300000;
+        const want = anyGameLive() ? 10000 : 300000;
         if(want !== liveTimerRate) startLiveTimer();
       }
     });
@@ -2365,19 +2507,11 @@
 
     document.getElementById('liveStatus').textContent = liveLoading ? 'Loading scores…' : liveStatus;
 
-    const shown = activeResults();
-    resultsList.innerHTML = active.map(function(g,i){
-      return gameCard(g, i + 1, shown[g.id]);
-    }).join('');
+    const wh = document.getElementById('weekHead');
+    if(wh) wh.textContent = 'Week ' + currentWeek + ' of ' + MAX_WEEK;
 
-    resultsList.querySelectorAll('[data-role="hist"]').forEach(function(el){
-      el.addEventListener('click', function(){
-        const card = el.closest ? el.closest('.gcard') : null;
-        const gid = el.dataset.gid || (card && card.dataset.id);
-        const g = games.filter(function(x){ return x.id === gid; })[0];
-        if(g) showHistory(g);
-      });
-    });
+    const shown = activeResults();
+    paintCards(active, shown);
 
     const sc = weekScore(games, shown);
     document.getElementById('scoreBig').textContent = sc.earned;
@@ -2466,7 +2600,7 @@
     liveTimerRate = 0;
     // Nothing left to poll for once every game is in the books.
     if(weekComplete() && !demoOn()) return;
-    const every = anyGameLive() ? 20000 : 300000;
+    const every = anyGameLive() ? 10000 : 300000;
     liveTimerRate = every;
     liveTimer = setInterval(function(){
       if(!resultsOverlay.classList.contains('show')){
