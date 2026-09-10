@@ -864,6 +864,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.4.0</b> The app now updates itself. It checks for a newer build when you open it and quietly reloads into it — no more stale versions stuck on a home screen. It never interrupts you mid-pick, and your sheet is untouched.</div>
       <div class="cl"><b>2.3.2</b> Dropped the all-favorites comparison from the Score Tracker.</div>
       <div class="cl"><b>2.3.1</b> Fixed duplicate names piling up on the leaderboard. If your phone's storage gets cleared, your old entry is now cleaned up when you post again instead of sitting there forever.</div>
       <div class="cl"><b>2.3.0</b> Locked sheets are now protected: a short or failed schedule response can no longer drop games off a sheet you already locked, and an old saved sheet is never discarded just because the app changed. The add-to-home-screen offer no longer appears on its own — it lives in this menu.</div>
@@ -961,8 +962,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.3.2';
-  const APP_BUILT = 'Sep 10, 4:10 AM';
+  const APP_VERSION = '2.4.0';
+  const APP_BUILT = 'Sep 10, 4:40 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1899,6 +1900,7 @@
       return;
     }
     // Coming back from the background — everything on screen may be stale.
+    checkForUpdate();
     if(isTab('live')){
       refreshScores();
       startLiveTimer();
@@ -3012,6 +3014,56 @@
       if(n > 0) toast('Removed ' + n + ' old leaderboard ' + (n === 1 ? 'entry' : 'entries'));
     });
   })();
+
+  /* ---------- self-update check ----------
+     With no service worker there's nothing clever caching this file, but an
+     installed home-screen app is lazy about rechecking it, so people sit on an
+     old build without knowing. So the app asks for its own source with a
+     throwaway query string, reads the version out of it, and offers a reload
+     if it doesn't match what's running. Reloading via a versioned URL is what
+     actually defeats the cache — a plain reload can hand back the same stale
+     copy. Storage is per-origin, so picks are untouched by any of this. */
+  const UPDATE_GAP = 15 * 60 * 1000;
+  let lastUpdateCheck = 0;
+
+  /* Reload straight into the new build, without asking. Two rules keep that
+     from being rude or dangerous: never interrupt someone mid-action, and
+     never retry the same version twice in a row — otherwise a stale CDN copy
+     would put the app in a reload loop. Picks live in storage, which a reload
+     doesn't touch, so nothing is lost. */
+  const UPDATE_TRY_KEY = 'pickem-update-try';
+
+  function busy(){
+    if(openOverlays > 0) return true;      // a dialog is open
+    if(press) return true;                 // mid-drag
+    return false;
+  }
+
+  function applyUpdate(version){
+    if(busy()) return;                     // try again next time round
+    const last = getLocal(UPDATE_TRY_KEY);
+    if(last && last.v === version && (Date.now() - last.t) < UPDATE_GAP) return;
+    put(UPDATE_TRY_KEY, { v: version, t: Date.now() });
+    saveAll();
+    location.replace(location.pathname + '?v=' + encodeURIComponent(version));
+  }
+
+  function checkForUpdate(){
+    if(typeof fetch !== 'function') return;
+    const now = Date.now();
+    if(now - lastUpdateCheck < UPDATE_GAP) return;
+    lastUpdateCheck = now;
+    fetch(location.pathname + '?cb=' + now, { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(txt){
+        if(!txt) return;
+        const m = txt.match(/APP_VERSION\s*=\s*'([^']+)'/);
+        if(m && m[1] && m[1] !== APP_VERSION) applyUpdate(m[1]);
+      })
+      .catch(function(){});
+  }
+
+  checkForUpdate();
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
