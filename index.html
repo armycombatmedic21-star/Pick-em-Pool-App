@@ -850,9 +850,19 @@
       </span>
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
+    <div class="devrow" id="installRow">
+      <span class="devlabel">
+        <b>Add to Home Screen</b>
+        <span>Puts the pool on your home screen so it opens like an app, and keeps your picks from being cleared by the browser.</span>
+      </span>
+      <button class="devtoggle" id="installBtn">Show me</button>
+    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.2.0</b> Cleaner first run. New phones get one popup offering to add the app to the home screen — worth doing, it stops the browser clearing your picks. You're only asked your name when it matters: locking in, or opening Live. Add to Home Screen also lives in this menu.</div>
+      <div class="cl"><b>2.1.0</b> New phones get a one-time offer to add the pool to their home screen, and there's an Add to Home Screen button in this menu any time. Worth doing — a home-screen copy keeps the browser from clearing your saved picks.</div>
+      <div class="cl"><b>2.0.2</b> Fixed locked sheets getting wiped when the live schedule loaded — picks, order and dropped games are now matched by the teams playing, not by an internal id that could change.</div>
       <div class="cl"><b>2.0.1</b> Three tabs instead of four — Season Standings folds back into the bottom of Live, where it was. Cleared out unused code left over from the rebuild.</div>
       <div class="cl"><b>2.0.0</b> Rebuilt around a tab bar: Picks, Sheet, Live and Standings. No more popups stacked on popups — View Sheet, the Score Tracker button and the Season Standings button are gone, replaced by tabs. Back moves between tabs instead of leaving the app.</div>
       <div class="cl"><b>1.15.1</b> Fixed the app failing to load — a cleanup in 1.14.1 removed code the Season Standings button needed.</div>
@@ -895,6 +905,17 @@
   </div>
 </div>
 
+<div class="overlay" id="installOverlay">
+  <div class="confirmcard">
+    <h2 id="installTitle">Add the app to your home screen?</h2>
+    <p id="installText"></p>
+    <div class="confirmrow">
+      <button class="confirmcancel" id="installClose">Not now</button>
+      <button class="confirmyes" id="installGo">Show me how</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="unlockOverlay">
   <div class="confirmcard">
     <h2>Picks are locked</h2>
@@ -933,8 +954,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.0.1';
-  const APP_BUILT = 'Sep 10, 12:40 AM';
+  const APP_VERSION = '2.2.0';
+  const APP_BUILT = 'Sep 10, 2:20 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1102,13 +1123,28 @@
 
   // Merge a new set of lines into the games already on screen.
   // Keeps your picks, your removals, and — once frozen — your order.
+  /* Two games are the same game if the same two teams are playing, whatever
+     id they arrived under. The built-in fallback schedule numbers its games
+     g1, g2, g3…, while ESPN uses its own event ids — so matching on id alone
+     threw away every pick made before ESPN first answered. Matching on the
+     matchup too means a sheet survives that switch, and the game quietly
+     adopts the ESPN id from then on. */
+  function matchKey(g){
+    const a = g.abbrA || ABBR[g.cityA] || g.cityA;
+    const b = g.abbrB || ABBR[g.cityB] || g.cityB;
+    return [a, b].sort().join('|');
+  }
+
   function mergeLines(newLines, frozen){
-    const byId = {};
-    games.forEach(function(g){ byId[g.id] = g; });
+    const byId = {}, byMatch = {};
+    games.forEach(function(g){
+      byId[g.id] = g;
+      byMatch[matchKey(g)] = g;
+    });
 
     const now = Date.now();
     const merged = newLines.map(function(n){
-      const old = byId[n.id];
+      const old = byId[n.id] || byMatch[matchKey(n)];
       if(!old){
         const seed = (typeof n.spread === 'number')
           ? [{ sp:n.spread, fav:n.fav, t:now }] : [];
@@ -1123,7 +1159,7 @@
         }
         if(hist.length > 24) hist = hist.slice(hist.length - 24);
       }
-      return {...old, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
+      return {...old, id:n.id, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
               logoA:n.logoA, logoB:n.logoB,
               home:n.home, fav:n.fav, spread:n.spread, date:n.date, history: hist};
     });
@@ -1135,12 +1171,13 @@
     if(frozen){
       // preserve the order currently on screen; new games land at the end
       const pos = {};
-      games.forEach(function(g,i){ pos[g.id] = i; });
-      merged.sort(function(a,b){
-        const pa = (a.id in pos) ? pos[a.id] : 900 + chalk.indexOf(a);
-        const pb = (b.id in pos) ? pos[b.id] : 900 + chalk.indexOf(b);
-        return pa - pb;
-      });
+      games.forEach(function(g,i){ pos[g.id] = i; pos[matchKey(g)] = i; });
+      const where = function(g){
+        if(g.id in pos) return pos[g.id];
+        const k = matchKey(g);
+        return (k in pos) ? pos[k] : 900 + chalk.indexOf(g);
+      };
+      merged.sort(function(a,b){ return where(a) - where(b); });
       return parkRemoved(merged);
     }
     return parkRemoved(chalk);
@@ -2839,7 +2876,7 @@
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
     if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
   }
-  function enterLive(){ openResults(); }
+  function enterLive(){ openResults(); askNameIfNeeded(); }
 
   /* Season Standings sits collapsed at the bottom of Live. Whether it's open
      is remembered per device; nothing else about it is stateful. */
@@ -2863,6 +2900,106 @@
     if(seasonIsOpen()) renderSeason();
   }
   document.getElementById('seasonBtn').addEventListener('click', toggleSeason);
+
+  /* ---------- add to home screen ----------
+     The app is one file with no service worker, so Chrome will never fire its
+     own install prompt. What it will do is add a home-screen shortcut from its
+     menu, which is what actually matters here: the pool opens without browser
+     chrome, and its saved picks stop being throwaway site data the browser can
+     clear out from under someone. So this walks people to that menu item. */
+  const INSTALL_KEY = 'pickem-install-asked';
+  let installEvent = null;
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    installEvent = e;
+  });
+
+  function isInstalled(){
+    if(window.navigator && window.navigator.standalone) return true;
+    try{ return window.matchMedia('(display-mode: standalone)').matches; }
+    catch(e){ return false; }
+  }
+
+  function devicePlatform(){
+    const ua = (navigator.userAgent || '');
+    if(/Android/i.test(ua)) return 'android';
+    if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+    return 'other';
+  }
+
+  function installSteps(){
+    const p = devicePlatform();
+    if(p === 'android'){
+      return 'Tap the \u22EE menu at the top right of Chrome, then tap ' +
+             '\u201CAdd to Home screen\u201D and confirm. The pool will show up ' +
+             'with your other apps.';
+    }
+    if(p === 'ios'){
+      return 'Tap the Share button at the bottom of Safari, scroll down, then tap ' +
+             '\u201CAdd to Home Screen\u201D and confirm.';
+    }
+    return 'Use your browser\u2019s menu and choose \u201CAdd to Home screen\u201D ' +
+           'or \u201CInstall\u201D.';
+  }
+
+  const installOverlay = document.getElementById('installOverlay');
+  const installGo = document.getElementById('installGo');
+  const installTitle = document.getElementById('installTitle');
+  const installText = document.getElementById('installText');
+  const installClose = document.getElementById('installClose');
+
+  // First pane: why you'd want to.
+  function openInstallPopup(){
+    installTitle.textContent = 'Add the app to your home screen?';
+    installText.textContent =
+      'The pool will open like an app instead of a browser tab \u2014 and your ' +
+      'picks stop being treated as browser data that can get cleared out.';
+    installGo.style.display = '';
+    installClose.textContent = 'Not now';
+    openOverlay(installOverlay);
+  }
+
+  // Second pane: the actual tap-by-tap steps.
+  function showInstallSteps(){
+    // A real prompt beats instructions, on the rare browser that offers one.
+    if(installEvent){
+      installEvent.prompt();
+      installEvent = null;
+      if(installOverlay.classList.contains('show')) closeOverlay(installOverlay);
+      return;
+    }
+    installTitle.textContent = 'Add to Home Screen';
+    installText.textContent = installSteps();
+    installGo.style.display = 'none';
+    installClose.textContent = 'Got it';
+    if(!installOverlay.classList.contains('show')) openOverlay(installOverlay);
+  }
+
+  installGo.addEventListener('click', showInstallSteps);
+  installClose.addEventListener('click', function(){ closeOverlay(installOverlay); });
+  installOverlay.addEventListener('click', function(e){
+    if(e.target === installOverlay) closeOverlay(installOverlay);
+  });
+  // From the version menu you already know what it is, so skip the pitch.
+  document.getElementById('installBtn').addEventListener('click', showInstallSteps);
+
+  (function syncInstallRow(){
+    const row = document.getElementById('installRow');
+    if(row) row.style.display = isInstalled() ? 'none' : '';
+  })();
+
+  /* Offered once, on the first visit, before anything else asks for anything.
+     Never shown again on that phone, whichever button they press. */
+  (function offerInstall(){
+    if(isInstalled()) return;
+    if(devicePlatform() === 'other') return;
+    if((getLocal(INSTALL_KEY) || {}).asked) return;
+    put(INSTALL_KEY, { asked: true });
+    setTimeout(function(){
+      if(openOverlays === 0) openInstallPopup();
+    }, 600);
+  })();
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
@@ -3198,8 +3335,17 @@
 
   syncDemoUI();
 
-  // First run: introduce yourself to the pool.
-  if(!getLocal(PLAYER_KEY)){ setTimeout(askName, 400); }
+  /* Nobody gets asked their name before they've seen the app. It's asked at
+     the two moments it actually means something: locking a sheet in, and
+     opening Live, where the leaderboard is the whole point. */
+  let namePrompted = false;
+  function askNameIfNeeded(){
+    if(namePrompted || player().name) return;
+    namePrompted = true;
+    setTimeout(function(){
+      if(openOverlays === 0 && !player().name) askName();
+    }, 500);
+  }
 
   (function start(){
     const last = readView();
