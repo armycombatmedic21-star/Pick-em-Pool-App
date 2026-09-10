@@ -899,6 +899,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>1.15.1</b> Fixed the app failing to load — a cleanup in 1.14.1 removed code the Season Standings button needed.</div>
       <div class="cl"><b>1.15.0</b> The Score Tracker is now a full screen instead of a popup panel — no more app header peeking out behind it.</div>
       <div class="cl"><b>1.14.1</b> Dropped the extra line under Season Standings — just the table now.</div>
       <div class="cl"><b>1.14.0</b> Live games now show the clock in green, who has the ball, and the down and distance — and say "Halftime" instead of "Q2 0:00". Logos no longer blink on refresh, and live games refresh every 10 seconds. Added a Week # of 18 header.</div>
@@ -976,8 +977,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.15.0';
-  const APP_BUILT = 'Sep 9, 11:05 PM';
+  const APP_VERSION = '1.15.1';
+  const APP_BUILT = 'Sep 9, 11:25 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2796,6 +2797,75 @@
           .catch(function(){});
       });
     }, Promise.resolve());
+  }
+
+  /* ---------- the Season Standings button ----------
+     Collapsed by default so Sunday's scores stay the first thing you see.
+     Whether it's open is remembered per device. The glow runs for the first
+     three visits and never again once it's been tapped even once. */
+  const SEASON_OPEN_KEY = 'pickem-season-open';
+  const SEASON_HINT_KEY = 'pickem-season-hint';
+  const HINT_VISITS = 3;
+
+  function seasonIsOpen(){
+    const v = getLocal(SEASON_OPEN_KEY);
+    return !!(v && v.open);
+  }
+  function hintState(){
+    const v = getLocal(SEASON_HINT_KEY);
+    return { visits: (v && v.visits) || 0, tapped: !!(v && v.tapped) };
+  }
+  function shouldHint(){
+    const h = hintState();
+    return !h.tapped && h.visits <= HINT_VISITS;
+  }
+  // Called once each time the tracker is opened.
+  function countSeasonVisit(){
+    const h = hintState();
+    if(h.tapped) return;
+    put(SEASON_HINT_KEY, { visits: h.visits + 1, tapped: false });
+  }
+
+  function syncSeasonBtn(){
+    const btn = document.getElementById('seasonBtn');
+    const panel = document.getElementById('seasonPanel');
+    if(!btn || !panel) return;
+    const open = seasonIsOpen();
+    panel.hidden = !open;
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // Never glow while it's sitting open — there'd be nothing to discover.
+    btn.classList.toggle('hintme', !open && shouldHint());
+  }
+
+  function toggleSeason(){
+    const open = !seasonIsOpen();
+    put(SEASON_OPEN_KEY, { open: open });
+    const h = hintState();
+    if(!h.tapped) put(SEASON_HINT_KEY, { visits: h.visits, tapped: true });
+    syncSeasonBtn();
+    if(open) renderSeason();
+  }
+
+  /* The one-line summary on the button face — who's leading and where you
+     stand. It's the reason to tap, so it shows even while collapsed. */
+  function seasonSummary(players, me){
+    if(!players.length) return 'Every week, everyone';
+    const leader = players[0];
+    let mine = -1;
+    for(let i = 0; i < players.length; i++){ if(players[i].id === me.id) mine = i; }
+    const weeks = seasonWeeks.length;
+    const wkTxt = weeks + ' week' + (weeks === 1 ? '' : 's');
+    if(mine === 0) return 'You lead with ' + leader.total + ' pts \u00b7 ' + wkTxt;
+    if(mine > 0){
+      return esc(leader.name) + ' leads \u00b7 you\u2019re ' + ordinal(mine + 1) +
+             ' of ' + players.length + ' \u00b7 ' + wkTxt;
+    }
+    return esc(leader.name) + ' leads with ' + leader.total + ' pts \u00b7 ' + wkTxt;
+  }
+  function ordinal(n){
+    const s = ['th','st','nd','rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
   }
 
   function renderSeason(){
