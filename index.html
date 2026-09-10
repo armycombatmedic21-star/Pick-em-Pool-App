@@ -864,6 +864,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.3.2</b> Dropped the all-favorites comparison from the Score Tracker.</div>
       <div class="cl"><b>2.3.1</b> Fixed duplicate names piling up on the leaderboard. If your phone's storage gets cleared, your old entry is now cleaned up when you post again instead of sitting there forever.</div>
       <div class="cl"><b>2.3.0</b> Locked sheets are now protected: a short or failed schedule response can no longer drop games off a sheet you already locked, and an old saved sheet is never discarded just because the app changed. The add-to-home-screen offer no longer appears on its own — it lives in this menu.</div>
       <div class="cl"><b>2.2.1</b> Android now goes straight to Chrome's own Install dialog instead of showing a warning-looking popup first.</div>
@@ -960,8 +961,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.3.1';
-  const APP_BUILT = 'Sep 10, 3:55 AM';
+  const APP_VERSION = '2.3.2';
+  const APP_BUILT = 'Sep 10, 4:10 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2150,20 +2151,15 @@
 
   function weekScore(picks, res){
     const active = picks.filter(function(g){ return !g.removed; });
-    let earned = 0, possible = 0, chalk = 0, decided = 0;
+    let earned = 0, possible = 0, decided = 0;
     active.forEach(function(g,i){
       const pts = i + 1;
       possible += pts;
       const r = res[g.id];
       if(r === 'win'){ earned += pts; decided++; }
       else if(r === 'loss'){ decided++; }
-      if(r){
-        const tookFav = g.pick === 'fav';
-        const favWon = (r === 'win') === tookFav;
-        if(favWon) chalk += pts;
-      }
     });
-    return { earned: earned, possible: possible, chalk: chalk, decided: decided, total: active.length };
+    return { earned: earned, possible: possible, decided: decided, total: active.length };
   }
 
   /* ---------- live scores (ESPN public scoreboard) ---------- */
@@ -2591,15 +2587,7 @@
       'points of ' + sc.possible + ' possible · ' + sc.decided + ' of ' + sc.total + ' games scored';
 
     const cmp = document.getElementById('scoreCompare');
-    if(sc.decided === 0){
-      cmp.textContent = 'Results fill in as games go final.';
-      cmp.style.color = 'var(--muted)';
-    }else{
-      const diff = sc.earned - sc.chalk;
-      if(diff > 0){ cmp.textContent = 'Beating all-favorites by ' + diff + ' pts'; cmp.style.color = 'var(--green)'; }
-      else if(diff < 0){ cmp.textContent = 'Behind all-favorites by ' + Math.abs(diff) + ' pts'; cmp.style.color = 'var(--red)'; }
-      else { cmp.textContent = 'Even with all-favorites'; cmp.style.color = 'var(--muted)'; }
-    }
+    cmp.textContent = (sc.decided === 0) ? 'Results fill in as games go final.' : '';
 
     // Open first. The leaderboard and the season table are extras — if either
     // one hits something unexpected, you still get your scores.
