@@ -46,7 +46,7 @@
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height:100vh;
-    padding: 16px 12px 96px;
+    padding: 16px 12px calc(78px + env(safe-area-inset-bottom));
   }
   body.dragmode{ touch-action:none; }
 
@@ -184,28 +184,6 @@
     background: var(--gold); color:#20180a; border-color: var(--gold);
     box-shadow: 0 0 16px rgba(244,196,61,0.35);
   }
-  .navrow{ display:flex; gap:7px; margin: 0 0 10px; }
-  .navrow button{
-    flex:1; padding:11px 6px; border-radius:8px; border:1px solid var(--line);
-    background: var(--panel); color: var(--cyan); font-size:0.9rem; font-weight:800;
-  }
-  .navrow button.minor{
-    flex:0 0 88px; padding:9px 6px; font-size:0.78rem; font-weight:700;
-    color: var(--muted); background: transparent;
-  }
-  #resultsBtn{
-    color: var(--gold); font-weight:800;
-    border-color: rgba(244,196,61,0.45);
-    background: rgba(244,196,61,0.08);
-    text-shadow: 0 0 10px rgba(244,196,61,0.6);
-    animation: goldglow 2.4s ease-in-out infinite;
-  }
-  @keyframes goldglow{
-    0%,100%{ text-shadow: 0 0 8px rgba(244,196,61,0.45); box-shadow: 0 0 6px rgba(244,196,61,0.12); }
-    50%{ text-shadow: 0 0 16px rgba(244,196,61,0.95); box-shadow: 0 0 16px rgba(244,196,61,0.3); }
-  }
-  @media (prefers-reduced-motion: reduce){ #resultsBtn{ animation:none; } }
-
   .draghint{
     text-align:center; color: var(--green);
     border:1px solid rgba(61,220,132,0.45);
@@ -304,8 +282,6 @@
   .mutedcity{ color: var(--text); font-weight:600; opacity:0.7; font-size:0.9rem; }
   .spread-green{ color: var(--green); font-weight:800; margin:0 2px; }
   .spread-red{ color: var(--red); font-weight:800; margin:0 2px; }
-  .spread-muted{ color: var(--muted); font-weight:700; opacity:0.55; margin:0 2px; }
-  .pulse{ animation: pulsered 1.1s ease-in-out infinite; }
   @keyframes pulsered{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
   .vsword{ color: var(--muted); font-size:0.82rem; font-weight:600; margin-right:4px; opacity:0.7; }
   .pspread{
@@ -386,7 +362,7 @@
      row can never be squeezed into wrapping. */
   @media (max-width: 400px){
     .actions{ width:76px; }
-    .togglebtn, .swx{ width:76px; }
+    .swx{ width:76px; }
     .swx.dog .swx-knob{ left:54px; }
     .line1{ font-size:0.92rem; }
     .line2{ font-size:0.8rem; }
@@ -406,19 +382,44 @@
     .swx.dog .swx-knob{ left:48px; }
   }
 
-  .footer-note{ text-align:center; color: var(--muted); font-size:0.8rem; font-weight:600; margin-top:16px; line-height:1.5; }
-
-  .donebar{
-    position:fixed; bottom:0; left:0; right:0;
-    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-    background: linear-gradient(0deg, rgba(6,11,22,0.98), rgba(6,11,22,0.85));
+  /* ---------- tabs ---------- */
+  .tabpanel[hidden]{ display:none; }
+  .panelhead{
+    margin:0 0 10px; color: var(--cyan); font-size:1.1rem;
+    text-shadow: 0 0 10px rgba(53,208,255,0.3);
+  }
+  .tabbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:50;
+    display:flex; align-items:stretch;
+    background: rgba(10,18,32,0.97);
     border-top:1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+    backdrop-filter: blur(8px);
   }
-  .donebtn{
-    width:100%; padding:15px; border-radius:10px; border:none;
-    background: var(--cyan); color:#00131c; font-weight:800; font-size:1.1rem;
-    box-shadow: 0 0 18px rgba(53,208,255,0.35);
+  .tabbtn{
+    flex:1; min-width:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px;
+    padding:9px 4px 8px; border:none; background:none;
+    color: var(--muted); font: inherit; cursor:pointer;
   }
+  .tabicon{ font-size:1.15rem; line-height:1; opacity:0.75; }
+  .tablabel{
+    font-size:0.7rem; font-weight:800; letter-spacing:0.3px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .tabbtn.on{ color: var(--cyan); }
+  .tabbtn.on .tabicon{ opacity:1; text-shadow: 0 0 10px rgba(53,208,255,0.5); }
+  .tabbtn.on .tablabel{ text-shadow: 0 0 8px rgba(53,208,255,0.35); }
+  .tabbtn:active{ background: rgba(53,208,255,0.07); }
+
+  /* a quiet way out, now that Reset isn't sharing a row with anything */
+  .resetlink{
+    display:block; margin:14px auto 0; padding:6px 12px;
+    background:none; border:none; color: var(--muted);
+    font-size:0.8rem; font-weight:700; text-decoration:underline;
+  }
+
+  .footer-note{ text-align:center; color: var(--muted); font-size:0.8rem; font-weight:600; margin-top:16px; line-height:1.5; }
 
   .overlay{
     position:fixed; inset:0; overscroll-behavior: contain; background: rgba(2,5,10,0.82);
@@ -435,17 +436,6 @@
   /* The Score Tracker is a screen, not a popup: it fills the window, squares
      off its corners, and sits on a solid background so nothing shows behind
      it. Same markup, same file — it just stops looking like a sheet. */
-  .overlay.fullpage{ align-items:stretch; background: var(--bg); }
-  .overlay.fullpage .sheet{
-    max-width:none; max-height:none; height:100%;
-    border:none; border-radius:0; box-shadow:none;
-    background: var(--bg);
-    padding:calc(10px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
-  }
-  @media (min-width:520px){
-    .overlay.fullpage .sheet{ max-width:560px; margin:0 auto; }
-  }
-
   .sheet h2{ margin:0; color: var(--cyan); font-size:1.1rem; text-shadow: 0 0 10px rgba(53,208,255,0.3); }
   #resultsTitle{
     color: var(--gold);
@@ -465,12 +455,6 @@
   .sheetcity{ font-weight:700; flex:1; min-width:0; }
   .sheetspread{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; white-space:nowrap; }
 
-  .sheetbtnrow{ display:flex; gap:8px; margin-top:8px; }
-  .sheetbtnrow button{
-    flex:1; padding:10px 6px; border-radius:8px; font-size:0.9rem; font-weight:800;
-    border:1px solid var(--line); background: transparent; color: var(--text);
-  }
-  .sheetbtnrow button.accent{ border-color: var(--cyan-dim); color: var(--cyan); }
 
   .liverow{
     display:flex; align-items:center; gap:10px; margin: -4px 0 12px;
@@ -640,46 +624,25 @@
     margin:2px 0 9px;
   }
 
+  /* Season Standings disclosure at the foot of Live */
   .seasonbox{ margin:16px 0 4px; border-top:1px solid var(--line); padding-top:16px; }
   .seasonbtn{
-    width:100%; display:flex; align-items:center; gap:10px;
+    width:100%; display:flex; align-items:center; justify-content:space-between;
     padding:12px 14px; border-radius:12px;
     border:1px solid var(--line); background: var(--panel-hi);
     color: var(--text); text-align:left; font: inherit; cursor:pointer;
   }
+  .seasonbtn b{ font-size:0.98rem; color: var(--cyan); }
   .seasonbtn:active{ background: var(--line); }
-  .seasontext{ flex:1; min-width:0; display:block; }
-  .seasontext b{ display:block; font-size:0.98rem; color: var(--cyan); }
-  .seasonsub{
-    display:block; margin-top:2px; font-size:0.78rem; font-weight:600;
-    color: var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
   .seasonchev{
     flex:none; font-size:1.5rem; line-height:1; color: var(--cyan);
     transition: transform 0.18s ease;
   }
   .seasonbtn.open .seasonchev{ transform: rotate(90deg); }
   .seasonpanel{ padding-top:12px; }
+  .seasonpanel[hidden]{ display:none; }
+  @media (prefers-reduced-motion: reduce){ .seasonchev{ transition:none; } }
 
-  /* First few visits only, then it never runs again. A slow breathe, not a
-     blink — enough to say "this is a button", not enough to nag. */
-  @keyframes seasonbreathe{
-    0%,100%{ box-shadow: 0 0 0 rgba(53,208,255,0); border-color: var(--line); }
-    50%{ box-shadow: 0 0 14px rgba(53,208,255,0.35); border-color: var(--cyan-dim); }
-  }
-  .seasonbtn.hintme{ animation: seasonbreathe 2.4s ease-in-out infinite; }
-  @media (prefers-reduced-motion: reduce){
-    .seasonbtn.hintme{ animation:none; border-color: var(--cyan-dim); }
-    .seasonchev{ transition:none; }
-  }
-
-  .seasonrow{
-    display:flex; align-items:center; gap:10px; padding:7px 0;
-    font-size:0.92rem; font-weight:700; border-bottom:1px solid rgba(28,51,80,0.5);
-  }
-  .seasonwk{ min-width:56px; color: var(--muted); font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; }
-  .seasonscore{ flex:1; }
-  .seasondelta{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; }
   .seasonempty{ color: var(--muted); font-size:0.88rem; font-weight:600; line-height:1.4; }
 
   /* Season table: name and total stay put, the weeks scroll sideways. */
@@ -756,50 +719,33 @@
     <select class="weekpick" id="weekPick"></select>
   </div>
 </div>
-<p class="sub">Lowest number = least confident. Highest = your safest lock.</p>
+<!-- ===== PICKS ===== -->
+<section class="tabpanel" id="tabPicks">
+  <p class="sub">Lowest number = least confident. Highest = your safest lock.</p>
+  <div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
+  <div class="linestamp" id="lineStamp"></div>
+  <button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
+  <button class="lockinline" id="lockInline" style="display:none;">Lock In Picks</button>
 
-<div class="navrow">
-  <button id="resultsBtn">Score Tracker</button>
-  <button id="resetBtn" class="minor">Reset</button>
-</div>
-
-<div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
-<div class="linestamp" id="lineStamp"></div>
-<button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
-<button class="lockinline" id="lockInline" style="display:none;">Lock In Picks</button>
-
-<ul id="list"></ul>
-<div class="emptyweek" id="emptyWeek" style="display:none;">
-  No spreads loaded for this week yet.<br>Ask Claude to pull this week's lines.
-</div>
-
-<p class="footer-note">Your picks save automatically on this device.</p>
-
-<div class="donebar">
-  <button class="donebtn" id="doneBtn">View Sheet</button>
-</div>
-
-<div class="overlay" id="overlay">
-  <div class="sheet">
-    <div class="sheettop">
-      <button class="backbtn" id="sheetBack">‹ Back</button>
-      <h2 id="sheetTitle">Your Sheet</h2>
-    </div>
-    <div id="sheetList"></div>
-    <button class="lockbtn" id="lockBtn">Lock In Picks</button>
-    <div class="sheetbtnrow">
-      <button class="accent" id="toResultsBtn">Score Tracker</button>
-    </div>
-    <button class="closebtn" id="closeBtn">‹ Back</button>
+  <ul id="list"></ul>
+  <div class="emptyweek" id="emptyWeek" style="display:none;">
+    No spreads loaded for this week yet.<br>Ask Claude to pull this week's lines.
   </div>
-</div>
 
-<div class="overlay fullpage" id="resultsOverlay">
-  <div class="sheet">
-    <div class="sheettop">
-      <button class="backbtn" id="resultsBack">‹ Back</button>
-      <h2 id="resultsTitle">Score Tracker</h2>
-    </div>
+  <p class="footer-note">Your picks save automatically on this device.</p>
+  <button class="resetlink" id="resetBtn">Reset this week</button>
+</section>
+
+<!-- ===== SHEET ===== -->
+<section class="tabpanel" id="tabSheet" hidden>
+  <h2 class="panelhead" id="sheetTitle">Your Sheet</h2>
+  <div id="sheetList"></div>
+  <button class="lockbtn" id="lockBtn">Lock In Picks</button>
+</section>
+
+<!-- ===== LIVE ===== -->
+<section class="tabpanel" id="tabLive" hidden>
+    <h2 class="panelhead" id="resultsTitle">Score Tracker</h2>
     <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
     <div class="liverow">
       <span class="livestatus" id="liveStatus"></span>
@@ -820,21 +766,29 @@
     </div>
     <div class="weekhead" id="weekHead"></div>
     <div id="resultsList"></div>
+
     <div class="seasonbox">
       <button class="seasonbtn" id="seasonBtn" aria-expanded="false" aria-controls="seasonPanel">
-        <span class="seasontext">
-          <b>Season Standings</b>
-          <span class="seasonsub" id="seasonSub">Every week, everyone</span>
-        </span>
-        <span class="seasonchev" id="seasonChev">&#8250;</span>
+        <b>Season Standings</b>
+        <span class="seasonchev">&#8250;</span>
       </button>
       <div class="seasonpanel" id="seasonPanel" hidden>
         <div id="seasonLog"></div>
       </div>
     </div>
-    <button class="closebtn" id="resultsClose">‹ Back</button>
-  </div>
-</div>
+</section>
+
+<nav class="tabbar" id="tabBar">
+  <button class="tabbtn" data-tab="picks">
+    <span class="tabicon">☰</span><span class="tablabel">Picks</span>
+  </button>
+  <button class="tabbtn" data-tab="sheet">
+    <span class="tabicon">☑</span><span class="tablabel">Sheet</span>
+  </button>
+  <button class="tabbtn" data-tab="live">
+    <span class="tabicon">◉</span><span class="tablabel">Live</span>
+  </button>
+</nav>
 
 <div class="overlay" id="confirmOverlay">
   <div class="confirmcard">
@@ -899,6 +853,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.0.1</b> Three tabs instead of four — Season Standings folds back into the bottom of Live, where it was. Cleared out unused code left over from the rebuild.</div>
+      <div class="cl"><b>2.0.0</b> Rebuilt around a tab bar: Picks, Sheet, Live and Standings. No more popups stacked on popups — View Sheet, the Score Tracker button and the Season Standings button are gone, replaced by tabs. Back moves between tabs instead of leaving the app.</div>
       <div class="cl"><b>1.15.1</b> Fixed the app failing to load — a cleanup in 1.14.1 removed code the Season Standings button needed.</div>
       <div class="cl"><b>1.15.0</b> The Score Tracker is now a full screen instead of a popup panel — no more app header peeking out behind it.</div>
       <div class="cl"><b>1.14.1</b> Dropped the extra line under Season Standings — just the table now.</div>
@@ -977,18 +933,14 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.15.1';
-  const APP_BUILT = 'Sep 9, 11:25 PM';
+  const APP_VERSION = '2.0.1';
+  const APP_BUILT = 'Sep 10, 12:40 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
   /* Source stamp + revision for each week's lines.
      IMPORTANT: bump `rev` every time a week's spreads change. That is what
      forces the list back to chalk order and refreshes the percentages. */
-  const WEEK_META = {
-    1: { book:'BetMGM', pulled:'Sep 4, 2026', rev:2 }
-  };
-
   const listEl = document.getElementById('list');
   const emptyEl = document.getElementById('emptyWeek');
   let currentWeek = 1;
@@ -1428,7 +1380,6 @@
   // Which side is home. Data lists the away team first, so 'B' is the default.
   function homeSideOf(g){ return g.home === 'A' ? 'A' : 'B'; }
   function homeCityOf(g){ return homeSideOf(g) === 'A' ? g.cityA : g.cityB; }
-  function awayCityOf(g){ return homeSideOf(g) === 'A' ? g.cityB : g.cityA; }
   // "vs" when your pick is at home, "@" when it's on the road.
   function venueWordFor(city, g){ return city === homeCityOf(g) ? 'vs' : '@'; }
   function activeGames(){ return games.filter(g => !g.removed); }
@@ -1873,11 +1824,11 @@
   document.addEventListener('visibilitychange', function(){
     if(document.hidden){
       saveAll();
-      saveView(resultsOverlay && resultsOverlay.classList.contains('show') ? 'results' : 'main');
+      saveView(currentTab);
       return;
     }
     // Coming back from the background — everything on screen may be stale.
-    if(resultsOverlay && resultsOverlay.classList.contains('show')){
+    if(isTab('live')){
       refreshScores();
       startLiveTimer();
       syncPool();
@@ -1888,8 +1839,7 @@
   });
   function flushState(){
     saveAll();
-    const ro = document.getElementById('resultsOverlay');
-    saveView(ro && ro.classList.contains('show') ? 'results' : 'main');
+    saveView(currentTab);
   }
   window.addEventListener('pagehide', flushState);
   window.addEventListener('beforeunload', flushState);
@@ -1907,7 +1857,7 @@
     weekTouched = true;
     saveAll();
     loadWeek(parseInt(weekPick.value, 10));
-    saveView('main');
+    saveView(currentTab);
   });
 
   /* ---------- Android support ----------
@@ -1946,13 +1896,18 @@
   let popping = false;
   let pendingBack = 0;   // history.back() calls we made ourselves
 
-  window.addEventListener('popstate', function(){
+  window.addEventListener('popstate', function(e){
     // Ignore the pop caused by our own history.back() when closing via tap.
     if(pendingBack > 0){ pendingBack--; return; }
-    if(!overlayStack.length) return;
-    popping = true;
-    closeOverlay(overlayStack[overlayStack.length - 1], true);
-    popping = false;
+    if(overlayStack.length){
+      popping = true;
+      closeOverlay(overlayStack[overlayStack.length - 1], true);
+      popping = false;
+      return;
+    }
+    // No dialog open, so back moves between tabs rather than leaving the app.
+    const st = e && e.state;
+    showTab((st && st.tab) || 'picks', true);
   });
 
   /* ---------- overlay open/close with a real scroll lock ----------
@@ -2007,10 +1962,9 @@
     setTimeout(function(){ t.classList.remove('show'); }, 1700);
   }
 
-  const overlay = document.getElementById('overlay');
   const sheetList = document.getElementById('sheetList');
 
-  function openSheet(){
+  function renderSheet(){
     freezeOrder();
     syncLockBtn();
     document.getElementById('sheetTitle').textContent = 'Week ' + currentWeek + ' Sheet';
@@ -2023,9 +1977,7 @@
         '<span class="sheetspread ' + (isDog?'spread-red':'spread-green') + '">' + s + '</span>' +
       '</div>';
     }).join('');
-    openOverlay(overlay);
   }
-  document.getElementById('doneBtn').addEventListener('click', openSheet);
   const unlockOverlay = document.getElementById('unlockOverlay');
   let askedFrom = null;
 
@@ -2076,13 +2028,46 @@
   document.getElementById('lockBtn').addEventListener('click', doLock);
   document.getElementById('lockInline').addEventListener('click', doLock);
 
-  document.getElementById('sheetBack').addEventListener('click', function(){ closeOverlay(overlay); });
-  document.getElementById('resultsBack').addEventListener('click', closeResults);
-  document.getElementById('closeBtn').addEventListener('click', function(){ closeOverlay(overlay); });
-  overlay.addEventListener('click', function(e){ if(e.target === overlay) closeOverlay(overlay); });
-
   /* results */
-  const resultsOverlay = document.getElementById('resultsOverlay');
+  /* ---------- tabs ----------
+     Picks, Sheet, Live and Standings are peers now, not layers stacked on
+     each other. Each is a plain section; the bar at the bottom swaps which
+     one is showing. Dialogs (unlock, name, history) are still overlays,
+     because those really are interruptions. */
+  const TABS = ['picks','sheet','live'];
+  let currentTab = 'picks';
+  function isTab(name){ return currentTab === name; }
+
+  function showTab(name, fromPop){
+    if(TABS.indexOf(name) < 0) name = 'picks';
+    const prev = currentTab;
+    if(prev === name && !fromPop) return;
+    currentTab = name;
+
+    TABS.forEach(function(t){
+      const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+      if(el) el.hidden = (t !== name);
+    });
+    document.querySelectorAll('.tabbtn').forEach(function(b){
+      b.classList.toggle('on', b.dataset.tab === name);
+      b.setAttribute('aria-current', b.dataset.tab === name ? 'page' : 'false');
+    });
+
+    if(prev === 'live' && name !== 'live') stopLiveTimers();
+    if(name === 'sheet') renderSheet();
+    if(name === 'live') enterLive();
+
+    window.scrollTo(0, 0);
+    saveView(name);
+    if(!fromPop){
+      try{ history.pushState({ tab: name }, ''); }catch(e){}
+    }
+  }
+
+  document.getElementById('tabBar').addEventListener('click', function(e){
+    const b = e.target.closest ? e.target.closest('.tabbtn') : null;
+    if(b && b.dataset.tab) showTab(b.dataset.tab);
+  });
   const resultsList = document.getElementById('resultsList');
 
   function activeResults(){
@@ -2548,7 +2533,6 @@
 
     // Open first. The leaderboard and the season table are extras — if either
     // one hits something unexpected, you still get your scores.
-    openOverlay(resultsOverlay);
     try{ renderBoard(); }catch(e){
       const n = document.getElementById('lbNote');
       if(n) n.textContent = 'Leaderboard unavailable right now.';
@@ -2557,10 +2541,7 @@
       const b = document.getElementById('seasonLog');
       if(b) b.innerHTML = '<div class="seasonempty">Standings unavailable right now.</div>';
     }
-    saveView('results');
-
     if(!skipFetch){
-      countSeasonVisit();
       syncSeasonBtn();
       refreshScores();
       startLiveTimer();
@@ -2605,9 +2586,7 @@
     // their last score, so keep checking — just far less often.
     const every = (weekComplete() && !demoOn()) ? 60000 : 5000;
     boardTimer = setInterval(function(){
-      if(!resultsOverlay.classList.contains('show')){
-        clearInterval(boardTimer); boardTimer = null; return;
-      }
+      if(!isTab('live')){ clearInterval(boardTimer); boardTimer = null; return; }
       fetchBoard(currentWeek, renderBoard);
     }, every);
   }
@@ -2620,9 +2599,7 @@
     const every = anyGameLive() ? 10000 : 300000;
     liveTimerRate = every;
     liveTimer = setInterval(function(){
-      if(!resultsOverlay.classList.contains('show')){
-        clearInterval(liveTimer); liveTimer = null; return;
-      }
+      if(!isTab('live')){ clearInterval(liveTimer); liveTimer = null; return; }
       fetchScores(currentWeek, function(){
         openResults(true);
         syncPool();          // keep your published score current while you sit here
@@ -2635,13 +2612,6 @@
 
   /* Picks are stored as { frozen, locked, games:[...] }. Very old saves were a
      bare array. Either way, hand back a plain list of games or null. */
-  function savedGames(week){
-    const s = getLocal(picksKey(week));
-    if(!s) return null;
-    if(Array.isArray(s)) return s;
-    return Array.isArray(s.games) ? s.games : null;
-  }
-
   /* ---------- season standings (everyone, week by week) ----------
      One read of /pickem gives every week's entries. The `points` field is
      whatever that player's phone last published, which can be stale if they
@@ -2799,75 +2769,6 @@
     }, Promise.resolve());
   }
 
-  /* ---------- the Season Standings button ----------
-     Collapsed by default so Sunday's scores stay the first thing you see.
-     Whether it's open is remembered per device. The glow runs for the first
-     three visits and never again once it's been tapped even once. */
-  const SEASON_OPEN_KEY = 'pickem-season-open';
-  const SEASON_HINT_KEY = 'pickem-season-hint';
-  const HINT_VISITS = 3;
-
-  function seasonIsOpen(){
-    const v = getLocal(SEASON_OPEN_KEY);
-    return !!(v && v.open);
-  }
-  function hintState(){
-    const v = getLocal(SEASON_HINT_KEY);
-    return { visits: (v && v.visits) || 0, tapped: !!(v && v.tapped) };
-  }
-  function shouldHint(){
-    const h = hintState();
-    return !h.tapped && h.visits <= HINT_VISITS;
-  }
-  // Called once each time the tracker is opened.
-  function countSeasonVisit(){
-    const h = hintState();
-    if(h.tapped) return;
-    put(SEASON_HINT_KEY, { visits: h.visits + 1, tapped: false });
-  }
-
-  function syncSeasonBtn(){
-    const btn = document.getElementById('seasonBtn');
-    const panel = document.getElementById('seasonPanel');
-    if(!btn || !panel) return;
-    const open = seasonIsOpen();
-    panel.hidden = !open;
-    btn.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    // Never glow while it's sitting open — there'd be nothing to discover.
-    btn.classList.toggle('hintme', !open && shouldHint());
-  }
-
-  function toggleSeason(){
-    const open = !seasonIsOpen();
-    put(SEASON_OPEN_KEY, { open: open });
-    const h = hintState();
-    if(!h.tapped) put(SEASON_HINT_KEY, { visits: h.visits, tapped: true });
-    syncSeasonBtn();
-    if(open) renderSeason();
-  }
-
-  /* The one-line summary on the button face — who's leading and where you
-     stand. It's the reason to tap, so it shows even while collapsed. */
-  function seasonSummary(players, me){
-    if(!players.length) return 'Every week, everyone';
-    const leader = players[0];
-    let mine = -1;
-    for(let i = 0; i < players.length; i++){ if(players[i].id === me.id) mine = i; }
-    const weeks = seasonWeeks.length;
-    const wkTxt = weeks + ' week' + (weeks === 1 ? '' : 's');
-    if(mine === 0) return 'You lead with ' + leader.total + ' pts \u00b7 ' + wkTxt;
-    if(mine > 0){
-      return esc(leader.name) + ' leads \u00b7 you\u2019re ' + ordinal(mine + 1) +
-             ' of ' + players.length + ' \u00b7 ' + wkTxt;
-    }
-    return esc(leader.name) + ' leads with ' + leader.total + ' pts \u00b7 ' + wkTxt;
-  }
-  function ordinal(n){
-    const s = ['th','st','nd','rd'], v = n % 100;
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  }
-
   function renderSeason(){
     const box = document.getElementById('seasonLog');
     if(!box) return;
@@ -2888,10 +2789,7 @@
       }
     }
 
-    const sub = document.getElementById('seasonSub');
-
     if(!seasonWeeks.length){
-      if(sub) sub.textContent = seasonLoading ? 'Loading…' : 'Every week, everyone';
       box.innerHTML = '<div class="seasonempty">' +
         (seasonLoading ? 'Loading the pool\u2019s season…' :
          (seasonNote || 'No weeks scored yet. Once sheets are locked in, every week shows up here.')) +
@@ -2914,8 +2812,6 @@
     const players = Object.keys(byPlayer).map(function(k){ return byPlayer[k]; });
     players.sort(function(a,b){ return b.total - a.total; });
 
-    if(sub) sub.innerHTML = seasonSummary(players, me);
-
     let head = '<tr><th class="sname">Player</th><th class="stot">TOT</th>';
     seasonWeeks.forEach(function(wk){ head += '<th class="swk">W' + wk.week + '</th>'; });
     head += '</tr>';
@@ -2937,23 +2833,38 @@
       (seasonNote ? '<div class="seasonnote">' + seasonNote + '</div>' : '');
   }
 
-  function closeResults(){
-    saveView('main');
-    closeOverlay(resultsOverlay);
-    if(liveTimer){ clearInterval(liveTimer); liveTimer = null; }
+  // Leaving the Live tab: nothing on screen needs polling any more.
+  function stopLiveTimers(){
+    if(liveTimer){ clearInterval(liveTimer); liveTimer = null; liveTimerRate = 0; }
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
     if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
   }
+  function enterLive(){ openResults(); }
 
-  document.getElementById('resultsBtn').addEventListener('click', function(){ openResults(); });
-  document.getElementById('refreshBtn').addEventListener('click', refreshScores);
-  document.getElementById('toResultsBtn').addEventListener('click', function(){
-    closeOverlay(overlay);
-    openResults();
-  });
-  document.getElementById('resultsClose').addEventListener('click', closeResults);
+  /* Season Standings sits collapsed at the bottom of Live. Whether it's open
+     is remembered per device; nothing else about it is stateful. */
+  const SEASON_OPEN_KEY = 'pickem-season-open';
+  function seasonIsOpen(){
+    const v = getLocal(SEASON_OPEN_KEY);
+    return !!(v && v.open);
+  }
+  function syncSeasonBtn(){
+    const btn = document.getElementById('seasonBtn');
+    const panel = document.getElementById('seasonPanel');
+    if(!btn || !panel) return;
+    const open = seasonIsOpen();
+    panel.hidden = !open;
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function toggleSeason(){
+    put(SEASON_OPEN_KEY, { open: !seasonIsOpen() });
+    syncSeasonBtn();
+    if(seasonIsOpen()) renderSeason();
+  }
   document.getElementById('seasonBtn').addEventListener('click', toggleSeason);
-  resultsOverlay.addEventListener('click', function(e){ if(e.target === resultsOverlay) closeResults(); });
+
+  document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
 
   /* remove / reset */
@@ -3282,7 +3193,7 @@
     liveGames = [];
     demoResults = {};
     syncDemoUI();
-    if(resultsOverlay.classList.contains('show')) refreshScores();
+    if(isTab('live')) refreshScores();
   });
 
   syncDemoUI();
@@ -3305,9 +3216,13 @@
 
     weekPick.value = startWeek;
     loadWeek(startWeek);
-    if(last && last.view === 'results' && recentView){
-      openResults();
-    }
+
+    // Come back to the tab you were on, but only if it was recent — otherwise
+    // a new visit should start on your picks.
+    let startTab = 'picks';
+    if(recentView && last && TABS.indexOf(last.view) >= 0) startTab = last.view;
+    showTab(startTab, true);
+    try{ history.replaceState({ tab: startTab }, ''); }catch(e){}
 
     // Confirm against ESPN in the background and move if we guessed wrong.
     detectCurrentWeek(function(w){
