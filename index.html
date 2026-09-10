@@ -864,6 +864,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.3.0</b> Locked sheets are now protected: a short or failed schedule response can no longer drop games off a sheet you already locked, and an old saved sheet is never discarded just because the app changed. The add-to-home-screen offer no longer appears on its own — it lives in this menu.</div>
       <div class="cl"><b>2.2.1</b> Android now goes straight to Chrome's own Install dialog instead of showing a warning-looking popup first.</div>
       <div class="cl"><b>2.2.0</b> Cleaner first run. New phones get one popup offering to add the app to the home screen — worth doing, it stops the browser clearing your picks. You're only asked your name when it matters: locking in, or opening Live. Add to Home Screen also lives in this menu.</div>
       <div class="cl"><b>2.1.0</b> New phones get a one-time offer to add the pool to their home screen, and there's an Add to Home Screen button in this menu any time. Worth doing — a home-screen copy keeps the browser from clearing your saved picks.</div>
@@ -958,8 +959,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.2.1';
-  const APP_BUILT = 'Sep 10, 2:45 AM';
+  const APP_VERSION = '2.3.0';
+  const APP_BUILT = 'Sep 10, 3:20 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1023,6 +1024,13 @@
   let linesLoading = false;
 
   function saveAll(){
+    /* Never let an empty in-memory list overwrite a real saved sheet. A failed
+       fetch or a mid-load moment shouldn't be able to erase a locked week. */
+    if(!games.length){
+      const prev = getLocal(picksKey(currentWeek));
+      const had = prev && (Array.isArray(prev) ? prev.length : (prev.games || []).length);
+      if(had) return;
+    }
     put(picksKey(currentWeek), { frozen: weekFrozen, locked: weekLocked, games: games });
     put(resKey(currentWeek), results);
   }
@@ -1147,8 +1155,10 @@
     });
 
     const now = Date.now();
+    const kept = {};
     const merged = newLines.map(function(n){
       const old = byId[n.id] || byMatch[matchKey(n)];
+      if(old) kept[old.id] = true;
       if(!old){
         const seed = (typeof n.spread === 'number')
           ? [{ sp:n.spread, fav:n.fav, t:now }] : [];
@@ -1166,6 +1176,14 @@
       return {...old, id:n.id, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
               logoA:n.logoA, logoB:n.logoB,
               home:n.home, fav:n.fav, spread:n.spread, date:n.date, history: hist};
+    });
+
+    /* Anything already on the sheet that this response didn't mention stays.
+       ESPN can answer with a short list — an outage, a slow edge cache, a game
+       moved between weeks — and a sheet someone locked in must not quietly
+       lose games, because every confidence point below it would shift. */
+    games.forEach(function(g){
+      if(!kept[g.id]) merged.push(g);
     });
 
     // chalk ranking for reference, applied as the order only when unfrozen
@@ -1187,8 +1205,18 @@
     return parkRemoved(chalk);
   }
 
+  /* Restores a saved sheet. Deliberately forgiving: a bare array is how very
+     early versions stored picks, and throwing that away because the shape
+     changed is exactly how an update loses somebody's locked week. Anything
+     that holds games gets read; only genuinely empty saves are ignored. */
   function fromSaved(saved, week){
-    if(!saved || Array.isArray(saved)) return null;
+    if(!saved) return null;
+    if(Array.isArray(saved)){
+      if(!saved.length) return null;
+      weekFrozen = true;          // hand-ordered, from before the flag existed
+      weekLocked = false;
+      return saved;
+    }
     if(!Array.isArray(saved.games) || !saved.games.length) return null;
     weekFrozen = !!saved.frozen;
     weekLocked = !!saved.locked;
@@ -2909,20 +2937,13 @@
      Chrome on Android offers its own Install/Cancel dialog, so when it's on
      hand we fire that and add nothing of our own. Everywhere else — iPhone
      always, and any Android that doesn't offer one — we show where the menu
-     item lives instead. Either way it's offered once and never again. Worth
-     doing: from the home screen the app's saved picks stop being throwaway
-     site data the browser can clear out from under someone. */
-  const INSTALL_KEY = 'pickem-install-asked';
+     item lives instead. Nothing is offered unprompted — it lives in the
+     version menu and only appears when someone goes looking for it. */
   let installEvent = null;
-
-  let offerPending = false;
 
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     installEvent = e;
-    // Chrome sometimes answers a moment after load. If we were waiting to
-    // make the offer, make it now — with the real dialog, not instructions.
-    if(offerPending){ offerPending = false; fireOffer(); }
   });
 
   function isInstalled(){
@@ -2985,21 +3006,6 @@
   (function syncInstallRow(){
     const row = document.getElementById('installRow');
     if(row) row.style.display = isInstalled() ? 'none' : '';
-  })();
-
-  /* Offered once, on the first visit, before anything else asks for anything.
-     Never shown again on that phone, however they answer. */
-  (function offerInstall(){
-    if(isInstalled()) return;
-    if(devicePlatform() === 'other') return;
-    if((getLocal(INSTALL_KEY) || {}).asked) return;
-    put(INSTALL_KEY, { asked: true });
-    offerPending = true;
-    setTimeout(function(){
-      if(!offerPending) return;          // the real dialog already went up
-      offerPending = false;
-      if(openOverlays === 0) fireOffer();
-    }, 1500);
   })();
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
