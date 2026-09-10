@@ -159,6 +159,15 @@
     font-size:0.85rem; font-weight:800; text-decoration:underline;
   }
 
+  /* Same gold as the Lock In button on the sheet, sized for the main screen. */
+  .lockinline{
+    display:block; width:100%; margin:-2px 0 12px; padding:11px;
+    border-radius:9px; border:1px solid var(--gold);
+    background: rgba(244,196,61,0.12);
+    color: var(--gold); font-size:1rem; font-weight:800; letter-spacing:0.3px;
+  }
+  .lockinline:active{ background: rgba(244,196,61,0.24); }
+
   .sheettop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
   .sheettop h2{ margin:0; }
   .backbtn{
@@ -735,6 +744,7 @@
 <div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
 <div class="linestamp" id="lineStamp"></div>
 <button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
+<button class="lockinline" id="lockInline" style="display:none;">Lock In Picks</button>
 
 <ul id="list"></ul>
 <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -866,6 +876,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>1.13.0</b> The banner now says whether your picks are locked or unlocked, and there's a gold Lock In Picks button right on the main screen — no need to open the sheet first.</div>
+      <div class="cl"><b>1.12.1</b> Fixed dragging games on Android — cards no longer get dropped when the page scrolls out from under them. The banner no longer claims your order is locked when it isn't.</div>
       <div class="cl"><b>1.12.0</b> Bigger, roomier game cards in the Score Tracker. Kickoff now reads "Today" or "Tomorrow" when it's that close, otherwise the date, with the time underneath.</div>
       <div class="cl"><b>1.11.2</b> The Score Tracker now opens no matter what. If the leaderboard or standings ever hit trouble, only that section says so — your scores still show.</div>
       <div class="cl"><b>1.11.1</b> Season Standings moved back below the game cards.</div>
@@ -937,8 +949,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '1.12.0';
-  const APP_BUILT = 'Sep 9, 7:05 PM';
+  const APP_VERSION = '1.13.0';
+  const APP_BUILT = 'Sep 9, 9:35 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1170,11 +1182,14 @@
     else if(linesStamp) txt = 'Updated Spread (ESPN): ' + linesStamp;
     else txt = 'Spread not loaded yet';
     if(weekLocked) txt += ' · PICKS LOCKED';
-    else if(weekFrozen) txt += ' · order locked';
+    else txt += ' · PICKS UNLOCKED';
     el.textContent = txt;
     el.classList.toggle('locked', weekLocked);
     const ub = document.getElementById('unlockInline');
     if(ub) ub.style.display = weekLocked ? 'block' : 'none';
+    // Nothing to lock in until there are games on the sheet.
+    const lb = document.getElementById('lockInline');
+    if(lb) lb.style.display = (!weekLocked && activeGames().length) ? 'block' : 'none';
   }
 
   function fetchLines(week){
@@ -1677,7 +1692,19 @@
 
   /* drag */
   let press = null;
-  function blockScroll(e){ e.preventDefault(); }
+
+  /* Chrome on Android decides whether the page may scroll at the moment your
+     finger lands, based on the listeners that exist right then. A blocker
+     added later — after the long-press fires — arrives too late: the scroll
+     is already running on the compositor and preventDefault is ignored, so
+     the card gets dropped mid-drag. (preventDefault on pointermove can't do
+     the job either; touch-derived pointermove events aren't cancelable.)
+     So this listener is registered once, at load, and simply does nothing
+     until a drag is actually underway. Scrolling stays normal otherwise. */
+  function blockScroll(e){
+    if(press && press.active && e.cancelable) e.preventDefault();
+  }
+  listEl.addEventListener('touchmove', blockScroll, {passive:false});
 
   listEl.addEventListener('pointerdown', function(e){
     const li = e.target.closest('.game');
@@ -1698,7 +1725,6 @@
         li.classList.remove('pressing');
         li.classList.add('dragging');
         document.body.classList.add('dragmode');
-        document.addEventListener('touchmove', blockScroll, {passive:false});
         if(navigator.vibrate) navigator.vibrate(15);
         startAutoScroll();
       }, 450)
@@ -1808,7 +1834,6 @@
       press.li.style.transform = '';
       press.li.classList.remove('dragging');
       document.body.classList.remove('dragmode');
-      document.removeEventListener('touchmove', blockScroll, {passive:false});
       freezeOrder();
       if(press.moved) dismissHint();
       render();
@@ -2008,7 +2033,7 @@
 
   document.getElementById('unlockInline').addEventListener('click', askUnlock);
 
-  document.getElementById('lockBtn').addEventListener('click', function(){
+  function doLock(){
     if(weekLocked){ askUnlock(); return; }
     weekLocked = true;
     freezeOrder();
@@ -2018,7 +2043,10 @@
     toast('Picks locked');
     if(!player().name) askName();
     else syncPool();
-  });
+  }
+
+  document.getElementById('lockBtn').addEventListener('click', doLock);
+  document.getElementById('lockInline').addEventListener('click', doLock);
 
   document.getElementById('sheetBack').addEventListener('click', function(){ closeOverlay(overlay); });
   document.getElementById('resultsBack').addEventListener('click', closeResults);
