@@ -498,6 +498,17 @@
     margin-bottom:4px; text-align:center;
   }
   .lblist{ display:flex; flex-direction:column; gap:4px; }
+  .lblist.tappable .lbrow{ cursor:pointer; border-radius:6px; }
+  .lblist.tappable .lbrow:active{ background: rgba(53,208,255,0.12); }
+  .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
+
+  .vwin{ color: var(--green); font-weight:900; }
+  .vloss{ color: var(--red); font-weight:900; }
+  .viewtotal{
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+    text-align:center; font-size:0.85rem; font-weight:800; color: var(--muted);
+  }
+
   .lbrow{
     display:flex; align-items:center; gap:6px;
     font-size:0.82rem; font-weight:700;
@@ -868,9 +879,14 @@
       </span>
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel"><b>Debug</b></span>
+      <button class="devtoggle" id="debugToggle">Off</button>
+    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.6.0</b> Spreads no longer vanish when a game kicks off. ESPN stops sending the line once play starts, and the app was wiping its own copy — which also scrambled the sheet order. The line you picked against now stays put through the game and after it goes final.</div>
       <div class="cl"><b>2.5.1</b> Moved Add App to Home up under the title so it stops pushing the games down the screen.</div>
       <div class="cl"><b>2.5.0</b> Add App to Home is now a button under the week picker instead of being buried in this menu. Switching weeks now clears out the previous week's scores and leaderboard properly instead of showing them until the next refresh.</div>
@@ -924,6 +940,28 @@
   </div>
 </div>
 
+<div class="overlay" id="pinOverlay">
+  <div class="confirmcard">
+    <h2>Enter code</h2>
+    <input id="pinInput" class="nameinput" type="tel" inputmode="numeric" maxlength="4" placeholder="0000">
+    <p class="pinerror" id="pinError"></p>
+    <div class="confirmrow">
+      <button class="confirmcancel" id="pinCancel">Cancel</button>
+      <button class="confirmyes" id="pinOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="viewOverlay">
+  <div class="sheet">
+    <div class="sheettop">
+      <button class="backbtn" id="viewClose">‹ Back</button>
+      <h2 id="viewTitle">Sheet</h2>
+    </div>
+    <div id="viewList"></div>
+  </div>
+</div>
+
 <div class="overlay" id="installOverlay">
   <div class="confirmcard calm">
     <h2>Add to Home Screen</h2>
@@ -972,8 +1010,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.6.0';
-  const APP_BUILT = 'Sep 10, 6:00 AM';
+  const APP_VERSION = '2.7.1';
+  const APP_BUILT = 'Sep 10, 6:55 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3101,6 +3139,110 @@
 
   checkForUpdate();
 
+  /* ---------- debug: read another player's sheet ----------
+     Their picks are already published to the pool database so every phone can
+     score everyone; this just renders one. Off by default so nobody taps into
+     it by accident, and it's listed plainly in the menu rather than hidden. */
+  const DEBUG_KEY = 'pickem-debug';
+  const DEBUG_PIN = '1777';          // change here if you ever want a new one
+  function debugOn(){ const v = getLocal(DEBUG_KEY); return !!(v && v.on); }
+  function debugUnlocked(){ const v = getLocal(DEBUG_KEY); return !!(v && v.ok); }
+
+  function syncDebugUI(){
+    const b = document.getElementById('debugToggle');
+    if(!b) return;
+    const on = debugOn();
+    b.textContent = on ? 'On' : 'Off';
+    b.classList.toggle('on', on);
+  }
+  document.getElementById('debugToggle').addEventListener('click', function(){
+    if(!debugUnlocked()){ askPin(); return; }
+    put(DEBUG_KEY, { on: !debugOn(), ok: true });
+    syncDebugUI();
+    renderBoard();
+  });
+
+  // Asked once per device; after that the switch just toggles.
+  const pinOverlay = document.getElementById('pinOverlay');
+  function askPin(){
+    document.getElementById('pinInput').value = '';
+    document.getElementById('pinError').textContent = '';
+    openOverlay(pinOverlay);
+  }
+  document.getElementById('pinCancel').addEventListener('click', function(){
+    closeOverlay(pinOverlay);
+  });
+  document.getElementById('pinOk').addEventListener('click', function(){
+    const v = (document.getElementById('pinInput').value || '').trim();
+    if(v !== DEBUG_PIN){
+      document.getElementById('pinError').textContent = 'Not that one.';
+      return;
+    }
+    closeOverlay(pinOverlay);
+    put(DEBUG_KEY, { on: true, ok: true });
+    syncDebugUI();
+    renderBoard();
+  });
+  pinOverlay.addEventListener('click', function(e){
+    if(e.target === pinOverlay) closeOverlay(pinOverlay);
+  });
+  syncDebugUI();
+
+  const viewOverlay = document.getElementById('viewOverlay');
+  document.getElementById('viewClose').addEventListener('click', function(){
+    closeOverlay(viewOverlay);
+  });
+  viewOverlay.addEventListener('click', function(e){
+    if(e.target === viewOverlay) closeOverlay(viewOverlay);
+  });
+
+  // Which team a stored pick refers to: 'a' is away, 'b' is home.
+  function pickLabel(pk){
+    const g = gameById(pk.i);
+    if(g) return (pk.p === 'a') ? g.cityA : g.cityB;
+    const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
+    if(lg) return (pk.p === 'a') ? lg.away : lg.home;
+    return 'Unknown game';
+  }
+
+  function showPlayerSheet(id){
+    const row = board.filter(function(r){ return r.id === id; })[0];
+    if(!row) return;
+    document.getElementById('viewTitle').textContent =
+      row.name + ' \u2014 Week ' + currentWeek;
+    const list = document.getElementById('viewList');
+    const picks = Array.isArray(row.picks) ? row.picks : [];
+
+    if(!picks.length){
+      list.innerHTML = '<div class="seasonempty">No picks published for this week.</div>';
+      openOverlay(viewOverlay);
+      return;
+    }
+
+    const shown = activeResults();
+    list.innerHTML = picks.map(function(pk, i){
+      const g = gameById(pk.i);
+      const pts = i + 1;
+      const r = g ? shown[g.id] : null;
+      const mark = r === 'win' ? '<span class="vwin">\u2713</span>'
+                 : r === 'loss' ? '<span class="vloss">\u2715</span>' : '';
+      return '<div class="sheetrow">' +
+        '<span class="sheetnum">' + pts + '</span>' +
+        '<span class="sheetcity">' + esc(pickLabel(pk)) + '</span>' +
+        '<span class="sheetspread">' + mark + '</span>' +
+      '</div>';
+    }).join('') +
+      '<div class="viewtotal">' + row.points + ' pts \u00b7 ' +
+      (row.decided || 0) + ' of ' + picks.length + ' scored</div>';
+    openOverlay(viewOverlay);
+  }
+
+  document.getElementById('lbList').addEventListener('click', function(e){
+    if(!debugOn()) return;
+    const row = e.target.closest ? e.target.closest('.lbrow') : null;
+    if(row && row.dataset.pid) showPlayerSheet(row.dataset.pid);
+  });
+
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
 
@@ -3316,8 +3458,11 @@
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
       return;
     }
+    const dbg = debugOn();
+    el.classList.toggle('tappable', dbg);
     el.innerHTML = board.slice(0, 8).map(function(r, i){
-      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') + '">' +
+      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') + '"' +
+             (dbg ? ' data-pid="' + esc(r.id) + '"' : '') + '>' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
         '<span class="lbname">' + esc(r.name) + '</span>' +
         '<span class="lbpts">' + r.points + '</span>' +
