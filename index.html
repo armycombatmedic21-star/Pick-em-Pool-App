@@ -500,14 +500,36 @@
   .lblist{ display:flex; flex-direction:column; gap:4px; }
   .lblist.tappable .lbrow{ cursor:pointer; border-radius:6px; }
   .lblist.tappable .lbrow:active{ background: rgba(53,208,255,0.12); }
+  /* side-by-side sheet comparison */
+  .vhead, .vrow, .vtotals{ display:flex; align-items:center; gap:8px; padding:6px 0; }
+  .vhead{
+    border-bottom:1px solid var(--line); color: var(--muted);
+    font-size:0.68rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;
+  }
+  .vrow{ border-bottom:1px solid rgba(28,51,80,0.5); }
+  .vrow.differ{ background: rgba(53,208,255,0.06); }
+  .vpts{
+    flex:none; width:22px; text-align:right;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:0.82rem; font-weight:800; color: var(--muted);
+  }
+  .vteam{
+    flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .vsp{
+    margin-left:5px; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:0.76rem; font-weight:700; color: var(--muted);
+  }
+  .vtotals{
+    border-top:1px solid var(--line); margin-top:4px;
+    font-size:0.9rem; font-weight:900; color: var(--gold);
+  }
+
   .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
 
   .vwin{ color: var(--green); font-weight:900; }
   .vloss{ color: var(--red); font-weight:900; }
-  .viewtotal{
-    margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
-    text-align:center; font-size:0.85rem; font-weight:800; color: var(--muted);
-  }
 
   .lbrow{
     display:flex; align-items:center; gap:6px;
@@ -1011,8 +1033,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.2';
-  const APP_BUILT = 'Sep 10, 7:15 AM';
+  const APP_VERSION = '2.7.3';
+  const APP_BUILT = 'Sep 10, 7:45 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3197,44 +3219,110 @@
     if(e.target === viewOverlay) closeOverlay(viewOverlay);
   });
 
-  // Which team a stored pick refers to: 'a' is away, 'b' is home.
-  function pickLabel(pk){
+  /* A stored pick is {i: gameId, p: 'a'|'b'} where 'a' is the away team. */
+  function pickSideCity(pk){
     const g = gameById(pk.i);
     if(g) return (pk.p === 'a') ? g.cityA : g.cityB;
     const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
     if(lg) return (pk.p === 'a') ? lg.away : lg.home;
-    return 'Unknown game';
+    return '\u2014';
+  }
+
+  // The line as that side sees it: minus if they took the favorite.
+  function spreadForSide(g, side){
+    if(!g || typeof g.spread !== 'number') return '';
+    const favSide = (g.fav === 'A') ? 'a' : 'b';
+    return (side === favSide ? '\u2212' : '+') + g.spread;
+  }
+  function mySide(g){
+    const favSide = (g.fav === 'A') ? 'a' : 'b';
+    if(g.pick === 'fav') return favSide;
+    return favSide === 'a' ? 'b' : 'a';
+  }
+
+  /* Stored results are win/loss relative to YOUR pick, so they can't be used
+     for somebody who took the other side. Read the final score instead and
+     work out each side separately. */
+  function sideResult(gid, side){
+    const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
+    if(lg && lg.completed){
+      const a = lg.scores[lg.away], b = lg.scores[lg.home];
+      if(typeof a === 'number' && typeof b === 'number' && a !== b){
+        const won = (side === 'a') ? (a > b) : (b > a);
+        return won ? 'win' : 'loss';
+      }
+      return null;
+    }
+    return null;
+  }
+
+  function markFor(gid, side){
+    const r = gid ? sideResult(gid, side) : null;
+    if(r === 'win') return '<span class="vwin">\u2713</span>';
+    if(r === 'loss') return '<span class="vloss">\u2715</span>';
+    return '';
+  }
+
+  function cellFor(city, spread, mark){
+    return '<span class="vteam">' + esc(city) +
+           (spread ? '<b class="vsp">' + spread + '</b>' : '') + mark + '</span>';
   }
 
   function showPlayerSheet(id){
     const row = board.filter(function(r){ return r.id === id; })[0];
     if(!row) return;
-    document.getElementById('viewTitle').textContent =
-      row.name + ' \u2014 Week ' + currentWeek;
-    const list = document.getElementById('viewList');
-    const picks = Array.isArray(row.picks) ? row.picks : [];
+    const me = player();
+    document.getElementById('viewTitle').textContent = row.name + ' \u2014 Week ' + currentWeek;
 
-    if(!picks.length){
-      list.innerHTML = '<div class="seasonempty">Nothing published yet \u2014 they may be on an older build, or locked in before picks were being sent.</div>';
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    const mine = activeGames();
+    const shown = activeResults();
+    const rows = Math.max(mine.length, theirs.length);
+
+    if(!rows){
+      document.getElementById('viewList').innerHTML =
+        '<div class="seasonempty">Nothing published yet \u2014 they may be on an older build.</div>';
       openOverlay(viewOverlay);
       return;
     }
 
-    const shown = activeResults();
-    list.innerHTML = picks.map(function(pk, i){
-      const g = gameById(pk.i);
-      const pts = i + 1;
-      const r = g ? shown[g.id] : null;
-      const mark = r === 'win' ? '<span class="vwin">\u2713</span>'
-                 : r === 'loss' ? '<span class="vloss">\u2715</span>' : '';
-      return '<div class="sheetrow">' +
-        '<span class="sheetnum">' + pts + '</span>' +
-        '<span class="sheetcity">' + esc(pickLabel(pk)) + '</span>' +
-        '<span class="sheetspread">' + mark + '</span>' +
+    /* Side by side at each confidence rank. Rank is what scoring turns on, so
+       lining the sheets up that way shows exactly where the week is won or
+       lost, even when the two sheets don't hold the same games. */
+    let body = '';
+    for(let i = 0; i < rows; i++){
+      const g = mine[i];
+      const pk = theirs[i];
+      const tg = pk ? gameById(pk.i) : null;
+
+      const myCity = g ? pickedCityOf(g) : '\u2014';
+      const mySp = g ? spreadForSide(g, mySide(g)) : '';
+      const myMark = g ? markFor(g.id, mySide(g)) : '';
+
+      const thCity = pk ? pickSideCity(pk) : '\u2014';
+      const thSp = pk ? spreadForSide(tg, pk.p) : '';
+      const thMark = pk ? markFor(tg ? tg.id : null, pk.p) : '';
+
+      const differ = (myCity !== thCity);
+      body += '<div class="vrow' + (differ ? ' differ' : '') + '">' +
+        '<span class="vpts">' + (i + 1) + '</span>' +
+        cellFor(myCity, mySp, myMark) +
+        cellFor(thCity, thSp, thMark) +
       '</div>';
-    }).join('') +
-      '<div class="viewtotal">' + row.points + ' pts \u00b7 ' +
-      (row.decided || 0) + ' of ' + picks.length + ' scored</div>';
+    }
+
+    const myScore = weekScore(mine, shown);
+    document.getElementById('viewList').innerHTML =
+      '<div class="vhead">' +
+        '<span class="vpts"></span>' +
+        '<span class="vteam">' + esc(me.name || 'You') + '</span>' +
+        '<span class="vteam">' + esc(row.name) + '</span>' +
+      '</div>' + body +
+      '<div class="vtotals">' +
+        '<span class="vpts"></span>' +
+        '<span class="vteam">' + myScore.earned + ' pts</span>' +
+        '<span class="vteam">' + row.points + ' pts</span>' +
+      '</div>';
     openOverlay(viewOverlay);
   }
 
