@@ -280,6 +280,10 @@
   .line2{ font-size:0.86rem; line-height:1.2; margin-top:1px; }
   .goldcity{ color: var(--gold); font-weight:800; }
   .mutedcity{ color: var(--text); font-weight:600; opacity:0.7; font-size:0.9rem; }
+  /* Thursday, Saturday, Monday — anything but Sunday */
+  .offday{ color: var(--gold); font-weight:800; }
+  .gstatus.offgame .s1, .gstatus.offgame .s2{ color: var(--gold); }
+
   .spread-green{ color: var(--green); font-weight:800; margin:0 2px; }
   .spread-red{ color: var(--red); font-weight:800; margin:0 2px; }
   @keyframes pulsered{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
@@ -508,6 +512,15 @@
   }
   .vrow{ border-bottom:1px solid rgba(28,51,80,0.5); }
   .vrow.differ{ background: rgba(53,208,255,0.06); }
+  .vteam.won{ background: rgba(61,220,132,0.10); border-radius:6px; padding:3px 5px; }
+  .vteam.lost{ background: rgba(255,59,78,0.10); border-radius:6px; padding:3px 5px; }
+  .vname{ display:inline; }
+  .vpt{
+    margin-left:5px; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:0.78rem; font-weight:900;
+  }
+  .vpt.won{ color: var(--green); }
+  .vpt.lost{ color: var(--red); }
   .vpts{
     flex:none; width:22px; text-align:right;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
@@ -517,10 +530,6 @@
     flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-  .vsp{
-    margin-left:5px; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.76rem; font-weight:700; color: var(--muted);
-  }
   .vtotals{
     border-top:1px solid var(--line); margin-top:4px;
     font-size:0.9rem; font-weight:900; color: var(--gold);
@@ -528,8 +537,6 @@
 
   .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
 
-  .vwin{ color: var(--green); font-weight:900; }
-  .vloss{ color: var(--red); font-weight:900; }
 
   .lbrow{
     display:flex; align-items:center; gap:6px;
@@ -1033,8 +1040,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.3';
-  const APP_BUILT = 'Sep 10, 7:45 AM';
+  const APP_VERSION = '2.7.4';
+  const APP_BUILT = 'Sep 10, 8:20 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1522,6 +1529,12 @@
   }
 
   // "Thu 8:15" — only useful on the picker for non-Sunday-afternoon games.
+  // Sunday is the default; anything else is worth spotting at a glance.
+  function isSunday(g){
+    if(!g || !g.date) return true;
+    const d = new Date(g.date);
+    return isNaN(d) ? true : d.getDay() === 0;
+  }
   function kickoffShort(g){
     if(!g.date) return '';
     const d = new Date(g.date);
@@ -1607,7 +1620,8 @@
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
             logoTag(logoForCity(g, onFav ? dogCity : favCity), 'plogo small') +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
-            (kickTxt ? '<span class="kickoff">' + kickTxt + '</span>' : '') +
+            (kickTxt ? '<span class="kickoff' + (isSunday(g) ? '' : ' offday') + '">' +
+              kickTxt + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="actions">' +
@@ -2528,7 +2542,7 @@
       const k = kickoffText(lg, g);
       s1 = k.day;
       s2 = k.time;
-      sCls = 'pre';
+      sCls = 'pre' + (isSunday(g) ? '' : ' offgame');
     }
 
     // "1st & 10 at NE 46" — only exists while a game is being played
@@ -2610,7 +2624,10 @@
       if(!lg){ s1 = 'No data'; }
       else if(live){ s1 = liveClock(lg); cls = 'live'; }
       else if(lg.state === 'post'){ s1 = 'Final'; cls = 'final'; }
-      else{ const k = kickoffText(lg, g); s1 = k.day; s2 = k.time; }
+      else{
+        const k = kickoffText(lg, g); s1 = k.day; s2 = k.time;
+        if(!isSunday(g)) cls += ' offgame';
+      }
       status.className = 'gstatus ' + cls;
       setText(status.querySelector('[data-role="s1"]'), s1);
       const el2 = status.querySelector('[data-role="s2"]');
@@ -3256,16 +3273,18 @@
     return null;
   }
 
-  function markFor(gid, side){
-    const r = gid ? sideResult(gid, side) : null;
-    if(r === 'win') return '<span class="vwin">\u2713</span>';
-    if(r === 'loss') return '<span class="vloss">\u2715</span>';
-    return '';
-  }
 
-  function cellFor(city, spread, mark){
-    return '<span class="vteam">' + esc(city) +
-           (spread ? '<b class="vsp">' + spread + '</b>' : '') + mark + '</span>';
+  /* One side of a comparison row: who they took, the line from that side, and
+     the points it's worth — coloured by whether it came in. */
+  function cellFor(city, spread, res, pts, isFav){
+    const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
+    const spCls = isFav ? 'spread-green' : 'spread-red';
+    return '<span class="vteam' + cls + '">' +
+      '<span class="vname">' + esc(city) + '</span>' +
+      (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
+      (res ? '<b class="vpt ' + (res === 'win' ? 'won' : 'lost') + '">' +
+        (res === 'win' ? '+' + pts : '0') + '</b>' : '') +
+    '</span>';
   }
 
   function showPlayerSheet(id){
@@ -3295,19 +3314,23 @@
       const pk = theirs[i];
       const tg = pk ? gameById(pk.i) : null;
 
+      const pts = i + 1;
+
       const myCity = g ? pickedCityOf(g) : '\u2014';
       const mySp = g ? spreadForSide(g, mySide(g)) : '';
-      const myMark = g ? markFor(g.id, mySide(g)) : '';
+      const myRes = g ? sideResult(g.id, mySide(g)) : null;
+      const myFav = g ? (g.pick === 'fav') : true;
 
       const thCity = pk ? pickSideCity(pk) : '\u2014';
       const thSp = pk ? spreadForSide(tg, pk.p) : '';
-      const thMark = pk ? markFor(tg ? tg.id : null, pk.p) : '';
+      const thRes = pk ? sideResult(tg ? tg.id : null, pk.p) : null;
+      const thFav = pk && tg ? (pk.p === ((tg.fav === 'A') ? 'a' : 'b')) : true;
 
       const differ = (myCity !== thCity);
       body += '<div class="vrow' + (differ ? ' differ' : '') + '">' +
-        '<span class="vpts">' + (i + 1) + '</span>' +
-        cellFor(myCity, mySp, myMark) +
-        cellFor(thCity, thSp, thMark) +
+        '<span class="vpts">' + pts + '</span>' +
+        cellFor(myCity, mySp, myRes, pts, myFav) +
+        cellFor(thCity, thSp, thRes, pts, thFav) +
       '</div>';
     }
 
