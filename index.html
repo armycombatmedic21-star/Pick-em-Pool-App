@@ -523,14 +523,47 @@
     font-size:0.78rem; font-weight:900; color: var(--muted);
   }
   .vpt.won{ color: var(--green); }
-  .vpt.lost{ color: var(--red); text-decoration: line-through; text-decoration-thickness:1px; }
+  .vpt.lost{ color: var(--red); }
+  .vteam.lost .vname{ text-decoration: line-through; text-decoration-thickness:1px; }
   .vteam{
     flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   .vtotals{
-    border-top:1px solid var(--line); margin-top:4px;
-    font-size:0.9rem; font-weight:900; color: var(--gold);
+    border-top:1px solid var(--line); margin-top:8px; padding-top:12px;
+    align-items:flex-end;
+  }
+  .vtot{
+    flex:1; min-width:0; position:relative;
+    display:flex; align-items:baseline; gap:6px; padding-bottom:9px;
+  }
+  .vtot b{
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:1.75rem; font-weight:900; line-height:1; color: var(--text);
+    letter-spacing:-0.5px;
+  }
+  .vtotlbl{
+    font-size:0.62rem; font-weight:800; letter-spacing:1.4px;
+    color: var(--muted); text-transform:uppercase;
+  }
+  .vtot.lead b{
+    color: var(--green);
+    text-shadow: 0 0 16px rgba(61,220,132,0.45);
+  }
+  /* A light running back and forth under whoever's ahead. */
+  .vtot .vbar{
+    position:absolute; left:0; bottom:0; height:2px; width:34%;
+    border-radius:2px; background: linear-gradient(90deg,
+      rgba(61,220,132,0) 0%, var(--green) 50%, rgba(61,220,132,0) 100%);
+    opacity:0;
+  }
+  .vtot.lead .vbar{ opacity:1; animation: leadslide 2.6s ease-in-out infinite alternate; }
+  @keyframes leadslide{
+    from{ transform: translateX(0); }
+    to{ transform: translateX(196%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .vtot.lead .vbar{ animation:none; width:100%; }
   }
 
   .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
@@ -1038,8 +1071,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.7';
-  const APP_BUILT = 'Sep 10, 9:30 AM';
+  const APP_VERSION = '2.7.8';
+  const APP_BUILT = 'Sep 10, 10:05 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3358,14 +3391,23 @@
     }
 
     const myScore = weekScore(mine, shown);
+    const myTotal = myScore.earned, thTotal = row.points;
+
+    // The green runner sits under whoever's ahead; a tie gets neither.
+    function totalCell(n, lead){
+      return '<span class="vtot' + (lead ? ' lead' : '') + '">' +
+        '<b>' + n + '</b><span class="vtotlbl">pts</span>' +
+        '<i class="vbar"></i></span>';
+    }
+
     document.getElementById('viewList').innerHTML =
       '<div class="vhead">' +
         '<span class="vteam">' + esc(me.name || 'You') + '</span>' +
         '<span class="vteam">' + esc(row.name) + '</span>' +
       '</div>' + body +
       '<div class="vtotals">' +
-        '<span class="vteam">' + myScore.earned + ' pts</span>' +
-        '<span class="vteam">' + row.points + ' pts</span>' +
+        totalCell(myTotal, myTotal > thTotal) +
+        totalCell(thTotal, thTotal > myTotal) +
       '</div>';
     openOverlay(viewOverlay);
   }
