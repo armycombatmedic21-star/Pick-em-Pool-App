@@ -516,16 +516,12 @@
   .vteam.lost{ background: rgba(255,59,78,0.10); border-radius:6px; padding:3px 5px; }
   .vname{ display:inline; }
   .vpt{
-    margin-left:5px; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.78rem; font-weight:900;
+    display:inline-block; min-width:17px; margin-right:5px; text-align:right;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:0.78rem; font-weight:900; color: var(--muted);
   }
   .vpt.won{ color: var(--green); }
   .vpt.lost{ color: var(--red); }
-  .vpts{
-    flex:none; width:22px; text-align:right;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.82rem; font-weight:800; color: var(--muted);
-  }
   .vteam{
     flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -1040,8 +1036,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.4';
-  const APP_BUILT = 'Sep 10, 8:20 AM';
+  const APP_VERSION = '2.7.5';
+  const APP_BUILT = 'Sep 10, 8:45 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3276,14 +3272,17 @@
 
   /* One side of a comparison row: who they took, the line from that side, and
      the points it's worth — coloured by whether it came in. */
+  /* One side of a row: the team, the line from that side, and what the pick is
+     worth. Points always show — that's the whole shape of a confidence sheet —
+     and turn green or red once the game is decided. */
   function cellFor(city, spread, res, pts, isFav){
     const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
+    const ptCls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
     const spCls = isFav ? 'spread-green' : 'spread-red';
     return '<span class="vteam' + cls + '">' +
+      '<b class="vpt' + ptCls + '">' + pts + '</b>' +
       '<span class="vname">' + esc(city) + '</span>' +
       (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
-      (res ? '<b class="vpt ' + (res === 'win' ? 'won' : 'lost') + '">' +
-        (res === 'win' ? '+' + pts : '0') + '</b>' : '') +
     '</span>';
   }
 
@@ -3328,7 +3327,6 @@
 
       const differ = (myCity !== thCity);
       body += '<div class="vrow' + (differ ? ' differ' : '') + '">' +
-        '<span class="vpts">' + pts + '</span>' +
         cellFor(myCity, mySp, myRes, pts, myFav) +
         cellFor(thCity, thSp, thRes, pts, thFav) +
       '</div>';
@@ -3337,12 +3335,10 @@
     const myScore = weekScore(mine, shown);
     document.getElementById('viewList').innerHTML =
       '<div class="vhead">' +
-        '<span class="vpts"></span>' +
         '<span class="vteam">' + esc(me.name || 'You') + '</span>' +
         '<span class="vteam">' + esc(row.name) + '</span>' +
       '</div>' + body +
       '<div class="vtotals">' +
-        '<span class="vpts"></span>' +
         '<span class="vteam">' + myScore.earned + ' pts</span>' +
         '<span class="vteam">' + row.points + ' pts</span>' +
       '</div>';
