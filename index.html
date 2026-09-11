@@ -550,20 +550,25 @@
     color: var(--green);
     text-shadow: 0 0 16px rgba(61,220,132,0.45);
   }
-  /* A light running back and forth under whoever's ahead. */
-  .vtot .vbar{
-    position:absolute; left:0; bottom:0; height:2px; width:34%;
-    border-radius:2px; background: linear-gradient(90deg,
-      rgba(61,220,132,0) 0%, var(--green) 50%, rgba(61,220,132,0) 100%);
-    opacity:0;
+  /* A light making a slow lap of a box around whoever's ahead. The spinning
+     cone paints the border; the inner panel masks everything but the edge. */
+  .vtot.lead{ padding:7px 10px 8px; }
+  .vtot.lead::before{
+    content:''; position:absolute; inset:0; border-radius:10px; z-index:0;
+    background: conic-gradient(from 0deg,
+      rgba(61,220,132,0) 0deg, rgba(61,220,132,0) 265deg,
+      rgba(61,220,132,0.55) 320deg, var(--green) 352deg,
+      rgba(61,220,132,0) 360deg);
+    animation: leadlap 5s linear infinite;
   }
-  .vtot.lead .vbar{ opacity:1; animation: leadslide 2.6s ease-in-out infinite alternate; }
-  @keyframes leadslide{
-    from{ transform: translateX(0); }
-    to{ transform: translateX(196%); }
+  .vtot.lead::after{
+    content:''; position:absolute; inset:1px; border-radius:9px; z-index:0;
+    background: var(--panel);
   }
+  .vtot.lead b, .vtot.lead .vtotlbl{ position:relative; z-index:1; }
+  @keyframes leadlap{ to{ transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){
-    .vtot.lead .vbar{ animation:none; width:100%; }
+    .vtot.lead::before{ animation:none; background: var(--cyan-dim); }
   }
 
   .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
@@ -1071,8 +1076,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.8';
-  const APP_BUILT = 'Sep 10, 10:05 AM';
+  const APP_VERSION = '2.7.9';
+  const APP_BUILT = 'Sep 10, 10:25 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3396,8 +3401,7 @@
     // The green runner sits under whoever's ahead; a tie gets neither.
     function totalCell(n, lead){
       return '<span class="vtot' + (lead ? ' lead' : '') + '">' +
-        '<b>' + n + '</b><span class="vtotlbl">pts</span>' +
-        '<i class="vbar"></i></span>';
+        '<b>' + n + '</b><span class="vtotlbl">pts</span></span>';
     }
 
     document.getElementById('viewList').innerHTML =
