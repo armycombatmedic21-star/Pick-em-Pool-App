@@ -513,7 +513,9 @@
   .vrow{ border-bottom:1px solid rgba(28,51,80,0.5); }
   .vrow.differ{ background: rgba(53,208,255,0.06); }
   .vteam.won{ background: rgba(61,220,132,0.10); border-radius:6px; padding:3px 5px; }
-  .vteam.lost{ background: rgba(255,59,78,0.10); border-radius:6px; padding:3px 5px; }
+  /* A lost pick isn't a penalty, it's points you didn't bank — so it fades
+     out and the number gets struck through rather than lighting up red. */
+  .vteam.lost{ opacity:0.5; }
   .vname{ display:inline; }
   .vpt{
     display:inline-block; min-width:17px; margin-right:5px; text-align:right;
@@ -521,7 +523,7 @@
     font-size:0.78rem; font-weight:900; color: var(--muted);
   }
   .vpt.won{ color: var(--green); }
-  .vpt.lost{ color: var(--red); }
+  .vpt.lost{ color: var(--red); text-decoration: line-through; text-decoration-thickness:1px; }
   .vteam{
     flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -1036,8 +1038,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.5';
-  const APP_BUILT = 'Sep 10, 8:45 AM';
+  const APP_VERSION = '2.7.7';
+  const APP_BUILT = 'Sep 10, 9:30 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3241,11 +3243,20 @@
     return '\u2014';
   }
 
-  // The line as that side sees it: minus if they took the favorite.
+  /* The line as that side sees it: minus if they took the favorite. Games that
+     kicked off before the spread was being preserved have no current line, so
+     fall back to the last one recorded in their history. */
+  function lineOf(g){
+    if(!g) return null;
+    if(typeof g.spread === 'number') return { sp: g.spread, fav: g.fav };
+    const h = Array.isArray(g.history) ? g.history[g.history.length - 1] : null;
+    return (h && typeof h.sp === 'number') ? { sp: h.sp, fav: h.fav || g.fav } : null;
+  }
   function spreadForSide(g, side){
-    if(!g || typeof g.spread !== 'number') return '';
-    const favSide = (g.fav === 'A') ? 'a' : 'b';
-    return (side === favSide ? '\u2212' : '+') + g.spread;
+    const L = lineOf(g);
+    if(!L) return '';
+    const favSide = (L.fav === 'A') ? 'a' : 'b';
+    return (side === favSide ? '\u2212' : '+') + L.sp;
   }
   function mySide(g){
     const favSide = (g.fav === 'A') ? 'a' : 'b';
@@ -3256,17 +3267,30 @@
   /* Stored results are win/loss relative to YOUR pick, so they can't be used
      for somebody who took the other side. Read the final score instead and
      work out each side separately. */
+  /* Each side is judged on its own. Final scores are the best source, but
+     liveGames only holds what the last scoreboard fetch returned — open this
+     before that lands and it's empty. So fall back to the result already
+     recorded for the game, flipping it for whoever took the other side. */
   function sideResult(gid, side){
+    if(!gid) return null;
+
     const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
     if(lg && lg.completed){
       const a = lg.scores[lg.away], b = lg.scores[lg.home];
       if(typeof a === 'number' && typeof b === 'number' && a !== b){
-        const won = (side === 'a') ? (a > b) : (b > a);
-        return won ? 'win' : 'loss';
+        return ((side === 'a') ? (a > b) : (b > a)) ? 'win' : 'loss';
       }
       return null;
     }
-    return null;
+
+    // Stored results are relative to your own pick on that game.
+    const r = results[gid];
+    if(r !== 'win' && r !== 'loss') return null;
+    const g = gameById(gid);
+    if(!g) return null;
+    const sameSide = (side === mySide(g));
+    if(sameSide) return r;
+    return r === 'win' ? 'loss' : 'win';
   }
 
 
@@ -3323,7 +3347,8 @@
       const thCity = pk ? pickSideCity(pk) : '\u2014';
       const thSp = pk ? spreadForSide(tg, pk.p) : '';
       const thRes = pk ? sideResult(tg ? tg.id : null, pk.p) : null;
-      const thFav = pk && tg ? (pk.p === ((tg.fav === 'A') ? 'a' : 'b')) : true;
+      const thL = lineOf(tg);
+      const thFav = thL ? (pk.p === ((thL.fav === 'A') ? 'a' : 'b')) : true;
 
       const differ = (myCity !== thCity);
       body += '<div class="vrow' + (differ ? ' differ' : '') + '">' +
@@ -3348,7 +3373,16 @@
   document.getElementById('lbList').addEventListener('click', function(e){
     if(!debugOn()) return;
     const row = e.target.closest ? e.target.closest('.lbrow') : null;
-    if(row && row.dataset.pid) showPlayerSheet(row.dataset.pid);
+    if(!row || !row.dataset.pid) return;
+    const pid = row.dataset.pid;
+    showPlayerSheet(pid);
+    // If scores hadn't landed yet there'd be nothing to mark, so pull them
+    // and redraw once they're in.
+    if(!liveGames.length){
+      fetchScores(currentWeek, function(){
+        if(viewOverlay.classList.contains('show')) showPlayerSheet(pid);
+      });
+    }
   });
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
