@@ -789,6 +789,18 @@
   .restag.win{ color: var(--green); border:1px solid rgba(61,220,132,0.5); }
   .restag.loss{ color: var(--red); border:1px solid rgba(255,59,78,0.45); }
 
+  /* Games you took off your sheet */
+  .offsheet{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+  .offsheet[hidden]{ display:none; }
+  .offsheethead{
+    font-size:0.66rem; font-weight:800; letter-spacing:1.2px;
+    color: var(--muted); text-transform:uppercase; opacity:0.7;
+    margin-bottom:8px;
+  }
+  .gcard.off{ opacity:0.45; }
+  .gcard.off .gpts{ color: var(--muted); }
+  .gcard.off .tname{ font-weight:600; }
+
   .weekhead{
     font-size:1.05rem; font-weight:800; color: var(--text);
     margin:2px 0 9px;
@@ -945,6 +957,11 @@
     <div class="weekhead" id="weekHead"></div>
     <div id="resultsList"></div>
 
+    <div class="offsheet" id="offSheet" hidden>
+      <div class="offsheethead">Not on your sheet</div>
+      <div id="offSheetList"></div>
+    </div>
+
     <div class="seasonbox">
       <button class="seasonbtn" id="seasonBtn" aria-expanded="false" aria-controls="seasonPanel">
         <b>Season Standings</b>
@@ -1033,6 +1050,7 @@
     <div class="changelog">
       <h3>What's new</h3>
       <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
+      <div class="cl"><b>2.10.0</b> Games you took off your sheet now appear at the bottom of the Score Tracker, dimmed, so you can still follow them. They show a dash instead of points — they were never in play.</div>
       <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
       <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
@@ -1162,8 +1180,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.9.6';
-  const APP_BUILT = 'Sep 10, 4:05 PM';
+  const APP_VERSION = '2.10.0';
+  const APP_BUILT = 'Sep 10, 4:35 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2710,6 +2728,71 @@
     active.forEach(function(g, i){ updateCard(g, i + 1, shown[g.id]); });
   }
 
+  /* Dropped games, rendered inert: score and clock so you can still follow
+     along, but no points, no win or loss, no colour. Nothing to win here. */
+  function offCard(g){
+    const lg = liveFor(g);
+    const started = lg && lg.state !== 'pre';
+    const rows = ['a','b'].map(function(side){
+      const ab = lg ? (side === 'a' ? lg.away : lg.home) : '';
+      const city = (side === 'a') ? g.cityA : g.cityB;
+      const logo = lg ? lg.logos[ab] : '';
+      const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
+      return '<div class="trow">' +
+        '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="" loading="lazy">' : '') + '</span>' +
+        '<span class="tname">' + esc(city) + '</span>' +
+        '<span class="tscore">' + (started && sc !== null ? sc : '\u2013') + '</span>' +
+        '<span class="tposs"></span>' +
+      '</div>';
+    }).join('');
+
+    let s1 = '', s2 = '';
+    if(!lg){ s1 = 'No data'; }
+    else if(lg.state === 'in'){ s1 = liveClock(lg); }
+    else if(lg.state === 'post'){ s1 = 'Final'; }
+    else { const k = kickoffText(lg, g); s1 = k.day; s2 = k.time; }
+
+    return '<div class="gcard off" data-id="' + g.id + '">' +
+      '<div class="ghead"><span class="gpts off">\u2013</span></div>' +
+      '<div class="gbody">' +
+        '<div class="gteams">' + rows + '</div>' +
+        '<div class="gstatus pre">' +
+          '<span class="s1">' + s1 + '</span>' +
+          (s2 ? '<span class="s2">' + s2 + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function paintOffSheet(list){
+    const el = document.getElementById('offSheetList');
+    if(!el) return;
+    const ids = list.map(function(g){ return g.id; }).join(',');
+    if(el.dataset.ids !== ids){
+      el.innerHTML = list.map(offCard).join('');
+      el.dataset.ids = ids;
+      return;
+    }
+    // same games — just move the numbers, so logos don't flash
+    list.forEach(function(g){
+      const card = el.querySelector('.gcard[data-id="' + g.id + '"]');
+      if(!card) return;
+      const lg = liveFor(g);
+      const started = lg && lg.state !== 'pre';
+      const sides = ['a','b'];
+      card.querySelectorAll('.trow').forEach(function(row, i){
+        const ab = lg ? (sides[i] === 'a' ? lg.away : lg.home) : '';
+        const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
+        setText(row.querySelector('.tscore'), (started && sc !== null) ? String(sc) : '\u2013');
+      });
+      const st = card.querySelector('.gstatus .s1');
+      if(st && lg){
+        setText(st, lg.state === 'in' ? liveClock(lg)
+               : lg.state === 'post' ? 'Final' : kickoffText(lg, g).day);
+      }
+    });
+  }
+
   function setText(el, txt){ if(el && el.textContent !== txt) el.textContent = txt; }
 
   function updateCard(g, pts, r){
@@ -2816,6 +2899,14 @@
 
     const shown = activeResults();
     paintCards(active, shown);
+
+    /* Games you dropped still get a card, at the bottom and dimmed. They keep
+       a dash where the points go — a removed game isn't worth zero, it isn't
+       in play at all, and a 0 would read like a pick you lost. */
+    const dropped = games.filter(function(g){ return g.removed; });
+    const off = document.getElementById('offSheet');
+    if(off) off.hidden = !dropped.length;
+    paintOffSheet(dropped);
 
     const sc = weekScore(games, shown);
     document.getElementById('scoreBig').textContent = sc.earned;
