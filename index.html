@@ -854,6 +854,7 @@
   }
   .confirmcard h2{ margin:0 0 8px; color: var(--red); font-size:1.12rem; }
   .confirmcard p{ margin:0 0 16px; color: var(--muted); font-size:0.92rem; font-weight:600; line-height:1.45; }
+  .namenote{ margin:6px 0 0; color: var(--cyan); font-size:0.8rem; font-weight:700; min-height:1em; }
   .nameinput{
     width:100%; padding:12px; border-radius:8px; margin-bottom:14px;
     border:1px solid var(--line); background: var(--bg); color: var(--text);
@@ -994,6 +995,7 @@
     <h2 style="color: var(--cyan);">What's your name?</h2>
     <p>This is how you'll show up on the pool leaderboard. Everyone who locks in a sheet appears there with their live score.</p>
     <input id="nameInput" class="nameinput" type="text" maxlength="14" placeholder="Name or team">
+    <p class="namenote" id="nameNote"></p>
     <div class="confirmrow">
       <button class="confirmcancel" id="nameSkip">Skip</button>
       <button class="confirmyes" id="nameSave" style="background: var(--cyan); color:#04121c;">Save</button>
@@ -1160,8 +1162,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.9.1';
-  const APP_BUILT = 'Sep 10, 1:25 PM';
+  const APP_VERSION = '2.9.5';
+  const APP_BUILT = 'Sep 10, 3:10 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2325,8 +2327,8 @@
     syncLockBtn();
     stampLine(currentWeek);
     toast('Picks locked');
-    if(!player().name) askName();
-    else syncPool();
+    if(!player().name){ askName(true); return; }
+    syncPool();
   }
 
   document.getElementById('lockBtn').addEventListener('click', doLock);
@@ -3233,71 +3235,215 @@
     if(b) b.hidden = isInstalled();
   })();
 
-  /* ===================================================================
-     TEMPORARY — REMOVE AFTER THE WEEK 1 CLEANUP IS DONE
-     Clears the duplicate "dad 2" rows left on the leaderboard by a phone
-     whose storage got wiped between visits. Runs once per device, then
-     never again. Delete this block, and purgeName() above it, once every
-     phone in the pool has loaded a build containing it.
-     =================================================================== */
-  (function cleanupDuplicates(){
-    const DONE_KEY = 'pickem-cleanup-dad2';
-    if(getLocal(DONE_KEY)) return;
-    put(DONE_KEY, { done: true });
-    purgeName('dad 2', function(n){
-      if(n > 0) toast('Removed ' + n + ' old leaderboard ' + (n === 1 ? 'entry' : 'entries'));
+  /* ---------- comparing two sheets ---------- */
+
+  const viewOverlay = document.getElementById('viewOverlay');
+  let viewingId = null;
+
+  document.getElementById('viewClose').addEventListener('click', function(){
+    closeOverlay(viewOverlay);
+  });
+  viewOverlay.addEventListener('click', function(e){
+    if(e.target === viewOverlay) closeOverlay(viewOverlay);
+  });
+
+  function syncViewTabs(){
+    const v = compareView();
+    document.querySelectorAll('.viewtab').forEach(function(b){
+      b.classList.toggle('on', b.dataset.view === v);
     });
-  })();
+  }
+  document.querySelectorAll('.viewtab').forEach(function(b){
+    b.addEventListener('click', function(){
+      setCompareView(b.dataset.view);
+      syncViewTabs();
+      if(viewingId) showPlayerSheet(viewingId);
+    });
+  });
 
-  /* ---------- self-update check ----------
-     With no service worker there's nothing clever caching this file, but an
-     installed home-screen app is lazy about rechecking it, so people sit on an
-     old build without knowing. So the app asks for its own source with a
-     throwaway query string, reads the version out of it, and offers a reload
-     if it doesn't match what's running. Reloading via a versioned URL is what
-     actually defeats the cache — a plain reload can hand back the same stale
-     copy. Storage is per-origin, so picks are untouched by any of this. */
-  const UPDATE_GAP = 15 * 60 * 1000;
-  let lastUpdateCheck = 0;
-
-  /* Reload straight into the new build, without asking. Two rules keep that
-     from being rude or dangerous: never interrupt someone mid-action, and
-     never retry the same version twice in a row — otherwise a stale CDN copy
-     would put the app in a reload loop. Picks live in storage, which a reload
-     doesn't touch, so nothing is lost. */
-  const UPDATE_TRY_KEY = 'pickem-update-try';
-
-  function busy(){
-    if(openOverlays > 0) return true;      // a dialog is open
-    if(press) return true;                 // mid-drag
-    return false;
+  /* A game that kicked off before spreads were preserved has no current line,
+     so fall back to the last one recorded in its history. */
+  function lineOf(g){
+    if(!g) return null;
+    if(typeof g.spread === 'number') return { sp: g.spread, fav: g.fav };
+    const h = Array.isArray(g.history) ? g.history[g.history.length - 1] : null;
+    return (h && typeof h.sp === 'number') ? { sp: h.sp, fav: h.fav || g.fav } : null;
+  }
+  function favSideOf(g){
+    const L = lineOf(g);
+    return L ? ((L.fav === 'A') ? 'a' : 'b') : null;
+  }
+  function spreadForSide(g, side){
+    const L = lineOf(g);
+    if(!L) return '';
+    return (side === favSideOf(g) ? '\u2212' : '+') + L.sp;
+  }
+  function isFavSide(g, side){
+    const f = favSideOf(g);
+    return f ? (side === f) : true;
+  }
+  function sideCity(g, side){
+    if(g) return (side === 'a') ? g.cityA : g.cityB;
+    return '\u2014';
+  }
+  function pickSideCity(pk){
+    const g = gameById(pk.i);
+    if(g) return sideCity(g, pk.p);
+    const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
+    if(lg) return (pk.p === 'a') ? lg.away : lg.home;
+    return '\u2014';
+  }
+  function mySide(g){
+    const f = favSideOf(g);
+    if(!f) return null;
+    if(g.pick === 'fav') return f;
+    return f === 'a' ? 'b' : 'a';
+  }
+  // "@ Houston" or "vs Houston" — who the pick is actually playing.
+  function oppLine(g, side){
+    if(!g || !side) return '';
+    const opp = (side === 'a') ? g.cityB : g.cityA;
+    const atHome = (side === homeSideOf(g).toLowerCase());
+    return (atHome ? 'vs ' : '@ ') + opp;
   }
 
-  function applyUpdate(version){
-    if(busy()) return;                     // try again next time round
-    const last = getLocal(UPDATE_TRY_KEY);
-    if(last && last.v === version && (Date.now() - last.t) < UPDATE_GAP) return;
-    put(UPDATE_TRY_KEY, { v: version, t: Date.now() });
-    saveAll();
-    location.replace(location.pathname + '?v=' + encodeURIComponent(version));
+  /* Each side is judged on its own. Final scores are the truth; when they
+     haven't loaded, fall back to the result recorded for the game, flipped for
+     whoever took the other side. If the favorite can't be worked out at all,
+     mark nothing rather than guess. */
+  function sideResult(gid, side){
+    if(!gid || !side) return null;
+    const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
+    if(lg && lg.completed){
+      const a = lg.scores[lg.away], b = lg.scores[lg.home];
+      if(typeof a === 'number' && typeof b === 'number' && a !== b){
+        return ((side === 'a') ? (a > b) : (b > a)) ? 'win' : 'loss';
+      }
+      return null;
+    }
+    const r = results[gid];
+    if(r !== 'win' && r !== 'loss') return null;
+    const g = gameById(gid);
+    const ms = g ? mySide(g) : null;
+    if(!ms) return null;
+    return (side === ms) ? r : (r === 'win' ? 'loss' : 'win');
   }
 
-  function checkForUpdate(){
-    if(typeof fetch !== 'function') return;
-    const now = Date.now();
-    if(now - lastUpdateCheck < UPDATE_GAP) return;
-    lastUpdateCheck = now;
-    fetch(location.pathname + '?cb=' + now, { cache: 'no-store' })
-      .then(function(r){ return r.ok ? r.text() : null; })
-      .then(function(txt){
-        if(!txt) return;
-        const m = txt.match(/APP_VERSION\s*=\s*'([^']+)'/);
-        if(m && m[1] && m[1] !== APP_VERSION) applyUpdate(m[1]);
-      })
-      .catch(function(){});
+  function cellFor(city, spread, res, pts, fav, opp){
+    const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
+    const spCls = fav ? 'spread-green' : 'spread-red';
+    return '<span class="vteam' + cls + '">' +
+      '<span class="vtop">' +
+        '<b class="vpt' + cls + '">' + pts + '</b>' +
+        '<span class="vname">' + esc(city) + '</span>' +
+        (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
+      '</span>' +
+      (opp ? '<span class="vopp">' + esc(opp) + '</span>' : '') +
+    '</span>';
+  }
+  function blankCell(){ return '<span class="vteam skip">\u2014</span>'; }
+
+  // Ladder: straight down both sheets by confidence rank.
+  function ladderBody(row){
+    const mine = activeGames();
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    const n = Math.max(mine.length, theirs.length);
+    let out = '';
+    for(let i = 0; i < n; i++){
+      const g = mine[i], pk = theirs[i];
+      const tg = pk ? gameById(pk.i) : null;
+      const pts = i + 1;
+      const myCell = g ? cellFor(pickedCityOf(g), spreadForSide(g, mySide(g)),
+                                 sideResult(g.id, mySide(g)), pts, g.pick === 'fav',
+                                 oppLine(g, mySide(g))) : blankCell();
+      const thCell = pk ? cellFor(pickSideCity(pk), spreadForSide(tg, pk.p),
+                                  sideResult(tg ? tg.id : null, pk.p), pts,
+                                  isFavSide(tg, pk.p), oppLine(tg, pk.p)) : blankCell();
+      const differ = !!(g && pk && !(tg === g && mySide(g) === pk.p));
+      out += '<div class="vrow' + (differ ? ' differ' : '') + '">' + myCell + thCell + '</div>';
+    }
+    return out;
   }
 
-  checkForUpdate();
+  /* Head-to-head: one row per game, so the same matchup lands on one line even
+     when you ranked it 15 and they ranked it 8. That pairing is where the week
+     is actually won, and rank alignment can never show it. */
+  function h2hBody(row){
+    const mine = activeGames();
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    const map = {};
+    mine.forEach(function(g, i){
+      map[g.id] = map[g.id] || { gid: g.id, g: g };
+      map[g.id].mySide = mySide(g);
+      map[g.id].myPts = i + 1;
+    });
+    theirs.forEach(function(pk, i){
+      if(!map[pk.i]) map[pk.i] = { gid: pk.i, g: gameById(pk.i) };
+      map[pk.i].thSide = pk.p;
+      map[pk.i].thPts = i + 1;
+    });
+    const list = Object.keys(map).map(function(k){ return map[k]; });
+    // Biggest stake first — those are the games that move the standings.
+    list.sort(function(a,b){
+      return Math.max(b.myPts || 0, b.thPts || 0) - Math.max(a.myPts || 0, a.thPts || 0);
+    });
+    return list.map(function(e){
+      const g = e.g;
+      const title = g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game';
+      const agreed = !!(e.mySide && e.thSide && e.mySide === e.thSide);
+      const myCell = e.mySide
+        ? cellFor(sideCity(g, e.mySide), spreadForSide(g, e.mySide),
+                  sideResult(e.gid, e.mySide), e.myPts, isFavSide(g, e.mySide), '')
+        : blankCell();
+      const thCell = e.thSide
+        ? cellFor(sideCity(g, e.thSide), spreadForSide(g, e.thSide),
+                  sideResult(e.gid, e.thSide), e.thPts, isFavSide(g, e.thSide), '')
+        : blankCell();
+      return '<div class="vgame' + (agreed ? ' agreed' : '') + '">' +
+        '<div class="vgtitle">' + esc(title) + '</div>' +
+        '<div class="vrow">' + myCell + thCell + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function showPlayerSheet(id){
+    const row = board.filter(function(r){ return r.id === id; })[0];
+    if(!row) return;
+    viewingId = id;
+    syncViewTabs();
+
+    const me = player();
+    document.getElementById('viewTitle').textContent =
+      (me.name || 'You') + ' vs ' + row.name;
+
+    const list = document.getElementById('viewList');
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    if(!theirs.length && !activeGames().length){
+      list.innerHTML = '<div class="seasonempty">Nothing to compare yet.</div>';
+      openOverlay(viewOverlay);
+      return;
+    }
+
+    const body = (compareView() === 'h2h') ? h2hBody(row) : ladderBody(row);
+    const myTotal = weekScore(activeGames(), activeResults()).earned;
+    const thTotal = row.points;
+
+    function totalCell(n, lead){
+      return '<span class="vtot' + (lead ? ' lead' : '') + '">' +
+        '<b>' + n + '</b><span class="vtotlbl">pts</span></span>';
+    }
+
+    list.innerHTML =
+      '<div class="vhead">' +
+        '<span class="vwho mine"><i></i>' + esc(me.name || 'You') + '</span>' +
+        '<span class="vwho them"><i></i>' + esc(row.name) + '</span>' +
+      '</div>' + body +
+      '<div class="vtotals">' +
+        totalCell(myTotal, myTotal > thTotal) +
+        totalCell(thTotal, thTotal > myTotal) +
+      '</div>';
+    openOverlay(viewOverlay);
+  }
 
   /* ---------- open sheets ----------
      Show yours to see theirs. Two rules keep that fair: you can only open a
@@ -3353,7 +3499,6 @@
     closeOverlay(shareOverlay);
     syncShareBtn();
     syncPool();                      // republish with the flag set
-    renderBoard();
     toast('Your sheet is open');
     if(sharePending){
       const id = sharePending;
@@ -3363,6 +3508,18 @@
   });
   shareOverlay.addEventListener('click', function(e){
     if(e.target === shareOverlay){ sharePending = null; closeOverlay(shareOverlay); }
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    if(sharingOn(currentWeek)){
+      document.getElementById('shareText').textContent =
+        'Your sheet is open for this week. Tap the \u{1F4C4} next to anyone else ' +
+        'who has opened theirs to compare.';
+      document.getElementById('shareYes').style.display = 'none';
+      openOverlay(shareOverlay);
+      return;
+    }
+    askShare(null);
   });
 
   /* Tapping someone who's opened their sheet. If yours isn't open yet, this is
@@ -3382,238 +3539,6 @@
       });
     }
   });
-
-  document.getElementById('shareBtn').addEventListener('click', function(){
-    if(sharingOn(currentWeek)){
-      const txt = document.getElementById('shareText');
-      txt.textContent = 'Your sheet is open for this week. Tap the \u{1F4C4} next to ' +
-        'anyone else who has opened theirs to compare.';
-      document.getElementById('shareYes').style.display = 'none';
-      openOverlay(shareOverlay);
-      return;
-    }
-    askShare(null);
-  });
-
-  /* ---------- comparing two sheets ---------- */
-
-  const viewOverlay = document.getElementById('viewOverlay');
-  let viewingId = null;
-
-  document.getElementById('viewClose').addEventListener('click', function(){
-    closeOverlay(viewOverlay);
-  });
-  viewOverlay.addEventListener('click', function(e){
-    if(e.target === viewOverlay) closeOverlay(viewOverlay);
-  });
-
-  function syncViewTabs(){
-    const v = compareView();
-    document.querySelectorAll('.viewtab').forEach(function(b){
-      b.classList.toggle('on', b.dataset.view === v);
-    });
-  }
-  document.querySelectorAll('.viewtab').forEach(function(b){
-    b.addEventListener('click', function(){
-      setCompareView(b.dataset.view);
-      syncViewTabs();
-      if(viewingId) showPlayerSheet(viewingId);
-    });
-  });
-
-  /* A game that kicked off before spreads were being preserved has no current
-     line, so fall back to the last one recorded in its history. */
-  function lineOf(g){
-    if(!g) return null;
-    if(typeof g.spread === 'number') return { sp: g.spread, fav: g.fav };
-    const h = Array.isArray(g.history) ? g.history[g.history.length - 1] : null;
-    return (h && typeof h.sp === 'number') ? { sp: h.sp, fav: h.fav || g.fav } : null;
-  }
-  function favSideOf(g){
-    const L = lineOf(g);
-    return L ? ((L.fav === 'A') ? 'a' : 'b') : null;
-  }
-  function spreadForSide(g, side){
-    const L = lineOf(g);
-    if(!L) return '';
-    return (side === favSideOf(g) ? '\u2212' : '+') + L.sp;
-  }
-  function isFavSide(g, side){
-    const f = favSideOf(g);
-    return f ? (side === f) : true;
-  }
-  function sideCity(g, side){
-    if(g) return (side === 'a') ? g.cityA : g.cityB;
-    return '\u2014';
-  }
-  function pickSideCity(pk){
-    const g = gameById(pk.i);
-    if(g) return sideCity(g, pk.p);
-    const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
-    if(lg) return (pk.p === 'a') ? lg.away : lg.home;
-    return '\u2014';
-  }
-  // Which side of a game your own pick is on.
-  function mySide(g){
-    const f = favSideOf(g);
-    if(!f) return null;
-    if(g.pick === 'fav') return f;
-    return f === 'a' ? 'b' : 'a';
-  }
-
-  /* Each side is judged on its own. Final scores are the truth; when they
-     haven't loaded, fall back to the result already recorded for the game,
-     flipped for whoever took the other side. If the favorite can't be worked
-     out at all, mark nothing rather than guess. */
-  function sideResult(gid, side){
-    if(!gid || !side) return null;
-    const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
-    if(lg && lg.completed){
-      const a = lg.scores[lg.away], b = lg.scores[lg.home];
-      if(typeof a === 'number' && typeof b === 'number' && a !== b){
-        return ((side === 'a') ? (a > b) : (b > a)) ? 'win' : 'loss';
-      }
-      return null;
-    }
-    const r = results[gid];
-    if(r !== 'win' && r !== 'loss') return null;
-    const g = gameById(gid);
-    const ms = g ? mySide(g) : null;
-    if(!ms) return null;
-    return (side === ms) ? r : (r === 'win' ? 'loss' : 'win');
-  }
-
-  /* One side of a row: what it's worth, who they took, and the line from that
-     side. Points always show, and turn green or red once it's decided. */
-  // "@ Houston" or "vs Houston" — who the pick is actually playing.
-  function oppLine(g, side){
-    if(!g) return '';
-    const opp = (side === 'a') ? g.cityB : g.cityA;
-    const atHome = (side === homeSideOf(g).toLowerCase());
-    return (atHome ? 'vs ' : '@ ') + opp;
-  }
-
-  function cellFor(city, spread, res, pts, fav, opp){
-    const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
-    const spCls = fav ? 'spread-green' : 'spread-red';
-    return '<span class="vteam' + cls + '">' +
-      '<span class="vtop">' +
-        '<b class="vpt' + cls + '">' + pts + '</b>' +
-        '<span class="vname">' + esc(city) + '</span>' +
-        (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
-      '</span>' +
-      (opp ? '<span class="vopp">' + esc(opp) + '</span>' : '') +
-    '</span>';
-  }
-  function blankCell(){ return '<span class="vteam skip">\u2014</span>'; }
-
-  // Ladder: straight down both sheets by confidence rank.
-  function ladderBody(row){
-    const mine = activeGames();
-    const theirs = Array.isArray(row.picks) ? row.picks : [];
-    const n = Math.max(mine.length, theirs.length);
-    let out = '';
-    for(let i = 0; i < n; i++){
-      const g = mine[i], pk = theirs[i];
-      const tg = pk ? gameById(pk.i) : null;
-      const pts = i + 1;
-      const myCell = g ? cellFor(pickedCityOf(g), spreadForSide(g, mySide(g)),
-                                 sideResult(g.id, mySide(g)), pts, g.pick === 'fav',
-                                 oppLine(g, mySide(g)))
-                       : blankCell();
-      const thCell = pk ? cellFor(pickSideCity(pk), spreadForSide(tg, pk.p),
-                                  sideResult(tg ? tg.id : null, pk.p), pts, isFavSide(tg, pk.p),
-                                  oppLine(tg, pk.p))
-                        : blankCell();
-      const differ = !!(g && pk && mySide(g) && pk.p &&
-                        !(gameById(pk.i) === g && mySide(g) === pk.p));
-      out += '<div class="vrow' + (differ ? ' differ' : '') + '">' + myCell + thCell + '</div>';
-    }
-    return out;
-  }
-
-  /* Head-to-head: one row per game, so the same matchup lands on one line even
-     when you ranked it 15 and they ranked it 8. That pairing is where the week
-     is actually won, and rank alignment can never show it. */
-  function h2hBody(row){
-    const mine = activeGames();
-    const theirs = Array.isArray(row.picks) ? row.picks : [];
-    const map = {};
-
-    mine.forEach(function(g, i){
-      map[g.id] = map[g.id] || { gid: g.id, g: g };
-      map[g.id].mySide = mySide(g);
-      map[g.id].myPts = i + 1;
-    });
-    theirs.forEach(function(pk, i){
-      if(!map[pk.i]) map[pk.i] = { gid: pk.i, g: gameById(pk.i) };
-      map[pk.i].thSide = pk.p;
-      map[pk.i].thPts = i + 1;
-    });
-
-    const list = Object.keys(map).map(function(k){ return map[k]; });
-    // Biggest stake first — those are the games that move the standings.
-    list.sort(function(a,b){
-      return Math.max(b.myPts || 0, b.thPts || 0) - Math.max(a.myPts || 0, a.thPts || 0);
-    });
-
-    return list.map(function(e){
-      const g = e.g;
-      const title = g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game';
-      const agreed = !!(e.mySide && e.thSide && e.mySide === e.thSide);
-      const myCell = e.mySide
-        ? cellFor(sideCity(g, e.mySide), spreadForSide(g, e.mySide),
-                  sideResult(e.gid, e.mySide), e.myPts, isFavSide(g, e.mySide))
-        : blankCell();
-      const thCell = e.thSide
-        ? cellFor(sideCity(g, e.thSide), spreadForSide(g, e.thSide),
-                  sideResult(e.gid, e.thSide), e.thPts, isFavSide(g, e.thSide))
-        : blankCell();
-      return '<div class="vgame' + (agreed ? ' agreed' : '') + '">' +
-        '<div class="vgtitle">' + esc(title) + '</div>' +
-        '<div class="vrow">' + myCell + thCell + '</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  function showPlayerSheet(id){
-    const row = board.filter(function(r){ return r.id === id; })[0];
-    if(!row) return;
-    viewingId = id;
-    syncViewTabs();
-
-    const me = player();
-    document.getElementById('viewTitle').textContent =
-      esc(me.name || 'You') + ' vs ' + esc(row.name);
-
-    const list = document.getElementById('viewList');
-    const theirs = Array.isArray(row.picks) ? row.picks : [];
-    if(!theirs.length && !activeGames().length){
-      list.innerHTML = '<div class="seasonempty">Nothing to compare yet.</div>';
-      openOverlay(viewOverlay);
-      return;
-    }
-
-    const body = (compareView() === 'h2h') ? h2hBody(row) : ladderBody(row);
-    const myTotal = weekScore(activeGames(), activeResults()).earned;
-    const thTotal = row.points;
-
-    function totalCell(n, lead){
-      return '<span class="vtot' + (lead ? ' lead' : '') + '">' +
-        '<b>' + n + '</b><span class="vtotlbl">pts</span></span>';
-    }
-
-    list.innerHTML =
-      '<div class="vhead">' +
-        '<span class="vwho mine"><i></i>' + esc(me.name || 'You') + '</span>' +
-        '<span class="vwho them"><i></i>' + esc(row.name) + '</span>' +
-      '</div>' + body +
-      '<div class="vtotals">' +
-        totalCell(myTotal, myTotal > thTotal) +
-        totalCell(thTotal, thTotal > myTotal) +
-      '</div>';
-    openOverlay(viewOverlay);
-  }
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
@@ -3700,60 +3625,57 @@
       picks: picks,
       updated: Date.now()
     };
-    fetch(entryUrl(currentWeek, me.id), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
-      .catch(function(){});
+    /* This used to swallow every error. If the write failed you simply never
+       appeared on the board and nothing said so. Now it retries once and
+       tells you if it still couldn't get through. */
+    const week = currentWeek;
+    function put1(attempt){
+      fetch(entryUrl(week, me.id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+        .then(function(r){
+          if(!r.ok) throw new Error('rejected');
+          if(week === currentWeek) fetchBoard(week, renderBoard);
+        })
+        .catch(function(){
+          // Don't retry into a sheet that's been unlocked in the meantime.
+          if(attempt < 2 && weekLocked){
+            setTimeout(function(){ if(weekLocked) put1(attempt + 1); }, 1200);
+            return;
+          }
+          if(week === currentWeek) toast("Couldn't reach the pool — try Refresh");
+        });
+    }
+    put1(1);
   }
 
-  function sameName(a, b){
-    return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
-  }
-
-  /* Wipes a name from every week. Used to clear out duplicates left behind by
-     earlier visits; the name itself stays free to use again. */
-  function purgeName(name, done){
-    if(!name || typeof fetch !== 'function'){ done(0); return; }
-    let removed = 0;
-    const weeks = [];
-    for(let w = 1; w <= MAX_WEEK; w++) weeks.push(w);
-    weeks.reduce(function(chain, w){
-      return chain.then(function(){
-        return fetch(boardUrl(w))
-          .then(function(r){ return r.ok ? r.json() : null; })
-          .then(function(data){
-            const hits = Object.keys(data || {}).filter(function(id){
-              return data[id] && sameName(data[id].name, name);
-            });
-            return hits.reduce(function(c2, id){
-              return c2.then(function(){
-                removed++;
-                return fetch(entryUrl(w, id), { method: 'DELETE' }).catch(function(){});
-              });
-            }, Promise.resolve());
-          })
-          .catch(function(){});
-      });
-    }, Promise.resolve()).then(function(){ done(removed); });
-  }
-
-  // Unlocking means you're still deciding — pull yourself off the board.
-  /* Unlocking used to DELETE your entry. That raced with the PUT from locking
-     back in — the delete could land second and wipe the entry you'd just
-     written, so relocking never brought you back. Nothing is deleted now: the
-     entry stays and is flagged unlocked, and locking in flips it back. */
+  /* Unlocking used to delete the entry outright, which raced the write from
+     locking back in and could wipe it a second later — that's why relocking
+     never brought anyone back. Nothing is removed now: the entry stays and is
+     flagged unlocked, and a later lock-in always wins over an unlock still in
+     flight. */
   function markUnlocked(week){
     const me = player();
     if(!me.id || !me.name || typeof fetch !== 'function') return;
+    const at = Date.now();
     fetch(entryUrl(week, me.id), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locked: false, updated: Date.now() })
+      body: JSON.stringify({ locked: false, updated: at })
     })
-      .then(function(){ fetchBoard(week, renderBoard); })
-      .catch(function(){});
+      .then(function(r){
+        if(r && !r.ok) throw new Error('rejected');
+        if(week === currentWeek && weekLocked){
+          pushScore();        // locked again while that was in flight
+          return;
+        }
+        fetchBoard(week, renderBoard);
+      })
+      .catch(function(){
+        if(week === currentWeek) toast("Couldn't reach the pool — try Refresh");
+      });
   }
 
   /* Recomputes an entry's score from the games that are final right now, so a
@@ -3782,6 +3704,7 @@
     return { points: points, decided: decided };
   }
 
+  let lastHeal = 0;
   function fetchBoard(week, done){
     if(typeof fetch !== 'function'){ done && done(); return; }
     fetch(boardUrl(week))
@@ -3804,6 +3727,22 @@
         rows.sort(function(a,b){ return b.points - a.points; });
         board = rows;
         boardNote = '';
+
+        /* The board must agree with this phone in both directions. Locked and
+           missing? Publish. Unlocked and still listed? Take it down. Either
+           way a failed or late write gets corrected on the next load instead
+           of leaving you stuck in the wrong state. */
+        const meNow = player();
+        if(week === currentWeek && meNow.name && meNow.id && (Date.now() - lastHeal) > 8000){
+          const mine = rows.filter(function(r){ return r.id === meNow.id; })[0];
+          if(weekLocked && !mine){
+            lastHeal = Date.now();
+            pushScore();
+          }else if(!weekLocked && mine && mine.locked !== false){
+            lastHeal = Date.now();
+            markUnlocked(week);
+          }
+        }
       })
       .catch(function(){ boardNote = "Can't reach the pool"; })
       .then(function(){ done && done(); });
@@ -3878,18 +3817,27 @@
 
   /* name prompt */
   const nameOverlay = document.getElementById('nameOverlay');
-  function askName(){
+  let nameRequired = false;
+  function askName(required){
     const me = player();
+    nameRequired = !!required;
     document.getElementById('nameInput').value = me.name || '';
+    document.getElementById('nameSkip').style.display = nameRequired ? 'none' : '';
+    document.getElementById('nameNote').textContent = nameRequired
+      ? 'Your sheet is locked. Add a name and you\u2019re on the board.'
+      : '';
     openOverlay(nameOverlay);
   }
   document.getElementById('nameSave').addEventListener('click', function(){
     const v = (document.getElementById('nameInput').value || '').trim().slice(0, 14);
-    if(v){
-      const me = player();
-      me.name = v;
-      put(PLAYER_KEY, me);
+    if(!v){
+      document.getElementById('nameNote').textContent = 'Enter a name to appear on the board.';
+      return;                       // nothing to publish under
     }
+    const me = player();
+    me.name = v;
+    put(PLAYER_KEY, me);
+    nameRequired = false;
     closeOverlay(nameOverlay);
     syncPool();
   });
@@ -4064,6 +4012,10 @@
     if(recentView && last && TABS.indexOf(last.view) >= 0) startTab = last.view;
     showTab(startTab, true);
     try{ history.replaceState({ tab: startTab }, ''); }catch(e){}
+
+    // A locked sheet belongs on the board from the moment the app opens,
+    // whether or not anyone visits the Score Tracker.
+    if(weekLocked && player().name) syncPool();
 
     // Confirm against ESPN in the background and move if we guessed wrong.
     detectCurrentWeek(function(w){
