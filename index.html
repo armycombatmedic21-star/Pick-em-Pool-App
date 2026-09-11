@@ -485,34 +485,103 @@
     font-size:0.8rem; font-weight:800;
   }
 
-  .scorewrap{ display:flex; gap:8px; margin-bottom:10px; align-items:stretch; }
+  .scorewrap{ display:flex; gap:9px; margin-bottom:12px; align-items:stretch; }
   .scorecard{
-    flex:0 0 58%;
-    background: var(--panel-hi); border:1px solid var(--cyan-dim); border-radius:12px;
-    padding:8px 12px 9px; text-align:center;
+    flex:4 1 0; min-width:0;
+    background: linear-gradient(160deg, rgba(53,208,255,0.09), rgba(13,22,38,0.6));
+    border:1px solid var(--cyan-dim); border-radius:14px;
+    padding:11px 10px 12px; text-align:center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 14px rgba(0,0,0,0.35);
   }
   .lbcard{
-    flex:1; min-width:0;
-    background: var(--panel-hi); border:1px solid var(--line); border-radius:12px;
-    padding:8px 10px 9px;
+    flex:6 1 0; min-width:0;
+    background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(13,22,38,0.6));
+    border:1px solid var(--line); border-radius:14px;
+    padding:11px 11px 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 14px rgba(0,0,0,0.35);
   }
   .cardbanner{
-    font-size:0.68rem; font-weight:800; letter-spacing:0.8px;
-    color: var(--muted); text-transform:uppercase;
-    margin-bottom:4px; text-align:center;
+    font-size:0.62rem; font-weight:800; letter-spacing:1.6px;
+    color: var(--muted); text-transform:uppercase; opacity:0.8;
+    margin-bottom:8px; text-align:center;
   }
-  .lblist{ display:flex; flex-direction:column; gap:4px; }
-  .lblist.tappable .lbrow{ cursor:pointer; border-radius:6px; }
-  .lblist.tappable .lbrow:active{ background: rgba(53,208,255,0.12); }
+  .lblist{
+    display:flex; flex-direction:column; gap:2px;
+    max-height:132px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  .lblist::-webkit-scrollbar{ width:3px; }
+  .lblist::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
   /* side-by-side sheet comparison */
-  .vhead, .vrow, .vtotals{ display:flex; align-items:center; gap:8px; padding:6px 0; }
-  .vhead{
-    border-bottom:1px solid var(--line); color: var(--muted);
-    font-size:0.68rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;
+  /* Open Sheets button, next to Refresh */
+  .sharebtn{
+    flex:none; padding:7px 12px; border-radius:8px;
+    border:1px solid var(--gold); background: rgba(244,196,61,0.12);
+    color: var(--gold); font-size:0.78rem; font-weight:800;
   }
-  .vrow{ border-bottom:1px solid rgba(28,51,80,0.5); }
-  .vrow.differ{ background: rgba(53,208,255,0.06); }
-  .vteam.won{ background: rgba(61,220,132,0.10); border-radius:6px; padding:3px 5px; }
+  .sharebtn.on{
+    border-color: var(--green); background: rgba(61,220,132,0.12); color: var(--green);
+  }
+  .sharebtn:active{ opacity:0.75; }
+
+  /* Ladder / Head-to-Head */
+  .viewtabs{
+    display:flex; gap:6px; margin:0 0 12px;
+    background: rgba(0,0,0,0.25); border:1px solid var(--line);
+    border-radius:10px; padding:3px;
+  }
+  .viewtab{
+    flex:1; padding:8px 6px; border:none; border-radius:7px;
+    background:none; color: var(--muted);
+    font: inherit; font-size:0.8rem; font-weight:800;
+  }
+  .viewtab.on{ background: var(--panel-hi); color: var(--cyan); }
+
+  /* head-to-head groups one game onto one line */
+  .vgame{ padding:8px 0 9px; border-bottom:1px solid rgba(28,51,80,0.45); }
+  .vgame.agreed{ opacity:0.55; }
+  .vgtitle{
+    font-size:0.66rem; font-weight:800; letter-spacing:1.1px;
+    color: var(--muted); text-transform:uppercase; opacity:0.75;
+    margin-bottom:5px; padding-left:10px;
+  }
+  .vgame .vrow{ border-bottom:none; padding:0; }
+  .vteam.skip{ color: var(--muted); opacity:0.4; }
+
+  .vhead, .vrow, .vtotals{
+    display:flex; align-items:stretch; gap:0; position:relative;
+  }
+  /* a hairline down the middle, so the two sheets read as two columns */
+  .vhead::after, .vrow::after{
+    content:''; position:absolute; left:50%; top:0; bottom:0;
+    width:1px; background: rgba(28,51,80,0.75);
+  }
+  .vhead{
+    padding:0 0 10px; margin-bottom:2px;
+    border-bottom:1px solid var(--line);
+  }
+  .vwho{
+    flex:1; min-width:0; display:flex; align-items:center; gap:7px;
+    padding:0 10px; font-size:0.78rem; font-weight:900;
+    letter-spacing:1.4px; text-transform:uppercase;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .vwho i{ flex:none; width:7px; height:7px; border-radius:2px; }
+  .vwho.mine{ color: var(--cyan); }
+  .vwho.mine i{ background: var(--cyan); box-shadow: 0 0 9px rgba(53,208,255,0.7); }
+  .vwho.them{ color: var(--gold); }
+  .vwho.them i{ background: var(--gold); box-shadow: 0 0 9px rgba(244,196,61,0.6); }
+
+  .vrow{ padding:7px 0; border-bottom:1px solid rgba(28,51,80,0.45); }
+  .vrow.differ{
+    background: linear-gradient(90deg,
+      rgba(53,208,255,0.07), rgba(53,208,255,0.02) 60%, transparent);
+  }
+  .vteam.won{
+    background: linear-gradient(90deg, rgba(61,220,132,0.16), rgba(61,220,132,0.03));
+    border-left:2px solid var(--green); border-radius:0 7px 7px 0;
+    margin-left:-2px;
+  }
   /* A lost pick isn't a penalty, it's points you didn't bank — so it fades
      out and the number gets struck through rather than lighting up red. */
   .vteam.lost{ opacity:0.5; }
@@ -526,13 +595,23 @@
   .vpt.lost{ color: var(--red); }
   .vteam.lost .vname{ text-decoration: line-through; text-decoration-thickness:1px; }
   .vteam{
-    flex:1; min-width:0; font-size:0.86rem; font-weight:700; color: var(--text);
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    flex:1; min-width:0; padding:0 10px;
+    display:flex; flex-direction:column; justify-content:center; gap:1px;
+    font-size:0.9rem; font-weight:700; color: var(--text);
+  }
+  .vtop{
+    display:flex; align-items:baseline; gap:5px; min-width:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .vopp{
+    font-size:0.68rem; font-weight:600; color: var(--muted); opacity:0.7;
+    letter-spacing:0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .vtotals{
-    border-top:1px solid var(--line); margin-top:8px; padding-top:12px;
+    border-top:1px solid var(--line); margin-top:10px; padding-top:14px;
     align-items:flex-end;
   }
+  .vtotals::after{ display:none; }
   .vtot{
     flex:1; min-width:0; position:relative;
     display:flex; align-items:baseline; gap:6px; padding-bottom:9px;
@@ -550,48 +629,45 @@
     color: var(--green);
     text-shadow: 0 0 16px rgba(61,220,132,0.45);
   }
-  /* A light making a slow lap of a box around whoever's ahead. The spinning
-     cone paints the border; the inner panel masks everything but the edge. */
-  .vtot.lead{ padding:7px 10px 8px; }
-  .vtot.lead::before{
-    content:''; position:absolute; inset:0; border-radius:10px; z-index:0;
-    background: conic-gradient(from 0deg,
-      rgba(61,220,132,0) 0deg, rgba(61,220,132,0) 265deg,
-      rgba(61,220,132,0.55) 320deg, var(--green) 352deg,
-      rgba(61,220,132,0) 360deg);
-    animation: leadlap 5s linear infinite;
-  }
-  .vtot.lead::after{
-    content:''; position:absolute; inset:1px; border-radius:9px; z-index:0;
-    background: var(--panel);
-  }
-  .vtot.lead b, .vtot.lead .vtotlbl{ position:relative; z-index:1; }
-  @keyframes leadlap{ to{ transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce){
-    .vtot.lead::before{ animation:none; background: var(--cyan-dim); }
-  }
-
-  .pinerror{ margin:6px 0 0; color: var(--red); font-size:0.82rem; font-weight:700; min-height:1em; }
-
 
   .lbrow{
-    display:flex; align-items:center; gap:6px;
-    font-size:0.82rem; font-weight:700;
+    display:flex; align-items:center; gap:8px;
+    padding:6px; border-radius:8px;
+    border-bottom:1px solid rgba(28,51,80,0.45);
+    font-size:0.95rem; font-weight:700;
+  }
+  .lbrow:last-child{ border-bottom:none; }
+  .lbrow.shares{ cursor:pointer; }
+  .lbrow.shares:active{ background: rgba(53,208,255,0.14); }
+  .lbrow.me{
+    background: linear-gradient(90deg, rgba(244,196,61,0.10), transparent 85%);
+    border-left:2px solid var(--gold); margin-left:-2px; border-radius:0 8px 8px 0;
+  }
+  /* Out in front on their own */
+  .lbrow.lead .lbrank{ color: var(--gold); opacity:1; }
+  .lbrow.lead .lbname{ color: var(--gold); opacity:1; font-weight:900; }
+  .lbrow.lead .lbpts{ color: var(--gold); text-shadow: 0 0 12px rgba(244,196,61,0.45); }
+  /* Reads as a button, not a stray emoji */
+  .sheeticon{
+    flex:none; font-size:0.72rem; line-height:1;
+    padding:4px 5px; border-radius:6px;
+    background: rgba(53,208,255,0.12); border:1px solid var(--cyan-dim);
   }
   .lbrow.me .lbname{ color: var(--gold); font-weight:800; }
   .lbrow.me .lbpts{ color: var(--gold); }
   .lbrank{
-    flex:none; width:14px; text-align:right;
+    flex:none; width:16px; text-align:center;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.72rem; color: var(--muted); font-weight:800;
+    font-size:0.72rem; color: var(--muted); font-weight:900; opacity:0.55;
   }
   .lbname{
-    flex:1; min-width:0; color: var(--text); opacity:0.9;
+    flex:1; min-width:0; color: var(--text); opacity:0.92; letter-spacing:0.2px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .lbpts{
-    flex:none; font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-weight:800; color: var(--cyan);
+    flex:none; min-width:26px; text-align:right;
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:1.05rem; font-weight:900; color: var(--cyan); letter-spacing:-0.5px;
   }
   .lbnote{
     font-size:0.68rem; font-weight:600; color: var(--muted);
@@ -599,11 +675,11 @@
   }
   .scorebig{
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:2.2rem; font-weight:800; color: var(--green);
-    text-shadow: 0 0 16px rgba(61,220,132,0.4);
-    line-height:1.1;
+    font-size:2.6rem; font-weight:900; color: var(--green);
+    text-shadow: 0 0 22px rgba(61,220,132,0.45);
+    line-height:1; letter-spacing:-1px;
   }
-  .scorelabel{ font-size:0.85rem; font-weight:700; color: var(--muted); margin-top:4px; }
+  .scorelabel{ font-size:0.8rem; font-weight:700; color: var(--muted); opacity:0.85; letter-spacing:0.2px; margin-top:5px; line-height:1.35; }
   .scorecompare{ font-size:0.88rem; font-weight:700; margin-top:8px; }
 
   .gcard{
@@ -843,6 +919,7 @@
     <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
     <div class="liverow">
       <span class="livestatus" id="liveStatus"></span>
+      <button class="sharebtn" id="shareBtn">Open Sheets</button>
       <button class="refreshbtn" id="refreshBtn">Refresh</button>
     </div>
     <div class="scorewrap">
@@ -944,13 +1021,10 @@
       </span>
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
-    <div class="devrow">
-      <span class="devlabel"><b>Debug</b></span>
-      <button class="devtoggle" id="debugToggle">Off</button>
-    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
       <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.6.0</b> Spreads no longer vanish when a game kicks off. ESPN stops sending the line once play starts, and the app was wiping its own copy — which also scrambled the sheet order. The line you picked against now stays put through the game and after it goes final.</div>
@@ -1006,14 +1080,13 @@
   </div>
 </div>
 
-<div class="overlay" id="pinOverlay">
-  <div class="confirmcard">
-    <h2>Enter code</h2>
-    <input id="pinInput" class="nameinput" type="tel" inputmode="numeric" maxlength="4" placeholder="0000">
-    <p class="pinerror" id="pinError"></p>
+<div class="overlay" id="shareOverlay">
+  <div class="confirmcard calm">
+    <h2>Open Sheets</h2>
+    <p id="shareText"></p>
     <div class="confirmrow">
-      <button class="confirmcancel" id="pinCancel">Cancel</button>
-      <button class="confirmyes" id="pinOk">OK</button>
+      <button class="confirmcancel" id="shareCancel">Not this week</button>
+      <button class="confirmyes" id="shareYes">Open mine</button>
     </div>
   </div>
 </div>
@@ -1023,6 +1096,10 @@
     <div class="sheettop">
       <button class="backbtn" id="viewClose">‹ Back</button>
       <h2 id="viewTitle">Sheet</h2>
+    </div>
+    <div class="viewtabs">
+      <button class="viewtab" data-view="ladder">Ladder</button>
+      <button class="viewtab" data-view="h2h">Head-to-Head</button>
     </div>
     <div id="viewList"></div>
   </div>
@@ -1076,8 +1153,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.9';
-  const APP_BUILT = 'Sep 10, 10:25 AM';
+  const APP_VERSION = '2.8.2';
+  const APP_BUILT = 'Sep 10, 12:30 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1438,6 +1515,7 @@
     board = [];
     boardNote = '';
     liveStatus = '';
+    syncShareBtn();
     if(isTab('live')) openResults();
     if(isTab('sheet')) renderSheet();
 
@@ -2370,8 +2448,7 @@
     if(demoOn()){
       liveGames = simulateScoreboard();
       computeDemoResults();
-      liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
-        ' (auto refreshes every 10 seconds)';
+      liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
       liveLoading = false;
       done();                      // deliberately skips applyFinals — fake games never score your week
       return;
@@ -2426,9 +2503,8 @@
         });
         liveGames = out;
         liveStatus = weekComplete()
-          ? ('Week ' + week + ' is final — all games played')
-          : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) +
-             (anyGameLive() ? ' (auto refreshes every 10 seconds)' : ' (auto refreshes every 5 minutes)'));
+          ? ('Week ' + week + ' final')
+          : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
         applyFinals();
 
         // Same payload carries the odds, so keep spreads current everywhere.
@@ -2752,6 +2828,7 @@
     }
     if(!skipFetch){
       syncSeasonBtn();
+      syncShareBtn();
       refreshScores();
       startLiveTimer();
       syncPool();
@@ -3215,56 +3292,107 @@
 
   checkForUpdate();
 
-  /* ---------- debug: read another player's sheet ----------
-     Their picks are already published to the pool database so every phone can
-     score everyone; this just renders one. Off by default so nobody taps into
-     it by accident, and it's listed plainly in the menu rather than hidden. */
-  const DEBUG_KEY = 'pickem-debug';
-  const DEBUG_PIN = '1777';          // change here if you ever want a new one
-  function debugOn(){ const v = getLocal(DEBUG_KEY); return !!(v && v.on); }
-  function debugUnlocked(){ const v = getLocal(DEBUG_KEY); return !!(v && v.ok); }
+  /* ---------- open sheets ----------
+     Show yours to see theirs. Two rules keep that fair: you can only open a
+     sheet you've already locked, so nobody reads the room before picking, and
+     once open it stays open for the week — no peeking then hiding. It resets
+     on its own each week because the flag is stored per week. */
+  const shareKey = w => 'pickem-share-w' + w;
+  function sharingOn(week){ const v = getLocal(shareKey(week)); return !!(v && v.on); }
+  function openSharing(week){ put(shareKey(week), { on: true, t: Date.now() }); }
 
-  function syncDebugUI(){
-    const b = document.getElementById('debugToggle');
+  const CMP_VIEW_KEY = 'pickem-compare-view';
+  function compareView(){
+    const v = getLocal(CMP_VIEW_KEY);
+    return (v && v.view === 'h2h') ? 'h2h' : 'ladder';
+  }
+  function setCompareView(v){ put(CMP_VIEW_KEY, { view: v }); }
+
+  function syncShareBtn(){
+    const b = document.getElementById('shareBtn');
     if(!b) return;
-    const on = debugOn();
-    b.textContent = on ? 'On' : 'Off';
+    const on = sharingOn(currentWeek);
+    b.textContent = on ? 'Sheets Open' : 'Open Sheets';
     b.classList.toggle('on', on);
   }
-  document.getElementById('debugToggle').addEventListener('click', function(){
-    if(!debugUnlocked()){ askPin(); return; }
-    put(DEBUG_KEY, { on: !debugOn(), ok: true });
-    syncDebugUI();
+
+  const shareOverlay = document.getElementById('shareOverlay');
+  let sharePending = null;          // whose sheet they were trying to open
+
+  function askShare(nextId){
+    sharePending = nextId || null;
+    const txt = document.getElementById('shareText');
+    const yes = document.getElementById('shareYes');
+    if(!weekLocked){
+      txt.textContent = 'Lock your picks in first. Sheets can only be opened once ' +
+        'yours is final \u2014 that way nobody sees the pool before making their own picks.';
+      yes.style.display = 'none';
+    }else{
+      txt.textContent = 'Your sheet becomes visible to anyone else who has opened theirs, ' +
+        'and you can see theirs. It stays open for the rest of this week, and resets ' +
+        'when the next week starts.';
+      yes.style.display = '';
+    }
+    openOverlay(shareOverlay);
+  }
+
+  document.getElementById('shareCancel').addEventListener('click', function(){
+    sharePending = null;
+    closeOverlay(shareOverlay);
+  });
+  document.getElementById('shareYes').addEventListener('click', function(){
+    if(!weekLocked) return;
+    openSharing(currentWeek);
+    closeOverlay(shareOverlay);
+    syncShareBtn();
+    syncPool();                      // republish with the flag set
     renderBoard();
+    toast('Your sheet is open');
+    if(sharePending){
+      const id = sharePending;
+      sharePending = null;
+      showPlayerSheet(id);
+    }
+  });
+  shareOverlay.addEventListener('click', function(e){
+    if(e.target === shareOverlay){ sharePending = null; closeOverlay(shareOverlay); }
   });
 
-  // Asked once per device; after that the switch just toggles.
-  const pinOverlay = document.getElementById('pinOverlay');
-  function askPin(){
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinError').textContent = '';
-    openOverlay(pinOverlay);
-  }
-  document.getElementById('pinCancel').addEventListener('click', function(){
-    closeOverlay(pinOverlay);
+  /* Tapping someone who's opened their sheet. If yours isn't open yet, this is
+     where the offer gets made — agree and it goes straight through to theirs. */
+  document.getElementById('lbList').addEventListener('click', function(e){
+    const row = e.target.closest ? e.target.closest('.lbrow') : null;
+    if(!row || !row.dataset.pid) return;
+    const pid = row.dataset.pid;
+    if(pid === player().id) return;
+    const them = board.filter(function(r){ return r.id === pid; })[0];
+    if(!them || !them.share) return;
+    if(!sharingOn(currentWeek)){ askShare(pid); return; }
+    showPlayerSheet(pid);
+    if(!liveGames.length){
+      fetchScores(currentWeek, function(){
+        if(viewOverlay.classList.contains('show')) showPlayerSheet(pid);
+      });
+    }
   });
-  document.getElementById('pinOk').addEventListener('click', function(){
-    const v = (document.getElementById('pinInput').value || '').trim();
-    if(v !== DEBUG_PIN){
-      document.getElementById('pinError').textContent = 'Not that one.';
+
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    if(sharingOn(currentWeek)){
+      const txt = document.getElementById('shareText');
+      txt.textContent = 'Your sheet is open for this week. Tap the \u{1F4C4} next to ' +
+        'anyone else who has opened theirs to compare.';
+      document.getElementById('shareYes').style.display = 'none';
+      openOverlay(shareOverlay);
       return;
     }
-    closeOverlay(pinOverlay);
-    put(DEBUG_KEY, { on: true, ok: true });
-    syncDebugUI();
-    renderBoard();
+    askShare(null);
   });
-  pinOverlay.addEventListener('click', function(e){
-    if(e.target === pinOverlay) closeOverlay(pinOverlay);
-  });
-  syncDebugUI();
+
+  /* ---------- comparing two sheets ---------- */
 
   const viewOverlay = document.getElementById('viewOverlay');
+  let viewingId = null;
+
   document.getElementById('viewClose').addEventListener('click', function(){
     closeOverlay(viewOverlay);
   });
@@ -3272,46 +3400,66 @@
     if(e.target === viewOverlay) closeOverlay(viewOverlay);
   });
 
-  /* A stored pick is {i: gameId, p: 'a'|'b'} where 'a' is the away team. */
-  function pickSideCity(pk){
-    const g = gameById(pk.i);
-    if(g) return (pk.p === 'a') ? g.cityA : g.cityB;
-    const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
-    if(lg) return (pk.p === 'a') ? lg.away : lg.home;
-    return '\u2014';
+  function syncViewTabs(){
+    const v = compareView();
+    document.querySelectorAll('.viewtab').forEach(function(b){
+      b.classList.toggle('on', b.dataset.view === v);
+    });
   }
+  document.querySelectorAll('.viewtab').forEach(function(b){
+    b.addEventListener('click', function(){
+      setCompareView(b.dataset.view);
+      syncViewTabs();
+      if(viewingId) showPlayerSheet(viewingId);
+    });
+  });
 
-  /* The line as that side sees it: minus if they took the favorite. Games that
-     kicked off before the spread was being preserved have no current line, so
-     fall back to the last one recorded in their history. */
+  /* A game that kicked off before spreads were being preserved has no current
+     line, so fall back to the last one recorded in its history. */
   function lineOf(g){
     if(!g) return null;
     if(typeof g.spread === 'number') return { sp: g.spread, fav: g.fav };
     const h = Array.isArray(g.history) ? g.history[g.history.length - 1] : null;
     return (h && typeof h.sp === 'number') ? { sp: h.sp, fav: h.fav || g.fav } : null;
   }
+  function favSideOf(g){
+    const L = lineOf(g);
+    return L ? ((L.fav === 'A') ? 'a' : 'b') : null;
+  }
   function spreadForSide(g, side){
     const L = lineOf(g);
     if(!L) return '';
-    const favSide = (L.fav === 'A') ? 'a' : 'b';
-    return (side === favSide ? '\u2212' : '+') + L.sp;
+    return (side === favSideOf(g) ? '\u2212' : '+') + L.sp;
   }
+  function isFavSide(g, side){
+    const f = favSideOf(g);
+    return f ? (side === f) : true;
+  }
+  function sideCity(g, side){
+    if(g) return (side === 'a') ? g.cityA : g.cityB;
+    return '\u2014';
+  }
+  function pickSideCity(pk){
+    const g = gameById(pk.i);
+    if(g) return sideCity(g, pk.p);
+    const lg = liveGames.filter(function(x){ return x.id === pk.i; })[0];
+    if(lg) return (pk.p === 'a') ? lg.away : lg.home;
+    return '\u2014';
+  }
+  // Which side of a game your own pick is on.
   function mySide(g){
-    const favSide = (g.fav === 'A') ? 'a' : 'b';
-    if(g.pick === 'fav') return favSide;
-    return favSide === 'a' ? 'b' : 'a';
+    const f = favSideOf(g);
+    if(!f) return null;
+    if(g.pick === 'fav') return f;
+    return f === 'a' ? 'b' : 'a';
   }
 
-  /* Stored results are win/loss relative to YOUR pick, so they can't be used
-     for somebody who took the other side. Read the final score instead and
-     work out each side separately. */
-  /* Each side is judged on its own. Final scores are the best source, but
-     liveGames only holds what the last scoreboard fetch returned — open this
-     before that lands and it's empty. So fall back to the result already
-     recorded for the game, flipping it for whoever took the other side. */
+  /* Each side is judged on its own. Final scores are the truth; when they
+     haven't loaded, fall back to the result already recorded for the game,
+     flipped for whoever took the other side. If the favorite can't be worked
+     out at all, mark nothing rather than guess. */
   function sideResult(gid, side){
-    if(!gid) return null;
-
+    if(!gid || !side) return null;
     const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
     if(lg && lg.completed){
       const a = lg.scores[lg.away], b = lg.scores[lg.home];
@@ -3320,94 +3468,138 @@
       }
       return null;
     }
-
-    // Stored results are relative to your own pick on that game.
     const r = results[gid];
     if(r !== 'win' && r !== 'loss') return null;
     const g = gameById(gid);
-    if(!g) return null;
-    const sameSide = (side === mySide(g));
-    if(sameSide) return r;
-    return r === 'win' ? 'loss' : 'win';
+    const ms = g ? mySide(g) : null;
+    if(!ms) return null;
+    return (side === ms) ? r : (r === 'win' ? 'loss' : 'win');
   }
 
+  /* One side of a row: what it's worth, who they took, and the line from that
+     side. Points always show, and turn green or red once it's decided. */
+  // "@ Houston" or "vs Houston" — who the pick is actually playing.
+  function oppLine(g, side){
+    if(!g) return '';
+    const opp = (side === 'a') ? g.cityB : g.cityA;
+    const atHome = (side === homeSideOf(g).toLowerCase());
+    return (atHome ? 'vs ' : '@ ') + opp;
+  }
 
-  /* One side of a comparison row: who they took, the line from that side, and
-     the points it's worth — coloured by whether it came in. */
-  /* One side of a row: the team, the line from that side, and what the pick is
-     worth. Points always show — that's the whole shape of a confidence sheet —
-     and turn green or red once the game is decided. */
-  function cellFor(city, spread, res, pts, isFav){
+  function cellFor(city, spread, res, pts, fav, opp){
     const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
-    const ptCls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
-    const spCls = isFav ? 'spread-green' : 'spread-red';
+    const spCls = fav ? 'spread-green' : 'spread-red';
     return '<span class="vteam' + cls + '">' +
-      '<b class="vpt' + ptCls + '">' + pts + '</b>' +
-      '<span class="vname">' + esc(city) + '</span>' +
-      (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
+      '<span class="vtop">' +
+        '<b class="vpt' + cls + '">' + pts + '</b>' +
+        '<span class="vname">' + esc(city) + '</span>' +
+        (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
+      '</span>' +
+      (opp ? '<span class="vopp">' + esc(opp) + '</span>' : '') +
     '</span>';
+  }
+  function blankCell(){ return '<span class="vteam skip">\u2014</span>'; }
+
+  // Ladder: straight down both sheets by confidence rank.
+  function ladderBody(row){
+    const mine = activeGames();
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    const n = Math.max(mine.length, theirs.length);
+    let out = '';
+    for(let i = 0; i < n; i++){
+      const g = mine[i], pk = theirs[i];
+      const tg = pk ? gameById(pk.i) : null;
+      const pts = i + 1;
+      const myCell = g ? cellFor(pickedCityOf(g), spreadForSide(g, mySide(g)),
+                                 sideResult(g.id, mySide(g)), pts, g.pick === 'fav',
+                                 oppLine(g, mySide(g)))
+                       : blankCell();
+      const thCell = pk ? cellFor(pickSideCity(pk), spreadForSide(tg, pk.p),
+                                  sideResult(tg ? tg.id : null, pk.p), pts, isFavSide(tg, pk.p),
+                                  oppLine(tg, pk.p))
+                        : blankCell();
+      const differ = !!(g && pk && mySide(g) && pk.p &&
+                        !(gameById(pk.i) === g && mySide(g) === pk.p));
+      out += '<div class="vrow' + (differ ? ' differ' : '') + '">' + myCell + thCell + '</div>';
+    }
+    return out;
+  }
+
+  /* Head-to-head: one row per game, so the same matchup lands on one line even
+     when you ranked it 15 and they ranked it 8. That pairing is where the week
+     is actually won, and rank alignment can never show it. */
+  function h2hBody(row){
+    const mine = activeGames();
+    const theirs = Array.isArray(row.picks) ? row.picks : [];
+    const map = {};
+
+    mine.forEach(function(g, i){
+      map[g.id] = map[g.id] || { gid: g.id, g: g };
+      map[g.id].mySide = mySide(g);
+      map[g.id].myPts = i + 1;
+    });
+    theirs.forEach(function(pk, i){
+      if(!map[pk.i]) map[pk.i] = { gid: pk.i, g: gameById(pk.i) };
+      map[pk.i].thSide = pk.p;
+      map[pk.i].thPts = i + 1;
+    });
+
+    const list = Object.keys(map).map(function(k){ return map[k]; });
+    // Biggest stake first — those are the games that move the standings.
+    list.sort(function(a,b){
+      return Math.max(b.myPts || 0, b.thPts || 0) - Math.max(a.myPts || 0, a.thPts || 0);
+    });
+
+    return list.map(function(e){
+      const g = e.g;
+      const title = g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game';
+      const agreed = !!(e.mySide && e.thSide && e.mySide === e.thSide);
+      const myCell = e.mySide
+        ? cellFor(sideCity(g, e.mySide), spreadForSide(g, e.mySide),
+                  sideResult(e.gid, e.mySide), e.myPts, isFavSide(g, e.mySide))
+        : blankCell();
+      const thCell = e.thSide
+        ? cellFor(sideCity(g, e.thSide), spreadForSide(g, e.thSide),
+                  sideResult(e.gid, e.thSide), e.thPts, isFavSide(g, e.thSide))
+        : blankCell();
+      return '<div class="vgame' + (agreed ? ' agreed' : '') + '">' +
+        '<div class="vgtitle">' + esc(title) + '</div>' +
+        '<div class="vrow">' + myCell + thCell + '</div>' +
+      '</div>';
+    }).join('');
   }
 
   function showPlayerSheet(id){
     const row = board.filter(function(r){ return r.id === id; })[0];
     if(!row) return;
+    viewingId = id;
+    syncViewTabs();
+
     const me = player();
-    document.getElementById('viewTitle').textContent = row.name + ' \u2014 Week ' + currentWeek;
+    document.getElementById('viewTitle').textContent =
+      esc(me.name || 'You') + ' vs ' + esc(row.name);
 
+    const list = document.getElementById('viewList');
     const theirs = Array.isArray(row.picks) ? row.picks : [];
-    const mine = activeGames();
-    const shown = activeResults();
-    const rows = Math.max(mine.length, theirs.length);
-
-    if(!rows){
-      document.getElementById('viewList').innerHTML =
-        '<div class="seasonempty">Nothing published yet \u2014 they may be on an older build.</div>';
+    if(!theirs.length && !activeGames().length){
+      list.innerHTML = '<div class="seasonempty">Nothing to compare yet.</div>';
       openOverlay(viewOverlay);
       return;
     }
 
-    /* Side by side at each confidence rank. Rank is what scoring turns on, so
-       lining the sheets up that way shows exactly where the week is won or
-       lost, even when the two sheets don't hold the same games. */
-    let body = '';
-    for(let i = 0; i < rows; i++){
-      const g = mine[i];
-      const pk = theirs[i];
-      const tg = pk ? gameById(pk.i) : null;
+    const body = (compareView() === 'h2h') ? h2hBody(row) : ladderBody(row);
+    const myTotal = weekScore(activeGames(), activeResults()).earned;
+    const thTotal = row.points;
 
-      const pts = i + 1;
-
-      const myCity = g ? pickedCityOf(g) : '\u2014';
-      const mySp = g ? spreadForSide(g, mySide(g)) : '';
-      const myRes = g ? sideResult(g.id, mySide(g)) : null;
-      const myFav = g ? (g.pick === 'fav') : true;
-
-      const thCity = pk ? pickSideCity(pk) : '\u2014';
-      const thSp = pk ? spreadForSide(tg, pk.p) : '';
-      const thRes = pk ? sideResult(tg ? tg.id : null, pk.p) : null;
-      const thL = lineOf(tg);
-      const thFav = thL ? (pk.p === ((thL.fav === 'A') ? 'a' : 'b')) : true;
-
-      const differ = (myCity !== thCity);
-      body += '<div class="vrow' + (differ ? ' differ' : '') + '">' +
-        cellFor(myCity, mySp, myRes, pts, myFav) +
-        cellFor(thCity, thSp, thRes, pts, thFav) +
-      '</div>';
-    }
-
-    const myScore = weekScore(mine, shown);
-    const myTotal = myScore.earned, thTotal = row.points;
-
-    // The green runner sits under whoever's ahead; a tie gets neither.
     function totalCell(n, lead){
       return '<span class="vtot' + (lead ? ' lead' : '') + '">' +
         '<b>' + n + '</b><span class="vtotlbl">pts</span></span>';
     }
 
-    document.getElementById('viewList').innerHTML =
+    list.innerHTML =
       '<div class="vhead">' +
-        '<span class="vteam">' + esc(me.name || 'You') + '</span>' +
-        '<span class="vteam">' + esc(row.name) + '</span>' +
+        '<span class="vwho mine"><i></i>' + esc(me.name || 'You') + '</span>' +
+        '<span class="vwho them"><i></i>' + esc(row.name) + '</span>' +
       '</div>' + body +
       '<div class="vtotals">' +
         totalCell(myTotal, myTotal > thTotal) +
@@ -3415,21 +3607,6 @@
       '</div>';
     openOverlay(viewOverlay);
   }
-
-  document.getElementById('lbList').addEventListener('click', function(e){
-    if(!debugOn()) return;
-    const row = e.target.closest ? e.target.closest('.lbrow') : null;
-    if(!row || !row.dataset.pid) return;
-    const pid = row.dataset.pid;
-    showPlayerSheet(pid);
-    // If scores hadn't landed yet there'd be nothing to mark, so pull them
-    // and redraw once they're in.
-    if(!liveGames.length){
-      fetchScores(currentWeek, function(){
-        if(viewOverlay.classList.contains('show')) showPlayerSheet(pid);
-      });
-    }
-  });
 
   document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
@@ -3507,6 +3684,7 @@
     });
     const body = {
       name: me.name,
+      share: sharingOn(currentWeek),
       points: sc.earned,
       decided: sc.decided,
       total: sc.total,
@@ -3622,6 +3800,7 @@
             // Carry the picks through — the sheet viewer reads them from here.
             rows.push({ id: id, name: e.name, points: sc.points, decided: sc.decided,
                         picks: Array.isArray(e.picks) ? e.picks : [],
+                        share: !!e.share,
                         updated: e.updated || 0 });
           });
         }
@@ -3649,13 +3828,19 @@
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
       return;
     }
-    const dbg = debugOn();
-    el.classList.toggle('tappable', dbg);
-    el.innerHTML = board.slice(0, 8).map(function(r, i){
-      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') + '"' +
-             (dbg ? ' data-pid="' + esc(r.id) + '"' : '') + '>' +
+    // Only call someone the leader if they're actually clear of the field.
+    const top = board.length ? board[0].points : 0;
+    const outright = board.length > 1 && board[0].points > board[1].points;
+
+    el.innerHTML = board.map(function(r, i){
+      const tappable = !!r.share && r.id !== me.id;
+      const lead = outright && i === 0 && r.points === top;
+      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') +
+             (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
+             '" data-pid="' + esc(r.id) + '">' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
         '<span class="lbname">' + esc(r.name) + '</span>' +
+        (tappable ? '<span class="sheeticon">\u{1F4C4}</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
