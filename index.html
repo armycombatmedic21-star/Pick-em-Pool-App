@@ -886,6 +886,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.6.0</b> Spreads no longer vanish when a game kicks off. ESPN stops sending the line once play starts, and the app was wiping its own copy — which also scrambled the sheet order. The line you picked against now stays put through the game and after it goes final.</div>
       <div class="cl"><b>2.5.1</b> Moved Add App to Home up under the title so it stops pushing the games down the screen.</div>
@@ -1010,8 +1011,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.7.1';
-  const APP_BUILT = 'Sep 10, 6:55 AM';
+  const APP_VERSION = '2.7.2';
+  const APP_BUILT = 'Sep 10, 7:15 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3214,7 +3215,7 @@
     const picks = Array.isArray(row.picks) ? row.picks : [];
 
     if(!picks.length){
-      list.innerHTML = '<div class="seasonempty">No picks published for this week.</div>';
+      list.innerHTML = '<div class="seasonempty">Nothing published yet \u2014 they may be on an older build, or locked in before picks were being sent.</div>';
       openOverlay(viewOverlay);
       return;
     }
@@ -3431,7 +3432,10 @@
             const e = data[id];
             if(!e || typeof e.points !== 'number' || !e.name) return;
             const sc = scoreEntry(e);
-            rows.push({ id: id, name: e.name, points: sc.points, decided: sc.decided });
+            // Carry the picks through — the sheet viewer reads them from here.
+            rows.push({ id: id, name: e.name, points: sc.points, decided: sc.decided,
+                        picks: Array.isArray(e.picks) ? e.picks : [],
+                        updated: e.updated || 0 });
           });
         }
         rows.sort(function(a,b){ return b.points - a.points; });
