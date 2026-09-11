@@ -637,12 +637,20 @@
     font-size:0.95rem; font-weight:700;
   }
   .lbrow:last-child{ border-bottom:none; }
+  /* Second person to use a name */
+  .lbdup{
+    font-style:normal; font-weight:800; color: var(--muted); opacity:0.75;
+    font-size:0.8rem;
+  }
   .lbrow.shares{ cursor:pointer; }
   .lbrow.shares:active{ background: rgba(53,208,255,0.14); }
   .lbrow.me{
-    background: linear-gradient(90deg, rgba(244,196,61,0.10), transparent 85%);
-    border-left:2px solid var(--gold); margin-left:-2px; border-radius:0 8px 8px 0;
+    background: linear-gradient(90deg, rgba(61,220,132,0.13), rgba(61,220,132,0.02) 85%);
+    border-left:2px solid var(--green); margin-left:-2px; border-radius:0 8px 8px 0;
   }
+  .lbrow.me .lbname{ color: var(--green); opacity:1; font-weight:900; }
+  /* Leading and it's you: gold wins the row, green keeps the edge. */
+  .lbrow.me.lead .lbname{ color: var(--gold); }
   /* Out in front on their own */
   .lbrow.lead .lbrank{ color: var(--gold); opacity:1; }
   .lbrow.lead .lbname{ color: var(--gold); opacity:1; font-weight:900; }
@@ -653,8 +661,6 @@
     padding:4px 5px; border-radius:6px;
     background: rgba(53,208,255,0.12); border:1px solid var(--cyan-dim);
   }
-  .lbrow.me .lbname{ color: var(--gold); font-weight:800; }
-  .lbrow.me .lbpts{ color: var(--gold); }
   .lbrank{
     flex:none; width:16px; text-align:center;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
@@ -1024,6 +1030,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
       <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
       <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
@@ -1153,8 +1160,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.8.2';
-  const APP_BUILT = 'Sep 10, 12:30 PM';
+  const APP_VERSION = '2.9.1';
+  const APP_BUILT = 'Sep 10, 1:25 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2291,7 +2298,7 @@
   document.getElementById('unlockYes').addEventListener('click', function(){
     weekLocked = false;
     saveAll();
-    removeScore(currentWeek);
+    markUnlocked(currentWeek);
     closeOverlay(unlockOverlay);
     syncLockBtn();
     stampLine(currentWeek);
@@ -3684,6 +3691,7 @@
     });
     const body = {
       name: me.name,
+      locked: true,
       share: sharingOn(currentWeek),
       points: sc.earned,
       decided: sc.decided,
@@ -3697,31 +3705,11 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     })
-      .then(function(){ sweepOrphans(currentWeek, me.name, me.id); })
       .catch(function(){});
   }
 
-  /* Your identity lives in this browser's storage. Clear it — or let the
-     browser clear it for you — and the next visit mints a new id while the
-     old entry sits on the leaderboard forever under your name. So every time
-     you publish, any older entry using your name gets swept up. */
   function sameName(a, b){
     return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
-  }
-
-  function sweepOrphans(week, name, keepId){
-    if(!name || typeof fetch !== 'function') return;
-    fetch(boardUrl(week))
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(data){
-        Object.keys(data || {}).forEach(function(id){
-          const e = data[id];
-          if(!e || id === keepId) return;
-          if(!sameName(e.name, name)) return;
-          fetch(entryUrl(week, id), { method: 'DELETE' }).catch(function(){});
-        });
-      })
-      .catch(function(){});
   }
 
   /* Wipes a name from every week. Used to clear out duplicates left behind by
@@ -3752,10 +3740,18 @@
   }
 
   // Unlocking means you're still deciding — pull yourself off the board.
-  function removeScore(week){
+  /* Unlocking used to DELETE your entry. That raced with the PUT from locking
+     back in — the delete could land second and wipe the entry you'd just
+     written, so relocking never brought you back. Nothing is deleted now: the
+     entry stays and is flagged unlocked, and locking in flips it back. */
+  function markUnlocked(week){
     const me = player();
-    if(!me.id || typeof fetch !== 'function') return;
-    fetch(entryUrl(week, me.id), { method: 'DELETE' })
+    if(!me.id || !me.name || typeof fetch !== 'function') return;
+    fetch(entryUrl(week, me.id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locked: false, updated: Date.now() })
+    })
       .then(function(){ fetchBoard(week, renderBoard); })
       .catch(function(){});
   }
@@ -3801,6 +3797,7 @@
             rows.push({ id: id, name: e.name, points: sc.points, decided: sc.decided,
                         picks: Array.isArray(e.picks) ? e.picks : [],
                         share: !!e.share,
+                        locked: (e.locked !== false),
                         updated: e.updated || 0 });
           });
         }
@@ -3828,18 +3825,43 @@
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
       return;
     }
-    // Only call someone the leader if they're actually clear of the field.
-    const top = board.length ? board[0].points : 0;
-    const outright = board.length > 1 && board[0].points > board[1].points;
+    /* Only locked sheets are on the board. An unlocked entry stays in the
+       database — that's what stopped people vanishing for good — but it isn't
+       in the pool until they lock back in. */
+    const shown = board.filter(function(r){ return r.locked !== false; });
+    if(!shown.length){
+      el.innerHTML = '';
+      note.textContent = boardNote || 'Lock in your sheet to appear here.';
+      return;
+    }
 
-    el.innerHTML = board.map(function(r, i){
+    /* Two people can pick the same name. Whoever got there first keeps it
+       plain; the next one is (2). Numbered by who published first, so it
+       doesn't shuffle as scores move. */
+    const bySeniority = shown.slice().sort(function(a,b){
+      return (a.updated || 0) - (b.updated || 0);
+    });
+    const seen = {}, tag = {};
+    bySeniority.forEach(function(r){
+      const k = String(r.name || '').trim().toLowerCase();
+      seen[k] = (seen[k] || 0) + 1;
+      if(seen[k] > 1) tag[r.id] = seen[k];
+    });
+
+    // Only call someone the leader if they're actually clear of the field.
+    const top = shown[0].points;
+    const outright = shown.length > 1 && shown[0].points > shown[1].points;
+
+    el.innerHTML = shown.map(function(r, i){
       const tappable = !!r.share && r.id !== me.id;
       const lead = outright && i === 0 && r.points === top;
       return '<div class="lbrow' + (r.id === me.id ? ' me' : '') +
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
-        '<span class="lbname">' + esc(r.name) + '</span>' +
+        '<span class="lbname">' +
+          (tag[r.id] ? '<em class="lbdup">(' + tag[r.id] + ')</em> ' : '') +
+          esc(r.name) + '</span>' +
         (tappable ? '<span class="sheeticon">\u{1F4C4}</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
