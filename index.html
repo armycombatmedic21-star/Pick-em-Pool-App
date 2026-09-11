@@ -1162,8 +1162,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.9.5';
-  const APP_BUILT = 'Sep 10, 3:10 PM';
+  const APP_VERSION = '2.9.6';
+  const APP_BUILT = 'Sep 10, 4:05 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3482,10 +3482,12 @@
       yes.style.display = 'none';
     }else{
       txt.textContent = 'Your sheet becomes visible to anyone else who has opened theirs, ' +
-        'and you can see theirs. It stays open for the rest of this week, and resets ' +
-        'when the next week starts.';
+        'and you can see theirs. It stays open for the rest of this week, then closes ' +
+        'again when the next week starts.';
       yes.style.display = '';
     }
+    document.getElementById('shareCancel').textContent =
+      weekLocked ? 'Not this week' : 'OK';
     openOverlay(shareOverlay);
   }
 
@@ -3514,8 +3516,9 @@
     if(sharingOn(currentWeek)){
       document.getElementById('shareText').textContent =
         'Your sheet is open for this week. Tap the \u{1F4C4} next to anyone else ' +
-        'who has opened theirs to compare.';
+        'who has opened theirs to compare. Sheets start closed again next week.';
       document.getElementById('shareYes').style.display = 'none';
+      document.getElementById('shareCancel').textContent = 'Close';
       openOverlay(shareOverlay);
       return;
     }
