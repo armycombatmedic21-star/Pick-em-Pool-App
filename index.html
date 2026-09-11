@@ -388,6 +388,18 @@
     margin:0 0 10px; color: var(--cyan); font-size:1.1rem;
     text-shadow: 0 0 10px rgba(53,208,255,0.3);
   }
+  /* Tucked under the title, in space the week picker already takes up on the
+     other side, so it costs no extra height. */
+  .installhome{
+    align-self:flex-start; margin-top:4px;
+    padding:4px 10px; border-radius:7px;
+    border:1px solid var(--cyan-dim); background: rgba(53,208,255,0.08);
+    color: var(--cyan); font: inherit; font-size:0.72rem; font-weight:800;
+    white-space:nowrap;
+  }
+  .installhome:active{ background: rgba(53,208,255,0.2); }
+  .installhome[hidden]{ display:none; }
+
   .tabbar{
     position:fixed; bottom:0; left:0; right:0; z-index:50;
     display:flex; align-items:stretch;
@@ -716,6 +728,7 @@
     <div class="brand-text">
       <span class="kicker">NFL PICK'EM</span>
       <h1>Confidence Pool</h1>
+      <button class="installhome" id="installBtn" hidden>Add App to Home</button>
     </div>
   </div>
   <div class="topright">
@@ -723,6 +736,7 @@
     <select class="weekpick" id="weekPick"></select>
   </div>
 </div>
+
 <!-- ===== PICKS ===== -->
 <section class="tabpanel" id="tabPicks">
   <p class="sub">Lowest number = least confident. Highest = your safest lock.</p>
@@ -854,16 +868,12 @@
       </span>
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
-    <div class="devrow" id="installRow">
-      <span class="devlabel">
-        <b>Add to Home Screen</b>
-        <span>Puts the pool on your home screen so it opens like an app, and keeps your picks from being cleared by the browser.</span>
-      </span>
-      <button class="devtoggle" id="installBtn">Show me</button>
-    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>2.6.0</b> Spreads no longer vanish when a game kicks off. ESPN stops sending the line once play starts, and the app was wiping its own copy — which also scrambled the sheet order. The line you picked against now stays put through the game and after it goes final.</div>
+      <div class="cl"><b>2.5.1</b> Moved Add App to Home up under the title so it stops pushing the games down the screen.</div>
+      <div class="cl"><b>2.5.0</b> Add App to Home is now a button under the week picker instead of being buried in this menu. Switching weeks now clears out the previous week's scores and leaderboard properly instead of showing them until the next refresh.</div>
       <div class="cl"><b>2.4.0</b> The app now updates itself. It checks for a newer build when you open it and quietly reloads into it — no more stale versions stuck on a home screen. It never interrupts you mid-pick, and your sheet is untouched.</div>
       <div class="cl"><b>2.3.2</b> Dropped the all-favorites comparison from the Score Tracker.</div>
       <div class="cl"><b>2.3.1</b> Fixed duplicate names piling up on the leaderboard. If your phone's storage gets cleared, your old entry is now cleaned up when you post again instead of sitting there forever.</div>
@@ -962,8 +972,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.4.0';
-  const APP_BUILT = 'Sep 10, 4:40 AM';
+  const APP_VERSION = '2.6.0';
+  const APP_BUILT = 'Sep 10, 6:00 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1120,10 +1130,14 @@
   }
 
   // Games with no posted line sort to the end rather than jumping to rank 1.
+  /* Sorting on a missing spread once produced NaN, and a comparator that
+     returns NaN doesn't put a game at the bottom — it scrambles the order
+     unpredictably. Anything without a line sorts last, by a real number. */
   function bySpread(a,b){
-    const sa = (typeof a.spread === 'number') ? a.spread : 999;
-    const sb = (typeof b.spread === 'number') ? b.spread : 999;
-    return sa - sb;
+    const sa = (typeof a.spread === 'number' && isFinite(a.spread)) ? a.spread : 999;
+    const sb = (typeof b.spread === 'number' && isFinite(b.spread)) ? b.spread : 999;
+    if(sa !== sb) return sa - sb;
+    return (a.baseRank || 0) - (b.baseRank || 0);   // stable, never random
   }
 
   // Cached lines first, then the hardcoded fallback for week 1.
@@ -1151,6 +1165,8 @@
   }
 
   function mergeLines(newLines, frozen){
+    // A locked sheet never reorders, whatever state the frozen flag is in.
+    if(weekLocked) frozen = true;
     const byId = {}, byMatch = {};
     games.forEach(function(g){
       byId[g.id] = g;
@@ -1176,9 +1192,17 @@
         }
         if(hist.length > 24) hist = hist.slice(hist.length - 24);
       }
+      /* ESPN drops the pregame line once a game kicks off. That's not a new
+         line of zero, it's silence — so keep the last real number and the
+         favorite that went with it. The spread is what the pick was made
+         against; it should still be there at kickoff, during the game, and
+         after it's final. */
+      const hasLine = (typeof n.spread === 'number');
       return {...old, id:n.id, cityA:n.cityA, cityB:n.cityB, abbrA:n.abbrA, abbrB:n.abbrB,
-              logoA:n.logoA, logoB:n.logoB,
-              home:n.home, fav:n.fav, spread:n.spread, date:n.date, history: hist};
+              logoA:n.logoA, logoB:n.logoB, home:n.home,
+              fav: hasLine ? n.fav : old.fav,
+              spread: hasLine ? n.spread : old.spread,
+              date:n.date, history: hist};
     });
 
     /* Anything already on the sheet that this response didn't mention stays.
@@ -1299,8 +1323,19 @@
     if(savedRes) results = savedRes;
     stampLine(week);
     syncHint();
+    syncLockBtn();
     reflowRemoved();
     render();
+
+    /* Scores, leaderboard and standings all belong to the week that was on
+       screen a moment ago. Drop them, or the new week inherits the old week's
+       numbers until the next fetch lands. */
+    liveGames = [];
+    board = [];
+    boardNote = '';
+    liveStatus = '';
+    if(isTab('live')) openResults();
+    if(isTab('sheet')) renderSheet();
 
     fetchLines(week);
 
@@ -2994,9 +3029,10 @@
   });
   document.getElementById('installBtn').addEventListener('click', fireOffer);
 
-  (function syncInstallRow(){
-    const row = document.getElementById('installRow');
-    if(row) row.style.display = isInstalled() ? 'none' : '';
+  // Hidden once the app is already on the home screen — nothing left to offer.
+  (function syncInstallBtn(){
+    const b = document.getElementById('installBtn');
+    if(b) b.hidden = isInstalled();
   })();
 
   /* ===================================================================
