@@ -661,6 +661,10 @@
     padding:4px 5px; border-radius:6px;
     background: rgba(53,208,255,0.12); border:1px solid var(--cyan-dim);
   }
+  /* yours: a marker, not a control */
+  .sheeticon.own{
+    background:none; border-color: rgba(61,220,132,0.4); opacity:0.6;
+  }
   .lbrank{
     flex:none; width:16px; text-align:center;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
@@ -1180,8 +1184,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.10.0';
-  const APP_BUILT = 'Sep 10, 4:35 PM';
+  const APP_VERSION = '2.10.1';
+  const APP_BUILT = 'Sep 10, 4:50 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3886,16 +3890,20 @@
     const outright = shown.length > 1 && shown[0].points > shown[1].points;
 
     el.innerHTML = shown.map(function(r, i){
-      const tappable = !!r.share && r.id !== me.id;
+      const isMe = r.id === me.id;
+      /* Your own icon is a status marker, not a button — same badge so you can
+         see at a glance that your sheet is open, but it isn't pressable and
+         doesn't get the press styling that would imply it is. */
+      const tappable = !!r.share && !isMe;
       const lead = outright && i === 0 && r.points === top;
-      return '<div class="lbrow' + (r.id === me.id ? ' me' : '') +
+      return '<div class="lbrow' + (isMe ? ' me' : '') +
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
         '<span class="lbname">' +
           (tag[r.id] ? '<em class="lbdup">(' + tag[r.id] + ')</em> ' : '') +
           esc(r.name) + '</span>' +
-        (tappable ? '<span class="sheeticon">\u{1F4C4}</span>' : '') +
+        (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">\u{1F4C4}</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
