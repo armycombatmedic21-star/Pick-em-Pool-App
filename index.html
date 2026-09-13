@@ -1196,8 +1196,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.11.2';
-  const APP_BUILT = 'Sep 14, 1:55 PM';
+  const APP_VERSION = '2.11.3';
+  const APP_BUILT = 'Sep 14, 2:10 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2810,7 +2810,10 @@
       card.querySelectorAll('.trow').forEach(function(row, i){
         const ab = lg ? (sides[i] === 'a' ? lg.away : lg.home) : '';
         const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
-        setText(row.querySelector('.tscore'), (started && sc !== null) ? String(sc) : '\u2013');
+        const scoreEl = row.querySelector('.tscore');
+      const hasScore = started && sc !== null;
+      setText(scoreEl, hasScore ? String(sc) : '\u2013');
+      if(scoreEl) scoreEl.classList.toggle('pending', !hasScore);
       });
       const st = card.querySelector('.gstatus .s1');
       if(st && lg){
@@ -2841,7 +2844,12 @@
     card.querySelectorAll('.trow').forEach(function(row){
       const ab = row.dataset.ab;
       const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
-      setText(row.querySelector('[data-role="score"]'), (started && sc !== null) ? String(sc) : '\u2013');
+      const scoreEl = row.querySelector('[data-role="score"]');
+      const hasScore = started && sc !== null;
+      setText(scoreEl, hasScore ? String(sc) : '\u2013');
+      // Cards are built before scores load, so this class starts on. Clearing
+      // it is what takes the score from a dim placeholder to a real number.
+      if(scoreEl) scoreEl.classList.toggle('pending', !hasScore);
       row.classList.toggle('leading', leader === ab);
       const poss = row.querySelector('[data-role="poss"]');
       const hasBall = live && lg.poss === ab;
