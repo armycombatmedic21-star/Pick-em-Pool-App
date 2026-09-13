@@ -776,9 +776,16 @@
   .rzchip[hidden]{ display:none; }
 
   /* a game in progress, without moving it out of your ranked order */
+  /* In progress — white, so it can't be mistaken for a game already banked.
+     Green means won and nothing else. */
   .gcard.islive{
+    border-color: rgba(255,255,255,0.85);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 0 14px rgba(255,255,255,0.10);
+  }
+  /* A game that's live and already decided in your favour still reads as won. */
+  .gcard.islive.won{
     border-color: var(--green);
-    box-shadow: 0 0 0 1px rgba(61,220,132,0.25), 0 0 16px rgba(61,220,132,0.16);
+    box-shadow: 0 0 14px rgba(61,220,132,0.28);
   }
 
   .gstatus{
@@ -1065,6 +1072,7 @@
     <div class="changelog">
       <h3>What's new</h3>
       <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
+      <div class="cl"><b>2.12.0</b> Games in progress now have a white border. Green means a game you won, so a card still being played can't be mistaken for one already in the bank.</div>
       <div class="cl"><b>2.11.0</b> Live cards show a Red Zone badge when a drive gets inside the 20. Scores are all one colour now — the gold team name already tells you which one is your pick.</div>
       <div class="cl"><b>2.10.0</b> Games you took off your sheet now appear at the bottom of the Score Tracker, dimmed, so you can still follow them. They show a dash instead of points — they were never in play.</div>
       <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
@@ -1196,8 +1204,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.11.3';
-  const APP_BUILT = 'Sep 14, 2:10 PM';
+  const APP_VERSION = '2.12.0';
+  const APP_BUILT = 'Sep 14, 5:30 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
