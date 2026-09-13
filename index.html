@@ -746,16 +746,17 @@
     font-size:0.68rem; font-weight:700; color: var(--muted);
     opacity:0.75; margin-left:5px;
   }
+  /* One job: report the score. Who's ahead is legible from the two numbers,
+     and the gold team name already says which one you picked. */
   .tscore{
     flex:none; min-width:30px; text-align:right;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1.15rem; font-weight:800; color: var(--text); opacity:0.6;
+    font-size:1.15rem; font-weight:800; color: var(--text);
   }
-  .trow.leading .tscore, .trow.mine .tscore{ opacity:1; }
+  .tscore.pending{ opacity:0.35; }
   /* the football sits right after the score of whoever has the ball */
   .tposs{ flex:none; width:15px; font-size:0.72rem; line-height:1; text-align:left; }
   .ballicon{ opacity:0.95; }
-  .trow.leading .tscore{ color: var(--green); opacity:1; }
 
   /* down and distance, spanning under the two team rows */
   .gdd{
@@ -763,6 +764,16 @@
     color: var(--muted); letter-spacing:0.2px;
   }
   .gdd[hidden]{ display:none; }
+  .gdd [data-role="ddtext"]:empty{ display:none; }
+  /* Only while a drive is actually inside the 20 */
+  .rzchip{
+    display:inline-block; margin-left:7px; vertical-align:middle;
+    padding:2px 6px; border-radius:5px;
+    font-size:0.6rem; font-weight:900; letter-spacing:1px; text-transform:uppercase;
+    color:#fff; background: rgba(255,59,78,0.9);
+    box-shadow: 0 0 10px rgba(255,59,78,0.65);
+  }
+  .rzchip[hidden]{ display:none; }
 
   /* a game in progress, without moving it out of your ranked order */
   .gcard.islive{
@@ -1054,6 +1065,7 @@
     <div class="changelog">
       <h3>What's new</h3>
       <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
+      <div class="cl"><b>2.11.0</b> Live cards show a Red Zone badge when a drive gets inside the 20. Scores are all one colour now — the gold team name already tells you which one is your pick.</div>
       <div class="cl"><b>2.10.0</b> Games you took off your sheet now appear at the bottom of the Score Tracker, dimmed, so you can still follow them. They show a dash instead of points — they were never in play.</div>
       <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
       <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
@@ -1184,8 +1196,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.10.1';
-  const APP_BUILT = 'Sep 10, 4:50 PM';
+  const APP_VERSION = '2.11.0';
+  const APP_BUILT = 'Sep 14, 1:30 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2508,6 +2520,7 @@
           // Live drive info: who has the ball and where it sits.
           const sit = comp.situation || {};
           const possAbbr = sit.possession ? idToAbbr[String(sit.possession)] : '';
+          const redZone = !!sit.isRedZone;
           let dd = sit.downDistanceText || '';
           if(!dd && sit.shortDownDistanceText){
             dd = sit.shortDownDistanceText + (sit.possessionText ? ' at ' + sit.possessionText : '');
@@ -2528,6 +2541,7 @@
             clock: (ev.status && ev.status.displayClock) || '',
             period: (ev.status && ev.status.period) || 0,
             poss: possAbbr || '',
+            redZone: redZone,
             downDistance: dd,
             date: ev.date || ''
           });
@@ -2668,7 +2682,8 @@
           (isFav && typeof g.spread === 'number'
             ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">(-' + g.spread + ')</b>' + moveArrow(g)
             : '') + '</span>' +
-        '<span class="tscore" data-role="score">' + (started && score !== null ? score : '–') + '</span>' +
+        '<span class="tscore' + (started && score !== null ? '' : ' pending') +
+          '" data-role="score">' + (started && score !== null ? score : '–') + '</span>' +
         '<span class="tposs" data-role="poss">' + (hasBall ? BALL : '') + '</span>' +
       '</div>';
     }).join('');
@@ -2690,6 +2705,9 @@
 
     // "1st & 10 at NE 46" — only exists while a game is being played
     const dd = (lg && lg.state === 'in' && lg.downDistance) ? esc(lg.downDistance) : '';
+    // Derived fresh every refresh, never stored — so it clears the moment the
+    // drive ends rather than sticking around on a stale flag.
+    const rz = !!(lg && lg.state === 'in' && lg.redZone);
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
     // Results fill in automatically when a game goes final — no buttons needed.
     const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
@@ -2708,7 +2726,10 @@
           '<span data-role="restag">' + resTag + '</span>' +
         '</div>' +
       '</div>' +
-      '<div class="gdd" data-role="dd"' + (dd ? '' : ' hidden') + '>' + dd + '</div>' +
+      '<div class="gdd" data-role="dd"' + ((dd || rz) ? '' : ' hidden') + '>' +
+        '<span data-role="ddtext">' + dd + '</span>' +
+        '<span class="rzchip" data-role="rz"' + (rz ? '' : ' hidden') + '>Red Zone</span>' +
+      '</div>' +
     '</div>';
   }
 
@@ -2846,12 +2867,15 @@
       if(rt && rt.innerHTML !== want) rt.innerHTML = want;
     }
 
-    // down and distance
+    // down and distance, plus the red zone chip
     const dd = card.querySelector('[data-role="dd"]');
     if(dd){
       const txt = (live && lg.downDistance) ? lg.downDistance : '';
-      setText(dd, txt);
-      dd.hidden = !txt;
+      const inRz = !!(live && lg.redZone);
+      setText(dd.querySelector('[data-role="ddtext"]'), txt);
+      const chip = dd.querySelector('[data-role="rz"]');
+      if(chip) chip.hidden = !inRz;
+      dd.hidden = !(txt || inRz);
     }
 
     card.classList.toggle('islive', live);
