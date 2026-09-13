@@ -751,9 +751,9 @@
   .tscore{
     flex:none; min-width:30px; text-align:right;
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1.15rem; font-weight:800; color: var(--text);
+    font-size:1.15rem; font-weight:800; color:#ffffff;
   }
-  .tscore.pending{ opacity:0.35; }
+  .tscore.pending{ color: var(--text); opacity:0.35; }
   /* the football sits right after the score of whoever has the ball */
   .tposs{ flex:none; width:15px; font-size:0.72rem; line-height:1; text-align:left; }
   .ballicon{ opacity:0.95; }
@@ -1196,8 +1196,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.11.0';
-  const APP_BUILT = 'Sep 14, 1:30 PM';
+  const APP_VERSION = '2.11.2';
+  const APP_BUILT = 'Sep 14, 1:55 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2705,9 +2705,11 @@
 
     // "1st & 10 at NE 46" — only exists while a game is being played
     const dd = (lg && lg.state === 'in' && lg.downDistance) ? esc(lg.downDistance) : '';
-    // Derived fresh every refresh, never stored — so it clears the moment the
-    // drive ends rather than sticking around on a stale flag.
-    const rz = !!(lg && lg.state === 'in' && lg.redZone);
+    /* Derived fresh every refresh, never stored, and only shown when there's a
+       drive behind it. ESPN keeps the flag set for a beat after a score or a
+       change of possession, while the down and the ball-carrier blank out —
+       a red zone badge with no team attached isn't telling you anything. */
+    const rz = !!(lg && lg.state === 'in' && lg.redZone && lg.poss && lg.downDistance);
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
     // Results fill in automatically when a game goes final — no buttons needed.
     const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
@@ -2871,7 +2873,7 @@
     const dd = card.querySelector('[data-role="dd"]');
     if(dd){
       const txt = (live && lg.downDistance) ? lg.downDistance : '';
-      const inRz = !!(live && lg.redZone);
+      const inRz = !!(live && lg.redZone && lg.poss && lg.downDistance);
       setText(dd.querySelector('[data-role="ddtext"]'), txt);
       const chip = dd.querySelector('[data-role="rz"]');
       if(chip) chip.hidden = !inRz;
