@@ -800,8 +800,10 @@
     font-size:0.98rem; font-weight:700; color: var(--muted);
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
   }
-  .gstatus.live .s1{ color: var(--green); font-weight:800; }
-  .gstatus.live .s2{ color: var(--green); }
+  /* White while it's being played — matches the card border, and keeps green
+     meaning won rather than in progress. */
+  .gstatus.live .s1{ color:#ffffff; font-weight:800; }
+  .gstatus.live .s2{ color:#ffffff; }
   .s2[hidden]{ display:none; }
 
   .restag{
@@ -1204,8 +1206,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.12.0';
-  const APP_BUILT = 'Sep 14, 5:30 PM';
+  const APP_VERSION = '2.12.1';
+  const APP_BUILT = 'Sep 14, 5:45 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
