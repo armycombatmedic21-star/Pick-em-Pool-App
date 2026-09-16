@@ -1081,6 +1081,7 @@
     <div class="changelog">
       <h3>What's new</h3>
       <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
+      <div class="cl"><b>2.14.0</b> Your sheet follows the spread until you change something. Reordering, switching a pick to the underdog, or dropping a game now all stop the automatic reordering for that week. Reset to Spread Order puts it back.</div>
       <div class="cl"><b>2.12.0</b> Games in progress now have a white border. Green means a game you won, so a card still being played can't be mistaken for one already in the bank.</div>
       <div class="cl"><b>2.11.0</b> Live cards show a Red Zone badge when a drive gets inside the 20. Scores are all one colour now — the gold team name already tells you which one is your pick.</div>
       <div class="cl"><b>2.10.0</b> Games you took off your sheet now appear at the bottom of the Score Tracker, dimmed, so you can still follow them. They show a dash instead of points — they were never in play.</div>
@@ -1213,8 +1214,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.13.1';
-  const APP_BUILT = 'Sep 16, 9:45 AM';
+  const APP_VERSION = '2.14.0';
+  const APP_BUILT = 'Sep 16, 10:15 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1821,6 +1822,10 @@
         const cur = gameById(gid);
         if(!cur) return;
         cur.pick = (cur.pick === 'fav') ? 'dog' : 'fav';
+        /* Taking a side is a decision about this sheet, so it stops following
+           the spread from here on. Until someone touches it, the order tracks
+           the market; the moment they do, it's theirs. */
+        freezeOrder();
         updateRow(cur);
         saveAll();
       });
@@ -3705,7 +3710,7 @@
   });
   document.getElementById('removeYes').addEventListener('click', function(){
     const g = games.find(function(x){ return x.id === pendingRemoveId; });
-    if(g){ g.removed = true; reflowRemoved(); }
+    if(g){ g.removed = true; freezeOrder(); reflowRemoved(); }
     pendingRemoveId = null;
     closeOverlay(removeOverlay);
     render();
