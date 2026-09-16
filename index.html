@@ -304,9 +304,14 @@
     padding:10px 0; border-bottom:1px solid var(--line);
   }
   .histwhen{
-    flex:none; width:58px; font-size:0.72rem; font-weight:800;
-    color: var(--muted); letter-spacing:0.3px;
+    flex:none; width:82px; font-size:0.72rem; font-weight:800;
+    color: var(--muted); letter-spacing:0.2px;
   }
+  /* the line as it stands right now */
+  .histrow.now .histwhen,
+  .histrow.now .histline,
+  .histrow.now .histtime{ color: var(--cyan); }
+  .histrow.now{ border-bottom:none; }
   .histline{ flex:1; min-width:0; font-size:0.98rem; font-weight:700; color: var(--text); }
   .histdelta{
     font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
@@ -1206,8 +1211,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.12.1';
-  const APP_BUILT = 'Sep 14, 5:45 PM';
+  const APP_VERSION = '2.13.0';
+  const APP_BUILT = 'Sep 16, 9:20 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1672,23 +1677,29 @@
       document.getElementById('histBody').innerHTML =
         '<div class="histempty">No line movement recorded yet.</div>';
     }else{
+      /* Every row is date-stamped. The old labels read "Opened / Moved / Now"
+         with only a weekday beside them, so two Mondays a week apart looked
+         identical and the open could appear to come after the current line. */
       document.getElementById('histBody').innerHTML = hist.map(function(e, i){
-        const when = new Date(e.t).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
-        const label = i === 0 ? 'Opened' : (i === hist.length - 1 ? 'Now' : 'Moved');
+        const d = new Date(e.t);
+        const ok = !isNaN(d);
+        const day = ok ? d.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'}) : '';
+        const time = ok ? d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
         let delta = '';
         if(i > 0){
           const prev = hist[i-1];
-          const d = homeLine(e.sp, e.fav) - homeLine(prev.sp, prev.fav);
-          if(d !== 0){
+          const diff = homeLine(e.sp, e.fav) - homeLine(prev.sp, prev.fav);
+          if(diff !== 0){
             const bigger = Math.abs(homeLine(e.sp, e.fav)) > Math.abs(homeLine(prev.sp, prev.fav));
             delta = '<span class="histdelta ' + (bigger ? 'up' : 'down') + '">' +
-                    (bigger ? '\u2191' : '\u2193') + Math.abs(d) + '</span>';
+                    (bigger ? '\u2191' : '\u2193') + Math.abs(diff) + '</span>';
           }
         }
-        return '<div class="histrow">' +
-          '<span class="histwhen">' + label + '</span>' +
+        const current = (i === hist.length - 1);
+        return '<div class="histrow' + (current ? ' now' : '') + '">' +
+          '<span class="histwhen">' + esc(day) + '</span>' +
           '<span class="histline">' + favCityFor(g, e.fav) + ' -' + e.sp + delta + '</span>' +
-          '<span class="histtime">' + when + '</span>' +
+          '<span class="histtime">' + esc(time) + '</span>' +
         '</div>';
       }).join('');
     }
