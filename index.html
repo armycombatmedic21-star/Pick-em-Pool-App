@@ -434,11 +434,13 @@
   .tabbtn:active{ background: rgba(53,208,255,0.07); }
 
   /* a quiet way out, now that Reset isn't sharing a row with anything */
-  .resetlink{
-    display:block; margin:14px auto 0; padding:6px 12px;
-    background:none; border:none; color: var(--muted);
-    font-size:0.8rem; font-weight:700; text-decoration:underline;
+  .resetbtn{
+    display:block; margin:16px auto 0; padding:10px 18px;
+    border-radius:9px; border:1px solid var(--line);
+    background: var(--panel-hi); color: var(--muted);
+    font: inherit; font-size:0.85rem; font-weight:800; letter-spacing:0.2px;
   }
+  .resetbtn:active{ background: var(--line); color: var(--text); }
 
   .footer-note{ text-align:center; color: var(--muted); font-size:0.8rem; font-weight:600; margin-top:16px; line-height:1.5; }
 
@@ -951,7 +953,7 @@
   </div>
 
   <p class="footer-note">Your picks save automatically on this device.</p>
-  <button class="resetlink" id="resetBtn">Reset this week</button>
+  <button class="resetbtn" id="resetBtn">Reset to Spread Order</button>
 </section>
 
 <!-- ===== SHEET ===== -->
@@ -1016,8 +1018,8 @@
 
 <div class="overlay" id="confirmOverlay">
   <div class="confirmcard">
-    <h2>Reset everything?</h2>
-    <p>This puts every game back in spread order, clears any underdog picks back to the favorite, and restores any removed games. Results for this week are not affected.</p>
+    <h2>Reset to spread order?</h2>
+    <p>Every game goes back in spread order, underdog picks return to the favorite, and removed games come back. Your results and the recorded line movement are not affected.</p>
     <div class="confirmrow">
       <button class="confirmcancel" id="confirmCancel">Cancel</button>
       <button class="confirmyes" id="confirmYes">Reset</button>
@@ -1211,8 +1213,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.13.0';
-  const APP_BUILT = 'Sep 16, 9:20 AM';
+  const APP_VERSION = '2.13.1';
+  const APP_BUILT = 'Sep 16, 9:45 AM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3720,8 +3722,21 @@
   });
   document.getElementById('confirmCancel').addEventListener('click', function(){ closeOverlay(confirmOverlay); });
   document.getElementById('confirmYes').addEventListener('click', function(){
+    /* Reset rebuilds the sheet from the cached lines, which carry no history —
+       so the recorded line movement has to be carried across by hand. Resetting
+       your order is not a reason to lose a week of line movement. */
+    const keep = {};
+    games.forEach(function(g){
+      if(Array.isArray(g.history) && g.history.length){
+        keep[g.id] = g.history;
+        keep[matchKey(g)] = g.history;
+      }
+    });
     weekFrozen = false;
-    games = freshGames(currentWeek);
+    games = freshGames(currentWeek).map(function(g){
+      const h = keep[g.id] || keep[matchKey(g)];
+      return (Array.isArray(h) && h.length) ? Object.assign({}, g, { history: h }) : g;
+    });
     closeOverlay(confirmOverlay);
     render(); saveAll();
   });
