@@ -545,15 +545,60 @@
   .viewtab.on{ background: var(--panel-hi); color: var(--cyan); }
 
   /* head-to-head groups one game onto one line */
-  .vgame{ padding:8px 0 9px; border-bottom:1px solid rgba(28,51,80,0.45); }
-  .vgame.agreed{ opacity:0.55; }
-  .vgtitle{
-    font-size:0.66rem; font-weight:800; letter-spacing:1.1px;
-    color: var(--muted); text-transform:uppercase; opacity:0.75;
-    margin-bottom:5px; padding-left:10px;
-  }
-  .vgame .vrow{ border-bottom:none; padding:0; }
   .vteam.skip{ color: var(--muted); opacity:0.4; }
+
+  /* ---------- head-to-head ---------- */
+  .h2h{ padding:9px 10px; border-bottom:1px solid rgba(28,51,80,0.45); }
+  .h2hgame{
+    font-size:0.64rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+    color: var(--muted); opacity:0.7; margin-bottom:4px;
+  }
+  .h2hline{ display:flex; align-items:center; gap:8px; min-width:0; }
+
+  /* same team: name once, points on the right */
+  .h2h.same .h2hteam{
+    flex:1; min-width:0; font-size:0.95rem; font-weight:800; color: var(--text);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .h2h.same .h2hteam b{ margin-left:6px; font-size:0.85rem; }
+  .h2hpts{ flex:none; display:flex; align-items:center; gap:8px; }
+  .h2hpts .vpt{ margin:0; min-width:20px; font-size:0.95rem; text-align:center; }
+  .h2hbar{ width:1px; height:14px; background: rgba(28,51,80,0.9); }
+  .h2h.same.won{
+    background: linear-gradient(90deg, rgba(61,220,132,0.13), rgba(61,220,132,0.02));
+    box-shadow: inset 2px 0 0 var(--green);
+  }
+  .h2h.same.lost .h2hteam, .h2h.same.lost .h2hteam b{ opacity:0.5; }
+  .h2h.same.lost .h2hteam{ text-decoration: line-through; text-decoration-thickness:1px; }
+
+  /* opposite teams: split down the middle */
+  .h2h.split .h2hline{ gap:0; }
+  .h2hside{
+    flex:1; min-width:0; display:flex; align-items:baseline; gap:5px;
+    padding:3px 6px; border-radius:6px;
+    white-space:nowrap; overflow:hidden;
+    font-size:0.92rem; font-weight:800; color: var(--text);
+  }
+  .h2hside + .h2hside{ border-left:1px solid rgba(28,51,80,0.75); border-radius:0 6px 6px 0; }
+  .h2hname{ overflow:hidden; text-overflow:ellipsis; }
+  .h2hside b:not(.vpt){ font-size:0.8rem; }
+  .h2hside.won{
+    background: linear-gradient(90deg, rgba(61,220,132,0.14), rgba(61,220,132,0.02));
+    box-shadow: inset 2px 0 0 var(--green);
+  }
+  .h2hside.lost{ opacity:0.5; }
+  .h2hside.lost .h2hname{ text-decoration: line-through; text-decoration-thickness:1px; }
+  .h2hside.skip{ color: var(--muted); opacity:0.4; justify-content:center; }
+
+  /* identical picks at identical points can't move anything */
+  .h2hdead{ margin-top:10px; }
+  .h2hdead summary{
+    cursor:pointer; list-style:none; padding:9px 10px;
+    font-size:0.74rem; font-weight:800; letter-spacing:0.3px; color: var(--muted);
+    border:1px solid var(--line); border-radius:8px;
+  }
+  .h2hdead summary::-webkit-details-marker{ display:none; }
+  .h2hdead[open] summary{ margin-bottom:4px; }
 
   .vhead, .vrow, .vtotals{
     display:flex; align-items:stretch; gap:0; position:relative;
@@ -832,6 +877,43 @@
   .gcard.off .gpts{ color: var(--muted); }
   .gcard.off .tname{ font-weight:600; }
 
+  /* "Tonight decides it" — cyan, because it's the app talking, not a result */
+  .decider{
+    margin:0 0 14px; padding:12px 13px 10px;
+    border:1px solid var(--cyan-dim); border-radius:12px;
+    background: linear-gradient(160deg, rgba(53,208,255,0.10), rgba(13,22,38,0.55));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .decider[hidden]{ display:none; }
+  .dhead{
+    display:flex; align-items:center; gap:8px; margin-bottom:9px;
+    font-size:0.74rem; font-weight:900; letter-spacing:1.6px; text-transform:uppercase;
+    color: var(--cyan); animation: dpulse 2.4s ease-in-out infinite;
+  }
+  .ddot{
+    width:7px; height:7px; border-radius:50%; background: var(--cyan);
+    box-shadow: 0 0 9px rgba(53,208,255,0.8);
+  }
+  @keyframes dpulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
+  @media (prefers-reduced-motion: reduce){ .dhead{ animation:none; } }
+  .dline{ display:flex; align-items:baseline; gap:10px; padding:4px 0; }
+  .dteam{
+    flex:none; width:96px; font-size:0.82rem; font-weight:800; color: var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .dwhat{ flex:1; min-width:0; font-size:0.9rem; font-weight:700; color: var(--text); }
+  .dname{ color: var(--text); font-weight:900; }
+  .dmine{ color: var(--green); font-weight:900; }
+  .dfull{
+    display:none; margin:0 0 6px 106px;
+    font-size:0.74rem; font-weight:600; color: var(--muted); line-height:1.45;
+  }
+  .decider.open .dfull{ display:block; }
+  .dmore{
+    margin-top:6px; padding:0; border:none; background:none;
+    font: inherit; font-size:0.72rem; font-weight:800; color: var(--cyan); opacity:0.85;
+  }
+
   .weekhead{
     font-size:1.05rem; font-weight:800; color: var(--text);
     margin:2px 0 9px;
@@ -985,6 +1067,7 @@
         <div class="lbnote" id="lbNote"></div>
       </div>
     </div>
+    <div class="decider" id="decider" hidden></div>
     <div class="weekhead" id="weekHead"></div>
     <div id="resultsList"></div>
 
@@ -1214,8 +1297,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.14.0';
-  const APP_BUILT = 'Sep 16, 10:15 AM';
+  const APP_VERSION = '2.16.0';
+  const APP_BUILT = 'Sep 20, 8:10 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1576,6 +1659,8 @@
     board = [];
     boardNote = '';
     liveStatus = '';
+    const dec = document.getElementById('decider');
+    if(dec){ dec.hidden = true; dec.innerHTML = ''; }
     syncShareBtn();
     if(isTab('live')) openResults();
     if(isTab('sheet')) renderSheet();
@@ -3525,6 +3610,13 @@
   /* Head-to-head: one row per game, so the same matchup lands on one line even
      when you ranked it 15 and they ranked it 8. That pairing is where the week
      is actually won, and rank alignment can never show it. */
+  /* Head-to-head, rebuilt around one question: which games can still move the
+     gap between the two of you? A game is scored by that stake —
+       opposite teams : your points + theirs (one of you banks, either way)
+       same team      : the difference (you both bank, one of you more)
+       one sheet only : that player's points
+     — and sorted biggest first. Same team at the same points can't move
+     anything, so those fold away at the bottom. */
   function h2hBody(row){
     const mine = activeGames();
     const theirs = Array.isArray(row.picks) ? row.picks : [];
@@ -3539,28 +3631,76 @@
       map[pk.i].thSide = pk.p;
       map[pk.i].thPts = i + 1;
     });
-    const list = Object.keys(map).map(function(k){ return map[k]; });
-    // Biggest stake first — those are the games that move the standings.
-    list.sort(function(a,b){
-      return Math.max(b.myPts || 0, b.thPts || 0) - Math.max(a.myPts || 0, a.thPts || 0);
+
+    const live = [], dead = [];
+    Object.keys(map).forEach(function(k){
+      const e = map[k];
+      const both = !!(e.mySide && e.thSide);
+      e.same = both && e.mySide === e.thSide;
+      if(!both)       e.stake = e.myPts || e.thPts || 0;
+      else if(e.same) e.stake = Math.abs(e.myPts - e.thPts);
+      else            e.stake = e.myPts + e.thPts;
+      (e.same && e.stake === 0 ? dead : live).push(e);
     });
-    return list.map(function(e){
-      const g = e.g;
-      const title = g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game';
-      const agreed = !!(e.mySide && e.thSide && e.mySide === e.thSide);
-      const myCell = e.mySide
-        ? cellFor(sideCity(g, e.mySide), spreadForSide(g, e.mySide),
-                  sideResult(e.gid, e.mySide), e.myPts, isFavSide(g, e.mySide), '')
-        : blankCell();
-      const thCell = e.thSide
-        ? cellFor(sideCity(g, e.thSide), spreadForSide(g, e.thSide),
-                  sideResult(e.gid, e.thSide), e.thPts, isFavSide(g, e.thSide), '')
-        : blankCell();
-      return '<div class="vgame' + (agreed ? ' agreed' : '') + '">' +
-        '<div class="vgtitle">' + esc(title) + '</div>' +
-        '<div class="vrow">' + myCell + thCell + '</div>' +
+    live.sort(function(a,b){
+      if(b.stake !== a.stake) return b.stake - a.stake;
+      return Math.max(b.myPts||0, b.thPts||0) - Math.max(a.myPts||0, a.thPts||0);
+    });
+
+    function resCls(r){ return r === 'win' ? ' won' : (r === 'loss' ? ' lost' : ''); }
+    function spreadHtml(g, side){
+      const sp = spreadForSide(g, side);
+      if(!sp) return '';
+      return '<b class="' + (isFavSide(g, side) ? 'spread-green' : 'spread-red') + '">' + sp + '</b>';
+    }
+    function title(g){ return g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game'; }
+
+    // Same team: the name once, then each player's points.
+    function sameRow(e){
+      const g = e.g, r = sideResult(e.gid, e.mySide), c = resCls(r);
+      return '<div class="h2h same' + c + '">' +
+        '<div class="h2hgame">' + esc(title(g)) + '</div>' +
+        '<div class="h2hline">' +
+          '<span class="h2hteam">' + esc(sideCity(g, e.mySide)) + spreadHtml(g, e.mySide) + '</span>' +
+          '<span class="h2hpts">' +
+            '<b class="vpt' + c + '">' + e.myPts + '</b>' +
+            '<i class="h2hbar"></i>' +
+            '<b class="vpt' + c + '">' + e.thPts + '</b>' +
+          '</span>' +
+        '</div>' +
       '</div>';
-    }).join('');
+    }
+
+    // Opposite teams, or a game only one of you played: split down the middle.
+    function side(g, sd, pts, gid){
+      if(!sd) return '<span class="h2hside skip">\u2014</span>';
+      const c = resCls(sideResult(gid, sd));
+      return '<span class="h2hside' + c + '">' +
+        '<b class="vpt' + c + '">' + pts + '</b>' +
+        '<span class="h2hname">' + esc(sideCity(g, sd)) + '</span>' +
+        spreadHtml(g, sd) +
+      '</span>';
+    }
+    function splitRow(e){
+      return '<div class="h2h split">' +
+        '<div class="h2hgame">' + esc(title(e.g)) + '</div>' +
+        '<div class="h2hline">' +
+          side(e.g, e.mySide, e.myPts, e.gid) +
+          side(e.g, e.thSide, e.thPts, e.gid) +
+        '</div>' +
+      '</div>';
+    }
+
+    let out = live.map(function(e){ return e.same ? sameRow(e) : splitRow(e); }).join('');
+
+    if(dead.length){
+      out += '<details class="h2hdead">' +
+        '<summary>Same pick, same points \u00b7 ' + dead.length +
+          ' game' + (dead.length === 1 ? '' : 's') + '</summary>' +
+        dead.map(sameRow).join('') +
+      '</details>';
+    }
+    return out;
   }
 
   function showPlayerSheet(id){
@@ -3921,7 +4061,90 @@
       .then(function(){ done && done(); });
   }
 
+  /* ---------- "tonight decides it" ----------
+     When a single game is all that's left in the week, work out what each
+     result does to the board and say it plainly. Everything needed is already
+     here: every player's banked points and where they put that game on their
+     sheet. Shown only when the result can actually reorder the standings. */
+  function lastGameLeft(){
+    const pending = liveGames.filter(function(lg){ return stillPending(lg); });
+    return pending.length === 1 ? pending[0] : null;
+  }
+
+  function projectBoard(rows, gid, winSide){
+    return rows.map(function(r){
+      let add = 0;
+      (r.picks || []).forEach(function(pk, i){
+        if(pk.i === gid && pk.p === winSide) add = i + 1;
+      });
+      return { id: r.id, name: r.name, pts: r.points + add };
+    }).sort(function(a,b){ return b.pts - a.pts; });
+  }
+
+  function renderDecider(){
+    const box = document.getElementById('decider');
+    if(!box) return;
+    const hide = function(){ box.hidden = true; box.innerHTML = ''; };
+    if(demoOn()) return hide();
+
+    const rows = board.filter(function(r){ return r.locked !== false; });
+    const lg = lastGameLeft();
+    if(!lg || rows.length < 2) return hide();
+
+    const g = gameById(lg.id);
+    const teamName = function(side){
+      if(g) return side === 'a' ? g.cityA : g.cityB;
+      return side === 'a' ? lg.away : lg.home;
+    };
+
+    const now = rows.slice().sort(function(a,b){ return b.points - a.points; })
+                    .map(function(r){ return r.id; }).join(',');
+    const outcomes = ['a','b'].map(function(side){
+      return { side: side, team: teamName(side), order: projectBoard(rows, lg.id, side) };
+    });
+
+    // Nothing to announce if neither result moves anybody.
+    const moves = outcomes.some(function(o){
+      return o.order.map(function(r){ return r.id; }).join(',') !== now;
+    });
+    if(!moves) return hide();
+
+    const me = player();
+    const who = function(r){
+      return '<b class="' + (r.id === me.id ? 'dmine' : 'dname') + '">' + esc(r.name) + '</b>';
+    };
+    const currentLeader = rows.slice().sort(function(a,b){ return b.points - a.points; })[0];
+
+    const lines = outcomes.map(function(o){
+      const top = o.order[0], next = o.order[1];
+      let what;
+      if(next && next.pts === top.pts){
+        what = who(top) + ' and ' + who(next) + ' tie for the lead \u00b7 ' + top.pts;
+      }else{
+        const verb = (top.id === currentLeader.id) ? 'holds' : 'takes';
+        what = who(top) + ' ' + verb + ' the lead \u00b7 ' + top.pts;
+      }
+      const full = o.order.map(function(r){ return who(r) + ' ' + r.pts; }).join(' \u00b7 ');
+      return '<div class="dline"><span class="dteam">' + esc(o.team) + ' win</span>' +
+             '<span class="dwhat">' + what + '</span></div>' +
+             '<div class="dfull">' + full + '</div>';
+    }).join('');
+
+    box.innerHTML =
+      '<div class="dhead"><i class="ddot"></i>Tonight decides it</div>' +
+      lines +
+      '<button class="dmore" type="button">Full finishing order</button>';
+    box.classList.remove('open');
+    box.querySelector('.dmore').onclick = function(){
+      box.classList.toggle('open');
+      this.textContent = box.classList.contains('open') ? 'Hide full order' : 'Full finishing order';
+    };
+    box.hidden = false;
+  }
+
   function renderBoard(){
+    // Runs on every board refresh; can never be allowed to break the board.
+    try{ renderDecider(); }catch(e){}
     const el = document.getElementById('lbList');
     const note = document.getElementById('lbNote');
     if(!el) return;
