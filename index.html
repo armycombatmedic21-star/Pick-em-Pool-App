@@ -1286,8 +1286,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.16.1';
-  const APP_BUILT = 'Sep 21, 8:20 PM';
+  const APP_VERSION = '2.16.2';
+  const APP_BUILT = 'Sep 21, 8:40 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -4070,10 +4070,11 @@
     }).sort(function(a,b){ return b.pts - a.pts; });
   }
 
+  let deciderOpen = false;
   function renderDecider(){
     const box = document.getElementById('decider');
     if(!box) return;
-    const hide = function(){ box.hidden = true; box.innerHTML = ''; };
+    const hide = function(){ box.hidden = true; box.innerHTML = ''; deciderOpen = false; };
     if(demoOn()) return hide();
 
     const rows = board.filter(function(r){ return r.locked !== false; });
@@ -4119,14 +4120,18 @@
              '<div class="dfull">' + full + '</div>';
     }).join('');
 
+    /* The board refreshes every few seconds and this gets rebuilt each time,
+       so whether the full order is showing has to outlive the rebuild. */
+    const label = function(){ return deciderOpen ? 'Hide full order' : 'Full finishing order'; };
     box.innerHTML =
       '<div class="dhead"><i class="ddot"></i>Tonight decides it</div>' +
       lines +
-      '<button class="dmore" type="button">Full finishing order</button>';
-    box.classList.remove('open');
+      '<button class="dmore" type="button">' + label() + '</button>';
+    box.classList.toggle('open', deciderOpen);
     box.querySelector('.dmore').onclick = function(){
-      box.classList.toggle('open');
-      this.textContent = box.classList.contains('open') ? 'Hide full order' : 'Full finishing order';
+      deciderOpen = !deciderOpen;
+      box.classList.toggle('open', deciderOpen);
+      this.textContent = label();
     };
     box.hidden = false;
   }
