@@ -547,48 +547,32 @@
   /* head-to-head groups one game onto one line */
   .vteam.skip{ color: var(--muted); opacity:0.4; }
 
-  /* ---------- head-to-head ---------- */
-  .h2h{ padding:9px 10px; border-bottom:1px solid rgba(28,51,80,0.45); }
+  /* ---------- head-to-head ----------
+     your points | pick(s) | their points — the same shape on every row */
+  .h2h{ padding:9px 2px 10px; border-bottom:1px solid rgba(28,51,80,0.45); }
   .h2hgame{
-    font-size:0.64rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
-    color: var(--muted); opacity:0.7; margin-bottom:4px;
+    font-size:0.62rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+    color: var(--muted); opacity:0.65; text-align:center; margin-bottom:5px;
   }
-  .h2hline{ display:flex; align-items:center; gap:8px; min-width:0; }
-
-  /* same team: name once, points on the right */
-  .h2h.same .h2hteam{
-    flex:1; min-width:0; font-size:0.95rem; font-weight:800; color: var(--text);
+  .h2hrow{ display:grid; grid-template-columns:32px minmax(0,1fr) 32px; gap:8px; align-items:center; }
+  .h2hn{
+    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    font-size:1.12rem; font-weight:900; text-align:center; color: var(--muted);
+  }
+  .h2hn.won{ color: var(--green); }
+  .h2hn.lost{ color: var(--red); }
+  .h2hn.none{ opacity:0.4; }
+  .h2hmid{ min-width:0; }
+  .h2hmid.same{ text-align:center; }
+  .h2hmid.split{ display:flex; justify-content:space-between; gap:10px; }
+  .h2hpick{
+    min-width:0; font-size:0.92rem; font-weight:800; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .h2h.same .h2hteam b{ margin-left:6px; font-size:0.85rem; }
-  .h2hpts{ flex:none; display:flex; align-items:center; gap:8px; }
-  .h2hpts .vpt{ margin:0; min-width:20px; font-size:0.95rem; text-align:center; }
-  .h2hbar{ width:1px; height:14px; background: rgba(28,51,80,0.9); }
-  .h2h.same.won{
-    background: linear-gradient(90deg, rgba(61,220,132,0.13), rgba(61,220,132,0.02));
-    box-shadow: inset 2px 0 0 var(--green);
-  }
-  .h2h.same.lost .h2hteam, .h2h.same.lost .h2hteam b{ opacity:0.5; }
-  .h2h.same.lost .h2hteam{ text-decoration: line-through; text-decoration-thickness:1px; }
-
-  /* opposite teams: split down the middle */
-  .h2h.split .h2hline{ gap:0; }
-  .h2hside{
-    flex:1; min-width:0; display:flex; align-items:baseline; gap:5px;
-    padding:3px 6px; border-radius:6px;
-    white-space:nowrap; overflow:hidden;
-    font-size:0.92rem; font-weight:800; color: var(--text);
-  }
-  .h2hside + .h2hside{ border-left:1px solid rgba(28,51,80,0.75); border-radius:0 6px 6px 0; }
-  .h2hname{ overflow:hidden; text-overflow:ellipsis; }
-  .h2hside b:not(.vpt){ font-size:0.8rem; }
-  .h2hside.won{
-    background: linear-gradient(90deg, rgba(61,220,132,0.14), rgba(61,220,132,0.02));
-    box-shadow: inset 2px 0 0 var(--green);
-  }
-  .h2hside.lost{ opacity:0.5; }
-  .h2hside.lost .h2hname{ text-decoration: line-through; text-decoration-thickness:1px; }
-  .h2hside.skip{ color: var(--muted); opacity:0.4; justify-content:center; }
+  .h2hpick.right{ text-align:right; }
+  .h2hpick b{ margin-left:5px; font-size:0.8rem; }
+  .h2hpick.lost{ opacity:0.5; }
+  .h2hpick.lost .h2hteam{ text-decoration: line-through; text-decoration-thickness:1px; }
 
   /* identical picks at identical points can't move anything */
   .h2hdead{ margin-top:10px; }
@@ -599,6 +583,11 @@
   }
   .h2hdead summary::-webkit-details-marker{ display:none; }
   .h2hdead[open] summary{ margin-bottom:4px; }
+
+  /* names and totals sit over the edge columns in this view */
+  .vhead.edges::after{ display:none; }
+  .vhead.edges .vwho.them{ justify-content:flex-end; }
+  .vtotals.edges .vtot:last-child{ justify-content:flex-end; }
 
   .vhead, .vrow, .vtotals{
     display:flex; align-items:stretch; gap:0; position:relative;
@@ -1297,8 +1286,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.16.0';
-  const APP_BUILT = 'Sep 20, 8:10 PM';
+  const APP_VERSION = '2.16.1';
+  const APP_BUILT = 'Sep 21, 8:20 PM';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2642,6 +2631,12 @@
           const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
           const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
           out.push({
+            /* The same id the game carries everywhere else — on the sheet and
+               in every player's published picks. Live games used to be
+               matched by team names only, so anything looking one up by id
+               (the tonight-decides banner, head-to-head results) silently
+               found nothing. */
+            id: 'e' + ev.id,
             abbrs: abbrs,
             scores: scores,
             logos: logos,
@@ -3610,13 +3605,19 @@
   /* Head-to-head: one row per game, so the same matchup lands on one line even
      when you ranked it 15 and they ranked it 8. That pairing is where the week
      is actually won, and rank alignment can never show it. */
-  /* Head-to-head, rebuilt around one question: which games can still move the
-     gap between the two of you? A game is scored by that stake —
-       opposite teams : your points + theirs (one of you banks, either way)
-       same team      : the difference (you both bank, one of you more)
+  /* Head-to-head. Every row has the same shape so the eye never hunts:
+       your points  |  the pick(s)  |  their points
+     Your number always sits hard left under your name, theirs hard right
+     under theirs. When you took the same team it's shown once, centred;
+     when you split, each team sits beside the person who took it. The
+     numbers carry the result — green banked, red not — so there are no row
+     tints to decode.
+
+     Rows are ordered by how much each game can move the gap between you:
+       opposite teams : both point values (one of you banks, either way)
+       same team      : the difference
        one sheet only : that player's points
-     — and sorted biggest first. Same team at the same points can't move
-     anything, so those fold away at the bottom. */
+     Same team at the same points can't move anything; those fold away. */
   function h2hBody(row){
     const mine = activeGames();
     const theirs = Array.isArray(row.picks) ? row.picks : [];
@@ -3647,57 +3648,44 @@
       return Math.max(b.myPts||0, b.thPts||0) - Math.max(a.myPts||0, a.thPts||0);
     });
 
-    function resCls(r){ return r === 'win' ? ' won' : (r === 'loss' ? ' lost' : ''); }
-    function spreadHtml(g, side){
+    function num(pts, res){
+      if(!pts) return '<b class="h2hn none">\u2014</b>';
+      return '<b class="h2hn' + (res === 'win' ? ' won' : res === 'loss' ? ' lost' : '') + '">' + pts + '</b>';
+    }
+    function pick(g, side, res, where){
       const sp = spreadForSide(g, side);
-      if(!sp) return '';
-      return '<b class="' + (isFavSide(g, side) ? 'spread-green' : 'spread-red') + '">' + sp + '</b>';
-    }
-    function title(g){ return g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game'; }
-
-    // Same team: the name once, then each player's points.
-    function sameRow(e){
-      const g = e.g, r = sideResult(e.gid, e.mySide), c = resCls(r);
-      return '<div class="h2h same' + c + '">' +
-        '<div class="h2hgame">' + esc(title(g)) + '</div>' +
-        '<div class="h2hline">' +
-          '<span class="h2hteam">' + esc(sideCity(g, e.mySide)) + spreadHtml(g, e.mySide) + '</span>' +
-          '<span class="h2hpts">' +
-            '<b class="vpt' + c + '">' + e.myPts + '</b>' +
-            '<i class="h2hbar"></i>' +
-            '<b class="vpt' + c + '">' + e.thPts + '</b>' +
-          '</span>' +
-        '</div>' +
-      '</div>';
-    }
-
-    // Opposite teams, or a game only one of you played: split down the middle.
-    function side(g, sd, pts, gid){
-      if(!sd) return '<span class="h2hside skip">\u2014</span>';
-      const c = resCls(sideResult(gid, sd));
-      return '<span class="h2hside' + c + '">' +
-        '<b class="vpt' + c + '">' + pts + '</b>' +
-        '<span class="h2hname">' + esc(sideCity(g, sd)) + '</span>' +
-        spreadHtml(g, sd) +
+      return '<span class="h2hpick ' + where + (res === 'loss' ? ' lost' : '') + '">' +
+        '<span class="h2hteam">' + esc(sideCity(g, side)) + '</span>' +
+        (sp ? '<b class="' + (isFavSide(g, side) ? 'spread-green' : 'spread-red') + '">' + sp + '</b>' : '') +
       '</span>';
     }
-    function splitRow(e){
-      return '<div class="h2h split">' +
-        '<div class="h2hgame">' + esc(title(e.g)) + '</div>' +
-        '<div class="h2hline">' +
-          side(e.g, e.mySide, e.myPts, e.gid) +
-          side(e.g, e.thSide, e.thPts, e.gid) +
-        '</div>' +
+
+    function one(e){
+      const g = e.g;
+      const title = g ? (g.cityA + ' @ ' + g.cityB) : 'Unknown game';
+      const myRes = e.mySide ? sideResult(e.gid, e.mySide) : null;
+      const thRes = e.thSide ? sideResult(e.gid, e.thSide) : null;
+      let mid;
+      if(e.same){
+        mid = '<div class="h2hmid same">' + pick(g, e.mySide, myRes, 'centre') + '</div>';
+      }else{
+        mid = '<div class="h2hmid split">' +
+          (e.mySide ? pick(g, e.mySide, myRes, 'left')  : '<span class="h2hpick left"></span>') +
+          (e.thSide ? pick(g, e.thSide, thRes, 'right') : '<span class="h2hpick right"></span>') +
+        '</div>';
+      }
+      return '<div class="h2h">' +
+        '<div class="h2hgame">' + esc(title) + '</div>' +
+        '<div class="h2hrow">' + num(e.myPts, myRes) + mid + num(e.thPts, thRes) + '</div>' +
       '</div>';
     }
 
-    let out = live.map(function(e){ return e.same ? sameRow(e) : splitRow(e); }).join('');
-
+    let out = live.map(one).join('');
     if(dead.length){
       out += '<details class="h2hdead">' +
         '<summary>Same pick, same points \u00b7 ' + dead.length +
           ' game' + (dead.length === 1 ? '' : 's') + '</summary>' +
-        dead.map(sameRow).join('') +
+        dead.map(one).join('') +
       '</details>';
     }
     return out;
@@ -3730,12 +3718,13 @@
         '<b>' + n + '</b><span class="vtotlbl">pts</span></span>';
     }
 
+    const h2h = compareView() === 'h2h';
     list.innerHTML =
-      '<div class="vhead">' +
+      '<div class="vhead' + (h2h ? ' edges' : '') + '">' +
         '<span class="vwho mine"><i></i>' + esc(me.name || 'You') + '</span>' +
         '<span class="vwho them"><i></i>' + esc(row.name) + '</span>' +
       '</div>' + body +
-      '<div class="vtotals">' +
+      '<div class="vtotals' + (h2h ? ' edges' : '') + '">' +
         totalCell(myTotal, myTotal > thTotal) +
         totalCell(thTotal, thTotal > myTotal) +
       '</div>';
