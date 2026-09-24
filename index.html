@@ -103,15 +103,18 @@
     padding:12px 0; line-height:1.6;
   }
 
-  .brand{ min-width:0; }
+  .brand{ flex:1 1 auto; min-width:0; overflow:hidden; }
   .brand-text{ display:flex; flex-direction:column; gap:6px; min-width:0; }
   .kicker{ font-size:11px; font-weight:800; letter-spacing:1.8px; color: var(--cyan); line-height:1; }
+  /* Shrinks on narrow phones instead of running under the week picker. */
   h1{
-    margin:0; font-size:27px; font-weight:800; letter-spacing:-0.6px; line-height:1;
-    color:#ffffff; white-space:nowrap;
+    margin:0; font-size: clamp(20px, 6.6vw, 27px); font-weight:800; letter-spacing:-0.6px; line-height:1;
+    color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
+  /* Fixed width: a <select> otherwise sizes to its longest option, and
+     Android draws that wider than iPhone. */
   .weekpick{
-    height:40px; border-radius:20px; padding:0 32px 0 14px;
+    flex:none; width:108px; height:40px; border-radius:20px; padding:0 28px 0 14px;
     border:1px solid var(--hair2); background-color: rgba(255,255,255,0.04); color:#ffffff;
     font-size:15px; font-weight:700;
     -webkit-appearance:none; appearance:none;
@@ -137,13 +140,14 @@
   .stdot{ flex:none; width:8px; height:8px; border-radius:50%; background: var(--cyan); }
   .sttext{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
   .sttext b{ font-size:14px; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .sttext span{ font-size:12px; font-weight:600; color: var(--muted); }
+  .sttext span{ font-size:12px; font-weight:600; color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .stchip{
     flex:none; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:8px;
     background: rgba(255,255,255,0.05); color: var(--muted);
     font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
   }
   .stchip svg{ width:12px; height:12px; display:block; }
+  @media (max-width: 380px){ .stchip{ letter-spacing:0.6px; padding:6px 8px; } }
   .linestamp.locked{
     padding:14px 104px 14px 14px; border-radius:16px;
     background: linear-gradient(120deg, rgba(53,208,255,0.16), rgba(53,208,255,0.04) 60%);
@@ -525,10 +529,129 @@
   }
   .demobar{ border-radius:12px; }
 
+  /* Name gate: Live, the leaderboard and chat need a name first */
+  #liveBody[hidden]{ display:none; }
+  .namegate{
+    display:flex; flex-direction:column; gap:10px; padding:20px; margin-top:8px;
+    border-radius:16px; background: var(--card); border:1px solid rgba(53,208,255,0.3);
+  }
+  .namegate[hidden]{ display:none; }
+  .namegate b{ font-size:19px; font-weight:800; color:#ffffff; }
+  .namegate p{ margin:0 0 6px; font-size:15px; font-weight:500; line-height:1.5; color:#b9cadb; }
+
+  .liveactions{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:16px; }
+  .chatbtn{
+    display:flex; align-items:center; justify-content:center; gap:8px; height:44px; padding:0;
+    border-radius:12px; border:1px solid rgba(53,208,255,0.35); background: rgba(53,208,255,0.08);
+    color: var(--cyan); font-size:14px; font-weight:800;
+  }
+  .chatbtn svg{ width:16px; height:16px; display:block; flex:none; }
+  .chatbtn:active{ background: rgba(53,208,255,0.22); }
+  .chatbadge{
+    min-width:20px; height:20px; padding:0 6px; border-radius:10px;
+    background: var(--cyan); color:#03131f; font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    animation: chatring 1.6s ease-out infinite;
+  }
+  .chatbadge[hidden]{ display:none; }
+  @keyframes chatring{
+    0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.75); }
+    70%{ box-shadow: 0 0 0 7px rgba(53,208,255,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
+  }
+  /* Online: a small cyan beacon (green already means won / you) */
+  .beacon{
+    flex:none; width:6px; height:6px; border-radius:50%; background: var(--cyan);
+    animation: beacon 2.2s ease-out infinite;
+  }
+  @keyframes beacon{
+    0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.6); }
+    70%{ box-shadow: 0 0 0 5px rgba(53,208,255,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
+  }
+  @media (prefers-reduced-motion: reduce){ .chatbadge, .beacon{ animation:none; } }
+
+  /* Pool Chat sheet */
+  .chatsheet{
+    position:relative; width:100%; max-width:480px; height: min(88vh, 780px);
+    display:flex; flex-direction:column;
+    background: linear-gradient(180deg, #111e33, #0b1321 40%);
+    border-top:1px solid rgba(147,174,200,0.16); border-radius:26px 26px 0 0;
+    box-shadow: 0 -20px 50px rgba(0,0,0,0.55);
+    transform: translateY(105%); transition: transform 0.34s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+  .overlay.show .chatsheet{ transform:none; }
+  @media (prefers-reduced-motion: reduce){ .chatsheet{ transition:none; } }
+  .chatsheet::before{
+    content:''; display:block; flex:none; width:40px; height:5px; border-radius:3px;
+    background: rgba(147,174,200,0.3); margin: 10px auto 12px;
+  }
+  .chathead{ flex:none; display:flex; align-items:center; gap:12px; padding:0 16px 12px 20px; }
+  .chattitle{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .chattitle b{ font-size:21px; font-weight:800; letter-spacing:-0.4px; color:#ffffff; }
+  .chattitle span{ font-size:12px; font-weight:600; color: var(--muted); }
+  .chatclose{
+    flex:none; width:40px; height:40px; padding:0; border-radius:50%;
+    border:1px solid var(--hair2); background: rgba(255,255,255,0.04); color: var(--muted);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chatclose svg{ width:12px; height:12px; display:block; }
+  .chatpeople{ flex:none; display:flex; flex-direction:column; gap:8px; padding:0 0 12px; border-bottom:1px solid var(--hair); }
+  .chatonline{ display:flex; align-items:center; gap:6px; padding:0 20px; font-size:12px; font-weight:700; color: var(--muted); }
+  .chatpills{ display:flex; gap:8px; padding:0 20px; overflow-x:auto; scrollbar-width:none; }
+  .chatpills::-webkit-scrollbar{ display:none; }
+  .chatpill{
+    flex:none; display:flex; align-items:center; gap:8px; height:34px; padding:0 14px;
+    border-radius:17px; background: rgba(255,255,255,0.04); border:1px solid rgba(147,174,200,0.12);
+    font-size:14px; font-weight:700; white-space:nowrap;
+  }
+  .chatpill.me{ background: rgba(61,220,132,0.10); border-color: rgba(61,220,132,0.35); }
+  .chatlist{
+    flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    display:flex; flex-direction:column; gap:4px; padding:14px 16px;
+  }
+  .chatempty{ margin:auto; max-width:240px; text-align:center; font-size:14px; font-weight:600; line-height:1.5; color: var(--muted); }
+  .chatsys{
+    align-self:center; margin:8px 0; padding:5px 12px; border-radius:12px;
+    background: rgba(255,255,255,0.04); font-size:12px; font-weight:700; color: var(--muted);
+  }
+  .chatmsg{ display:flex; flex-direction:column; gap:4px; max-width:84%; align-self:flex-start; }
+  .chatmsg.first{ margin-top:10px; }
+  .chatmsg.mine{ align-self:flex-end; align-items:flex-end; max-width:80%; }
+  .chatwho{ padding:0 4px; font-size:12px; font-weight:800; }
+  .chatwho i{ font-style:normal; font-weight:600; color: var(--faint); }
+  .chatbubble{
+    align-self:flex-start; padding:9px 13px; border-radius:16px 16px 16px 4px;
+    background:#16233a; border:1px solid rgba(147,174,200,0.1);
+    font-size:15px; font-weight:500; line-height:1.4; color:#ffffff;
+    overflow-wrap:anywhere; white-space:pre-wrap;
+  }
+  .chatmsg.mine .chatbubble{
+    align-self:flex-end; border:none; border-radius:16px 16px 4px 16px;
+    background: var(--cyan); color:#03131f; font-weight:600;
+  }
+  .chatcompose{
+    flex:none; display:flex; align-items:center; gap:8px;
+    padding:10px 12px calc(12px + env(safe-area-inset-bottom)) 16px;
+    border-top:1px solid var(--hair); background: rgba(6,11,22,0.6);
+  }
+  #chatInput{
+    flex:1; min-width:0; height:44px; padding:0 16px; border-radius:22px;
+    border:1px solid var(--hair2); background: rgba(6,11,22,0.6); color:#ffffff;
+    font-size:16px; font-weight:600; outline:none;
+  }
+  #chatInput:focus{ border-color: var(--cyan); }
+  .chatsend{
+    flex:none; width:44px; height:44px; padding:0; border:none; border-radius:50%;
+    background: var(--cyan); color:#03131f; display:flex; align-items:center; justify-content:center;
+  }
+  .chatsend svg{ width:18px; height:18px; display:block; }
+  .chatsend:disabled{ opacity:0.5; }
+
   /* Open Sheets — the one action at the top of Live */
   .sharebtn{
     display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; height:44px; margin-bottom:16px; padding:0; border-radius:12px;
+    width:100%; height:44px; margin-bottom:0; padding:0; border-radius:12px;
     border:1px solid rgba(53,208,255,0.35); background: rgba(53,208,255,0.08);
     color: var(--cyan); font-size:14px; font-weight:800;
   }
@@ -1106,12 +1229,21 @@
 
 <!-- ===== LIVE ===== -->
 <section class="tabpanel" id="tabLive" hidden>
+    <div class="namegate" id="nameGate" hidden>
+      <b>Add your name to see Live</b>
+      <p>Your name is how the pool sees you on the leaderboard and in chat.</p>
+      <button class="confirmyes" id="nameGateBtn">Add My Name</button>
+    </div>
+    <div id="liveBody">
     <div class="livehead">
       <h2 class="panelhead" id="resultsTitle">Score Tracker</h2>
       <span class="livestatus" id="liveStatus"></span>
     </div>
     <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
-    <button class="sharebtn" id="shareBtn">Open Sheets</button>
+    <div class="liveactions">
+      <button class="sharebtn" id="shareBtn">Open Sheets</button>
+      <button class="chatbtn" id="chatBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Pool Chat<span class="chatbadge" id="chatBadge" hidden></span></button>
+    </div>
     <div class="scorewrap">
       <div class="scorecard">
         <div class="cardbanner">Your Score</div>
@@ -1145,6 +1277,7 @@
       <div class="seasonpanel" id="seasonPanel" hidden>
         <div id="seasonLog"></div>
       </div>
+    </div>
     </div>
 </section>
 
@@ -1360,6 +1493,24 @@
   </div>
 </div>
 
+<div class="overlay" id="chatOverlay">
+  <div class="chatsheet" role="dialog" aria-label="Pool Chat">
+    <div class="chathead">
+      <div class="chattitle"><b>Pool Chat</b><span id="chatSub">Everyone in the pool</span></div>
+      <button class="chatclose" id="chatClose" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="chatpeople">
+      <span class="chatonline" id="chatOnline"></span>
+      <div class="chatpills" id="chatPills"></div>
+    </div>
+    <div class="chatlist" id="chatList"></div>
+    <div class="chatcompose">
+      <input id="chatInput" type="text" maxlength="200" placeholder="Message the pool" autocomplete="off" enterkeyhint="send">
+      <button class="chatsend" id="chatSend" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Copied</div>
 
 <script>
@@ -1387,7 +1538,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.1.0';
+  const APP_VERSION = '3.2.1';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -1683,8 +1834,8 @@
       let head, sub;
       if(linesLoading){ head = 'Updating spreads\u2026'; sub = 'ESPN'; }
       else if(linesStamp){
-        head = 'Spreads updated ' + esc(linesStamp);
-        sub = 'ESPN \u00B7 ' + (weekFrozen ? 'your order' : 'ordered by the spread');
+        head = 'Updated ' + esc(linesStamp);
+        sub = 'ESPN spreads \u00B7 ' + (weekFrozen ? 'your order' : 'spread order');
       }
       else{ head = 'Spreads not loaded yet'; sub = 'ESPN'; }
       html = '<span class="stdot"></span>' +
@@ -2454,7 +2605,7 @@
   for(let w = 1; w <= MAX_WEEK; w++){
     const o = document.createElement('option');
     o.value = w;
-    o.textContent = 'Week ' + w + (WEEK_DATA[w] ? '' : ' —');
+    o.textContent = 'Week ' + w;
     weekPick.appendChild(o);
   }
   weekPick.value = currentWeek;
@@ -3663,7 +3814,7 @@
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
     if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
   }
-  function enterLive(){ openResults(); askNameIfNeeded(); }
+  function enterLive(){ openResults(); requireNameForLive(); }
 
   /* Season Standings sits collapsed at the bottom of Live. Whether it's open
      is remembered per device; nothing else about it is stateful. */
@@ -4187,6 +4338,10 @@
   const PLAYER_KEY = 'pickem-player';
   let board = [];
   let boardNote = '';
+  // Who has checked in recently: { playerId: { name, t } }, from /presence.
+  let presence = {};
+  // "Jeri (2)" numbering, one map for the leaderboard and chat: { playerId: 2 }
+  let nameTags = {};
 
   function player(){
     let p = getLocal(PLAYER_KEY);
@@ -4481,15 +4636,8 @@
     /* Two people can pick the same name. Whoever got there first keeps it
        plain; the next one is (2). Numbered by who published first, so it
        doesn't shuffle as scores move. */
-    const bySeniority = shown.slice().sort(function(a,b){
-      return (a.updated || 0) - (b.updated || 0);
-    });
-    const seen = {}, tag = {};
-    bySeniority.forEach(function(r){
-      const k = String(r.name || '').trim().toLowerCase();
-      seen[k] = (seen[k] || 0) + 1;
-      if(seen[k] > 1) tag[r.id] = seen[k];
-    });
+    rebuildNameTags();
+    const tag = nameTags;
 
     // Only call someone the leader if they're actually clear of the field.
     const top = shown[0].points;
@@ -4506,15 +4654,17 @@
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
         '<span class="lbrank">' + (i + 1) + '</span>' +
-        '<span class="lbname">' +
-          (tag[r.id] ? '<em class="lbdup">(' + tag[r.id] + ')</em> ' : '') +
-          esc(r.name) + '</span>' +
+        '<span class="lbname">' + esc(r.name) +
+          (tag[r.id] ? ' <em class="lbdup">(' + tag[r.id] + ')</em>' : '') + '</span>' +
+        (isOnline(r.id) ? '<i class="beacon" aria-label="Online"></i>' : '') +
         (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">' + ICON_DOC + '</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
     const cnt = document.getElementById('lbCount');
-    if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's');
+    const on = shown.filter(function(r){ return isOnline(r.id); }).length;
+    if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's') +
+      (on ? ' \u00B7 ' + on + ' online' : '');
     const finalNote = (weekComplete() && !demoOn())
       ? ('Final standings — Week ' + currentWeek) : '';
     note.textContent = boardNote || finalNote || (weekLocked ? '' : 'Lock in to post your score.');
@@ -4525,16 +4675,283 @@
     fetchBoard(currentWeek, renderBoard);
   }
 
+  /* ---------- online dots ----------
+     The app talks to Firebase with plain requests, so it can't use Firebase's
+     own disconnect detection. Instead each open phone with a name checks in
+     every 30 seconds (server time), and anyone seen in the last two minutes is
+     online. Closing or backgrounding the app removes the check-in. */
+  const ONLINE_WINDOW = 120000;
+  function presenceUrl(id){ return DB_URL + '/presence/' + encodeURIComponent(id) + '.json'; }
+  function isOnline(id){
+    if(id === player().id && player().name && !document.hidden) return true;
+    const p = presence[id];
+    return !!(p && typeof p.t === 'number' && (Date.now() - p.t) < ONLINE_WINDOW);
+  }
+  function beat(){
+    const me = player();
+    if(!me.name || document.hidden || typeof fetch !== 'function') return;
+    fetch(presenceUrl(me.id), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: me.name, t: { '.sv': 'timestamp' } })
+    }).catch(function(){});
+  }
+  function dropPresence(){
+    const me = player();
+    if(!me.name || typeof fetch !== 'function') return;
+    try{ fetch(presenceUrl(me.id), { method: 'DELETE', keepalive: true }).catch(function(){}); }catch(e){}
+  }
+  function readPresence(){
+    if(document.hidden || typeof fetch !== 'function') return;
+    fetch(DB_URL + '/presence.json')
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(data){
+        presence = (data && typeof data === 'object') ? data : {};
+        if(isTab('live')){ try{ renderBoard(); }catch(e){} }
+        if(chatOverlay.classList.contains('show')) renderChatPeople();
+      })
+      .catch(function(){});
+  }
+
+  /* "Jeri (2)": the second person to use a name gets a number after it. The
+     leaderboard decides first (by who published first, as before), then
+     anyone else seen in chat or online, in the order they showed up. */
+  function rebuildNameTags(){
+    const people = [];
+    board.filter(function(r){ return r.locked !== false; }).slice()
+      .sort(function(a,b){ return (a.updated || 0) - (b.updated || 0); })
+      .forEach(function(r){ people.push({ id: r.id, name: r.name }); });
+    const firstSeen = {};
+    chatMsgs.forEach(function(m){ if(!(m.pid in firstSeen)) firstSeen[m.pid] = { t: m.t, name: m.name }; });
+    Object.keys(presence).forEach(function(id){
+      const p = presence[id];
+      if(p && !(id in firstSeen)) firstSeen[id] = { t: p.t || 0, name: p.name };
+    });
+    Object.keys(firstSeen).sort(function(a,b){ return firstSeen[a].t - firstSeen[b].t; })
+      .forEach(function(id){ people.push({ id: id, name: firstSeen[id].name }); });
+    const seen = {}, done = {}, tags = {};
+    people.forEach(function(p){
+      if(done[p.id]) return;
+      done[p.id] = true;
+      const k = String(p.name || '').trim().toLowerCase();
+      seen[k] = (seen[k] || 0) + 1;
+      if(seen[k] > 1) tags[p.id] = seen[k];
+    });
+    nameTags = tags;
+  }
+  function shownName(id, name){ return String(name || '') + (nameTags[id] ? ' (' + nameTags[id] + ')' : ''); }
+
+  /* ---------- Pool Chat ----------
+     One room per NFL week (chat/w{week}), so it starts fresh every week.
+     Every 5 seconds the phone asks only for messages newer than the last one
+     it has — that drives the unread badge whether chat is open or not. */
+  const chatOverlay = document.getElementById('chatOverlay');
+  const chatList = document.getElementById('chatList');
+  const CHAT_COLORS = ['#b99cff', '#ff9ecf', '#8fb8ff', '#ffae7a', '#e59cff', '#a7b4ff', '#e3c9a3'];
+  let chatMsgs = [];
+  let chatSeen = {};
+  let chatWeekLoaded = 0;
+  let chatLastT = 0;
+  let chatBusy = false;
+  let chatTicks = 0;
+
+  function chatWeek(){ return cachedCurrentWeek() || currentWeek; }
+  function chatUrl(week){ return DB_URL + '/chat/w' + week + '.json'; }
+  const chatReadKey = function(w){ return 'pickem-chatread-w' + w; };
+  function chatLastRead(){ const v = getLocal(chatReadKey(chatWeek())); return (v && typeof v.t === 'number') ? v.t : 0; }
+  function markChatRead(){ if(chatLastT) put(chatReadKey(chatWeek()), { t: chatLastT }); syncChatBadge(); }
+
+  // Each person keeps one name colour; gold, green, red and cyan are left out
+  // because they already mean your pick, won/you, lost and the app.
+  function chatColor(id){
+    if(id === player().id) return 'var(--green)';
+    let h = 0;
+    for(let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+    return CHAT_COLORS[h % CHAT_COLORS.length];
+  }
+
+  function pollChat(){
+    if(chatBusy || document.hidden || !player().name || typeof fetch !== 'function') return;
+    const week = chatWeek();
+    if(week !== chatWeekLoaded){ chatMsgs = []; chatSeen = {}; chatLastT = 0; chatWeekLoaded = week; }
+    const q = chatLastT
+      ? '?orderBy=%22t%22&startAt=' + (chatLastT + 1)
+      : '?orderBy=%22t%22&limitToLast=200';
+    chatBusy = true;
+    fetch(chatUrl(week) + q)
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(data){
+        if(week !== chatWeek()) return;
+        let added = false;
+        Object.keys(data || {}).forEach(function(k){
+          const m = data[k];
+          if(chatSeen[k] || !m || typeof m.t !== 'number' || typeof m.text !== 'string' || typeof m.pid !== 'string') return;
+          chatSeen[k] = true;
+          chatMsgs.push({ id: k, pid: m.pid, name: String(m.name || ''), text: m.text, t: m.t });
+          if(m.t > chatLastT) chatLastT = m.t;
+          added = true;
+        });
+        if(!added) return;
+        chatMsgs.sort(function(a,b){ return a.t - b.t; });
+        if(chatOverlay.classList.contains('show')){ renderChat(true); markChatRead(); }
+        else syncChatBadge();
+      })
+      .catch(function(){})
+      .then(function(){ chatBusy = false; });
+  }
+
+  function unreadCount(){
+    const last = chatLastRead(), me = player().id;
+    return chatMsgs.filter(function(m){ return m.t > last && m.pid !== me; }).length;
+  }
+  function syncChatBadge(){
+    const b = document.getElementById('chatBadge');
+    if(!b) return;
+    const n = unreadCount();
+    b.hidden = !n;
+    b.textContent = n > 9 ? '9+' : String(n);
+  }
+
+  function chatTime(t){
+    const d = new Date(t);
+    if(isNaN(d)) return '';
+    const time = d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    return sameDay(d, new Date()) ? time : d.toLocaleDateString([], {weekday:'short'}) + ' ' + time;
+  }
+
+  // "1:00 PM games kicked off" — drawn from ESPN's schedule, never stored.
+  function kickoffLines(){
+    if(chatWeek() !== currentWeek) return [];
+    const slots = {};
+    liveGames.forEach(function(lg){
+      if(!lg || lg.state === 'pre' || !lg.date) return;
+      const t = Date.parse(lg.date);
+      if(isNaN(t) || t > Date.now()) return;
+      (slots[t] = slots[t] || []).push(lg);
+    });
+    return Object.keys(slots).map(function(k){
+      const list = slots[k], t = parseInt(k, 10);
+      const txt = list.length === 1
+        ? list[0].away + ' @ ' + list[0].home + ' kicked off'
+        : new Date(t).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) + ' games kicked off';
+      return { sys: true, t: t, text: txt };
+    });
+  }
+
+  function renderChatPeople(){
+    rebuildNameTags();
+    const me = player();
+    const ids = Object.keys(presence).filter(function(id){ return id !== me.id && isOnline(id); })
+      .sort(function(a,b){ return shownName(a, presence[a].name).localeCompare(shownName(b, presence[b].name)); });
+    const total = ids.length + 1;
+    document.getElementById('chatOnline').innerHTML =
+      '<i class="beacon"></i>' + total + ' online now';
+    document.getElementById('chatPills').innerHTML =
+      '<span class="chatpill me" style="color: var(--green)">You<i class="beacon"></i></span>' +
+      ids.map(function(id){
+        return '<span class="chatpill" style="color:' + chatColor(id) + '">' +
+          esc(shownName(id, presence[id].name)) + '<i class="beacon"></i></span>';
+      }).join('');
+  }
+
+  function renderChat(keepBottom){
+    rebuildNameTags();
+    const me = player();
+    document.getElementById('chatSub').textContent = 'Week ' + chatWeek() + ' \u00B7 everyone in the pool';
+    const nearBottom = chatList.scrollHeight - chatList.scrollTop - chatList.clientHeight < 80;
+    const items = chatMsgs.concat(kickoffLines()).sort(function(a,b){ return a.t - b.t; });
+    if(!chatMsgs.length){
+      chatList.innerHTML = items.map(function(m){ return '<div class="chatsys">' + esc(m.text) + '</div>'; }).join('') +
+        '<div class="chatempty">No messages yet this week. Say something to the pool.</div>';
+      return;
+    }
+    let prev = null;
+    chatList.innerHTML = items.map(function(m){
+      if(m.sys){ prev = null; return '<div class="chatsys">' + esc(m.text) + '</div>'; }
+      const mine = m.pid === me.id;
+      const first = !(prev && prev.pid === m.pid);
+      prev = m;
+      const who = !first ? '' : mine
+        ? '<span class="chatwho" style="color: var(--green)"><i>' + esc(chatTime(m.t)) + ' \u00B7 </i>' + esc(shownName(m.pid, me.name || m.name)) + '</span>'
+        : '<span class="chatwho" style="color:' + chatColor(m.pid) + '">' + esc(shownName(m.pid, m.name)) + ' <i>\u00B7 ' + esc(chatTime(m.t)) + '</i></span>';
+      return '<div class="chatmsg' + (mine ? ' mine' : '') + (first ? ' first' : '') + '">' + who +
+        '<div class="chatbubble">' + esc(m.text) + '</div></div>';
+    }).join('');
+    if(!keepBottom || nearBottom) chatList.scrollTop = chatList.scrollHeight;
+  }
+
+  function openChat(){
+    if(!player().name){ askName(true, 'live'); return; }
+    renderChatPeople();
+    renderChat(false);
+    openOverlay(chatOverlay);
+    chatList.scrollTop = chatList.scrollHeight;
+    markChatRead();
+    pollChat();
+    readPresence();
+  }
+
+  let chatSending = false;
+  function sendChat(){
+    const input = document.getElementById('chatInput');
+    const text = String(input.value || '').trim().slice(0, 200);
+    const me = player();
+    if(!text || chatSending) return;
+    if(!me.name){ askName(true, 'live'); return; }
+    if(typeof fetch !== 'function') return;
+    chatSending = true;
+    const btn = document.getElementById('chatSend');
+    btn.disabled = true;
+    fetch(chatUrl(chatWeek()), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pid: me.id, name: me.name, text: text, t: { '.sv': 'timestamp' } })
+    })
+      .then(function(r){
+        if(!r.ok) throw new Error('bad');
+        input.value = '';
+        chatBusy = false;
+        pollChat();
+      })
+      .catch(function(){ toast('Couldn\u2019t send. Check your connection.'); })
+      .then(function(){ chatSending = false; btn.disabled = false; });
+  }
+
+  document.getElementById('chatBtn').addEventListener('click', openChat);
+  document.getElementById('chatClose').addEventListener('click', function(){ closeOverlay(chatOverlay); });
+  chatOverlay.addEventListener('click', function(e){ if(e.target === chatOverlay) closeOverlay(chatOverlay); });
+  document.getElementById('chatSend').addEventListener('click', sendChat);
+  document.getElementById('chatInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); sendChat(); }
+  });
+
+  // One clock for both: chat every 5 s, who's online every 15 s, check in every 30 s.
+  setInterval(function(){
+    if(document.hidden) return;
+    chatTicks++;
+    pollChat();
+    if(chatTicks % 3 === 0) readPresence();
+    if(chatTicks % 6 === 0) beat();
+  }, 5000);
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ dropPresence(); return; }
+    beat(); pollChat(); readPresence();
+  });
+  window.addEventListener('pagehide', dropPresence);
+
   /* name prompt */
   const nameOverlay = document.getElementById('nameOverlay');
   let nameRequired = false;
-  function askName(required){
+  let nameWhy = '';                  // 'lock' | 'live' | '' (changing it from Settings)
+  function askName(required, why){
     const me = player();
     nameRequired = !!required;
+    nameWhy = required ? (why || 'lock') : '';
     document.getElementById('nameInput').value = me.name || '';
     document.getElementById('nameSkip').style.display = nameRequired ? 'none' : '';
-    document.getElementById('nameNote').textContent = nameRequired
-      ? 'Your sheet is locked. Add a name and you\u2019re on the board.'
+    document.getElementById('nameNote').textContent =
+      nameWhy === 'live' ? 'Live, the leaderboard and chat need a name first.'
+      : nameWhy === 'lock' ? 'Your sheet is locked. Add a name and you\u2019re on the board.'
       : '';
     openOverlay(nameOverlay);
   }
@@ -4547,10 +4964,13 @@
     const me = player();
     me.name = v;
     put(PLAYER_KEY, me);
-    const wasLockIn = nameRequired;
+    const wasLockIn = nameRequired && nameWhy === 'lock';
     nameRequired = false;
+    nameWhy = '';
     closeOverlay(nameOverlay);
     syncPool();
+    syncNameGate();
+    beat();
     const sv = document.getElementById('setNameVal');
     if(sv) sv.textContent = v;
     // Locking in asked for the name first; now show what got locked.
@@ -4735,17 +5155,24 @@
 
   syncDemoUI();
 
-  /* Nobody gets asked their name before they've seen the app. It's asked at
-     the two moments it actually means something: locking a sheet in, and
-     opening Live, where the leaderboard is the whole point. */
-  let namePrompted = false;
-  function askNameIfNeeded(){
-    if(namePrompted || player().name) return;
-    namePrompted = true;
-    setTimeout(function(){
-      if(openOverlays === 0 && !player().name) askName();
-    }, 500);
+  /* A name is asked for at the two moments it matters: locking a sheet in,
+     and opening Live. On Live it's required — no Skip — because Live holds the
+     leaderboard and Pool Chat. Until there's a name, Live shows only a prompt. */
+  function syncNameGate(){
+    const need = !player().name;
+    const body = document.getElementById('liveBody');
+    if(body) body.hidden = need;
+    const gate = document.getElementById('nameGate');
+    if(gate) gate.hidden = !need;
   }
+  function requireNameForLive(){
+    syncNameGate();
+    if(player().name) return;
+    setTimeout(function(){
+      if(isTab('live') && !player().name && !nameOverlay.classList.contains('show')) askName(true, 'live');
+    }, 350);
+  }
+  document.getElementById('nameGateBtn').addEventListener('click', function(){ askName(true, 'live'); });
 
   (function start(){
     const last = readView();
