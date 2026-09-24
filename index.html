@@ -106,11 +106,21 @@
   .brand{ flex:1 1 auto; min-width:0; overflow:hidden; }
   .brand-text{ display:flex; flex-direction:column; gap:6px; min-width:0; }
   .kicker{ font-size:11px; font-weight:800; letter-spacing:1.8px; color: var(--cyan); line-height:1; }
-  /* Shrinks on narrow phones instead of running under the week picker. */
+  /* 20px fits beside the week picker down to a 360px-wide phone (measured in
+     Manrope 800: ~157px wide, 160px of room). Narrower phones drop to 17px below.
+     Cyan flows through the title; it holds still for reduce-motion users. */
   h1{
-    margin:0; font-size: clamp(20px, 6.6vw, 27px); font-weight:800; letter-spacing:-0.6px; line-height:1;
-    color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    margin:0; font-size:20px; font-weight:800; letter-spacing:-0.4px; line-height:1.1;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    color:#ffffff;
+    background-image: linear-gradient(90deg, #ffffff 0%, #bff0ff 25%, #35d0ff 50%, #bff0ff 75%, #ffffff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation: titleflow 6s linear infinite;
   }
+  @keyframes titleflow{ from{ background-position:0% 0; } to{ background-position:-200% 0; } }
+  @media (prefers-reduced-motion: reduce){ h1{ animation:none; } }
   /* Fixed width: a <select> otherwise sizes to its longest option, and
      Android draws that wider than iPhone. */
   .weekpick{
@@ -391,7 +401,7 @@
   @media (max-width: 340px){
     .kickoff{ display:none; }
     .matchup.haskick .line1, .matchup.haskick .line2{ padding-right:0; }
-    h1{ font-size:23px; }
+    h1{ font-size:17px; letter-spacing:-0.3px; }
   }
 
   /* ---------- tabs ---------- */
@@ -1553,7 +1563,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.3.0';
+  const APP_VERSION = '3.3.1';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
