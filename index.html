@@ -219,7 +219,7 @@
     display:flex; align-items:center; gap:10px; min-height:72px;
     background: var(--card); border:1px solid var(--hair); border-radius:16px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-    padding:10px 6px 10px 12px; margin-bottom:8px;
+    padding:10px 2px 10px 12px; margin-bottom:8px;
     user-select:none; -webkit-user-select:none;
     transition: border-color 0.16s, box-shadow 0.16s, scale 0.14s;
   }
@@ -282,7 +282,11 @@
     margin-bottom:4px;
   }
 
-  .matchup{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+  .matchup{ position:relative; flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
+  /* Room kept at the end of each line for the stacked kickoff (in em, so it
+     grows with the phone's text size): "Sun" beside line 1, the time beside line 2. */
+  .matchup.haskick .line1{ padding-right:2.3em; }
+  .matchup.haskick .line2{ padding-right:5.2em; }
   .line1, .line2{ display:flex; align-items:center; min-width:0; }
   .line1{ gap:8px; font-size:16px; line-height:1.2; }
   .line2{ gap:6px; font-size:13px; line-height:1.2; }
@@ -297,11 +301,14 @@
   .plogo.small{ width:18px; height:18px; }
   .plogo.small img{ width:18px; height:18px; opacity:0.8; }
   .kickoff{
-    -webkit-touch-callout: none; pointer-events:none; flex:none;
+    -webkit-touch-callout: none; pointer-events:none;
+    position:absolute; top:0; right:0;
+    display:flex; flex-direction:column; align-items:flex-end; gap:5px;
     font-size:13px; font-weight:600; color: var(--muted); white-space:nowrap;
   }
-  .kickoff::before{ content:'\00B7'; margin-right:6px; }
-  .line2 .kickoff.offday{ color:#ffffff; font-weight:800; }
+  .kday{ height:24px; display:flex; align-items:center; }
+  .ktime{ height:18px; display:flex; align-items:center; }
+  .matchup .kickoff.offday{ color:#ffffff; font-weight:800; }
   .goldcity{ color: var(--gold); font-weight:800; letter-spacing:-0.2px; }
   .mutedcity{ color: var(--muted); font-weight:600; }
   /* Thursday, Saturday, Monday — anything but Sunday */
@@ -334,10 +341,10 @@
   .histtime{ flex:none; font-size:12px; font-weight:600; color: var(--muted); }
   .histempty{ color: var(--muted); font-size:15px; font-weight:600; padding:20px 0; text-align:center; }
 
-  .actions{ display:flex; align-items:center; gap:2px; flex:none; }
+  .actions{ display:flex; align-items:center; gap:0; flex:none; }
 
   .swx{
-    width:54px; height:48px; padding:0; flex:none; cursor:pointer;
+    width:50px; height:48px; padding:0; flex:none; cursor:pointer;
     border-radius:11px; border:1px solid rgba(244,196,61,0.45);
     background: rgba(244,196,61,0.1);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
@@ -348,10 +355,12 @@
   .swx.dog .swx-label{ color: var(--text); }
   .pctval{ font-size:15px; font-weight:800; color:#ffffff; line-height:1.1; }
   .rmx{
-    width:32px; height:44px; padding:0; flex:none;
+    position:relative; width:24px; height:44px; padding:0; flex:none;
     background:none; border:none; color: var(--faint);
     font-size:20px; font-weight:500; line-height:1;
   }
+  /* drawn narrow, but the tap area stays full size */
+  .rmx::before{ content:''; position:absolute; top:0; bottom:0; left:-4px; right:-8px; }
   .restorebtn{
     flex:none; height:36px; padding:0 14px; border-radius:10px;
     background: transparent; border:1px solid rgba(53,208,255,0.4); color: var(--cyan);
@@ -374,8 +383,6 @@
     .line1{ font-size:15px; }
     .line2{ font-size:12px; }
     .points{ width:36px; font-size:17px; }
-    .swx{ width:50px; }
-    .rmx{ width:28px; }
   }
   @media (max-width: 400px){
     .gstatus{ width:86px; }
@@ -383,6 +390,7 @@
   }
   @media (max-width: 340px){
     .kickoff{ display:none; }
+    .matchup.haskick .line1, .matchup.haskick .line2{ padding-right:0; }
     h1{ font-size:23px; }
   }
 
@@ -1538,7 +1546,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.2.1';
+  const APP_VERSION = '3.2.2';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2061,12 +2069,13 @@
     const d = new Date(g.date);
     return isNaN(d) ? true : d.getDay() === 0;
   }
-  function kickoffShort(g){
-    if(!g.date) return '';
+  // Kickoff for a Picks row, as two parts: "Sun" sits on line 1, "1:00 PM" under it.
+  function kickoffParts(g){
+    if(!g.date) return null;
     const d = new Date(g.date);
-    if(isNaN(d)) return '';
-    return d.toLocaleDateString([], {weekday:'short'}) + ' ' +
-           d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    if(isNaN(d)) return null;
+    return { day: d.toLocaleDateString([], {weekday:'short'}),
+             time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
   }
 
   function logoTag(url, cls){
@@ -2137,13 +2146,13 @@
       const hasLine = typeof g.spread === 'number';
       const pct = hasLine ? Math.round(pickWinProb(g)*100) : 0;
       const arrow = hasLine ? moveArrow(g) : '';
-      const kickTxt = kickoffShort(g);
+      const kick = kickoffParts(g);
 
       li.innerHTML =
         '<div class="rankwrap">' +
           '<button class="points" data-role="rank">' + label + '</button>' +
         '</div>' +
-        '<div class="matchup">' +
+        '<div class="matchup' + (kick ? ' haskick' : '') + '">' +
           '<div class="line1">' +
             logoTag(logoForCity(g, pickedCityOf(g)), 'plogo') +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
@@ -2154,9 +2163,9 @@
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
             logoTag(logoForCity(g, onFav ? dogCity : favCity), 'plogo small') +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
-            (kickTxt ? '<span class="kickoff' + (isSunday(g) ? '' : ' offday') + '">' +
-              kickTxt + '</span>' : '') +
           '</div>' +
+          (kick ? '<span class="kickoff' + (isSunday(g) ? '' : ' offday') + '">' +
+            '<span class="kday">' + kick.day + '</span><span class="ktime">' + kick.time + '</span></span>' : '') +
         '</div>' +
         '<div class="actions">' +
           '<button class="swx ' + (onFav?'fav':'dog') + '" data-role="swx" aria-label="Switch favorite or underdog">' +
@@ -2372,8 +2381,12 @@
       if(img2 && url2 && img2.getAttribute('src') !== url2){ img2.setAttribute('src', url2); }
       const oth = l2.querySelector('.mutedcity');
       if(oth) oth.textContent = otherCity;
-      const ko = l2.querySelector('.kickoff');
-      if(ko) ko.textContent = kickoffShort(g);
+    }
+    const kp = kickoffParts(g);
+    const kd = li.querySelector('.kday'), kt = li.querySelector('.ktime');
+    if(kp && kd && kt){
+      if(kd.textContent !== kp.day) kd.textContent = kp.day;
+      if(kt.textContent !== kp.time) kt.textContent = kp.time;
     }
 
     const swx = li.querySelector('.swx');
