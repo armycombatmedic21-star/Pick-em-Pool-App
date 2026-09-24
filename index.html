@@ -208,14 +208,25 @@
     border:1px solid var(--hair2); box-shadow:none;
   }
   .lockbtn.on svg{ color: var(--cyan); }
-  .draghint{
-    display:flex; align-items:center; gap:8px; margin: 0 0 12px;
-    font-size:12px; font-weight:600; color: var(--muted); line-height:1.4;
+  /* Quick Tips: a small pill under the 1-to-N scale, above the first game. */
+  .tiprow{ display:flex; margin: 0 0 12px; }
+  .tipbtn{
+    position:relative; display:inline-flex; align-items:center; gap:8px;
+    height:30px; padding:0 13px 0 5px; border-radius:15px;
+    border:1px solid rgba(53,208,255,0.32);
+    background: linear-gradient(180deg, rgba(53,208,255,0.12), rgba(53,208,255,0.04));
+    color:#ffffff; font-size:13px; font-weight:800; letter-spacing:0.1px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    -webkit-tap-highlight-color: transparent;
   }
-  .draghint::before{
-    content:''; flex:none; width:12px; height:14px;
-    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cg fill='%2393aec8'%3E%3Ccircle cx='3' cy='3' r='1.5'/%3E%3Ccircle cx='9' cy='3' r='1.5'/%3E%3Ccircle cx='3' cy='8' r='1.5'/%3E%3Ccircle cx='9' cy='8' r='1.5'/%3E%3Ccircle cx='3' cy='13' r='1.5'/%3E%3Ccircle cx='9' cy='13' r='1.5'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+  /* drawn small, but the tap area is full size */
+  .tipbtn::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
+  .tipbtn:active{ background: rgba(53,208,255,0.2); }
+  .tipplay{
+    flex:none; width:20px; height:20px; border-radius:50%; background: var(--cyan);
+    display:flex; align-items:center; justify-content:center; box-shadow: 0 0 10px rgba(53,208,255,0.4);
   }
+  .tipplay svg{ width:8px; height:9px; display:block; margin-left:1px; }
 
   .emptyweek{
     text-align:center; color: var(--muted); font-size:15px; font-weight:600;
@@ -1185,6 +1196,212 @@
   .lockstat b{ min-width:0; font-size:14px; font-weight:800; color: var(--gold); text-align:right; }
   .lockstat b.plain{ color:#ffffff; }
 
+
+  /* ===== Quick Tips sheet =====
+     The demo rows reuse the app's real classes, so they follow any restyle.
+     Only positioning and the animation live here. */
+  .tipshead{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .tipstitle{ display:flex; flex-direction:column; gap:6px; }
+  .tipshead h2{ font-size:24px; letter-spacing:-0.5px; line-height:1; }
+  .tipcount{ flex:none; font-size:13px; font-weight:700; color: var(--muted); }
+  .tipstage{
+    position:relative; height:256px; overflow:hidden; pointer-events:none;
+    border-radius:18px; background:#080f1c; border:1px solid rgba(147,174,200,0.12);
+  }
+  .tipstage .game{ position:absolute; left:10px; right:10px; height:72px; min-height:0; margin:0; }
+  .tipstage .game.removed{ height:64px; }
+  .tipstage .points, .tipstage .swx, .tipstage .slotbtn, .tipstage .restorebtn{ position:relative; }
+  .tipnum{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .tipflip{ position:relative; flex:1; min-width:0; height:48px; }
+  .tipflip .matchup{ position:absolute; inset:0; justify-content:center; }
+  .tipswap{ position:relative; flex:none; width:50px; height:48px; }
+  .tipstage .tipswap .swx{ position:absolute; left:0; top:0; }
+  .tippanel{
+    position:absolute; top:92px; left:10px; right:10px; padding:10px;
+    border-radius:14px; background:#101d33; border:1px solid rgba(147,174,200,0.16);
+  }
+  .tippanel b{ display:block; font-size:13px; font-weight:800; color:#ffffff; }
+  .tipstage .slotgrid{ gap:6px; margin:8px 0 0; }
+  .tipstage .slotbtn{ height:34px; border-radius:9px; font-size:15px; }
+  .tipstage .statuswrap{ position:absolute; top:30px; left:10px; right:10px; margin:0; }
+  .tipstage .lockinline{ position:absolute; top:40px; left:10px; right:10px; width:auto; margin:0; }
+  .tipstage .resetbtn{ position:absolute; top:194px; left:0; right:0; width:220px; margin:0 auto; }
+  .tipptr{
+    position:absolute; left:50%; top:50%; width:22px; height:30px; margin:-2px 0 0 -2px;
+    transform-origin:2px 2px; opacity:0; pointer-events:none; z-index:10;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 30'%3E%3Cpath d='M1.5 1.5v23.2l6-5.6 3.9 9 4.1-1.8-3.9-8.8 8.3-.4z' fill='%23ffffff' stroke='%2303131f' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 8px rgba(53,208,255,0.35));
+  }
+  .tipring{
+    position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px;
+    border-radius:50%; border:2px solid var(--cyan); opacity:0; pointer-events:none; z-index:9;
+  }
+  .tipnote{ position:absolute; left:0; right:0; top:142px; text-align:center; font-size:13px; font-weight:700; color: var(--cyan); }
+  /* Labels only show when the phone asks for reduced motion. */
+  .tipco{
+    position:absolute; display:none; align-items:center; gap:6px; height:26px; padding:0 10px;
+    border-radius:13px; background: var(--cyan); color:#03131f; font-size:12px; font-weight:800;
+    white-space:nowrap; z-index:11; box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+  }
+  .tipco svg{ width:12px; height:12px; display:block; }
+  .tipco i{ font-style:normal; font-weight:600; }
+  .tipco.mid{ left:50%; transform: translateX(-50%); }
+  .tiptext{ min-height:84px; padding:14px 2px 0; }
+  .tiptext h3{ margin:0 0 6px; font-size:20px; font-weight:800; letter-spacing:-0.3px; color:#ffffff; }
+  .tiptext h3 i{ font-style:normal; font-weight:600; color: var(--text); }
+  .tiptext p{ margin:0; font-size:15px; font-weight:600; line-height:1.45; color: var(--muted); }
+  .tiptext p b{ color:#ffffff; font-weight:800; }
+  .tipdots{ display:flex; justify-content:center; gap:7px; margin:14px 0; }
+  .tipdot{
+    width:7px; height:7px; padding:0; border:none; border-radius:4px;
+    background: rgba(147,174,200,0.3); transition: width 0.22s, background 0.22s;
+  }
+  .tipdot.on{ width:20px; background: var(--cyan); }
+  .tipnav{ display:flex; gap:10px; }
+  .tipnav .confirmyes{ flex:1; }
+  .tipback{
+    flex:none; width:96px; height:52px; border-radius:14px;
+    border:1px solid var(--hair2); background: transparent; color: var(--text);
+    font-size:15px; font-weight:700;
+  }
+  .tipback[hidden]{ display:none; }
+
+  @keyframes tqFade{ 0%{ opacity:0; } 5%{ opacity:1; } 88%{ opacity:1; } 95%{ opacity:0; } 100%{ opacity:0; } }
+  .ts1{ animation: tqFade 4.4s linear infinite; }
+  .ts2{ animation: tqFade 4s linear infinite; }
+  .ts3{ animation: tqFade 4.8s linear infinite; }
+  .ts4{ animation: tqFade 5.2s linear infinite; }
+  .ts5{ animation: tqFade 4.2s linear infinite; }
+  .ts6{ animation: tqFade 5s linear infinite; }
+
+  /* 1: click, hold, drag */
+  @keyframes tq1drag{
+    0%, 26%{ transform:translateY(0) scale(1); box-shadow:none; border-color: var(--hair); }
+    30%{ transform:translateY(0) scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 22px rgba(53,208,255,0.35); border-color: rgba(53,208,255,0.8); }
+    55%{ transform:translateY(-80px) scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 22px rgba(53,208,255,0.35); border-color: rgba(53,208,255,0.8); }
+    62%{ transform:translateY(-80px) scale(1); box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 26px rgba(53,208,255,0.45); border-color: rgba(53,208,255,0.6); }
+    80%, 100%{ transform:translateY(-80px) scale(1); box-shadow:none; border-color: var(--hair); }
+  }
+  @keyframes tq1push{ 0%, 42%{ transform:translateY(0); } 52%, 100%{ transform:translateY(80px); } }
+  @keyframes tq1a{ 0%, 50%{ opacity:1; } 54%, 100%{ opacity:0; } }
+  @keyframes tq1b{ 0%, 50%{ opacity:0; } 54%, 100%{ opacity:1; } }
+  @keyframes tq1ptr{
+    0%, 8%{ opacity:0; transform:scale(1.3); } 14%{ opacity:1; transform:scale(1); }
+    30%, 55%{ opacity:1; transform:scale(0.9); } 62%, 100%{ opacity:0; transform:scale(1.1); }
+  }
+  @keyframes tq1ring{ 0%, 14%{ opacity:0; transform:scale(0.6); } 16%{ opacity:0.9; transform:scale(0.8); } 30%, 100%{ opacity:0; transform:scale(2.2); } }
+  .tq1drag{ animation: tq1drag 4.4s ease infinite; }
+  .tq1push{ animation: tq1push 4.4s ease infinite; }
+  .tq1a{ animation: tq1a 4.4s linear infinite; }
+  .tq1b{ animation: tq1b 4.4s linear infinite; }
+  .tq1ptr{ animation: tq1ptr 4.4s ease infinite; }
+  .tq1ring{ animation: tq1ring 4.4s ease-out infinite; }
+
+  /* 2: switch FAV / DOG */
+  @keyframes tq2a{ 0%, 30%{ opacity:1; } 34%, 100%{ opacity:0; } }
+  @keyframes tq2b{ 0%, 30%{ opacity:0; } 34%, 100%{ opacity:1; } }
+  @keyframes tq2press{ 0%, 24%{ transform:scale(1); } 28%{ transform:scale(0.9); } 32%, 100%{ transform:scale(1); } }
+  @keyframes tq2ptr{
+    0%, 10%{ opacity:0; transform:scale(1.3); } 18%{ opacity:1; transform:scale(1); }
+    28%{ opacity:1; transform:scale(0.85); } 34%, 70%{ opacity:1; transform:scale(1); } 78%, 100%{ opacity:0; transform:scale(1); }
+  }
+  @keyframes tq2note{ 0%, 36%{ opacity:0; transform:translateY(4px); } 42%, 100%{ opacity:1; transform:translateY(0); } }
+  .tq2a{ animation: tq2a 4s linear infinite; }
+  .tq2b{ animation: tq2b 4s linear infinite; }
+  .tq2press{ animation: tq2press 4s ease infinite; }
+  .tq2ptr{ animation: tq2ptr 4s ease infinite; }
+  .tq2note{ animation: tq2note 4s ease infinite; }
+
+  /* 3: remove a game */
+  @keyframes tq3gone{ 0%, 24%{ opacity:1; transform:scale(1); } 34%, 100%{ opacity:0; transform:scale(0.94); } }
+  @keyframes tq3up{ 0%, 36%{ transform:translateY(0); } 46%, 100%{ transform:translateY(-80px); } }
+  @keyframes tq3dash{ 0%, 46%{ opacity:0; transform:translateY(8px); } 54%, 100%{ opacity:0.6; transform:translateY(0); } }
+  @keyframes tq3pulse{ 0%, 62%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); } 70%{ box-shadow: 0 0 0 4px rgba(53,208,255,0.3); } 80%, 100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); } }
+  @keyframes tq3ptr{
+    0%, 8%{ opacity:0; transform:scale(1.3); } 16%{ opacity:1; transform:scale(1); }
+    24%{ opacity:1; transform:scale(0.85); } 28%{ opacity:1; transform:scale(1); } 34%, 100%{ opacity:0; transform:scale(1); }
+  }
+  .tq3gone{ animation: tq3gone 4.8s ease infinite; }
+  .tq3up{ animation: tq3up 4.8s ease infinite; }
+  .tq3dash{ animation: tq3dash 4.8s ease infinite; }
+  .tq3pulse{ animation: tq3pulse 4.8s ease infinite; }
+  .tq3ptr{ animation: tq3ptr 4.8s ease infinite; }
+
+  /* 4: tap the number, pick a spot */
+  @keyframes tq4panel{ 0%, 22%{ opacity:0; transform:translateY(16px); } 30%, 62%{ opacity:1; transform:translateY(0); } 70%, 100%{ opacity:0; transform:translateY(16px); } }
+  @keyframes tq4ptrA{
+    0%, 8%{ opacity:0; transform:scale(1.3); } 14%{ opacity:1; transform:scale(1); }
+    20%{ opacity:1; transform:scale(0.85); } 24%{ opacity:1; transform:scale(1); } 30%, 100%{ opacity:0; transform:scale(1); }
+  }
+  @keyframes tq4ptrB{
+    0%, 34%{ opacity:0; transform:scale(1.3); } 42%{ opacity:1; transform:scale(1); }
+    50%{ opacity:1; transform:scale(0.85); } 56%{ opacity:1; transform:scale(1); } 64%, 100%{ opacity:0; transform:scale(1); }
+  }
+  @keyframes tq4pick{
+    0%, 50%{ background: rgba(255,255,255,0.04); color:#ffffff; border-color: var(--hair2); }
+    52%, 100%{ background: var(--cyan); color:#03131f; border-color: var(--cyan); }
+  }
+  @keyframes tq4was{
+    0%, 50%{ background: var(--cyan); color:#03131f; border-color: var(--cyan); }
+    52%, 100%{ background: rgba(255,255,255,0.04); color:#ffffff; border-color: var(--hair2); }
+  }
+  @keyframes tq4a{ 0%, 66%{ opacity:1; } 68%, 100%{ opacity:0; } }
+  @keyframes tq4b{ 0%, 66%{ opacity:0; } 68%, 100%{ opacity:1; } }
+  @keyframes tq4flash{ 0%, 66%{ box-shadow:none; } 72%{ box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 26px rgba(53,208,255,0.45); } 90%, 100%{ box-shadow:none; } }
+  .tq4panel{ animation: tq4panel 5.2s ease infinite; }
+  .tq4ptrA{ animation: tq4ptrA 5.2s ease infinite; }
+  .tq4ptrB{ animation: tq4ptrB 5.2s ease infinite; }
+  .tq4pick{ animation: tq4pick 5.2s linear infinite; }
+  .tq4was{ animation: tq4was 5.2s linear infinite; }
+  .tq4a{ animation: tq4a 5.2s linear infinite; }
+  .tq4b{ animation: tq4b 5.2s linear infinite; }
+  .tq4flash{ animation: tq4flash 5.2s ease infinite; }
+
+  /* 5: lock in */
+  @keyframes tq5btn{
+    0%, 18%{ opacity:1; transform:scale(1); } 22%{ opacity:1; transform:scale(0.96); }
+    28%{ opacity:1; transform:scale(1); } 34%, 100%{ opacity:0; transform:scale(1); }
+  }
+  @keyframes tq5ban{ 0%, 30%{ opacity:0; transform:translateY(6px); } 38%, 100%{ opacity:1; transform:translateY(0); } }
+  @keyframes tq5quiet{ 0%, 34%{ opacity:1; } 42%, 100%{ opacity:0.5; } }
+  @keyframes tq5ptr{
+    0%, 6%{ opacity:0; transform:scale(1.3); } 12%{ opacity:1; transform:scale(1); }
+    22%{ opacity:1; transform:scale(0.85); } 28%{ opacity:1; transform:scale(1); } 36%, 100%{ opacity:0; transform:scale(1); }
+  }
+  .tq5btn{ animation: tq5btn 4.2s ease infinite; }
+  .tq5ban{ animation: tq5ban 4.2s ease infinite; }
+  .tq5quiet{ animation: tq5quiet 4.2s ease infinite; }
+  .tq5ptr{ animation: tq5ptr 4.2s ease infinite; }
+
+  /* 6: reset to spread order */
+  @keyframes tq6down{ 0%, 30%{ transform:translateY(0); } 46%, 100%{ transform:translateY(80px); } }
+  @keyframes tq6up{ 0%, 30%{ transform:translateY(0); } 46%, 100%{ transform:translateY(-80px); } }
+  @keyframes tq6flash{ 0%, 46%{ box-shadow:none; } 52%{ box-shadow: 0 0 0 1px rgba(53,208,255,0.8), 0 0 16px rgba(53,208,255,0.35); } 70%, 100%{ box-shadow:none; } }
+  @keyframes tq6press{ 0%, 22%{ transform:scale(1); } 25%{ transform:scale(0.95); } 28%, 100%{ transform:scale(1); } }
+  @keyframes tq6ptr{
+    0%, 8%{ opacity:0; transform:scale(1.3); } 14%{ opacity:1; transform:scale(1); }
+    24%{ opacity:1; transform:scale(0.85); } 28%{ opacity:1; transform:scale(1); } 36%, 100%{ opacity:0; transform:scale(1); }
+  }
+  .tq6down{ animation: tq6down 5s ease infinite, tq6flash 5s ease infinite; }
+  .tq6up{ animation: tq6up 5s ease infinite, tq6flash 5s ease infinite; }
+  .tq6press{ animation: tq6press 5s ease infinite; }
+  .tq6ptr{ animation: tq6ptr 5s ease infinite; }
+
+  /* Nothing moves while the sheet is closed. */
+  .overlay:not(.show) .tipstage, .overlay:not(.show) .tipstage *{ animation-play-state: paused; }
+  /* Reduced motion: every card holds still on its key moment and shows its label. */
+  @media (prefers-reduced-motion: reduce){
+    .tipstage, .tipstage *{ animation-play-state: paused !important; }
+    .ts1, .ts1 *{ animation-delay: -1.76s !important; }
+    .ts2, .ts2 *{ animation-delay: -2.2s !important; }
+    .ts3, .ts3 *{ animation-delay: -0.96s !important; }
+    .ts4, .ts4 *{ animation-delay: -2.76s !important; }
+    .ts5, .ts5 *{ animation-delay: -0.84s !important; }
+    .ts6, .ts6 *{ animation-delay: -1.2s !important; }
+    .tipco{ display:flex; }
+    .tipdot{ transition:none; }
+  }
+
   .toast{
     position:fixed; left:50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%);
     background:#1a2a42; color:#ffffff; font-weight:700; font-size:14px;
@@ -1221,7 +1438,7 @@
 
   <div class="rankhead"><b>Your Ranking</b><span id="rankCount"></span></div>
   <div class="scale"><span>1 = least confident</span><i></i><span id="scaleTop">highest = safest lock</span></div>
-  <div class="draghint" id="dragHint">Press and hold a game to drag it. Tap a number to move it.</div>
+  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button></div>
 
   <ul id="list"></ul>
   <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -1536,6 +1753,32 @@
   </div>
 </div>
 
+<div class="overlay" id="tipsOverlay">
+  <div class="sheet" role="dialog" aria-label="Quick Tips">
+    <div class="tipshead">
+      <div class="tipstitle"><span class="kicker">CONFIDENCE POOL</span><h2>Quick Tips</h2></div>
+      <span class="tipcount" id="tipCount"></span>
+    </div>
+    <div id="tipCards"></div>
+    <div class="tipdots" id="tipDots"></div>
+    <div class="tipnav">
+      <button class="tipback" id="tipBack" hidden>Back</button>
+      <button class="confirmyes" id="tipNext">Next</button>
+    </div>
+    <button class="closebtn" id="tipsClose">Close</button>
+  </div>
+</div>
+
+<div class="overlay" id="closedOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Picks are final">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Picks are final</h2></div>
+    <p id="closedText"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="closedOk">Got it</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Copied</div>
 
 <script>
@@ -1563,7 +1806,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.3.2';
+  const APP_VERSION = '3.4.0';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -1755,6 +1998,37 @@
     return [a, b].sort().join('|');
   }
 
+  /* ---------- finished weeks stay locked ----------
+     Once any game still on a locked sheet has gone final, that sheet can't be
+     unlocked again. Removed games don't count. Worked out fresh every time
+     from real ESPN results only — the simulator and the Monday night preview
+     never count — and nothing new is saved anywhere. An unlocked sheet is
+     left alone. */
+  let finalWeek = 0;
+  let finalKeys = {};
+  function noteFinals(week, events){
+    if(week !== currentWeek) return;
+    if(finalWeek !== week){ finalWeek = week; finalKeys = {}; }
+    (events || []).forEach(function(ev){
+      const st = ev && ev.status && ev.status.type;
+      if(!st || !st.completed) return;
+      const comp = (ev.competitions || [])[0];
+      if(!comp) return;
+      const abs = (comp.competitors || []).map(function(c){ return c.team && c.team.abbreviation; })
+                                          .filter(Boolean);
+      if(abs.length === 2) finalKeys[abs.slice().sort().join('|')] = true;
+    });
+  }
+  function finalOnSheet(){
+    return games.some(function(g){
+      if(g.removed) return false;
+      const r = results[g.id];
+      if(r === 'win' || r === 'loss' || r === 'tie') return true;
+      return finalWeek === currentWeek && !!finalKeys[matchKey(g)];
+    });
+  }
+  function weekClosed(){ return weekLocked && finalOnSheet(); }
+
   function mergeLines(newLines, frozen){
     // A locked sheet never reorders, whatever state the frozen flag is in.
     if(weekLocked) frozen = true;
@@ -1887,6 +2161,7 @@
       .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
       .then(function(data){
         if(w !== currentWeek) return;
+        noteFinals(w, data.events);
         const fresh = gamesFromEvents(data.events);
         if(!fresh.length) throw new Error('no games');
         put(linesKey(w), fresh);
@@ -1932,7 +2207,6 @@
     if(restored) games = restored;
     if(savedRes) results = savedRes;
     stampLine(week);
-    syncHint();
     syncLockBtn();
     reflowRemoved();
     render();
@@ -1975,24 +2249,6 @@
   }
 
   // Locking happens the moment you take ownership of the order.
-  /* The drag hint shows until you actually move a game, then never again
-     on this device. Saved separately from picks so it survives week changes. */
-  const HINT_KEY = 'pickem-draghint';
-  function hintDismissed(){
-    const v = getLocal(HINT_KEY);
-    return !!(v && v.done);
-  }
-  function dismissHint(){
-    if(hintDismissed()) return;
-    put(HINT_KEY, { done: true });
-    syncHint();
-  }
-  function syncHint(){
-    const el = document.getElementById('dragHint');
-    if(!el) return;
-    el.style.display = (hintDismissed() || !games.length) ? 'none' : 'flex';
-  }
-
   function freezeOrder(){
     if(weekFrozen) return;
     weekFrozen = true;
@@ -2159,8 +2415,6 @@
     listEl.innerHTML = '';
     const has = games.length > 0;
     emptyEl.style.display = has ? 'none' : 'block';
-    if(!has) document.getElementById('dragHint').style.display = 'none';
-    else syncHint();
 
     let n = 0;
     games.forEach(g => {
@@ -2350,7 +2604,6 @@
     games = active.concat(games.filter(function(g){ return g.removed; }));
 
     freezeOrder();
-    dismissHint();
     render();
     saveAll();
     flashRow(id);
@@ -2611,7 +2864,6 @@
       press.li.classList.remove('dragging');
       document.body.classList.remove('dragmode');
       freezeOrder();
-      if(press.moved) dismissHint();
       const droppedId = press.id;
       render();
       saveAll();
@@ -2791,8 +3043,18 @@
 
   function askUnlock(){
     askedFrom = null;
+    if(weekClosed()){ showClosed(); return; }
     openOverlay(unlockOverlay);
   }
+  const closedOverlay = document.getElementById('closedOverlay');
+  function showClosed(){
+    document.getElementById('closedText').textContent =
+      'A game on your Week ' + currentWeek + ' sheet is final, so this sheet is locked for good. ' +
+      'Once results are in, nobody\u2019s picks can change.';
+    openOverlay(closedOverlay);
+  }
+  document.getElementById('closedOk').addEventListener('click', function(){ closeOverlay(closedOverlay); });
+  closedOverlay.addEventListener('click', function(e){ if(e.target === closedOverlay) closeOverlay(closedOverlay); });
   const histOverlay = document.getElementById('histOverlay');
   document.getElementById('histBack').addEventListener('click', function(){ closeOverlay(histOverlay); });
   document.getElementById('histClose').addEventListener('click', function(){ closeOverlay(histOverlay); });
@@ -2800,6 +3062,12 @@
 
   document.getElementById('unlockCancel').addEventListener('click', function(){ closeOverlay(unlockOverlay); });
   document.getElementById('unlockYes').addEventListener('click', function(){
+    // A game can go final while this sheet is open. Check again at the tap.
+    if(weekClosed()){
+      closeOverlay(unlockOverlay);
+      setTimeout(showClosed, 300);
+      return;
+    }
     weekLocked = false;
     saveAll();
     markUnlocked(currentWeek);
@@ -2880,6 +3148,7 @@
     if(prev === 'live' && name !== 'live') stopLiveTimers();
     if(name === 'sheet') renderSheet();
     if(name === 'live') enterLive();
+    if(name === 'picks' && prev !== 'picks') maybeAutoTips();
 
     window.scrollTo(0, 0);
     saveView(name);
@@ -3038,6 +3307,7 @@
           });
         });
         liveGames = out;
+        noteFinals(week, data.events);
         liveStatus = weekComplete()
           ? ('Week ' + week + ' final')
           : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
@@ -5237,6 +5507,205 @@
     }
   }
 
+  /* ---------- Quick Tips ----------
+     Six short cards that slide up from the Picks tab. The demo rows are built
+     from the app's own classes (.game, .points, .swx, .rmx, .slotbtn,
+     .lockinline, .linestamp, .resetbtn), so a restyle of the real rows shows
+     up here too. If a layout changes enough to confuse a card, fix the card
+     and raise TIPS_VERSION — everyone then gets the new set once, on its own.
+     With reduced motion on, each card holds still on its key moment. */
+  const TIPS_KEY = 'pickem-tips';
+  const TIPS_VERSION = 1;
+  const TIP_COUNT = 6;
+  const tipsOverlay = document.getElementById('tipsOverlay');
+  let tipIndex = 0;
+
+  function tipsSeen(){
+    const v = getLocal(TIPS_KEY);
+    return !!(v && typeof v.seen === 'number' && v.seen >= TIPS_VERSION);
+  }
+
+  const TIP_CITY = { KC:'Kansas City', LAC:'LA Chargers', DET:'Detroit', CHI:'Chicago',
+                     BUF:'Buffalo', MIA:'Miami', PHI:'Philadelphia', NYG:'NY Giants' };
+  const TIP_ARROW = { up:'M12 19V5M6 11l6-6 6 6', down:'M12 5v14M6 13l6 6 6-6' };
+  function tipLogo(ab, small){
+    return logoTag('https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/' + ab.toLowerCase() + '.png',
+                   small ? 'plogo small' : 'plogo');
+  }
+  function tipMatchup(me, sp, venue, opp){
+    return '<div class="matchup">' +
+      '<div class="line1">' + tipLogo(me) + '<span class="goldcity">' + TIP_CITY[me] + '</span>' +
+        '<span class="pspread">' + sp + '</span></div>' +
+      '<div class="line2"><span class="vsword">' + venue + '</span>' + tipLogo(opp, true) +
+        '<span class="mutedcity">' + TIP_CITY[opp] + '</span></div>' +
+    '</div>';
+  }
+  function tipChip(fav, pct, extra, cls){
+    return '<button class="swx ' + (fav ? 'fav' : 'dog') + (cls ? ' ' + cls : '') + '" tabindex="-1">' +
+      '<span class="swx-label">' + (fav ? 'FAV' : 'DOG') + '</span><span class="pctval">' + pct + '%</span>' +
+      (extra || '') + '</button>';
+  }
+  function tipRank(inner, extra, cls){
+    return '<div class="rankwrap"><button class="points' + (cls ? ' ' + cls : '') + '" tabindex="-1">' +
+      inner + (extra || '') + '</button></div>';
+  }
+  function tipX(extra){ return '<button class="rmx" tabindex="-1">\u00D7' + (extra || '') + '</button>'; }
+  function tipRow(cls, top, rank, mid, actions, z, extra){
+    return '<div class="game' + (cls ? ' ' + cls : '') + '" style="top:' + top + 'px' + (z ? ';z-index:' + z : '') + '">' +
+      rank + mid + '<div class="actions">' + actions + '</div>' + (extra || '') + '</div>';
+  }
+  function tipNums(a, b, ca, cb){
+    return '<span class="tipnum ' + ca + '">' + a + '</span><span class="tipnum ' + cb + '">' + b + '</span>';
+  }
+  function tipPtr(cls){ return '<span class="tipptr ' + cls + '"></span>'; }
+  function tipLabel(html, pos, arrow, mid){
+    return '<span class="tipco' + (mid ? ' mid' : '') + '" style="' + pos + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' +
+      TIP_ARROW[arrow] + '"/></svg>' + html + '</span>';
+  }
+
+  function tipStages(){
+    const KC = tipMatchup('KC', '\u22123', '@', 'LAC');
+    const DET = tipMatchup('DET', '\u22124.5', '@', 'CHI');
+    const BUF = tipMatchup('BUF', '\u22126.5', 'vs', 'MIA');
+    const MIA = tipMatchup('MIA', '+6.5', '@', 'BUF');
+    const PHI = tipMatchup('PHI', '\u22127', 'vs', 'NYG');
+    let slots = '';
+    for(let n = 1; n <= 15; n++){
+      const cls = n === 3 ? ' tq4was' : (n === 12 ? ' tq4pick' : '');
+      slots += '<button class="slotbtn' + cls + '" tabindex="-1">' + n + (n === 12 ? tipPtr('tq4ptrB') : '') + '</button>';
+    }
+    return [
+      // 1: click, hold, drag
+      tipRow('', 10, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
+      tipRow('tq1push', 90, tipRank(tipNums('2', '3', 'tq1a', 'tq1b')), DET, tipChip(true, 66) + tipX()) +
+      tipRow('tq1drag', 170, tipRank(tipNums('3', '2', 'tq1a', 'tq1b')), BUF, tipChip(true, 72) + tipX(), 3,
+        '<span class="tipring tq1ring" style="left:45%"></span><span class="tipptr tq1ptr" style="left:45%"></span>') +
+      tipLabel('<i>Click,&nbsp;</i>HOLD<i>, drag</i>', 'top:104px;right:12px', 'up'),
+
+      // 2: switch FAV / DOG
+      '<div class="game" style="top:56px">' + tipRank('9') +
+        '<div class="tipflip"><div class="tq2a">' + BUF + '</div><div class="tq2b">' + MIA + '</div></div>' +
+        '<div class="actions"><span class="tipswap tq2press">' + tipChip(true, 72, '', 'tq2a') +
+          tipChip(false, 28, '', 'tq2b') + tipPtr('tq2ptr') + '</span>' + tipX() + '</div></div>' +
+      '<div class="tipnote tq2note">Now picking Miami, the underdog</div>' +
+      tipLabel('Tap to switch', 'top:176px;right:12px', 'up'),
+
+      // 3: remove a game
+      tipRow('tq3gone', 44, tipRank('4'), DET, tipChip(true, 66) + tipX(tipPtr('tq3ptr'))) +
+      tipRow('tq3up', 124, tipRank('5'), PHI, tipChip(true, 76) + tipX()) +
+      '<div class="game removed tq3dash" style="top:124px">' + tipRank('\u2013') + DET +
+        '<div class="actions">' + tipChip(true, 66) +
+        '<button class="restorebtn tq3pulse" tabindex="-1">Restore</button></div></div>' +
+      tipLabel('Tap \u00D7 to remove', 'top:10px;right:12px', 'down'),
+
+      // 4: tap the number, pick a spot
+      tipRow('tq4flash', 10, tipRank(tipNums('3', '12', 'tq4a', 'tq4b'), tipPtr('tq4ptrA')), PHI, tipChip(true, 76) + tipX()) +
+      '<div class="tippanel tq4panel"><b>Set Confidence</b><div class="slotgrid">' + slots + '</div></div>' +
+      tipLabel('Pick a spot', 'top:96px;right:18px', 'down'),
+
+      // 5: lock in
+      '<button class="lockinline tq5btn" tabindex="-1">' + ICON_LOCK + 'Lock In Picks' + tipPtr('tq5ptr') + '</button>' +
+      '<div class="statuswrap tq5ban"><div class="linestamp locked"><span class="sticon">' + ICON_LOCK + '</span>' +
+        '<span class="sttext"><b>Locked in</b><span>Week ' + currentWeek + ' \u00B7 15 games \u00B7 120 pts</span></span></div>' +
+        '<button class="unlinkbtn" tabindex="-1">Unlock</button></div>' +
+      tipRow('tq5quiet', 140, tipRank('15'), PHI, tipChip(true, 76) + tipX()) +
+      tipLabel('Tap when you\u2019re done', 'top:104px', 'up', true),
+
+      // 6: reset to spread order
+      tipRow('tq6down', 8, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
+      tipRow('tq6up', 88, tipRank('2'), DET, tipChip(true, 66) + tipX()) +
+      '<button class="resetbtn tq6press" tabindex="-1">Reset to Spread Order' + tipPtr('tq6ptr') + '</button>' +
+      tipLabel('Back to spread order', 'top:164px', 'down', true)
+    ];
+  }
+
+  const TIP_TEXT = [
+    ['<i>Click, </i>HOLD<i>, drag</i>',
+     'Click a game and <b>HOLD</b> it until it lifts, then drag it to a new spot. Top is worth 1 point, bottom is your safest.'],
+    ['Switch your pick', 'Tap FAV or DOG to take the other team. The % is their chance to win.'],
+    ['Remove a game', 'Game not on your sheet this week? Tap \u00D7. Tap Restore to bring it back.'],
+    ['Jump to a spot', 'Tap the number on the left, then pick where that game should go.'],
+    ['Lock in', 'All set? Tap Lock In Picks. The first time, it asks for your name.'],
+    ['Start over', 'Reset to Spread Order puts every game back in spread order and brings back removed games.']
+  ];
+
+  function buildTips(){
+    const stages = tipStages();
+    let html = '';
+    for(let i = 0; i < TIP_COUNT; i++){
+      html += '<div class="tipcard" data-tip="' + i + '" hidden>' +
+        '<div class="tipstage ts' + (i + 1) + '" aria-hidden="true">' + stages[i] + '</div>' +
+        '<div class="tiptext"><h3>' + TIP_TEXT[i][0] + '</h3><p>' + TIP_TEXT[i][1] + '</p></div></div>';
+    }
+    document.getElementById('tipCards').innerHTML = html;
+    let dots = '';
+    for(let i = 0; i < TIP_COUNT; i++){
+      dots += '<button class="tipdot" data-i="' + i + '" aria-label="Tip ' + (i + 1) + '"></button>';
+    }
+    document.getElementById('tipDots').innerHTML = dots;
+  }
+
+  function showTip(i){
+    tipIndex = Math.max(0, Math.min(TIP_COUNT - 1, i));
+    document.querySelectorAll('#tipCards .tipcard').forEach(function(c){
+      c.hidden = Number(c.dataset.tip) !== tipIndex;     // re-showing restarts its animation
+    });
+    document.querySelectorAll('#tipDots .tipdot').forEach(function(d){
+      d.classList.toggle('on', Number(d.dataset.i) === tipIndex);
+    });
+    document.getElementById('tipCount').textContent = (tipIndex + 1) + ' of ' + TIP_COUNT;
+    document.getElementById('tipBack').hidden = tipIndex === 0;
+    document.getElementById('tipNext').textContent = tipIndex === TIP_COUNT - 1 ? 'Got it' : 'Next';
+  }
+
+  function openTips(){
+    buildTips();
+    showTip(0);
+    put(TIPS_KEY, { seen: TIPS_VERSION, t: Date.now() });
+    openOverlay(tipsOverlay);
+  }
+
+  /* Everyone gets the tips once, on their own — new players and old alike.
+     Only on Picks, only when nothing else is open, and only where the phone
+     can remember it was shown. */
+  function maybeAutoTips(){
+    if(!hasLocal || tipsSeen()) return;
+    setTimeout(function(){
+      if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden) return;
+      openTips();
+    }, 900);
+  }
+
+  document.getElementById('tipsBtn').addEventListener('click', openTips);
+  document.getElementById('tipNext').addEventListener('click', function(){
+    if(tipIndex >= TIP_COUNT - 1) closeOverlay(tipsOverlay);
+    else showTip(tipIndex + 1);
+  });
+  document.getElementById('tipBack').addEventListener('click', function(){ showTip(tipIndex - 1); });
+  document.getElementById('tipsClose').addEventListener('click', function(){ closeOverlay(tipsOverlay); });
+  tipsOverlay.addEventListener('click', function(e){ if(e.target === tipsOverlay) closeOverlay(tipsOverlay); });
+  document.getElementById('tipDots').addEventListener('click', function(e){
+    const d = e.target.closest ? e.target.closest('.tipdot') : null;
+    if(d) showTip(Number(d.dataset.i));
+  });
+  (function(){
+    const cards = document.getElementById('tipCards');
+    let sx = null, sy = null;
+    cards.addEventListener('touchstart', function(e){
+      const t = e.touches && e.touches[0];
+      sx = t ? t.clientX : null; sy = t ? t.clientY : null;
+    }, { passive: true });
+    cards.addEventListener('touchend', function(e){
+      const t = e.changedTouches && e.changedTouches[0];
+      if(sx === null || !t) return;
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      sx = null;
+      if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      showTip(tipIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  })();
+
   /* Settings: the gear beside the week picker. */
   const settingsOverlay = document.getElementById('settingsOverlay');
   document.getElementById('gearBtn').addEventListener('click', function(){
@@ -5339,6 +5808,9 @@
     // A locked sheet belongs on the board from the moment the app opens,
     // whether or not anyone visits the Score Tracker.
     if(weekLocked && player().name) syncPool();
+
+    // Quick Tips, once, for everyone.
+    maybeAutoTips();
 
     // Confirm against ESPN in the background and move if we guessed wrong.
     detectCurrentWeek(function(w){
