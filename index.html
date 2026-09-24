@@ -1385,7 +1385,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.0.0';
+  const APP_VERSION = '3.0.1';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2925,12 +2925,8 @@
     if(lg && lg.date){
       const d = new Date(lg.date);
       if(!isNaN(d)){
-        const now = new Date();
-        const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-        let day;
-        if(sameDay(d, now)) day = 'Today';
-        else if(sameDay(d, tomorrow)) day = 'Tomorrow';
-        else day = d.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'});
+        // Day name only — a full date doesn't fit the status column.
+        const day = sameDay(d, new Date()) ? 'Today' : d.toLocaleDateString([], {weekday:'short'});
         return { day: day, time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
       }
     }
@@ -4583,7 +4579,7 @@
 
       if(bucket === 3){
         scores[abA] = 0; scores[abB] = 0;
-        return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
+        return { id:g.id, abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
                  state:'pre', completed:false, detail:'', clock:'', period:0, date:g.date };
       }
 
@@ -4596,7 +4592,7 @@
         const pts = r < 4 ? 7 : (r < 7 ? 3 : 0);
         if(d % 2 === 0) hi += pts; else lo += pts;
       }
-      if(hi === lo) hi += 3;                       // never a tie
+      if(hi === lo) hi += 3;                       // no accidental ties
       if(hi < lo){ const t = hi; hi = lo; lo = t; }
 
       const mineIsA = (g.pick === 'fav' ? favCityOf(g) : dogCityOf(g)) === g.cityA;
@@ -4612,14 +4608,34 @@
       scores[otherAb] = winnerIsMine ? lo : hi;
 
       if(bucket === 2){
-        const period = 1 + (minute % 4);
+        /* Live games take turns being each kind of live the real feed sends,
+           so every detail can be checked: a drive in the red zone, halftime or
+           end of a quarter, a two-minute drive at midfield, and overtime. */
+        const kind = Math.floor(i / 4) % 4;
         const secs = 60 * (14 - (minute % 15));
-        const clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
-        return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
-                 state:'in', completed:false, detail:'Q' + period + ' ' + clock,
-                 clock:clock, period:period, date:g.date };
+        let period = 1 + (minute % 4);
+        let clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
+        let statusName = 'STATUS_IN_PROGRESS', poss = '', dd = '', rz = false;
+        if(kind === 0){
+          poss = abB; dd = '2nd & 6 at ' + abA + ' 14'; rz = true;
+        }else if(kind === 1){
+          const half = minute % 2 === 0;
+          statusName = half ? 'STATUS_HALFTIME' : 'STATUS_END_PERIOD';
+          period = half ? 2 : 1; clock = '0:00';
+        }else if(kind === 2){
+          period = 4; clock = '1:' + ('0' + (minute % 60)).slice(-2);
+          poss = abA; dd = '3rd & 7 at ' + abB + ' 38';
+        }else{
+          period = 5; poss = abB; dd = '1st & 10 at ' + abB + ' 25';
+          scores[abA] = scores[abB] = Math.max(scores[abA], scores[abB]);   // tied into overtime
+        }
+        return { id:g.id, abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
+                 state:'in', completed:false, statusName:statusName, detail:'Q' + period + ' ' + clock,
+                 clock:clock, period:period, poss:poss, redZone:rz, downDistance:dd, date:g.date };
       }
-      return { abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
+      // One final ends level, to show a tie: no win, no loss, points not banked.
+      if(i === 5){ scores[abA] = scores[abB] = hi; }
+      return { id:g.id, abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
                state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
     });
   }
