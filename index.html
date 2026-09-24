@@ -11,6 +11,9 @@
 <meta name="apple-mobile-web-app-title" content="Confidence Pool">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Confidence Pool Picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
 <style>
   :root{
     --bg: #060b16;
@@ -24,6 +27,11 @@
     --red: #ff3b4e;
     --text: #dce8f5;
     --muted: #93aec8;
+    --faint: #5f7894;
+    --hair: rgba(147,174,200,0.1);
+    --hair2: rgba(147,174,200,0.22);
+    --card: linear-gradient(180deg, #0e1829, #0b1321);
+    --font: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   *{ box-sizing: border-box; }
   html{
@@ -39,25 +47,25 @@
     margin:0;
     font-size: 16px;
     overscroll-behavior-y: contain;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(53,208,255,0.08), transparent 45%),
-      radial-gradient(circle at 100% 100%, rgba(53,208,255,0.05), transparent 50%),
-      var(--bg);
+    background: linear-gradient(180deg, #0a1426 0px, var(--bg) 260px) no-repeat, var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--font);
+    font-variant-numeric: tabular-nums;
     min-height:100vh;
-    padding: 16px 12px calc(78px + env(safe-area-inset-bottom));
+    padding: calc(20px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom));
   }
   body.dragmode{ touch-action:none; }
+  button, input, select{ font-family: inherit; }
 
-  .topline{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .topright{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex:none; }
-  .verbadge{
-    background:none; border:none; padding:0 2px;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.62rem; font-weight:700; letter-spacing:0.3px;
-    color: var(--muted); opacity:0.65;
+  .topline{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:20px; }
+  .topright{ display:flex; align-items:center; gap:8px; flex:none; }
+  .gearbtn{
+    flex:none; width:40px; height:40px; padding:0; border-radius:50%;
+    border:1px solid var(--hair2); background: rgba(255,255,255,0.04);
+    display:flex; align-items:center; justify-content:center; color: var(--muted);
   }
+  .gearbtn svg{ width:18px; height:18px; display:block; }
+  .gearbtn:active{ background: rgba(53,208,255,0.12); color: var(--cyan); }
   .demobar{
     background: rgba(244,196,61,0.14); border:1px solid var(--gold);
     color: var(--gold); border-radius:7px; padding:7px 10px;
@@ -95,470 +103,489 @@
     padding:12px 0; line-height:1.6;
   }
 
-  .brand{ display:flex; align-items:stretch; gap:9px; min-width:0; }
-  .brand-bar{
-    width:3px; border-radius:2px; flex:none;
-    background: linear-gradient(180deg, var(--cyan), #0f6f96);
-    box-shadow: 0 0 10px rgba(53,208,255,0.85), 0 0 22px rgba(53,208,255,0.35);
-    animation: barflicker 3.5s ease-in-out infinite;
-  }
-  @keyframes barflicker{
-    0%,100%{ box-shadow: 0 0 8px rgba(53,208,255,0.6), 0 0 18px rgba(53,208,255,0.25); }
-    50%{ box-shadow: 0 0 14px rgba(53,208,255,1), 0 0 30px rgba(53,208,255,0.5); }
-  }
-  @media (prefers-reduced-motion: reduce){ .brand-bar{ animation:none; } }
-  .brand-text{ display:flex; flex-direction:column; justify-content:center; min-width:0; }
-  .kicker{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.58rem; font-weight:800; letter-spacing:2.6px;
-    color: var(--cyan); opacity:0.72; line-height:1;
-    margin-bottom:3px;
-  }
+  .brand{ min-width:0; }
+  .brand-text{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .kicker{ font-size:11px; font-weight:800; letter-spacing:1.8px; color: var(--cyan); line-height:1; }
   h1{
-    margin:0; font-size:1.32rem; font-weight:900;
-    letter-spacing:0.5px; line-height:1;
-    text-transform:uppercase;
-    background: linear-gradient(100deg, #ffffff 0%, var(--cyan) 45%, #1a8fb8 100%);
-    -webkit-background-clip:text; background-clip:text;
-    -webkit-text-fill-color:transparent; color: var(--cyan);
-    filter: drop-shadow(0 0 12px rgba(53,208,255,0.4));
+    margin:0; font-size:27px; font-weight:800; letter-spacing:-0.6px; line-height:1;
+    color:#ffffff; white-space:nowrap;
   }
   .weekpick{
-    background: var(--panel); color: #ffffff; border:1px solid var(--cyan);
-    border-radius:8px; padding:8px 30px 8px 12px; font-size:0.9rem; font-weight:800;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
+    height:40px; border-radius:20px; padding:0 32px 0 14px;
+    border:1px solid var(--hair2); background-color: rgba(255,255,255,0.04); color:#ffffff;
+    font-size:15px; font-weight:700;
     -webkit-appearance:none; appearance:none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;
-    background-position: right 10px center;
-    background-size: 11px 8px;
-    box-shadow: 0 0 12px rgba(53,208,255,0.25);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%2393aec8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position: right 13px center; background-size: 11px 7px;
   }
-  .sub{ color: var(--muted); font-size: 0.86rem; margin: 0 0 12px; line-height: 1.4; font-weight:500; }
+  .weekpick option{ background:#0d1626; color:#ffffff; }
 
+  .rankhead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin: 20px 0 10px; }
+  .rankhead b{ font-size:19px; font-weight:800; letter-spacing:-0.3px; color:#ffffff; }
+  .rankhead span{ font-size:13px; font-weight:700; color: var(--muted); }
+  .scale{ display:flex; align-items:center; gap:10px; font-size:12px; font-weight:700; color: var(--muted); margin-bottom:10px; }
+  .scale i{ flex:1; height:2px; border-radius:1px; background: linear-gradient(90deg, rgba(53,208,255,0.12), var(--cyan)); }
+  .scale span:last-child{ color:#ffffff; }
+
+  .statuswrap{ position:relative; margin-bottom:12px; }
   .linestamp{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.76rem; font-weight:800; letter-spacing:0.2px;
-    color: var(--cyan);
-    background: rgba(53,208,255,0.09);
-    border:1px solid rgba(53,208,255,0.35);
-    border-radius:7px;
-    padding:8px 10px;
-    text-align:center;
-    margin: 0 0 12px;
+    display:flex; align-items:center; gap:12px; min-height:58px;
+    padding:12px 14px; border-radius:14px;
+    background:#0c1524; border:1px solid var(--hair);
   }
+  .linestamp:empty{ display:none; }
+  .stdot{ flex:none; width:8px; height:8px; border-radius:50%; background: var(--cyan); }
+  .sttext{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .sttext b{ font-size:14px; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sttext span{ font-size:12px; font-weight:600; color: var(--muted); }
+  .stchip{
+    flex:none; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:8px;
+    background: rgba(255,255,255,0.05); color: var(--muted);
+    font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+  }
+  .stchip svg{ width:12px; height:12px; display:block; }
   .linestamp.locked{
-    color: var(--gold);
-    background: rgba(244,196,61,0.09);
-    border-color: rgba(244,196,61,0.4);
+    padding:14px 104px 14px 14px; border-radius:16px;
+    background: linear-gradient(120deg, rgba(53,208,255,0.16), rgba(53,208,255,0.04) 60%);
+    border-color: rgba(53,208,255,0.45);
   }
+  .linestamp.locked .sttext b{ font-size:16px; font-weight:800; }
+  .sticon{
+    flex:none; width:42px; height:42px; border-radius:13px; background: var(--cyan);
+    display:flex; align-items:center; justify-content:center; color:#03131f;
+    box-shadow: 0 0 18px rgba(53,208,255,0.35);
+  }
+  .sticon svg{ width:18px; height:18px; display:block; }
 
   .unlinkbtn{
-    display:block; margin:-6px auto 12px; padding:4px 10px;
-    background:none; border:none; color: var(--gold);
-    font-size:0.85rem; font-weight:800; text-decoration:underline;
+    position:absolute; right:14px; top:50%; transform: translateY(-50%);
+    height:36px; padding:0 14px; border-radius:10px;
+    border:1px solid rgba(147,174,200,0.3); background: rgba(6,11,22,0.4);
+    color: var(--text); font-size:13px; font-weight:700;
   }
+  .unlinkbtn:active{ background: rgba(53,208,255,0.14); }
 
-  /* Same gold as the Lock In button on the sheet, sized for the main screen. */
   .lockinline{
-    display:block; width:100%; margin:-2px 0 12px; padding:11px;
-    border-radius:9px; border:1px solid var(--gold);
-    background: rgba(244,196,61,0.12);
-    color: var(--gold); font-size:1rem; font-weight:800; letter-spacing:0.3px;
+    display:block; width:100%; height:54px; margin:0 0 4px; padding:0;
+    border:none; border-radius:14px; background: var(--cyan); color:#03131f;
+    font-size:16px; font-weight:800;
+    box-shadow: 0 8px 24px rgba(53,208,255,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
   }
-  .lockinline:active{ background: rgba(244,196,61,0.24); }
+  .lockinline svg{ width:16px; height:16px; vertical-align:-2px; margin-right:9px; }
+  .lockinline:active{ background:#7fe0ff; }
 
-  .sheettop{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .sheettop{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
   .sheettop h2{ margin:0; }
   .backbtn{
-    flex:none; padding:5px 11px; border-radius:7px;
-    border:1px solid var(--line); background: var(--panel-hi);
-    color: var(--cyan); font-size:0.85rem; font-weight:800;
+    flex:none; height:36px; padding:0 12px; border-radius:10px;
+    border:1px solid var(--hair2); background: transparent;
+    color: var(--cyan); font-size:14px; font-weight:800;
   }
   .lockbtn{
-    width:100%; margin-top:10px; padding:11px; border-radius:9px;
-    border:1px solid var(--gold); background: rgba(244,196,61,0.12);
-    color: var(--gold); font-size:1rem; font-weight:800; letter-spacing:0.3px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; height:48px; margin-top:12px; padding:0; border-radius:14px;
+    border:none; background: var(--cyan); color:#03131f;
+    font-size:15px; font-weight:800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
   }
+  .lockbtn svg{ width:15px; height:15px; display:block; flex:none; }
   .lockbtn.on{
-    background: var(--gold); color:#20180a; border-color: var(--gold);
-    box-shadow: 0 0 16px rgba(244,196,61,0.35);
+    background: rgba(255,255,255,0.04); color:#ffffff; font-weight:700;
+    border:1px solid var(--hair2); box-shadow:none;
   }
+  .lockbtn.on svg{ color: var(--cyan); }
   .draghint{
-    text-align:center; color: var(--green);
-    border:1px solid rgba(61,220,132,0.45);
-    background: rgba(61,220,132,0.07);
-    border-radius:8px; padding:10px;
-    font-size:0.95rem; font-weight:800;
-    margin: 0 0 14px;
-    animation: hintglow 2s ease-in-out infinite;
+    display:flex; align-items:center; gap:8px; margin: 0 0 12px;
+    font-size:12px; font-weight:600; color: var(--muted); line-height:1.4;
   }
-  @keyframes hintglow{
-    0%,100%{ box-shadow: 0 0 6px rgba(61,220,132,0.2); text-shadow: 0 0 6px rgba(61,220,132,0.3); opacity:0.85; }
-    50%{ box-shadow: 0 0 20px rgba(61,220,132,0.55); text-shadow: 0 0 14px rgba(61,220,132,0.75); opacity:1; }
+  .draghint::before{
+    content:''; flex:none; width:12px; height:14px;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cg fill='%2393aec8'%3E%3Ccircle cx='3' cy='3' r='1.5'/%3E%3Ccircle cx='9' cy='3' r='1.5'/%3E%3Ccircle cx='3' cy='8' r='1.5'/%3E%3Ccircle cx='9' cy='8' r='1.5'/%3E%3Ccircle cx='3' cy='13' r='1.5'/%3E%3Ccircle cx='9' cy='13' r='1.5'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
   }
-  @media (prefers-reduced-motion: reduce){ .draghint{ animation:none; } }
 
   .emptyweek{
-    text-align:center; color: var(--muted); font-size:0.95rem; font-weight:600;
-    border:1px dashed var(--line); border-radius:10px; padding:30px 18px; line-height:1.5;
+    text-align:center; color: var(--muted); font-size:15px; font-weight:600;
+    border:1px dashed var(--hair2); border-radius:16px; padding:30px 18px; line-height:1.5;
   }
 
   #list{ list-style:none; margin:0; padding:0; }
   .game{
     -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
-    display:flex; align-items:center; gap:9px;
-    background: var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:8px 9px 8px 10px; margin-bottom:7px;
+    position:relative;
+    display:flex; align-items:center; gap:10px; min-height:72px;
+    background: var(--card); border:1px solid var(--hair); border-radius:16px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    padding:10px 6px 10px 12px; margin-bottom:8px;
     user-select:none; -webkit-user-select:none;
-    transition: box-shadow 0.15s, transform 0.12s;
+    transition: border-color 0.16s, box-shadow 0.16s, scale 0.14s;
   }
-  .game.pressing{ transform: scale(0.985); }
+  @media (hover: hover){
+    .game:not(.removed):hover{ border-color: rgba(53,208,255,0.38); box-shadow: 0 0 16px rgba(53,208,255,0.10); }
+  }
+  .game.pressing{
+    scale:0.985; border-color: rgba(53,208,255,0.85);
+    box-shadow: 0 0 18px rgba(53,208,255,0.25);
+  }
   .game.dragging{
-    box-shadow: 0 10px 28px rgba(53,208,255,0.35);
-    border-color: var(--cyan); background: var(--panel-hi); transition: none;
+    scale:1.03; z-index:5;
+    background: linear-gradient(180deg, #15253d, #0f1b2e);
+    border-color: rgba(53,208,255,0.85);
+    box-shadow: 0 0 0 1px rgba(53,208,255,0.55), 0 16px 34px rgba(0,0,0,0.55), 0 0 30px rgba(53,208,255,0.35);
+    transition: none;
   }
-  .game.removed{ opacity:0.38; }
-  .game.removed .line1{ text-decoration: line-through; }
+  .game.dragging .points{ background: rgba(53,208,255,0.22); border-color: rgba(53,208,255,0.7); }
+  .game.justdropped{ animation: dropflash 0.9s ease-out; }
+  @keyframes dropflash{
+    0%{ box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 26px rgba(53,208,255,0.45); }
+    100%{ box-shadow: 0 0 0 1px rgba(53,208,255,0), 0 0 0 rgba(53,208,255,0); }
+  }
+  @media (prefers-reduced-motion: reduce){ .game.justdropped{ animation:none; } }
+  .game.removed{
+    opacity:0.6; min-height:64px; background: transparent; box-shadow:none;
+    border:1px dashed var(--hair2);
+  }
+  .game.removed .swx{ display:none; }
 
-  .rankwrap{
-    display:flex; align-items:center; justify-content:flex-end;
-    gap:3px; flex:none; min-width:34px;
-  }
+  .rankwrap{ display:flex; align-items:center; flex:none; }
   .points{
-    background:none; border:none; padding:2px 4px; margin:0;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1.45rem; font-weight:800; line-height:1;
-    color: var(--cyan);
-    text-shadow: 0 0 12px rgba(53,208,255,0.35);
+    width:40px; height:44px; padding:0; margin:0; border-radius:11px;
+    border:1px solid rgba(53,208,255,0.22); background: rgba(53,208,255,0.07);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; font-weight:800; line-height:1; color:#ffffff;
   }
-  .points:active{ opacity:0.6; }
+  .points:active{ background: rgba(53,208,255,0.2); }
+  .game.removed .points{ color: var(--faint); background:none; border-color:transparent; }
 
   .slotgrid{
-    display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;
-    margin: 4px 0 4px;
+    display:grid; grid-template-columns: repeat(5, 1fr); gap:8px;
+    margin: 4px 0 8px;
   }
   .slotbtn{
-    padding:14px 4px; border-radius:9px;
-    border:1px solid var(--line); background: var(--panel-hi);
-    color: var(--cyan); font-size:1.1rem; font-weight:800;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    height:52px; padding:0; border-radius:12px;
+    border:1px solid var(--hair2); background: rgba(255,255,255,0.04);
+    color:#ffffff; font-size:18px; font-weight:800;
   }
+  .slotbtn:active{ background: rgba(53,208,255,0.16); }
   .slotbtn.current{
-    background: var(--cyan); color:#04121c; border-color: var(--cyan);
+    background: var(--cyan); color:#03131f; border-color: var(--cyan);
   }
   .slotnote{
-    font-size:0.84rem; font-weight:600; color: var(--muted);
-    line-height:1.4; margin: 0 0 12px;
+    font-size:14px; font-weight:600; color: var(--muted);
+    line-height:1.45; margin: 0 0 14px;
   }
   .slotgame{
-    font-size:1.05rem; font-weight:800; color: var(--gold);
-    margin-bottom:2px;
+    font-size:17px; font-weight:800; color: var(--gold);
+    margin-bottom:4px;
   }
-  .game.removed .points{ color: var(--muted); opacity:0.6; text-shadow:none; }
 
-  .matchup{ flex:1; min-width:0; overflow-wrap:normal; word-break:normal; }
+  .matchup{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; }
   .line1, .line2{ display:flex; align-items:center; min-width:0; }
+  .line1{ gap:8px; font-size:16px; line-height:1.2; }
+  .line2{ gap:6px; font-size:13px; line-height:1.2; }
   .goldcity, .mutedcity{
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
   }
   .plogo{
-    flex:none; width:20px; height:20px; margin-right:6px;
+    flex:none; width:24px; height:24px;
     display:inline-flex; align-items:center; justify-content:center;
   }
-  .plogo img{ width:20px; height:20px; object-fit:contain; display:block; }
-  .plogo.small{ width:16px; height:16px; margin-right:5px; }
-  .plogo.small img{ width:16px; height:16px; opacity:0.75; }
+  .plogo img{ width:24px; height:24px; object-fit:contain; display:block; }
+  .plogo.small{ width:18px; height:18px; }
+  .plogo.small img{ width:18px; height:18px; opacity:0.8; }
   .kickoff{
-    -webkit-touch-callout: none; pointer-events:none;
-    margin-left:auto; padding-left:8px;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.68rem; font-weight:700; color: var(--muted);
-    opacity:0.75; white-space:nowrap;
+    -webkit-touch-callout: none; pointer-events:none; flex:none;
+    font-size:13px; font-weight:600; color: var(--muted); white-space:nowrap;
   }
-  .line1{ font-size:0.98rem; line-height:1.2; }
-  .line2{ font-size:0.86rem; line-height:1.2; margin-top:1px; }
-  .goldcity{ color: var(--gold); font-weight:800; }
-  .mutedcity{ color: var(--text); font-weight:600; opacity:0.7; font-size:0.9rem; }
+  .kickoff::before{ content:'\00B7'; margin-right:6px; }
+  .line2 .kickoff.offday{ color:#ffffff; font-weight:800; }
+  .goldcity{ color: var(--gold); font-weight:800; letter-spacing:-0.2px; }
+  .mutedcity{ color: var(--muted); font-weight:600; }
   /* Thursday, Saturday, Monday — anything but Sunday */
   .offday{ color: var(--gold); font-weight:800; }
   .gstatus.offgame .s1, .gstatus.offgame .s2{ color: var(--gold); }
 
-  .spread-green{ color: var(--green); font-weight:800; margin:0 2px; }
-  .spread-red{ color: var(--red); font-weight:800; margin:0 2px; }
-  @keyframes pulsered{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
-  .vsword{ color: var(--muted); font-size:0.82rem; font-weight:600; margin-right:4px; opacity:0.7; }
+  .vsword{ flex:none; width:24px; text-align:center; color: var(--faint); font-size:12px; font-weight:700; }
   .pspread{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.88rem; font-weight:800; margin-left:8px;
+    flex:none; cursor:pointer;
+    font-size:13px; font-weight:700; color: var(--text);
+    padding:2px 7px; border-radius:6px; background: rgba(255,255,255,0.06);
   }
-  .pspread.up{ color: var(--green); }
-  .pspread.down{ color: var(--red); }
-  .noline{ font-size:0.78rem; font-weight:700; color: var(--muted); opacity:0.7; margin-left:8px; }
-  .movearrow{ font-size:0.85rem; font-weight:900; margin-left:3px; line-height:1; }
-  .movearrow.up{ color: var(--green); text-shadow: 0 0 8px rgba(61,220,132,0.5); }
-  .movearrow.down{ color: var(--red); text-shadow: 0 0 8px rgba(255,59,78,0.5); }
+  .noline{ flex:none; font-size:12px; font-weight:700; color: var(--muted); opacity:0.8; }
+  .movearrow{ flex:none; cursor:pointer; font-size:13px; font-weight:900; line-height:1; color: var(--cyan); }
 
   .histrow{
     display:flex; align-items:center; gap:10px;
-    padding:10px 0; border-bottom:1px solid var(--line);
+    padding:12px 0; border-bottom:1px solid var(--hair);
   }
   .histwhen{
-    flex:none; width:82px; font-size:0.72rem; font-weight:800;
-    color: var(--muted); letter-spacing:0.2px;
+    flex:none; width:96px; font-size:12px; font-weight:700; color: var(--muted);
   }
   /* the line as it stands right now */
   .histrow.now .histwhen,
   .histrow.now .histline,
   .histrow.now .histtime{ color: var(--cyan); }
   .histrow.now{ border-bottom:none; }
-  .histline{ flex:1; min-width:0; font-size:0.98rem; font-weight:700; color: var(--text); }
-  .histdelta{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.75rem; font-weight:800; margin-left:8px;
-  }
-  .histdelta.up{ color: var(--green); }
-  .histdelta.down{ color: var(--red); }
-  .histtime{
-    flex:none; font-size:0.7rem; font-weight:700; color: var(--muted);
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-  }
-  .histempty{ color: var(--muted); font-size:0.9rem; font-weight:600; padding:16px 0; text-align:center; }
+  .histline{ flex:1; min-width:0; font-size:15px; font-weight:700; color: var(--text); }
+  .histdelta{ font-size:12px; font-weight:800; margin-left:8px; color: var(--muted); }
+  .histtime{ flex:none; font-size:12px; font-weight:600; color: var(--muted); }
+  .histempty{ color: var(--muted); font-size:15px; font-weight:600; padding:20px 0; text-align:center; }
 
-  .pctval{ font-size:0.8rem; margin-left:6px; color: var(--muted); font-weight:600; opacity:0.85; }
-
-  .actions{ display:flex; flex-direction:column; gap:4px; flex:none; align-items:stretch; width:86px; }
+  .actions{ display:flex; align-items:center; gap:2px; flex:none; }
 
   .swx{
-    position:relative; height:24px; width:86px; padding:0;
-    border-radius:12px; border:1px solid var(--line);
-    background: rgba(61,220,132,0.14);
-    overflow:hidden; cursor:pointer;
-    transition: background 0.2s, border-color 0.2s;
+    width:54px; height:48px; padding:0; flex:none; cursor:pointer;
+    border-radius:11px; border:1px solid rgba(244,196,61,0.45);
+    background: rgba(244,196,61,0.1);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    transition: background 0.18s, border-color 0.18s;
   }
-  .swx.dog{ background: rgba(255,59,78,0.16); border-color: rgba(255,59,78,0.5); }
-  .swx.fav{ border-color: rgba(61,220,132,0.5); }
-  .swx-knob{
-    position:absolute; top:2px; left:2px;
-    width:18px; height:18px; border-radius:50%;
-    background: var(--green);
-    transition: left 0.2s ease, background 0.2s ease;
-  }
-  .swx.dog .swx-knob{ left:64px; background: var(--red); }
-  .swx-label{
-    position:absolute; top:0; left:0; right:0; bottom:0;
-    display:flex; align-items:center; justify-content:center;
-    padding-left:20px; padding-right:2px;
-    font-size:0.6rem; font-weight:800; letter-spacing:0.2px;
-    color: var(--green); white-space:nowrap;
-    transition: color 0.2s;
-  }
-  .swx.dog .swx-label{ padding-left:2px; padding-right:20px; color: var(--red); }
-  @keyframes flashred{ 0%{ background: var(--red); color:#fff; } 100%{ background: transparent; } }
-  @keyframes flashgreen{ 0%{ background: var(--green); color:#00220f; } 100%{ background: transparent; } }
+  .swx.dog{ border-color: rgba(147,174,200,0.35); background: rgba(147,174,200,0.08); }
+  .swx-label{ font-size:9px; font-weight:800; letter-spacing:1.2px; color: var(--gold); line-height:1.2; }
+  .swx.dog .swx-label{ color: var(--text); }
+  .pctval{ font-size:15px; font-weight:800; color:#ffffff; line-height:1.1; }
   .rmx{
-    align-self:flex-end;
-    width:26px; height:22px; padding:0; border-radius:6px;
-    background:none; border:1px solid var(--line); color: var(--muted);
-    font-size:0.9rem; font-weight:700; line-height:1;
+    width:32px; height:44px; padding:0; flex:none;
+    background:none; border:none; color: var(--faint);
+    font-size:20px; font-weight:500; line-height:1;
   }
   .restorebtn{
-    background:none; border:1px solid var(--cyan-dim); color: var(--cyan);
-    font-size:0.68rem; font-weight:800; padding:5px 3px; border-radius:6px; white-space:nowrap;
+    flex:none; height:36px; padding:0 14px; border-radius:10px;
+    background: transparent; border:1px solid rgba(53,208,255,0.4); color: var(--cyan);
+    font-size:13px; font-weight:800; white-space:nowrap;
   }
 
-  /* Small screens: trim the fixed-width column and ease the type down so a
-     row can never be squeezed into wrapping. */
+  /* Locked: the controls go quiet so it reads as done. */
+  #tabPicks.islocked .game{ background:#0a121f; border-color: rgba(147,174,200,0.07); }
+  #tabPicks.islocked .points{ background: rgba(255,255,255,0.03); border-color: var(--hair); }
+  #tabPicks.islocked .swx{ opacity:0.7; }
+  #tabPicks.islocked .rmx{ font-size:0; }
+  #tabPicks.islocked .rmx::after{
+    content:''; display:block; width:12px; height:12px; margin:auto;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233a526d' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") no-repeat center / contain;
+  }
+
+  /* Small screens: ease the type down so a row never wraps. */
+  @media (max-width: 380px){
+    .game{ gap:8px; padding-left:10px; }
+    .line1{ font-size:15px; }
+    .line2{ font-size:12px; }
+    .points{ width:36px; font-size:17px; }
+    .swx{ width:50px; }
+    .rmx{ width:28px; }
+  }
   @media (max-width: 400px){
-    .actions{ width:76px; }
-    .swx{ width:76px; }
-    .swx.dog .swx-knob{ left:54px; }
-    .line1{ font-size:0.92rem; }
-    .line2{ font-size:0.8rem; }
-    .kickoff{ font-size:0.62rem; }
-    .pspread{ font-size:0.8rem; margin-left:6px; }
-    .pctval{ font-size:0.74rem; margin-left:4px; }
-    .plogo{ width:17px; height:17px; margin-right:5px; }
-    .plogo img{ width:17px; height:17px; }
-    .points{ font-size:1.3rem; }
     .gstatus{ width:86px; }
     .tname{ font-size:0.9rem; }
   }
   @media (max-width: 340px){
     .kickoff{ display:none; }
-    .actions{ width:70px; }
-    .swx{ width:70px; }
-    .swx.dog .swx-knob{ left:48px; }
+    h1{ font-size:23px; }
   }
 
   /* ---------- tabs ---------- */
   .tabpanel[hidden]{ display:none; }
-  .panelhead{
-    margin:0 0 10px; color: var(--cyan); font-size:1.1rem;
-    text-shadow: 0 0 10px rgba(53,208,255,0.3);
-  }
-  /* Tucked under the title, in space the week picker already takes up on the
-     other side, so it costs no extra height. */
-  .installhome{
-    align-self:flex-start; margin-top:4px;
-    padding:4px 10px; border-radius:7px;
-    border:1px solid var(--cyan-dim); background: rgba(53,208,255,0.08);
-    color: var(--cyan); font: inherit; font-size:0.72rem; font-weight:800;
-    white-space:nowrap;
-  }
-  .installhome:active{ background: rgba(53,208,255,0.2); }
-  .installhome[hidden]{ display:none; }
+  .panelhead{ margin:0 0 10px; color:#ffffff; font-size:22px; font-weight:800; letter-spacing:-0.4px; }
 
   .tabbar{
     position:fixed; bottom:0; left:0; right:0; z-index:50;
-    display:flex; align-items:stretch;
-    background: rgba(10,18,32,0.97);
-    border-top:1px solid var(--line);
-    padding-bottom: env(safe-area-inset-bottom);
-    backdrop-filter: blur(8px);
+    display:flex; align-items:stretch; padding: 6px 12px env(safe-area-inset-bottom);
+    background: rgba(6,11,22,0.88);
+    border-top:1px solid rgba(147,174,200,0.12);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
   }
   .tabbtn{
-    flex:1; min-width:0; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:3px;
-    padding:9px 4px 8px; border:none; background:none;
-    color: var(--muted); font: inherit; cursor:pointer;
+    flex:1; min-width:0; height:56px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:4px;
+    padding:0 4px; border:none; background:none; border-radius:12px;
+    color: var(--muted); cursor:pointer;
   }
-  .tabicon{ font-size:1.15rem; line-height:1; opacity:0.75; }
+  .tabicon{ display:block; width:22px; height:22px; }
+  .tabicon svg{ width:22px; height:22px; display:block; }
   .tablabel{
-    font-size:0.7rem; font-weight:800; letter-spacing:0.3px;
+    font-size:11px; font-weight:700;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
   }
   .tabbtn.on{ color: var(--cyan); }
-  .tabbtn.on .tabicon{ opacity:1; text-shadow: 0 0 10px rgba(53,208,255,0.5); }
-  .tabbtn.on .tablabel{ text-shadow: 0 0 8px rgba(53,208,255,0.35); }
+  .tabbtn.on .tablabel{ font-weight:800; }
   .tabbtn:active{ background: rgba(53,208,255,0.07); }
 
-  /* a quiet way out, now that Reset isn't sharing a row with anything */
   .resetbtn{
-    display:block; margin:16px auto 0; padding:10px 18px;
-    border-radius:9px; border:1px solid var(--line);
-    background: var(--panel-hi); color: var(--muted);
-    font: inherit; font-size:0.85rem; font-weight:800; letter-spacing:0.2px;
+    display:block; margin:20px auto 0; height:44px; padding:0 18px;
+    border-radius:12px; border:1px solid var(--hair2);
+    background: transparent; color: var(--text);
+    font-size:14px; font-weight:700;
   }
-  .resetbtn:active{ background: var(--line); color: var(--text); }
+  .resetbtn:active{ background: rgba(53,208,255,0.1); }
 
-  .footer-note{ text-align:center; color: var(--muted); font-size:0.8rem; font-weight:600; margin-top:16px; line-height:1.5; }
+  .footer-note{ text-align:center; color: var(--faint); font-size:12px; font-weight:600; margin-top:12px; line-height:1.5; }
 
+  /* Settings */
+  .setlist{
+    display:flex; flex-direction:column; margin: 4px 0 14px;
+    border-radius:16px; background: rgba(6,11,22,0.5); border:1px solid rgba(147,174,200,0.08);
+  }
+  .setrow{
+    display:flex; align-items:center; gap:10px; width:100%; min-height:54px;
+    padding:0 14px; border:none; border-top:1px solid rgba(147,174,200,0.08);
+    background:none; text-align:left; color:#ffffff; font-size:15px; font-weight:700;
+  }
+  .setrow:first-child{ border-top:none; }
+  .setrow[hidden]{ display:none; }
+  .setrow:active{ background: rgba(53,208,255,0.08); }
+  .setrow::after{
+    content:''; flex:none; width:7px; height:12px; margin-left:auto;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14' fill='none' stroke='%2393aec8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1l6 6-6 6'/%3E%3C/svg%3E") no-repeat center / contain;
+  }
+  .setlabel{ flex:1; min-width:0; }
+  .setval{ flex:none; max-width:45%; font-weight:600; color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* The version text is written by the app; the label rides in front of it. */
+  .setver{ color: var(--muted); font-weight:600; }
+  .setver::before{ content:'What\2019s new'; flex:1; color:#ffffff; font-weight:700; }
+
+  /* Every popup is a sheet that slides up from the bottom. */
   .overlay{
-    position:fixed; inset:0; overscroll-behavior: contain; background: rgba(2,5,10,0.82);
-    display:none; align-items:flex-end; justify-content:center; z-index:60;
+    position:fixed; inset:0; overscroll-behavior: contain; background: rgba(2,5,12,0.66);
+    display:flex; align-items:flex-end; justify-content:center; z-index:60;
+    visibility:hidden; opacity:0; pointer-events:none;
+    transition: opacity 0.26s ease, visibility 0s linear 0.34s;
   }
-  .overlay.show{ display:flex; }
+  .overlay.show{
+    visibility:visible; opacity:1; pointer-events:auto;
+    transition: opacity 0.26s ease, visibility 0s linear 0s;
+  }
+  .sheet, .confirmcard{
+    position:relative; width:100%; max-width:480px;
+    background: linear-gradient(180deg, #111e33, #0b1321 60%);
+    border-top:1px solid rgba(147,174,200,0.16); border-radius:26px 26px 0 0;
+    box-shadow: 0 -20px 50px rgba(0,0,0,0.55);
+    transform: translateY(105%);
+    transition: transform 0.34s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+  .overlay.show .sheet, .overlay.show .confirmcard{ transform:none; }
+  .sheet::before, .confirmcard::before{
+    content:''; display:block; width:40px; height:5px; border-radius:3px;
+    background: rgba(147,174,200,0.3); margin: 0 auto 16px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .overlay, .overlay.show, .sheet, .confirmcard{ transition:none; }
+  }
   .sheet{
-    width:100%; max-width:480px; max-height:88vh; overflow-y:auto;
+    max-height:88vh; overflow-y:auto;
     -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-    background: var(--panel); border:1px solid var(--cyan-dim); border-radius:16px 16px 0 0;
-    padding:12px 14px calc(14px + env(safe-area-inset-bottom));
-    box-shadow: 0 -10px 30px rgba(53,208,255,0.12);
+    padding:10px 20px calc(20px + env(safe-area-inset-bottom));
   }
-  /* The Score Tracker is a screen, not a popup: it fills the window, squares
-     off its corners, and sits on a solid background so nothing shows behind
-     it. Same markup, same file — it just stops looking like a sheet. */
-  .sheet h2{ margin:0; color: var(--cyan); font-size:1.1rem; text-shadow: 0 0 10px rgba(53,208,255,0.3); }
-  #resultsTitle{
-    color: var(--gold);
-    text-shadow: 0 0 10px rgba(244,196,61,0.6);
-    animation: goldtextglow 2.4s ease-in-out infinite;
+  .sheet h2{ margin:0; color:#ffffff; font-size:19px; font-weight:800; letter-spacing:-0.3px; }
+  /* The whole sheet fits on one screen: 16 rows at 28px, no scrolling. */
+  .sheethead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .sheettitle{ margin:0; font-size:22px; font-weight:800; letter-spacing:-0.4px; color:#ffffff; }
+  .sheetmeta{ flex:none; font-size:13px; font-weight:700; color: var(--muted); }
+  .sheetcard{
+    padding:4px 12px; border-radius:16px;
+    background: var(--card); border:1px solid var(--hair);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   }
-  @keyframes goldtextglow{
-    0%,100%{ text-shadow: 0 0 8px rgba(244,196,61,0.45); }
-    50%{ text-shadow: 0 0 18px rgba(244,196,61,0.95); }
+  .sheetcols{
+    display:flex; align-items:center; gap:10px; height:24px;
+    font-size:10px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color: var(--faint);
+    border-bottom:1px solid var(--hair);
   }
-  @media (prefers-reduced-motion: reduce){ #resultsTitle{ animation:none; } }
+  .sheetcols span:nth-child(1){ width:28px; text-align:center; }
+  .sheetcols span:nth-child(2){ flex:1; padding-left:30px; }
+  .sheetcols span:nth-child(3){ width:52px; text-align:right; }
   .sheetrow{
-    display:flex; align-items:center; gap:10px; padding:6px 0;
-    border-bottom:1px solid rgba(28,51,80,0.55); font-size:1.05rem;
+    display:flex; align-items:center; gap:10px; height:28px;
+    border-bottom:1px solid rgba(147,174,200,0.07);
   }
-  .sheetnum{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; color: var(--cyan); font-weight:800; min-width:28px; }
-  .sheetcity{ font-weight:700; flex:1; min-width:0; }
-  .sheetspread{ font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace; font-weight:800; white-space:nowrap; }
+  .sheetrow:last-child{ border-bottom:none; }
+  .sheetnum{
+    flex:none; width:28px; height:22px; border-radius:6px;
+    background: rgba(53,208,255,0.08); border:1px solid rgba(53,208,255,0.18);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; color:#ffffff;
+  }
+  .slogo{ flex:none; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; }
+  .slogo img{ width:20px; height:20px; object-fit:contain; display:block; }
+  .sheetcity{
+    flex:1; min-width:0; font-size:15px; font-weight:700; letter-spacing:-0.2px; color:#ffffff;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .dogtag{
+    flex:none; padding:2px 5px; border-radius:4px; background: rgba(147,174,200,0.16);
+    font-size:9px; font-weight:800; letter-spacing:1px; color: var(--text);
+  }
+  .sheetspread{ flex:none; width:52px; text-align:right; font-size:14px; font-weight:700; color: var(--text); white-space:nowrap; }
 
 
-  .liverow{
-    display:flex; align-items:center; gap:10px; margin: -4px 0 12px;
-  }
+  /* ---------- Live ---------- */
+  .livehead{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
+  .livehead .panelhead{ margin:0; }
   .livestatus{
-    flex:1; min-width:0; font-size:0.76rem; font-weight:700; color: var(--muted);
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
+    min-width:0; max-width:60%; text-align:right;
+    font-size:12px; font-weight:600; color: var(--muted); line-height:1.35;
   }
-  .refreshbtn{
-    flex:none; padding:7px 14px; border-radius:7px;
-    border:1px solid var(--cyan-dim); background: transparent; color: var(--cyan);
-    font-size:0.8rem; font-weight:800;
-  }
+  .demobar{ border-radius:12px; }
 
-  .scorewrap{ display:flex; gap:9px; margin-bottom:12px; align-items:stretch; }
+  /* Open Sheets — the one action at the top of Live */
+  .sharebtn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; height:44px; margin-bottom:16px; padding:0; border-radius:12px;
+    border:1px solid rgba(53,208,255,0.35); background: rgba(53,208,255,0.08);
+    color: var(--cyan); font-size:14px; font-weight:800;
+  }
+  .sharebtn svg{ width:14px; height:16px; display:block; flex:none; }
+  .sharebtn.on{ background: rgba(53,208,255,0.16); border-color: rgba(53,208,255,0.55); }
+  .sharebtn:active{ background: rgba(53,208,255,0.22); }
+
+  .scorewrap{ display:flex; gap:10px; margin-bottom:16px; align-items:stretch; }
   .scorecard{
-    flex:4 1 0; min-width:0;
-    background: linear-gradient(160deg, rgba(53,208,255,0.09), rgba(13,22,38,0.6));
-    border:1px solid var(--cyan-dim); border-radius:14px;
-    padding:11px 10px 12px; text-align:center;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 14px rgba(0,0,0,0.35);
+    flex:none; width:132px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:14px 10px; border-radius:16px; text-align:center;
+    background: linear-gradient(170deg, rgba(53,208,255,0.12), #0b1321 70%);
+    border:1px solid rgba(53,208,255,0.25);
   }
   .lbcard{
-    flex:6 1 0; min-width:0;
-    background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(13,22,38,0.6));
-    border:1px solid var(--line); border-radius:14px;
-    padding:11px 11px 12px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 14px rgba(0,0,0,0.35);
+    flex:1 1 0; min-width:0; padding:12px 10px 8px; border-radius:16px;
+    background: var(--card); border:1px solid var(--hair);
   }
   .cardbanner{
-    font-size:0.62rem; font-weight:800; letter-spacing:1.6px;
-    color: var(--muted); text-transform:uppercase; opacity:0.8;
-    margin-bottom:8px; text-align:center;
+    display:flex; justify-content:space-between; gap:8px;
+    font-size:10px; font-weight:800; letter-spacing:1.6px; text-transform:uppercase;
+    color: var(--muted); margin-bottom:6px;
   }
+  .scorecard .cardbanner{ justify-content:center; }
+  .lbcard .cardbanner{ padding:0 4px 4px; }
+  .cardbanner span{ letter-spacing:0; text-transform:none; font-weight:700; color: var(--faint); }
   .lblist{
-    display:flex; flex-direction:column; gap:2px;
-    max-height:132px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; gap:3px;
+    max-height:168px; overflow-y:auto; -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
   }
   .lblist::-webkit-scrollbar{ width:3px; }
   .lblist::-webkit-scrollbar-thumb{ background: var(--line); border-radius:3px; }
-  /* side-by-side sheet comparison */
-  /* Open Sheets button, next to Refresh */
-  .sharebtn{
-    flex:none; padding:7px 12px; border-radius:8px;
-    border:1px solid var(--gold); background: rgba(244,196,61,0.12);
-    color: var(--gold); font-size:0.78rem; font-weight:800;
-  }
-  .sharebtn.on{
-    border-color: var(--green); background: rgba(61,220,132,0.12); color: var(--green);
-  }
-  .sharebtn:active{ opacity:0.75; }
 
   /* Ladder / Head-to-Head */
   .viewtabs{
-    display:flex; gap:6px; margin:0 0 12px;
-    background: rgba(0,0,0,0.25); border:1px solid var(--line);
-    border-radius:10px; padding:3px;
+    display:flex; gap:4px; margin:0 0 14px; padding:3px;
+    background: rgba(6,11,22,0.6); border:1px solid var(--hair); border-radius:12px;
   }
   .viewtab{
-    flex:1; padding:8px 6px; border:none; border-radius:7px;
-    background:none; color: var(--muted);
-    font: inherit; font-size:0.8rem; font-weight:800;
+    flex:1; height:36px; padding:0 6px; border:none; border-radius:9px;
+    background:none; color: var(--muted); font-size:14px; font-weight:700;
   }
-  .viewtab.on{ background: var(--panel-hi); color: var(--cyan); }
+  .viewtab.on{ background: rgba(53,208,255,0.14); color: var(--cyan); font-weight:800; }
 
-  /* head-to-head groups one game onto one line */
   .vteam.skip{ color: var(--muted); opacity:0.4; }
 
   /* ---------- head-to-head ----------
      your points | pick(s) | their points — the same shape on every row */
-  .h2h{ padding:9px 2px 10px; border-bottom:1px solid rgba(28,51,80,0.45); }
+  .h2h{ padding:10px 2px 11px; border-bottom:1px solid var(--hair); }
   .h2hgame{
-    font-size:0.62rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
-    color: var(--muted); opacity:0.65; text-align:center; margin-bottom:5px;
+    font-size:11px; font-weight:700; color: var(--faint);
+    text-align:center; margin-bottom:6px;
   }
-  .h2hrow{ display:grid; grid-template-columns:32px minmax(0,1fr) 32px; gap:8px; align-items:center; }
-  .h2hn{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:1.12rem; font-weight:900; text-align:center; color: var(--muted);
-  }
+  .h2hrow{ display:grid; grid-template-columns:34px minmax(0,1fr) 34px; gap:8px; align-items:center; }
+  .h2hn{ font-size:18px; font-weight:800; text-align:center; color: var(--muted); }
   .h2hn.won{ color: var(--green); }
   .h2hn.lost{ color: var(--red); }
   .h2hn.none{ opacity:0.4; }
@@ -566,20 +593,20 @@
   .h2hmid.same{ text-align:center; }
   .h2hmid.split{ display:flex; justify-content:space-between; gap:10px; }
   .h2hpick{
-    min-width:0; font-size:0.92rem; font-weight:800; color: var(--text);
+    min-width:0; font-size:15px; font-weight:800; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .h2hpick.right{ text-align:right; }
-  .h2hpick b{ margin-left:5px; font-size:0.8rem; }
+  .h2hpick b{ margin-left:6px; }
   .h2hpick.lost{ opacity:0.5; }
   .h2hpick.lost .h2hteam{ text-decoration: line-through; text-decoration-thickness:1px; }
 
   /* identical picks at identical points can't move anything */
-  .h2hdead{ margin-top:10px; }
+  .h2hdead{ margin-top:12px; }
   .h2hdead summary{
-    cursor:pointer; list-style:none; padding:9px 10px;
-    font-size:0.74rem; font-weight:800; letter-spacing:0.3px; color: var(--muted);
-    border:1px solid var(--line); border-radius:8px;
+    cursor:pointer; list-style:none; padding:0 14px; height:44px; display:flex; align-items:center;
+    font-size:13px; font-weight:700; color: var(--muted);
+    border:1px solid var(--hair2); border-radius:12px;
   }
   .h2hdead summary::-webkit-details-marker{ display:none; }
   .h2hdead[open] summary{ margin-bottom:4px; }
@@ -595,32 +622,25 @@
   /* a hairline down the middle, so the two sheets read as two columns */
   .vhead::after, .vrow::after{
     content:''; position:absolute; left:50%; top:0; bottom:0;
-    width:1px; background: rgba(28,51,80,0.75);
+    width:1px; background: var(--hair);
   }
-  .vhead{
-    padding:0 0 10px; margin-bottom:2px;
-    border-bottom:1px solid var(--line);
-  }
+  .vhead{ padding:0 0 10px; margin-bottom:2px; border-bottom:1px solid var(--hair2); }
   .vwho{
-    flex:1; min-width:0; display:flex; align-items:center; gap:7px;
-    padding:0 10px; font-size:0.78rem; font-weight:900;
-    letter-spacing:1.4px; text-transform:uppercase;
+    flex:1; min-width:0; display:flex; align-items:center; gap:8px;
+    padding:0 10px; font-size:15px; font-weight:800; color:#ffffff;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .vwho i{ flex:none; width:7px; height:7px; border-radius:2px; }
-  .vwho.mine{ color: var(--cyan); }
-  .vwho.mine i{ background: var(--cyan); box-shadow: 0 0 9px rgba(53,208,255,0.7); }
-  .vwho.them{ color: var(--gold); }
-  .vwho.them i{ background: var(--gold); box-shadow: 0 0 9px rgba(244,196,61,0.6); }
+  .vwho i{ flex:none; width:8px; height:8px; border-radius:50%; }
+  .vwho.mine i{ background: var(--cyan); }
+  .vwho.them i{ background: var(--muted); }
 
-  .vrow{ padding:7px 0; border-bottom:1px solid rgba(28,51,80,0.45); }
+  .vrow{ padding:8px 0; border-bottom:1px solid var(--hair); }
   .vrow.differ{
-    background: linear-gradient(90deg,
-      rgba(53,208,255,0.07), rgba(53,208,255,0.02) 60%, transparent);
+    background: linear-gradient(90deg, rgba(53,208,255,0.07), rgba(53,208,255,0.02) 60%, transparent);
   }
   .vteam.won{
     background: linear-gradient(90deg, rgba(61,220,132,0.16), rgba(61,220,132,0.03));
-    border-left:2px solid var(--green); border-radius:0 7px 7px 0;
+    border-left:2px solid var(--green); border-radius:0 8px 8px 0;
     margin-left:-2px;
   }
   /* A lost pick isn't a penalty, it's points you didn't bank — so it fades
@@ -628,367 +648,407 @@
   .vteam.lost{ opacity:0.5; }
   .vname{ display:inline; }
   .vpt{
-    display:inline-block; min-width:17px; margin-right:5px; text-align:right;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.78rem; font-weight:900; color: var(--muted);
+    display:inline-block; min-width:18px; margin-right:6px; text-align:right;
+    font-size:13px; font-weight:800; color: var(--muted);
   }
   .vpt.won{ color: var(--green); }
   .vpt.lost{ color: var(--red); }
   .vteam.lost .vname{ text-decoration: line-through; text-decoration-thickness:1px; }
   .vteam{
     flex:1; min-width:0; padding:0 10px;
-    display:flex; flex-direction:column; justify-content:center; gap:1px;
-    font-size:0.9rem; font-weight:700; color: var(--text);
+    display:flex; flex-direction:column; justify-content:center; gap:2px;
+    font-size:15px; font-weight:700; color: var(--text);
   }
   .vtop{
     display:flex; align-items:baseline; gap:5px; min-width:0;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .vopp{
-    font-size:0.68rem; font-weight:600; color: var(--muted); opacity:0.7;
-    letter-spacing:0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:12px; font-weight:600; color: var(--faint);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
+  /* spreads stay neutral — green and red mean won and lost */
+  .vsp{ font-size:12px; font-weight:700; color: var(--muted); }
   .vtotals{
-    border-top:1px solid var(--line); margin-top:10px; padding-top:14px;
+    border-top:1px solid var(--hair2); margin-top:12px; padding-top:14px;
     align-items:flex-end;
   }
   .vtotals::after{ display:none; }
   .vtot{
     flex:1; min-width:0; position:relative;
-    display:flex; align-items:baseline; gap:6px; padding-bottom:9px;
+    display:flex; align-items:baseline; gap:6px; padding:0 10px 9px;
   }
-  .vtot b{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:1.75rem; font-weight:900; line-height:1; color: var(--text);
-    letter-spacing:-0.5px;
-  }
-  .vtotlbl{
-    font-size:0.62rem; font-weight:800; letter-spacing:1.4px;
-    color: var(--muted); text-transform:uppercase;
-  }
-  .vtot.lead b{
-    color: var(--green);
-    text-shadow: 0 0 16px rgba(61,220,132,0.45);
-  }
+  .vtot b{ font-size:30px; font-weight:800; line-height:1; color:#ffffff; letter-spacing:-1px; }
+  .vtotlbl{ font-size:12px; font-weight:700; color: var(--muted); }
+  .vtot.lead b{ color: var(--green); }
 
+  /* Leaderboard */
   .lbrow{
-    display:flex; align-items:center; gap:8px;
-    padding:6px; border-radius:8px;
-    border-bottom:1px solid rgba(28,51,80,0.45);
-    font-size:0.95rem; font-weight:700;
+    display:flex; align-items:center; gap:8px; min-height:30px;
+    padding:0 8px; border-radius:8px;
+    font-size:13px; font-weight:600;
   }
-  .lbrow:last-child{ border-bottom:none; }
   /* Second person to use a name */
-  .lbdup{
-    font-style:normal; font-weight:800; color: var(--muted); opacity:0.75;
-    font-size:0.8rem;
-  }
+  .lbdup{ font-style:normal; font-weight:800; color: var(--muted); font-size:12px; }
   .lbrow.shares{ cursor:pointer; }
   .lbrow.shares:active{ background: rgba(53,208,255,0.14); }
-  .lbrow.me{
-    background: linear-gradient(90deg, rgba(61,220,132,0.13), rgba(61,220,132,0.02) 85%);
-    border-left:2px solid var(--green); margin-left:-2px; border-radius:0 8px 8px 0;
-  }
-  .lbrow.me .lbname{ color: var(--green); opacity:1; font-weight:900; }
-  /* Leading and it's you: gold wins the row, green keeps the edge. */
-  .lbrow.me.lead .lbname{ color: var(--gold); }
-  /* Out in front on their own */
-  .lbrow.lead .lbrank{ color: var(--gold); opacity:1; }
-  .lbrow.lead .lbname{ color: var(--gold); opacity:1; font-weight:900; }
-  .lbrow.lead .lbpts{ color: var(--gold); text-shadow: 0 0 12px rgba(244,196,61,0.45); }
-  /* Reads as a button, not a stray emoji */
-  .sheeticon{
-    flex:none; font-size:0.72rem; line-height:1;
-    padding:4px 5px; border-radius:6px;
-    background: rgba(53,208,255,0.12); border:1px solid var(--cyan-dim);
-  }
+  .lbrow.me{ background: rgba(61,220,132,0.12); }
+  .lbrow.me .lbrank, .lbrow.me .lbpts{ color: var(--green); }
+  .lbrow.me .lbname{ color:#ffffff; font-weight:800; }
+  /* Out in front on their own — gold wins the row, even when it's you */
+  .lbrow.lead{ background: rgba(244,196,61,0.12); }
+  .lbrow.lead .lbrank, .lbrow.lead .lbpts{ color: var(--gold); }
+  .lbrow.lead .lbname{ color:#ffffff; font-weight:800; }
+  .sheeticon{ flex:none; width:11px; height:13px; color: var(--cyan); display:flex; }
+  .sheeticon svg{ width:11px; height:13px; display:block; }
   /* yours: a marker, not a control */
-  .sheeticon.own{
-    background:none; border-color: rgba(61,220,132,0.4); opacity:0.6;
-  }
-  .lbrank{
-    flex:none; width:16px; text-align:center;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:0.72rem; color: var(--muted); font-weight:900; opacity:0.55;
-  }
+  .sheeticon.own{ color: var(--faint); }
+  .lbrank{ flex:none; width:14px; font-size:12px; font-weight:800; color: var(--muted); }
   .lbname{
-    flex:1; min-width:0; color: var(--text); opacity:0.92; letter-spacing:0.2px;
+    flex:1; min-width:0; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .lbpts{
-    flex:none; min-width:26px; text-align:right;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
-    font-size:1.05rem; font-weight:900; color: var(--cyan); letter-spacing:-0.5px;
-  }
+  .lbpts{ flex:none; min-width:22px; text-align:right; font-size:14px; font-weight:800; color:#ffffff; }
   .lbnote{
-    font-size:0.68rem; font-weight:600; color: var(--muted);
-    margin-top:8px; line-height:1.35; text-align:center; opacity:0.8;
+    font-size:11px; font-weight:600; color: var(--muted);
+    margin-top:6px; line-height:1.35; text-align:center;
   }
-  .scorebig{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:2.6rem; font-weight:900; color: var(--green);
-    text-shadow: 0 0 22px rgba(61,220,132,0.45);
-    line-height:1; letter-spacing:-1px;
+  .lbnote:empty{ display:none; }
+
+  /* Your score: banked is the headline, what's still in play sits under it */
+  .scorebig{ font-size:52px; font-weight:800; color:#ffffff; line-height:1; letter-spacing:-2px; }
+  .scorelabel{ font-size:12px; font-weight:700; color: var(--muted); margin-top:4px; }
+  .scorerule{ width:100%; height:1px; background: rgba(147,174,200,0.14); margin:10px 0 6px; }
+  .scoreleft{ font-size:20px; font-weight:800; color:#ffffff; line-height:1; }
+  .scoreleftlbl{ font-size:11px; font-weight:700; color: var(--muted); margin-top:3px; }
+  .scorecompare{ font-size:11px; font-weight:600; color: var(--faint); margin-top:6px; line-height:1.35; }
+  .scorecompare:empty{ display:none; }
+
+  /* ---------- game groups: Live now / Up next / Final ---------- */
+  #resultsList{ display:flex; flex-direction:column; gap:8px; }
+  .ggroup{ display:flex; flex-direction:column; gap:8px; padding:6px 2px 0; }
+  .ggroup[hidden]{ display:none; }
+  .ggroup .gghead{ display:flex; align-items:center; gap:9px; }
+  .ggroup b{ font-size:17px; font-weight:800; letter-spacing:-0.3px; color:#ffffff; }
+  .ggroup span{ font-size:13px; font-weight:700; color: var(--muted); }
+  .gdot{
+    flex:none; width:8px; height:8px; border-radius:50%; background: var(--cyan);
+    animation: gpulse 1.8s ease-out infinite;
   }
-  .scorelabel{ font-size:0.8rem; font-weight:700; color: var(--muted); opacity:0.85; letter-spacing:0.2px; margin-top:5px; line-height:1.35; }
-  .scorecompare{ font-size:0.88rem; font-weight:700; margin-top:8px; }
+  @keyframes gpulse{
+    0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.7); }
+    70%{ box-shadow: 0 0 0 8px rgba(53,208,255,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
+  }
+  .gsweep{ position:relative; height:2px; border-radius:1px; background: rgba(53,208,255,0.12); overflow:hidden; }
+  .gsweep i{
+    position:absolute; top:0; left:0; width:72px; height:2px; border-radius:1px;
+    background: linear-gradient(90deg, rgba(53,208,255,0), var(--cyan), rgba(53,208,255,0));
+    box-shadow: 0 0 8px rgba(53,208,255,0.8);
+    animation: gsweep 3s ease-in-out infinite;
+  }
+  @keyframes gsweep{ 0%{ left:0; } 50%{ left: calc(100% - 72px); } 100%{ left:0; } }
+  @media (prefers-reduced-motion: reduce){ .gdot, .gsweep i{ animation:none; } }
 
   .gcard{
-    position:relative; overflow:hidden;
-    background: var(--panel-hi); border:1px solid var(--line);
-    border-radius:12px; padding:6px 12px 7px; margin-bottom:6px;
+    position:relative; display:flex; flex-direction:column; gap:8px;
+    padding:12px; border-radius:16px;
+    background: var(--card); border:1px solid var(--hair);
   }
-  .gcard.won{
-    border:2px solid var(--green);
-    box-shadow: 0 0 14px rgba(61,220,132,0.28);
-    padding:5px 11px 6px;
+  .gcard.islive{
+    background: linear-gradient(180deg, #111d31, #0c1524);
+    border-color: rgba(255,255,255,0.6);
+    box-shadow: 0 0 18px rgba(255,255,255,0.07);
   }
-  .gcard.lost{ border-color: rgba(255,59,78,0.35); opacity:0.62; }
-  /* a faint X drawn corner to corner across a lost game */
-  .gcard.lost::before, .gcard.lost::after{
-    content:''; position:absolute; left:-8%; top:50%;
-    width:116%; height:2px; background: rgba(255,59,78,0.32);
-    pointer-events:none;
-  }
-  .gcard.lost::before{ transform: rotate(11deg); }
-  .gcard.lost::after{ transform: rotate(-11deg); }
-
-  .ghead{ margin-bottom:0; margin-top:-1px; }
+  .gcard.pregame{ opacity:0.85; }
+  .gmain{ display:flex; align-items:center; gap:10px; }
   .gpts{
-    display:inline-flex; align-items:baseline; gap:4px;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1.15rem; font-weight:800; color: #ffffff; line-height:1;
+    flex:none; width:40px; height:48px; border-radius:11px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    background: rgba(53,208,255,0.05); border:1px solid rgba(53,208,255,0.15);
+    font-size:17px; font-weight:800; color: var(--muted); line-height:1;
   }
-  .gpts em{ font-style:normal; font-size:0.66rem; font-weight:800; opacity:0.7; }
-  .gpts.won{ color: var(--green); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(61,220,132,0.5); }
-  .gpts.lost{ color: var(--red); font-weight:900; font-size:1.3rem; text-shadow: 0 0 12px rgba(255,59,78,0.45); }
+  .gpts em{ font-style:normal; font-size:8px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color: var(--muted); }
+  .gcard.islive .gpts{ color:#ffffff; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); }
+  .gpts.won{ color: var(--green); background: rgba(61,220,132,0.12); border-color: rgba(61,220,132,0.35); }
+  .gpts.lost{ color: var(--red); background: rgba(255,59,78,0.10); border-color: rgba(255,59,78,0.3); }
 
-  .gbody{ display:flex; align-items:center; gap:12px; }
-  .gteams{ flex:1; min-width:0; }
-
-  .trow{ display:flex; align-items:center; gap:10px; padding:1px 0; }
-  .tlogo{
-    flex:none; width:26px; height:26px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .tlogo img{ width:26px; height:26px; object-fit:contain; display:block; }
-  .trow .tname{ opacity:0.6; }
-  .trow:not(.leading):not(.mine) .tlogo img{ opacity:0.55; }
+  .gteams{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+  .trow{ display:flex; align-items:center; gap:7px; height:22px; }
+  .tlogo{ flex:none; width:20px; height:20px; display:flex; align-items:center; justify-content:center; }
+  .tlogo img{ width:20px; height:20px; object-fit:contain; display:block; }
   .tname{
-    flex:1; min-width:0; font-size:1.12rem; font-weight:600; line-height:1.35;
-    color: var(--text); opacity:0.6;
+    flex:1; min-width:0; font-size:15px; font-weight:600; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .tname i{ font-style:normal; color: var(--muted); opacity:0.7; margin-right:3px; font-size:0.82rem; }
-  .trow.leading .tname{ opacity:1; }
-  .trow.mine .tname{ color: var(--gold); opacity:1; font-weight:800; }
-  .tspread{
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:0.68rem; font-weight:700; color: var(--muted);
-    opacity:0.75; margin-left:5px;
+  .tname i{ font-style:normal; color: var(--muted); margin-right:4px; }
+  .trow.mine .tname{ color: var(--gold); font-weight:800; }
+  .tspread{ margin-left:6px; font-size:11px; font-weight:700; color: var(--muted); }
+  /* One job: report the score. The gold team name already says which is yours. */
+  .tscore{ flex:none; min-width:26px; text-align:right; font-size:18px; font-weight:600; color:#ffffff; }
+  .trow.leading .tscore{ font-weight:800; }
+  .tscore.pending{ color:#4a6280; }
+  /* the football sits right before the score of whoever has the ball */
+  .tposs{ flex:none; width:13px; order:1; display:flex; align-items:center; }
+  .tposs svg{ width:13px; height:9px; display:block; }
+  .trow .tscore{ order:2; }
+
+  /* status column: clock / halftime / kickoff */
+  .gstatus{
+    flex:none; width:80px; padding-left:10px; align-self:stretch;
+    border-left:1px solid var(--hair);
+    display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:3px;
+    text-align:right;
   }
-  /* One job: report the score. Who's ahead is legible from the two numbers,
-     and the gold team name already says which one you picked. */
-  .tscore{
-    flex:none; min-width:30px; text-align:right;
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-    font-size:1.15rem; font-weight:800; color:#ffffff;
-  }
-  .tscore.pending{ color: var(--text); opacity:0.35; }
-  /* the football sits right after the score of whoever has the ball */
-  .tposs{ flex:none; width:15px; font-size:0.72rem; line-height:1; text-align:left; }
-  .ballicon{ opacity:0.95; }
+  .gstatus .s1{ font-size:15px; font-weight:800; color: var(--muted); line-height:1; white-space:nowrap; }
+  .gstatus .s2{ font-size:16px; font-weight:800; color: var(--text); line-height:1.1; white-space:nowrap; }
+  .gstatus.live .s1{ color: var(--text); }
+  .gstatus.live .s2{ font-size:18px; color:#ffffff; letter-spacing:-0.3px; }
+  .gstatus.live.solo .s1{ font-size:16px; color:#ffffff; }
+  .gstatus.offgame .s1, .gstatus.offgame .s2{ color:#ffffff; }
+  .s2[hidden]{ display:none; }
+  .restag{ font-size:10px; font-weight:800; letter-spacing:0.8px; padding:2px 6px; border-radius:5px; }
+  .restag.win{ color: var(--green); background: rgba(61,220,132,0.14); }
+  .restag.loss{ color: var(--red); background: rgba(255,59,78,0.14); }
 
   /* down and distance, spanning under the two team rows */
   .gdd{
-    margin-top:3px; font-size:0.82rem; font-weight:700;
-    color: var(--muted); letter-spacing:0.2px;
+    display:flex; align-items:center; gap:8px; padding:7px 0 0 50px;
+    border-top:1px solid rgba(255,255,255,0.08);
+    font-size:13px; font-weight:600; color: var(--text);
   }
   .gdd[hidden]{ display:none; }
   .gdd [data-role="ddtext"]:empty{ display:none; }
   /* Only while a drive is actually inside the 20 */
   .rzchip{
-    display:inline-block; margin-left:7px; vertical-align:middle;
-    padding:2px 6px; border-radius:5px;
-    font-size:0.6rem; font-weight:900; letter-spacing:1px; text-transform:uppercase;
-    color:#fff; background: rgba(255,59,78,0.9);
-    box-shadow: 0 0 10px rgba(255,59,78,0.65);
+    margin-left:auto; padding:3px 7px; border-radius:5px;
+    font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+    color:#fff; background: var(--red);
   }
   .rzchip[hidden]{ display:none; }
 
-  /* a game in progress, without moving it out of your ranked order */
-  /* In progress — white, so it can't be mistaken for a game already banked.
-     Green means won and nothing else. */
-  .gcard.islive{
-    border-color: rgba(255,255,255,0.85);
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 0 14px rgba(255,255,255,0.10);
+  /* A final game folds to one line: points, score, result. */
+  .gfinal{ display:none; align-items:center; gap:10px; min-height:26px; }
+  .gcard.isfinal{ padding:9px 12px; gap:0; }
+  .gcard.isfinal .gmain, .gcard.isfinal .gdd{ display:none; }
+  .gcard.isfinal .gfinal{ display:flex; }
+  .gfbadge{
+    flex:none; width:40px; height:26px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; color: var(--muted);
+    border:1px solid var(--hair2);
   }
-  /* A game that's live and already decided in your favour still reads as won. */
-  .gcard.islive.won{
-    border-color: var(--green);
-    box-shadow: 0 0 14px rgba(61,220,132,0.28);
+  .gfbadge.won{ color: var(--green); background: rgba(61,220,132,0.12); border-color: rgba(61,220,132,0.35); }
+  .gfbadge.lost{ color: var(--red); background: rgba(255,59,78,0.10); border-color: rgba(255,59,78,0.3); }
+  .gfline{
+    flex:1; min-width:0; font-size:14px; font-weight:600; color: var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-
-  .gstatus{
-    flex:none; width:104px; padding-left:12px;
-    align-self:stretch; min-height:46px;
-    border-left:1px solid var(--line);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:2px; text-align:center;
-  }
-  .gstatus .s1{ font-size:1.02rem; font-weight:700; color: var(--text); opacity:0.95; line-height:1.25; }
-  .gstatus .s2{
-    font-size:0.98rem; font-weight:700; color: var(--muted);
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", "Droid Sans Mono", monospace;
-  }
-  /* White while it's being played — matches the card border, and keeps green
-     meaning won rather than in progress. */
-  .gstatus.live .s1{ color:#ffffff; font-weight:800; }
-  .gstatus.live .s2{ color:#ffffff; }
-  .s2[hidden]{ display:none; }
-
-  .restag{
-    margin-top:2px; font-size:0.6rem; font-weight:800; letter-spacing:0.5px;
-    padding:1px 6px; border-radius:4px;
-  }
-  .restag.win{ color: var(--green); border:1px solid rgba(61,220,132,0.5); }
-  .restag.loss{ color: var(--red); border:1px solid rgba(255,59,78,0.45); }
+  .gfline .mine{ color: var(--gold); font-weight:800; }
+  .gfline .gfsc{ color:#ffffff; font-weight:800; }
+  .gficon{ flex:none; width:14px; height:14px; display:flex; }
+  .gficon svg{ width:14px; height:14px; display:block; }
+  .gficon.won{ color: var(--green); }
+  .gficon.lost{ color: var(--red); }
 
   /* Games you took off your sheet */
-  .offsheet{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+  .offsheet{ margin-top:16px; }
   .offsheet[hidden]{ display:none; }
-  .offsheethead{
-    font-size:0.66rem; font-weight:800; letter-spacing:1.2px;
-    color: var(--muted); text-transform:uppercase; opacity:0.7;
-    margin-bottom:8px;
-  }
-  .gcard.off{ opacity:0.45; }
-  .gcard.off .gpts{ color: var(--muted); }
-  .gcard.off .tname{ font-weight:600; }
+  .offsheethead{ font-size:13px; font-weight:700; color: var(--muted); margin: 0 2px 8px; }
+  .gcard.off{ opacity:0.55; background: transparent; border:1px dashed var(--hair2); }
+  .gcard.off .gpts{ background:none; border-color:transparent; color: var(--faint); }
 
   /* "Tonight decides it" — cyan, because it's the app talking, not a result */
   .decider{
-    margin:0 0 14px; padding:12px 13px 10px;
-    border:1px solid var(--cyan-dim); border-radius:12px;
-    background: linear-gradient(160deg, rgba(53,208,255,0.10), rgba(13,22,38,0.55));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    margin:0 0 16px; padding:12px 12px 0; border-radius:16px;
+    background: linear-gradient(180deg, #0f1b2e, #0b1321);
+    border:1px solid rgba(53,208,255,0.4);
+    box-shadow: 0 0 20px rgba(53,208,255,0.08);
   }
   .decider[hidden]{ display:none; }
   .dhead{
-    display:flex; align-items:center; gap:8px; margin-bottom:9px;
-    font-size:0.74rem; font-weight:900; letter-spacing:1.6px; text-transform:uppercase;
-    color: var(--cyan); animation: dpulse 2.4s ease-in-out infinite;
+    display:flex; align-items:center; gap:9px; padding:0 2px 8px;
+    font-size:16px; font-weight:800; letter-spacing:-0.3px; color:#ffffff;
   }
+  .dhead span{ margin-left:auto; font-size:12px; font-weight:700; letter-spacing:0; color: var(--muted); }
   .ddot{
-    width:7px; height:7px; border-radius:50%; background: var(--cyan);
-    box-shadow: 0 0 9px rgba(53,208,255,0.8);
+    flex:none; width:8px; height:8px; border-radius:50%; background: var(--cyan);
+    animation: gpulse 1.8s ease-out infinite;
   }
-  @keyframes dpulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.45; } }
-  @media (prefers-reduced-motion: reduce){ .dhead{ animation:none; } }
-  .dline{ display:flex; align-items:baseline; gap:10px; padding:4px 0; }
-  .dteam{
-    flex:none; width:96px; font-size:0.82rem; font-weight:800; color: var(--muted);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  @media (prefers-reduced-motion: reduce){ .ddot{ animation:none; } }
+  .dline{
+    display:flex; align-items:center; gap:10px; min-height:50px;
+    border-top:1px solid var(--hair);
   }
-  .dwhat{ flex:1; min-width:0; font-size:0.9rem; font-weight:700; color: var(--text); }
-  .dname{ color: var(--text); font-weight:900; }
-  .dmine{ color: var(--green); font-weight:900; }
+  .dteam{ flex:1; min-width:0; font-size:14px; font-weight:700; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dwhat{ flex:none; max-width:62%; display:flex; flex-direction:column; align-items:flex-end; gap:1px; text-align:right; }
+  .dwhat b{ font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .dwhat > span{ font-size:11px; font-weight:700; color: var(--muted); }
+  .dname{ color:#ffffff; }
+  .dmine{ color: var(--green); }
   .dfull{
-    display:none; margin:0 0 6px 106px;
-    font-size:0.74rem; font-weight:600; color: var(--muted); line-height:1.45;
+    display:none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px;
+    padding:10px 0 2px; border-top:1px solid var(--hair);
   }
-  .decider.open .dfull{ display:block; }
+  .decider.open .dfull{ display:grid; }
+  .dcol{ min-width:0; padding:8px 6px 6px; border-radius:12px; background: rgba(6,11,22,0.55); }
+  .dcolhead{ padding:0 4px 6px; margin-bottom:2px; font-size:11px; font-weight:800; color: var(--muted); border-bottom:1px solid var(--hair); }
+  .drow{ display:flex; align-items:center; gap:6px; height:24px; padding:0 4px; border-radius:6px; font-size:12px; }
+  .drow i{ font-style:normal; width:16px; font-size:11px; font-weight:800; color: var(--faint); }
+  .drow b{ flex:1; min-width:0; font-weight:600; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .drow em{ font-style:normal; font-weight:800; color: var(--text); }
+  .drow.first{ background: rgba(244,196,61,0.10); }
+  .drow.first i, .drow.first em{ color: var(--gold); }
+  .drow.first b{ color:#ffffff; font-weight:800; }
+  .drow.me{ background: rgba(61,220,132,0.14); }
+  .drow.me i, .drow.me em{ color: var(--green); }
+  .drow.me b{ color:#ffffff; font-weight:800; }
   .dmore{
-    margin-top:6px; padding:0; border:none; background:none;
-    font: inherit; font-size:0.72rem; font-weight:800; color: var(--cyan); opacity:0.85;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    width:100%; height:44px; padding:0; border:none; border-top:1px solid var(--hair);
+    background:none; font-size:13px; font-weight:800; color: var(--cyan);
   }
+  .dmore::after{
+    content:''; width:10px; height:7px;
+    background: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%2335d0ff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E") no-repeat center / contain;
+    transition: transform 0.18s ease;
+  }
+  .decider.open .dmore::after{ transform: rotate(180deg); }
 
-  .weekhead{
-    font-size:1.05rem; font-weight:800; color: var(--text);
-    margin:2px 0 9px;
-  }
+  .weekhead{ font-size:12px; font-weight:700; color: var(--faint); margin:0 2px 2px; }
+  .weekhead:empty{ display:none; }
 
   /* Season Standings disclosure at the foot of Live */
-  .seasonbox{ margin:16px 0 4px; border-top:1px solid var(--line); padding-top:16px; }
+  .seasonbox{ margin:16px 0 4px; }
   .seasonbtn{
-    width:100%; display:flex; align-items:center; justify-content:space-between;
-    padding:12px 14px; border-radius:12px;
-    border:1px solid var(--line); background: var(--panel-hi);
-    color: var(--text); text-align:left; font: inherit; cursor:pointer;
+    width:100%; height:56px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; border-radius:16px;
+    border:1px solid var(--hair); background: var(--card);
+    color: var(--text); text-align:left; cursor:pointer;
   }
-  .seasonbtn b{ font-size:0.98rem; color: var(--cyan); }
-  .seasonbtn:active{ background: var(--line); }
+  .seasonbtn b{ font-size:16px; font-weight:800; color:#ffffff; }
+  .seasonbtn:active{ background: rgba(53,208,255,0.08); }
   .seasonchev{
-    flex:none; font-size:1.5rem; line-height:1; color: var(--cyan);
+    flex:none; font-size:22px; line-height:1; color: var(--muted);
     transition: transform 0.18s ease;
   }
   .seasonbtn.open .seasonchev{ transform: rotate(90deg); }
-  .seasonpanel{ padding-top:12px; }
+  .seasonpanel{ margin-top:8px; padding:12px; border-radius:16px; background:#0c1524; border:1px solid var(--hair); }
   .seasonpanel[hidden]{ display:none; }
   @media (prefers-reduced-motion: reduce){ .seasonchev{ transition:none; } }
 
-  .seasonempty{ color: var(--muted); font-size:0.88rem; font-weight:600; line-height:1.4; }
+  .seasonempty{ color: var(--muted); font-size:14px; font-weight:600; line-height:1.45; }
 
   /* Season table: name and total stay put, the weeks scroll sideways. */
   .seasonwrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  .stable{ border-collapse:collapse; font-size:0.85rem; }
+  .stable{ border-collapse:collapse; font-size:14px; }
   .stable th, .stable td{
-    padding:7px 9px; text-align:center; white-space:nowrap; font-weight:700;
+    padding:8px 9px; text-align:center; white-space:nowrap; font-weight:700;
   }
   .stable thead th{
-    color: var(--muted); font-size:0.66rem; letter-spacing:0.6px;
-    border-bottom:1px solid var(--line);
+    color: var(--muted); font-size:11px; font-weight:800;
+    border-bottom:1px solid var(--hair2);
   }
-  .stable tbody tr{ border-bottom:1px solid rgba(28,51,80,0.5); }
+  .stable tbody tr{ border-bottom:1px solid var(--hair); }
   .sname{
     position:sticky; left:0; z-index:2; text-align:left;
-    background: var(--panel); width:92px; max-width:92px;
+    background:#0c1524; width:92px; max-width:92px;
     overflow:hidden; text-overflow:ellipsis;
   }
   .stot{
-    position:sticky; left:92px; z-index:2; background: var(--panel);
-    color: var(--gold); border-right:1px solid var(--line);
-    font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace;
+    position:sticky; left:92px; z-index:2; background:#0c1524;
+    color: var(--gold); border-right:1px solid var(--hair2);
   }
-  .swk{ font-family: ui-monospace, "SF Mono", "Roboto Mono", monospace; }
   .swk.blank{ color: var(--muted); opacity:0.5; }
   .swk.live{ color: var(--cyan); }
-  .strow.me .sname{ color: var(--cyan); }
-  .seasonnote{ margin-top:9px; color: var(--muted); font-size:0.82rem; font-weight:600; }
+  .strow.me .sname{ color: var(--green); }
+  .seasonnote{ margin-top:10px; color: var(--muted); font-size:13px; font-weight:600; }
   .seasonnote b{ color: var(--text); }
 
-  .closebtn{
-    width:100%; margin-top:8px; padding:10px; border-radius:8px;
-    border:1px solid var(--line); background: transparent; color: var(--text); font-size:1rem; font-weight:700;
+  /* Open Sheets sheet: the three rules, one line each */
+  .sharerules{
+    display:flex; flex-direction:column; gap:12px; margin: -4px 0 18px; padding:14px;
+    border-radius:16px; background: rgba(6,11,22,0.5); border:1px solid rgba(147,174,200,0.08);
   }
+  .sharerules[hidden]{ display:none; }
+  .sharerule{ display:flex; align-items:flex-start; gap:12px; font-size:14px; font-weight:600; line-height:1.4; color: var(--text); }
+  .sharerule i{
+    flex:none; width:28px; height:28px; border-radius:9px; background: rgba(255,255,255,0.05);
+    display:flex; align-items:center; justify-content:center; color: var(--muted);
+  }
+  .sharerule i svg{ width:15px; height:15px; display:block; }
+  .sharerule span{ padding-top:4px; }
 
-  .confirmcard{
-    width:100%; max-width:420px; background: var(--panel); border:1px solid var(--red);
-    border-radius:14px; padding:20px 18px; margin:auto;
+  .closebtn{
+    width:100%; height:48px; margin-top:8px; padding:0; border-radius:14px;
+    border:none; background: transparent; color: var(--muted); font-size:15px; font-weight:700;
   }
-  .confirmcard h2{ margin:0 0 8px; color: var(--red); font-size:1.12rem; }
-  .confirmcard p{ margin:0 0 16px; color: var(--muted); font-size:0.92rem; font-weight:600; line-height:1.45; }
-  .namenote{ margin:6px 0 0; color: var(--cyan); font-size:0.8rem; font-weight:700; min-height:1em; }
+  .closebtn:active{ background: rgba(255,255,255,0.05); }
+
+  .confirmcard{ padding:10px 20px calc(24px + env(safe-area-inset-bottom)); }
+  .chead{ display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+  .chead h2{ margin:0; }
+  .cicon{
+    flex:none; width:44px; height:44px; border-radius:14px;
+    background: rgba(53,208,255,0.12); border:1px solid rgba(53,208,255,0.3);
+    display:flex; align-items:center; justify-content:center; color: var(--cyan);
+  }
+  .cicon svg{ width:18px; height:18px; display:block; }
+  .confirmcard h2{ margin:0 0 12px; color:#ffffff; font-size:21px; font-weight:800; letter-spacing:-0.4px; }
+  .confirmcard p{ margin:0 0 18px; color:#b9cadb; font-size:15px; font-weight:500; line-height:1.5; }
+  .namenote{ margin:8px 0 0; color: var(--cyan); font-size:13px; font-weight:700; min-height:1em; }
   .nameinput{
-    width:100%; padding:12px; border-radius:8px; margin-bottom:14px;
-    border:1px solid var(--line); background: var(--bg); color: var(--text);
-    font-size:1rem; font-weight:700;
+    width:100%; height:52px; padding:0 14px; border-radius:14px; margin-bottom:6px;
+    border:1px solid var(--hair2); background: rgba(6,11,22,0.6); color:#ffffff;
+    font-size:17px; font-weight:700; outline:none;
   }
-  .confirmrow{ display:flex; gap:10px; }
-  .confirmrow button{ flex:1; padding:13px; border-radius:8px; font-size:0.98rem; font-weight:800; }
-  .confirmcancel{ background: transparent; border:1px solid var(--line); color: var(--text); }
-  .confirmyes{ background: var(--red); border:none; color:#fff; }
-  /* Not every dialog is a warning. */
-  .confirmcard.calm{ border-color: var(--cyan-dim); }
-  .confirmcard.calm h2{ color: var(--cyan); }
-  .confirmcard.calm .confirmyes{ background: var(--cyan); color:#00131c; }
+  .nameinput:focus{ border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(53,208,255,0.18); }
+  .confirmrow{ display:flex; flex-direction:column; gap:6px; }
+  .confirmrow button{ width:100%; }
+  .confirmyes{
+    height:52px; border:none; border-radius:14px; background: var(--cyan); color:#03131f;
+    font-size:16px; font-weight:800; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .confirmyes:active{ background:#7fe0ff; }
+  .confirmcancel{
+    height:48px; border:none; border-radius:14px; background: transparent;
+    color: var(--muted); font-size:15px; font-weight:700;
+  }
+  .confirmcancel:active{ background: rgba(255,255,255,0.05); }
+
+  /* Locked in */
+  .lockedcard{ text-align:center; }
+  .lockpop{
+    width:64px; height:64px; margin: 4px auto 16px; border-radius:50%; background: var(--cyan);
+    display:flex; align-items:center; justify-content:center; color:#03131f;
+    box-shadow: 0 0 0 8px rgba(53,208,255,0.12), 0 0 32px rgba(53,208,255,0.45);
+  }
+  .lockpop svg{ width:28px; height:28px; display:block; }
+  .overlay.show .lockpop{ animation: lockpop 0.48s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.12s both; }
+  @keyframes lockpop{ 0%{ transform:scale(0.4); opacity:0; } 60%{ transform:scale(1.12); opacity:1; } 100%{ transform:scale(1); } }
+  @media (prefers-reduced-motion: reduce){ .overlay.show .lockpop{ animation:none; } }
+  .lockedcard h2{ margin:0 0 6px; font-size:23px; letter-spacing:-0.5px; }
+  .lockedcard .lockedsub{ margin:0 0 16px; color: var(--muted); font-size:14px; font-weight:600; }
+  .lockstats{
+    display:flex; flex-direction:column; padding:4px 14px; margin-bottom:16px; text-align:left;
+    border-radius:16px; background: rgba(6,11,22,0.5); border:1px solid rgba(147,174,200,0.08);
+  }
+  .lockstat{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:42px;
+    border-top:1px solid rgba(147,174,200,0.08);
+  }
+  .lockstat:first-child{ border-top:none; }
+  .lockstat span{ flex:none; font-size:13px; font-weight:700; color: var(--muted); }
+  .lockstat b{ min-width:0; font-size:14px; font-weight:800; color: var(--gold); text-align:right; }
+  .lockstat b.plain{ color:#ffffff; }
 
   .toast{
-    position:fixed; left:50%; bottom:110px; transform:translateX(-50%);
-    background: var(--green); color:#00220f; font-weight:800; font-size:0.9rem;
-    padding:11px 18px; border-radius:20px; z-index:80;
+    position:fixed; left:50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+    background:#1a2a42; color:#ffffff; font-weight:700; font-size:14px;
+    border:1px solid rgba(53,208,255,0.3);
+    padding:10px 16px; border-radius:22px; z-index:80; white-space:nowrap;
     opacity:0; pointer-events:none; transition: opacity 0.25s;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.45);
   }
   .toast.show{ opacity:1; }
 </style>
@@ -997,61 +1057,71 @@
 
 <div class="topline">
   <div class="brand">
-    <div class="brand-bar"></div>
     <div class="brand-text">
       <span class="kicker">NFL PICK'EM</span>
       <h1>Confidence Pool</h1>
-      <button class="installhome" id="installBtn" hidden>Add App to Home</button>
     </div>
   </div>
   <div class="topright">
-    <button class="verbadge" id="verBadge">v0.0.0</button>
-    <select class="weekpick" id="weekPick"></select>
+    <select class="weekpick" id="weekPick" aria-label="Week"></select>
+    <button class="gearbtn" id="gearBtn" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 </div>
 
 <!-- ===== PICKS ===== -->
 <section class="tabpanel" id="tabPicks">
-  <p class="sub">Lowest number = least confident. Highest = your safest lock.</p>
-  <div class="draghint" id="dragHint">Press, hold, and drag a game to reorder</div>
-  <div class="linestamp" id="lineStamp"></div>
-  <button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
-  <button class="lockinline" id="lockInline" style="display:none;">Lock In Picks</button>
+  <div class="statuswrap">
+    <div class="linestamp" id="lineStamp"></div>
+    <button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
+  </div>
+  <button class="lockinline" id="lockInline" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Lock In Picks</button>
+
+  <div class="rankhead"><b>Your Ranking</b><span id="rankCount"></span></div>
+  <div class="scale"><span>1 = least confident</span><i></i><span id="scaleTop">highest = safest lock</span></div>
+  <div class="draghint" id="dragHint">Press and hold a game to drag it. Tap a number to move it.</div>
 
   <ul id="list"></ul>
   <div class="emptyweek" id="emptyWeek" style="display:none;">
     No spreads loaded for this week yet.<br>Ask Claude to pull this week's lines.
   </div>
 
-  <p class="footer-note">Your picks save automatically on this device.</p>
   <button class="resetbtn" id="resetBtn">Reset to Spread Order</button>
+  <p class="footer-note">Your picks save automatically on this device.</p>
 </section>
 
 <!-- ===== SHEET ===== -->
 <section class="tabpanel" id="tabSheet" hidden>
-  <h2 class="panelhead" id="sheetTitle">Your Sheet</h2>
-  <div id="sheetList"></div>
+  <div class="sheethead">
+    <h2 class="sheettitle" id="sheetTitle">Your Sheet</h2>
+    <span class="sheetmeta" id="sheetMeta"></span>
+  </div>
+  <div class="sheetcard">
+    <div class="sheetcols" aria-hidden="true"><span>Pts</span><span>Pick</span><span>Spread</span></div>
+    <div id="sheetList"></div>
+  </div>
   <button class="lockbtn" id="lockBtn">Lock In Picks</button>
 </section>
 
 <!-- ===== LIVE ===== -->
 <section class="tabpanel" id="tabLive" hidden>
-    <h2 class="panelhead" id="resultsTitle">Score Tracker</h2>
-    <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
-    <div class="liverow">
+    <div class="livehead">
+      <h2 class="panelhead" id="resultsTitle">Score Tracker</h2>
       <span class="livestatus" id="liveStatus"></span>
-      <button class="sharebtn" id="shareBtn">Open Sheets</button>
-      <button class="refreshbtn" id="refreshBtn">Refresh</button>
     </div>
+    <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
+    <button class="sharebtn" id="shareBtn">Open Sheets</button>
     <div class="scorewrap">
       <div class="scorecard">
         <div class="cardbanner">Your Score</div>
         <div class="scorebig" id="scoreBig">0</div>
-        <div class="scorelabel" id="scoreLabel">points earned</div>
+        <div class="scorelabel" id="scoreLabel">points banked</div>
+        <div class="scorerule"></div>
+        <div class="scoreleft" id="scoreLeft">0</div>
+        <div class="scoreleftlbl">still in play</div>
         <div class="scorecompare" id="scoreCompare"></div>
       </div>
       <div class="lbcard">
-        <div class="cardbanner">Leaderboard</div>
+        <div class="cardbanner">Leaderboard<span id="lbCount"></span></div>
         <div id="lbList" class="lblist"></div>
         <div class="lbnote" id="lbNote"></div>
       </div>
@@ -1078,47 +1148,47 @@
 
 <nav class="tabbar" id="tabBar">
   <button class="tabbtn" data-tab="picks">
-    <span class="tabicon">☰</span><span class="tablabel">Picks</span>
+    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="tablabel">Picks</span>
   </button>
   <button class="tabbtn" data-tab="sheet">
-    <span class="tabicon">☑</span><span class="tablabel">Sheet</span>
+    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg></span><span class="tablabel">Sheet</span>
   </button>
   <button class="tabbtn" data-tab="live">
-    <span class="tabicon">◉</span><span class="tablabel">Live</span>
+    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M7.1 7.1a7 7 0 0 0 0 9.8M16.9 7.1a7 7 0 0 1 0 9.8"/></svg></span><span class="tablabel">Live</span>
   </button>
 </nav>
 
 <div class="overlay" id="confirmOverlay">
-  <div class="confirmcard">
-    <h2>Reset to spread order?</h2>
+  <div class="confirmcard" role="dialog" aria-label="Reset to spread order">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v5h5"/></svg></span><h2>Reset to spread order?</h2></div>
     <p>Every game goes back in spread order, underdog picks return to the favorite, and removed games come back. Your results and the recorded line movement are not affected.</p>
     <div class="confirmrow">
-      <button class="confirmcancel" id="confirmCancel">Cancel</button>
       <button class="confirmyes" id="confirmYes">Reset</button>
+      <button class="confirmcancel" id="confirmCancel">Cancel</button>
     </div>
   </div>
 </div>
 
 <div class="overlay" id="removeOverlay">
-  <div class="confirmcard">
-    <h2>Remove this game?</h2>
+  <div class="confirmcard" role="dialog" aria-label="Remove this game">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></span><h2>Remove this game?</h2></div>
     <p id="removeText"></p>
     <div class="confirmrow">
-      <button class="confirmcancel" id="removeCancel">Cancel</button>
       <button class="confirmyes" id="removeYes">Remove</button>
+      <button class="confirmcancel" id="removeCancel">Cancel</button>
     </div>
   </div>
 </div>
 
 <div class="overlay" id="nameOverlay">
-  <div class="confirmcard" style="border-color: var(--cyan-dim);">
-    <h2 style="color: var(--cyan);">What's your name?</h2>
+  <div class="confirmcard" role="dialog" aria-label="Your name">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><h2>What's your name?</h2></div>
     <p>This is how you'll show up on the pool leaderboard. Everyone who locks in a sheet appears there with their live score.</p>
-    <input id="nameInput" class="nameinput" type="text" maxlength="14" placeholder="Name or team">
+    <input id="nameInput" class="nameinput" type="text" maxlength="14" placeholder="Name or team" autocomplete="off">
     <p class="namenote" id="nameNote"></p>
     <div class="confirmrow">
+      <button class="confirmyes" id="nameSave">Save</button>
       <button class="confirmcancel" id="nameSkip">Skip</button>
-      <button class="confirmyes" id="nameSave" style="background: var(--cyan); color:#04121c;">Save</button>
     </div>
   </div>
 </div>
@@ -1214,12 +1284,17 @@
 </div>
 
 <div class="overlay" id="shareOverlay">
-  <div class="confirmcard calm">
-    <h2>Open Sheets</h2>
+  <div class="confirmcard" role="dialog" aria-label="Open Sheets">
+    <div class="chead"><span class="cicon" id="shareIcon"></span><h2 id="shareTitle">Open Sheets</h2></div>
     <p id="shareText"></p>
+    <div class="sharerules" id="shareRules" hidden>
+      <div class="sharerule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></i><span>Anyone who has opened theirs can see yours.</span></div>
+      <div class="sharerule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i><span>It can't be closed again this week.</span></div>
+      <div class="sharerule"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></i><span>Every sheet closes when next week starts.</span></div>
+    </div>
     <div class="confirmrow">
+      <button class="confirmyes" id="shareYes">Open My Sheet</button>
       <button class="confirmcancel" id="shareCancel">Not this week</button>
-      <button class="confirmyes" id="shareYes">Open mine</button>
     </div>
   </div>
 </div>
@@ -1249,13 +1324,37 @@
 </div>
 
 <div class="overlay" id="unlockOverlay">
-  <div class="confirmcard">
-    <h2>Picks are locked</h2>
-    <p>You locked this week's sheet so nothing gets changed by accident. Unlock it to reorder games or switch a pick.</p>
+  <div class="confirmcard" role="dialog" aria-label="Unlock your picks">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></span><h2>Unlock your picks?</h2></div>
+    <p>You locked this week's sheet so nothing gets changed by accident. Unlock it to reorder games or switch a pick. You'll stay on the leaderboard.</p>
     <div class="confirmrow">
-      <button class="confirmcancel" id="unlockCancel">Keep Locked</button>
-      <button class="confirmyes" id="unlockYes">Unlock</button>
+      <button class="confirmyes" id="unlockCancel">Keep Locked</button>
+      <button class="confirmcancel" id="unlockYes">Unlock</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="lockedOverlay">
+  <div class="confirmcard lockedcard" role="dialog" aria-label="Locked in">
+    <div class="lockpop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>
+    <h2>You're locked in</h2>
+    <p class="lockedsub" id="lockedSub"></p>
+    <div class="lockstats" id="lockedStats"></div>
+    <div class="confirmrow">
+      <button class="confirmyes" id="lockedDone">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="sheet" role="dialog" aria-label="Settings">
+    <div class="sheettop"><h2>Settings</h2></div>
+    <div class="setlist">
+      <button class="setrow" id="setName"><span class="setlabel">Change name</span><span class="setval" id="setNameVal"></span></button>
+      <button class="setrow" id="installBtn" hidden>Add app to home screen</button>
+      <button class="setrow setver" id="verBadge">v0.0.0</button>
+    </div>
+    <button class="closebtn" id="settingsClose">Done</button>
   </div>
 </div>
 
@@ -1286,8 +1385,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '2.16.2';
-  const APP_BUILT = 'Sep 21, 8:40 PM';
+  const APP_VERSION = '3.0.0';
+  const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -1564,17 +1663,36 @@
     return saved.games;
   }
 
+  const ICON_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  const ICON_UNLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
+
+  function sheetTotal(n){ return n * (n + 1) / 2; }
+
   function stampLine(week){
     const el = document.getElementById('lineStamp');
     if(!el) return;
-    let txt;
-    if(linesLoading) txt = 'Updating Spread (ESPN)…';
-    else if(linesStamp) txt = 'Updated Spread (ESPN): ' + linesStamp;
-    else txt = 'Spread not loaded yet';
-    if(weekLocked) txt += ' · PICKS LOCKED';
-    else txt += ' · PICKS UNLOCKED';
-    el.textContent = txt;
+    const n = activeGames().length;
+    let html;
+    if(weekLocked){
+      html = '<span class="sticon">' + ICON_LOCK + '</span>' +
+        '<span class="sttext"><b>Locked in</b><span>Week ' + week + ' \u00B7 ' +
+        n + ' games \u00B7 ' + sheetTotal(n) + ' pts</span></span>';
+    }else{
+      let head, sub;
+      if(linesLoading){ head = 'Updating spreads\u2026'; sub = 'ESPN'; }
+      else if(linesStamp){
+        head = 'Spreads updated ' + esc(linesStamp);
+        sub = 'ESPN \u00B7 ' + (weekFrozen ? 'your order' : 'ordered by the spread');
+      }
+      else{ head = 'Spreads not loaded yet'; sub = 'ESPN'; }
+      html = '<span class="stdot"></span>' +
+        '<span class="sttext"><b>' + head + '</b><span>' + sub + '</span></span>' +
+        '<span class="stchip">' + ICON_UNLOCK + 'Unlocked</span>';
+    }
+    el.innerHTML = html;
     el.classList.toggle('locked', weekLocked);
+    const tp = document.getElementById('tabPicks');
+    if(tp) tp.classList.toggle('islocked', weekLocked);
     const ub = document.getElementById('unlockInline');
     if(ub) ub.style.display = weekLocked ? 'block' : 'none';
     // Nothing to lock in until there are games on the sheet.
@@ -1694,7 +1812,7 @@
   function syncHint(){
     const el = document.getElementById('dragHint');
     if(!el) return;
-    el.style.display = (hintDismissed() || !games.length) ? 'none' : 'block';
+    el.style.display = (hintDismissed() || !games.length) ? 'none' : 'flex';
   }
 
   function freezeOrder(){
@@ -1820,7 +1938,16 @@
   function venueWordFor(city, g){ return city === homeCityOf(g) ? 'vs' : '@'; }
   function activeGames(){ return games.filter(g => !g.removed); }
 
+  function syncRankHead(){
+    const n = activeGames().length;
+    const c = document.getElementById('rankCount');
+    if(c) c.textContent = n ? n + ' games \u00B7 ' + sheetTotal(n) + ' pts' : '';
+    const t = document.getElementById('scaleTop');
+    if(t) t.textContent = (n || 'highest') + ' = safest lock';
+  }
+
   function render(){
+    syncRankHead();
     // If the same games are already on screen in the same order, update them in
     // place — rebuilding would re-create every <img> and make the logos blink.
     const kids = Array.prototype.slice.call(listEl.children);
@@ -1868,8 +1995,7 @@
             logoTag(logoForCity(g, pickedCityOf(g)), 'plogo') +
             '<span class="goldcity">' + pickedCityOf(g) + '</span>' +
             (hasLine ? '<span class="pspread ' + (onFav ? 'up' : 'down') + '" data-role="hist">' +
-              (onFav ? '-' : '+') + g.spread + '</span>' + arrow : '') +
-            (hasLine ? '<span class="pctval">(' + pct + '%)</span>' : '<span class="noline">no line yet</span>') +
+              (onFav ? '\u2212' : '+') + g.spread + '</span>' + arrow : '<span class="noline">no line yet</span>') +
           '</div>' +
           '<div class="line2">' +
             '<span class="vsword">' + venueWordFor(pickedCityOf(g), g) + '</span>' +
@@ -1880,9 +2006,9 @@
           '</div>' +
         '</div>' +
         '<div class="actions">' +
-          '<button class="swx ' + (onFav?'fav':'dog') + '" data-role="swx">' +
-            '<span class="swx-knob"></span>' +
-            '<span class="swx-label">' + (onFav?'FAVORITE':'UNDERDOG') + '</span>' +
+          '<button class="swx ' + (onFav?'fav':'dog') + '" data-role="swx" aria-label="Switch favorite or underdog">' +
+            '<span class="swx-label">' + (onFav?'FAV':'DOG') + '</span>' +
+            (hasLine ? '<span class="pctval">' + pct + '%</span>' : '') +
           '</button>' +
           '<button class="' + (g.removed ? 'restorebtn' : 'rmx') + '" data-role="rm">' +
             (g.removed ? 'Restore' : '\u00D7') + '</button>' +
@@ -2034,6 +2160,7 @@
     dismissHint();
     render();
     saveAll();
+    flashRow(id);
   }
 
   /* Updates one row in place. Reusing the existing <img> elements is what stops
@@ -2061,7 +2188,7 @@
       if(nameEl) nameEl.textContent = pickCity;
       const sp = l1.querySelector('.pspread');
       if(sp && hasLine){
-        sp.textContent = (onFav ? '-' : '+') + g.spread;
+        sp.textContent = (onFav ? '\u2212' : '+') + g.spread;
         sp.classList.toggle('up', onFav);
         sp.classList.toggle('down', !onFav);
       }
@@ -2081,8 +2208,8 @@
       }else if(arr && arr.remove){
         arr.remove();
       }
-      const pc = l1.querySelector('.pctval');
-      if(pc && hasLine) pc.textContent = '(' + pct + '%)';
+      const pc = li.querySelector('.pctval');
+      if(pc && hasLine) pc.textContent = pct + '%';
     }
     if(l2){
       const vw = l2.querySelector('.vsword');
@@ -2101,7 +2228,7 @@
       swx.classList.toggle('fav', onFav);
       swx.classList.toggle('dog', !onFav);
       const lbl = swx.querySelector('.swx-label');
-      if(lbl) lbl.textContent = onFav ? 'FAVORITE' : 'UNDERDOG';
+      if(lbl) lbl.textContent = onFav ? 'FAV' : 'DOG';
     }
     const rm = li.querySelector('[data-role="rm"]');
     if(rm){
@@ -2166,7 +2293,8 @@
     for(let i=0;i<kids.length;i++){
       if(kids[i] === press.li) continue;
       const r = kids[i].getBoundingClientRect();
-      const sMid = r.top + r.height/2;
+      // Judge a neighbour by where it sits, not where its slide animation has it.
+      const sMid = r.top - slideOffset(kids[i]) + r.height/2;
       const down = i > myI && mid > sMid;
       const up = i < myI && mid < sMid;
       if(down || up){
@@ -2174,8 +2302,11 @@
         const to = games.findIndex(function(g){ return g.id === kids[i].dataset.id; });
         const item = games.splice(from,1)[0];
         games.splice(to,0,item);
+        const nb = kids[i];
+        const nbBefore = nb.getBoundingClientRect().top - slideOffset(nb);
         if(down) listEl.insertBefore(press.li, kids[i].nextSibling);
         else listEl.insertBefore(press.li, kids[i]);
+        slideFrom(nb, nbBefore - nb.getBoundingClientRect().top);
         press.baseY = press.lastClientY + window.scrollY;
         press.li.style.transform = 'translateY(0px)';
         press.moved = true;
@@ -2183,6 +2314,34 @@
         break;
       }
     }
+  }
+
+  // The card a drag pushes past eases into its new slot rather than jumping.
+  function slideOffset(el){
+    try{
+      const tr = getComputedStyle(el).transform;
+      if(!tr || tr === 'none' || typeof DOMMatrixReadOnly !== 'function') return 0;
+      return new DOMMatrixReadOnly(tr).m42 || 0;
+    }catch(e){ return 0; }
+  }
+  function slideFrom(el, dy){
+    if(!dy || !el.style) return;
+    el.style.transition = 'none';
+    el.style.transform = 'translateY(' + dy + 'px)';
+    requestAnimationFrame(function(){
+      el.style.transition = 'transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+      el.style.transform = '';
+    });
+    setTimeout(function(){ if(el.style) el.style.transition = ''; }, 260);
+  }
+  // A quick cyan pulse on the card that just landed.
+  function flashRow(id){
+    const li = listEl.querySelector('.game[data-id="' + id + '"]');
+    if(!li) return;
+    li.classList.remove('justdropped');
+    void li.offsetWidth;
+    li.classList.add('justdropped');
+    setTimeout(function(){ li.classList.remove('justdropped'); }, 950);
   }
 
   // Scrolls the page when the finger nears the top or bottom edge, so a card
@@ -2256,8 +2415,10 @@
       document.body.classList.remove('dragmode');
       freezeOrder();
       if(press.moved) dismissHint();
+      const droppedId = press.id;
       render();
       saveAll();
+      flashRow(droppedId);
     }
     press = null;
   }
@@ -2291,7 +2452,7 @@
   for(let w = 1; w <= MAX_WEEK; w++){
     const o = document.createElement('option');
     o.value = w;
-    o.textContent = 'WK ' + w + (WEEK_DATA[w] ? '' : ' —');
+    o.textContent = 'Week ' + w + (WEEK_DATA[w] ? '' : ' —');
     weekPick.appendChild(o);
   }
   weekPick.value = currentWeek;
@@ -2410,13 +2571,21 @@
     freezeOrder();
     syncLockBtn();
     document.getElementById('sheetTitle').textContent = 'Week ' + currentWeek + ' Sheet';
-    sheetList.innerHTML = activeGames().map(function(g,i){
+    const act = activeGames();
+    const meta = document.getElementById('sheetMeta');
+    if(meta) meta.textContent = act.length ? act.length + ' picks \u00B7 ' + sheetTotal(act.length) + ' pts' : '';
+    /* Spreads stay neutral: green and red mean won and lost everywhere else,
+       so an underdog pick is marked with a DOG tag instead of a colour. */
+    sheetList.innerHTML = act.map(function(g,i){
       const isDog = g.pick === 'dog';
-      const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('-' + g.spread));
+      const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('\u2212' + g.spread));
+      const city = pickedCityOf(g);
       return '<div class="sheetrow">' +
         '<span class="sheetnum">' + (i+1) + '</span>' +
-        '<span class="sheetcity">' + pickedCityOf(g) + '</span>' +
-        '<span class="sheetspread ' + (isDog?'spread-red':'spread-green') + '">' + s + '</span>' +
+        logoTag(logoForCity(g, city), 'slogo') +
+        '<span class="sheetcity">' + city + '</span>' +
+        (isDog ? '<span class="dogtag">DOG</span>' : '') +
+        '<span class="sheetspread">' + s + '</span>' +
       '</div>';
     }).join('');
   }
@@ -2447,9 +2616,7 @@
   function syncLockBtn(){
     const b = document.getElementById('lockBtn');
     if(!b) return;
-    b.textContent = weekLocked
-      ? '🔒 Picks Locked (Week ' + currentWeek + ') — Tap to Unlock'
-      : 'Lock In Picks (Week ' + currentWeek + ')';
+    b.innerHTML = ICON_LOCK + (weekLocked ? 'Picks locked \u00B7 Tap to unlock' : 'Lock In Picks');
     b.classList.toggle('on', weekLocked);
   }
 
@@ -2462,10 +2629,28 @@
     saveAll();
     syncLockBtn();
     stampLine(currentWeek);
-    toast('Picks locked');
     if(!player().name){ askName(true); return; }
     syncPool();
+    showLocked();
   }
+
+  /* The moment of locking in gets its own sheet: what you're standing on. */
+  const lockedOverlay = document.getElementById('lockedOverlay');
+  function showLocked(){
+    const act = activeGames();
+    const n = act.length;
+    if(!n) return;
+    document.getElementById('lockedSub').textContent =
+      'Week ' + currentWeek + ' \u00B7 ' + n + ' games \u00B7 ' + sheetTotal(n) + ' points';
+    const dogs = act.filter(function(g){ return g.pick === 'dog'; }).map(pickedCityOf);
+    document.getElementById('lockedStats').innerHTML =
+      '<div class="lockstat"><span>Safest lock</span><b>' + esc(pickedCityOf(act[n - 1])) + ' (' + n + ')</b></div>' +
+      '<div class="lockstat"><span>Riskiest</span><b>' + esc(pickedCityOf(act[0])) + ' (1)</b></div>' +
+      '<div class="lockstat"><span>Underdogs</span><b class="plain">' + (dogs.length ? esc(dogs.join(', ')) : 'None') + '</b></div>';
+    openOverlay(lockedOverlay);
+  }
+  document.getElementById('lockedDone').addEventListener('click', function(){ closeOverlay(lockedOverlay); });
+  lockedOverlay.addEventListener('click', function(e){ if(e.target === lockedOverlay) closeOverlay(lockedOverlay); });
 
   document.getElementById('lockBtn').addEventListener('click', doLock);
   document.getElementById('lockInline').addEventListener('click', doLock);
@@ -2788,7 +2973,7 @@
         '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '') + '</span>' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
           (isFav && typeof g.spread === 'number'
-            ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">(-' + g.spread + ')</b>' + moveArrow(g)
+            ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">\u2212' + g.spread + '</b>' + moveArrow(g)
             : '') + '</span>' +
         '<span class="tscore' + (started && score !== null ? '' : ' pending') +
           '" data-role="score">' + (started && score !== null ? score : '–') + '</span>' +
@@ -2800,9 +2985,10 @@
     let s1 = '', s2 = '', sCls = '';
     if(!lg){ s1 = 'No data'; s2 = ''; sCls = 'pre'; }
     else if(lg.state === 'in'){
-      s1 = liveClock(lg);
-      s2 = '';
-      sCls = 'live';
+      const lc = splitClock(liveClock(lg));
+      s1 = lc[0];
+      s2 = lc[1];
+      sCls = 'live' + (s2 ? '' : ' solo');
     }else if(lg.state === 'post'){ s1 = 'Final'; s2 = ''; sCls = 'final'; }
     else{
       const k = kickoffText(lg, g);
@@ -2823,12 +3009,12 @@
     const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
 
     const liveCls = (lg && lg.state === 'in') ? ' islive' : '';
-    return '<div class="gcard' + cardCls + liveCls + '" data-id="' + g.id + '">' +
-      '<div class="ghead">' +
+    const grp = cardGroup(lg, r);
+    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + '" data-id="' + g.id +
+        '" style="order:' + cardOrder(grp, pts) + '">' +
+      '<div class="gmain">' +
         '<span class="gpts' + (r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '')) + '">' +
-          pts + '<em>pt' + (pts===1?'':'s') + '</em></span>' +
-      '</div>' +
-      '<div class="gbody">' +
+          pts + '<em>pts</em></span>' +
         '<div class="gteams">' + teamRows + '</div>' +
         '<div class="gstatus ' + sCls + '" data-role="status">' +
           '<span class="s1" data-role="s1">' + s1 + '</span>' +
@@ -2840,10 +3026,85 @@
         '<span data-role="ddtext">' + dd + '</span>' +
         '<span class="rzchip" data-role="rz"' + (rz ? '' : ' hidden') + '>Red Zone</span>' +
       '</div>' +
+      '<div class="gfinal" data-role="final">' + (grp === 'final' ? finalLine(g, pts, r, lg) : '') + '</div>' +
     '</div>';
   }
 
-  const BALL = '<span class="ballicon">\uD83C\uDFC8</span>';
+  /* ---------- Live now / Up next / Final ----------
+     Cards are built once in point order and never rebuilt on a refresh, so the
+     groups come from the flex order of each card rather than moving elements
+     around — a game that kicks off just changes its order and slides up. */
+  function cardGroup(lg, r){
+    if(lg && lg.state === 'in') return 'live';
+    if(r || (lg && lg.state === 'post')) return 'final';
+    return 'next';
+  }
+  function groupCls(grp){
+    return grp === 'final' ? ' isfinal' : (grp === 'next' ? ' pregame' : '');
+  }
+  function cardOrder(grp, pts){
+    return (grp === 'live' ? 0 : grp === 'next' ? 1000 : 2000) + pts;
+  }
+  // "Q2 - 6:31" -> ["Q2", "6:31"]; "Halftime" stays whole.
+  function splitClock(txt){
+    const at = String(txt).indexOf(' - ');
+    return at === -1 ? [String(txt), ''] : [txt.slice(0, at), txt.slice(at + 3)];
+  }
+
+  const ICON_WON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-label="Won"><path d="M5 12.5 10 17.5 19 7"/></svg>';
+  const ICON_LOST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-label="Lost"><path d="M5 5l14 14M19 5 5 19"/></svg>';
+
+  // The folded final: "+12  Miami 17–34 @ Buffalo  ✓"
+  function finalLine(g, pts, r, lg){
+    const pickCity = g.pick === 'fav' ? favCityOf(g) : dogCityOf(g);
+    let away = g.cityA, home = g.cityB, sa = null, sh = null;
+    if(lg){
+      const byAb = {};
+      byAb[g.abbrA || ABBR[g.cityA]] = g.cityA;
+      byAb[g.abbrB || ABBR[g.cityB]] = g.cityB;
+      if(byAb[lg.away] && byAb[lg.home]){ away = byAb[lg.away]; home = byAb[lg.home]; }
+      if(typeof lg.scores[lg.away] === 'number') sa = lg.scores[lg.away];
+      if(typeof lg.scores[lg.home] === 'number') sh = lg.scores[lg.home];
+    }
+    const nm = function(c){ return '<span' + (c === pickCity ? ' class="mine"' : '') + '>' + esc(c) + '</span>'; };
+    const score = (sa !== null && sh !== null) ? ' <span class="gfsc">' + sa + '\u2013' + sh + '</span> ' : ' ';
+    const res = r === 'win' ? 'won' : (r === 'loss' ? 'lost' : '');
+    return '<span class="gfbadge' + (res ? ' ' + res : '') + '">' + (r === 'win' ? '+' : '') + pts + '</span>' +
+      '<span class="gfline">' + nm(away) + score + '@ ' + nm(home) + '</span>' +
+      (res ? '<span class="gficon ' + res + '">' + (res === 'won' ? ICON_WON : ICON_LOST) + '</span>' : '');
+  }
+
+  function groupHeads(){
+    return '<div class="ggroup" data-group="live" style="order:0" hidden>' +
+        '<div class="gghead"><i class="gdot"></i><b>Live now</b><span data-role="count"></span></div>' +
+        '<div class="gsweep"><i></i></div>' +
+      '</div>' +
+      '<div class="ggroup" data-group="next" style="order:1000" hidden>' +
+        '<div class="gghead"><b>Up next</b><span data-role="count"></span></div>' +
+      '</div>' +
+      '<div class="ggroup" data-group="final" style="order:2000" hidden>' +
+        '<div class="gghead"><b>Final</b><span data-role="count"></span></div>' +
+      '</div>';
+  }
+  function syncGroups(active, shown){
+    const n = { live: 0, next: 0, final: 0 };
+    let won = 0, lost = 0;
+    active.forEach(function(g){
+      const r = shown[g.id];
+      n[cardGroup(liveFor(g), r)]++;
+      if(r === 'win') won++; else if(r === 'loss') lost++;
+    });
+    ['live', 'next', 'final'].forEach(function(k){
+      const h = resultsList.querySelector('.ggroup[data-group="' + k + '"]');
+      if(!h) return;
+      h.hidden = !n[k];
+      let t = n[k] + ' game' + (n[k] === 1 ? '' : 's');
+      if(k === 'final' && (won || lost)) t += ' \u00B7 ' + won + '\u2013' + lost;
+      setText(h.querySelector('[data-role="count"]'), t);
+    });
+  }
+
+  const BALL = '<svg viewBox="0 0 26 16" aria-label="Has the ball"><ellipse cx="13" cy="8" rx="12" ry="7" fill="#b98552"/><path d="M8 8h10M11 6v4M13 6v4M15 6v4" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round"/></svg>';
 
   /* Rebuilding the whole list every 20 seconds destroys and recreates every
      logo <img>, which is why they flashed on each refresh. The set of games
@@ -2853,14 +3114,16 @@
   function paintCards(active, shown){
     const ids = active.map(function(g){ return g.id; }).join(',');
     if(resultsList.dataset.ids !== ids){
-      resultsList.innerHTML = active.map(function(g,i){
+      resultsList.innerHTML = groupHeads() + active.map(function(g,i){
         return gameCard(g, i + 1, shown[g.id]);
       }).join('');
       resultsList.dataset.ids = ids;
       wireHistory();
+      syncGroups(active, shown);
       return;
     }
     active.forEach(function(g, i){ updateCard(g, i + 1, shown[g.id]); });
+    syncGroups(active, shown);
   }
 
   /* Dropped games, rendered inert: score and clock so you can still follow
@@ -2888,8 +3151,8 @@
     else { const k = kickoffText(lg, g); s1 = k.day; s2 = k.time; }
 
     return '<div class="gcard off" data-id="' + g.id + '">' +
-      '<div class="ghead"><span class="gpts off">\u2013</span></div>' +
-      '<div class="gbody">' +
+      '<div class="gmain">' +
+        '<span class="gpts off">\u2013</span>' +
         '<div class="gteams">' + rows + '</div>' +
         '<div class="gstatus pre">' +
           '<span class="s1">' + s1 + '</span>' +
@@ -2969,7 +3232,11 @@
     if(status){
       let s1 = '', s2 = '', cls = 'pre';
       if(!lg){ s1 = 'No data'; }
-      else if(live){ s1 = liveClock(lg); cls = 'live'; }
+      else if(live){
+        const lc = splitClock(liveClock(lg));
+        s1 = lc[0]; s2 = lc[1];
+        cls = 'live' + (s2 ? '' : ' solo');
+      }
       else if(lg.state === 'post'){ s1 = 'Final'; cls = 'final'; }
       else{
         const k = kickoffText(lg, g); s1 = k.day; s2 = k.time;
@@ -2999,6 +3266,16 @@
     card.classList.toggle('islive', live);
     card.classList.toggle('won', r === 'win');
     card.classList.toggle('lost', r === 'loss');
+    const grp = cardGroup(lg, r);
+    card.classList.toggle('isfinal', grp === 'final');
+    card.classList.toggle('pregame', grp === 'next');
+    const ord = String(cardOrder(grp, pts));
+    if(card.style.order !== ord) card.style.order = ord;
+    const fin = card.querySelector('[data-role="final"]');
+    if(fin){
+      const want = grp === 'final' ? finalLine(g, pts, r, lg) : '';
+      if(fin.innerHTML !== want) fin.innerHTML = want;
+    }
     const badge = card.querySelector('.gpts');
     if(badge){
       badge.classList.toggle('won', r === 'win');
@@ -3034,7 +3311,7 @@
   }
 
   function openResults(skipFetch){
-    document.getElementById('resultsTitle').textContent = 'Week ' + currentWeek + ' Score Tracker';
+    document.getElementById('resultsTitle').textContent = 'Score Tracker';
     hydrateSeason();
     const active = activeGames();
 
@@ -3056,11 +3333,15 @@
 
     const sc = weekScore(games, shown);
     document.getElementById('scoreBig').textContent = sc.earned;
-    document.getElementById('scoreLabel').textContent =
-      'points of ' + sc.possible + ' possible · ' + sc.decided + ' of ' + sc.total + ' games scored';
+    document.getElementById('scoreLabel').textContent = 'points banked';
+    // Still in play: what the games without a result are worth.
+    let inPlay = 0;
+    active.forEach(function(g, i){ if(!shown[g.id]) inPlay += i + 1; });
+    document.getElementById('scoreLeft').textContent = inPlay;
 
     const cmp = document.getElementById('scoreCompare');
-    cmp.textContent = (sc.decided === 0) ? 'Results fill in as games go final.' : '';
+    cmp.textContent = (sc.decided === 0) ? 'Results fill in as games go final.'
+      : sc.decided + ' of ' + sc.total + ' scored';
 
     // Open first. The leaderboard and the season table are extras — if either
     // one hits something unexpected, you still get your scores.
@@ -3366,6 +3647,14 @@
   }
 
   // Leaving the Live tab: nothing on screen needs polling any more.
+  /* Both were being called but never defined, so each call threw — the one in
+     the foreground handler also skipped the refreshes after it. Self-update
+     isn't in this build; the season table already refreshes with the scores. */
+  function checkForUpdate(){}
+  function startSeasonTimer(){
+    if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
+  }
+
   function stopLiveTimers(){
     if(liveTimer){ clearInterval(liveTimer); liveTimer = null; liveTimerRate = 0; }
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
@@ -3464,7 +3753,13 @@
   installOverlay.addEventListener('click', function(e){
     if(e.target === installOverlay) closeOverlay(installOverlay);
   });
-  document.getElementById('installBtn').addEventListener('click', fireOffer);
+  document.getElementById('installBtn').addEventListener('click', function(){
+    const so = document.getElementById('settingsOverlay');
+    // Android's own install dialog has to open inside the tap, so no delay.
+    if(installEvent){ if(so.classList.contains('show')) closeOverlay(so); fireOffer(); return; }
+    if(so.classList.contains('show')){ closeOverlay(so); setTimeout(fireOffer, 300); return; }
+    fireOffer();
+  });
 
   // Hidden once the app is already on the home screen — nothing left to offer.
   (function syncInstallBtn(){
@@ -3568,12 +3863,11 @@
 
   function cellFor(city, spread, res, pts, fav, opp){
     const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
-    const spCls = fav ? 'spread-green' : 'spread-red';
     return '<span class="vteam' + cls + '">' +
       '<span class="vtop">' +
         '<b class="vpt' + cls + '">' + pts + '</b>' +
         '<span class="vname">' + esc(city) + '</span>' +
-        (spread ? '<b class="' + spCls + '">' + spread + '</b>' : '') +
+        (spread ? '<b class="vsp">' + spread + '</b>' : '') +
       '</span>' +
       (opp ? '<span class="vopp">' + esc(opp) + '</span>' : '') +
     '</span>';
@@ -3656,7 +3950,7 @@
       const sp = spreadForSide(g, side);
       return '<span class="h2hpick ' + where + (res === 'loss' ? ' lost' : '') + '">' +
         '<span class="h2hteam">' + esc(sideCity(g, side)) + '</span>' +
-        (sp ? '<b class="' + (isFavSide(g, side) ? 'spread-green' : 'spread-red') + '">' + sp + '</b>' : '') +
+        (sp ? '<b class="vsp">' + sp + '</b>' : '') +
       '</span>';
     }
 
@@ -3751,29 +4045,38 @@
     const b = document.getElementById('shareBtn');
     if(!b) return;
     const on = sharingOn(currentWeek);
-    b.textContent = on ? 'Sheets Open' : 'Open Sheets';
+    b.innerHTML = ICON_DOC + (on ? 'Sheets Open' : 'Open Sheets');
     b.classList.toggle('on', on);
   }
 
   const shareOverlay = document.getElementById('shareOverlay');
   let sharePending = null;          // whose sheet they were trying to open
 
+  /* One sheet, three states: not locked yet, the offer, already open. When
+     there's only one button it's the primary one. */
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg>';
+  function setShareSheet(state){
+    const offer = state === 'offer';
+    document.getElementById('shareIcon').innerHTML =
+      state === 'locked' ? ICON_LOCK : (state === 'open' ? ICON_CHECK : ICON_DOC);
+    document.getElementById('shareTitle').textContent =
+      state === 'locked' ? 'Lock in first' : (state === 'open' ? 'Your sheet is open' : 'Open Sheets');
+    document.getElementById('shareText').textContent =
+      state === 'locked'
+        ? 'Sheets can only be opened once yours is final. That way nobody sees the pool before making their own picks.'
+        : state === 'open'
+          ? 'Tap the sheet icon next to anyone on the leaderboard to compare. Sheets close again when next week starts.'
+          : 'Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.';
+    document.getElementById('shareRules').hidden = !offer;
+    document.getElementById('shareYes').style.display = offer ? '' : 'none';
+    const cancel = document.getElementById('shareCancel');
+    cancel.textContent = offer ? 'Not this week' : (state === 'open' ? 'Got It' : 'OK');
+    cancel.className = offer ? 'confirmcancel' : 'confirmyes';
+  }
+
   function askShare(nextId){
     sharePending = nextId || null;
-    const txt = document.getElementById('shareText');
-    const yes = document.getElementById('shareYes');
-    if(!weekLocked){
-      txt.textContent = 'Lock your picks in first. Sheets can only be opened once ' +
-        'yours is final \u2014 that way nobody sees the pool before making their own picks.';
-      yes.style.display = 'none';
-    }else{
-      txt.textContent = 'Your sheet becomes visible to anyone else who has opened theirs, ' +
-        'and you can see theirs. It stays open for the rest of this week, then closes ' +
-        'again when the next week starts.';
-      yes.style.display = '';
-    }
-    document.getElementById('shareCancel').textContent =
-      weekLocked ? 'Not this week' : 'OK';
+    setShareSheet(weekLocked ? 'offer' : 'locked');
     openOverlay(shareOverlay);
   }
 
@@ -3800,11 +4103,7 @@
 
   document.getElementById('shareBtn').addEventListener('click', function(){
     if(sharingOn(currentWeek)){
-      document.getElementById('shareText').textContent =
-        'Your sheet is open for this week. Tap the \u{1F4C4} next to anyone else ' +
-        'who has opened theirs to compare. Sheets start closed again next week.';
-      document.getElementById('shareYes').style.display = 'none';
-      document.getElementById('shareCancel').textContent = 'Close';
+      setShareSheet('open');
       openOverlay(shareOverlay);
       return;
     }
@@ -3829,7 +4128,6 @@
     }
   });
 
-  document.getElementById('refreshBtn').addEventListener('click', refreshScores);
 
 
   /* remove / reset */
@@ -3873,6 +4171,7 @@
     });
     closeOverlay(confirmOverlay);
     render(); saveAll();
+    stampLine(currentWeek);
   });
   confirmOverlay.addEventListener('click', function(e){ if(e.target === confirmOverlay) closeOverlay(confirmOverlay); });
 
@@ -4101,7 +4400,7 @@
 
     const me = player();
     const who = function(r){
-      return '<b class="' + (r.id === me.id ? 'dmine' : 'dname') + '">' + esc(r.name) + '</b>';
+      return '<span class="' + (r.id === me.id ? 'dmine' : 'dname') + '">' + esc(r.name) + '</span>';
     };
     const currentLeader = rows.slice().sort(function(a,b){ return b.points - a.points; })[0];
 
@@ -4109,23 +4408,31 @@
       const top = o.order[0], next = o.order[1];
       let what;
       if(next && next.pts === top.pts){
-        what = who(top) + ' and ' + who(next) + ' tie for the lead \u00b7 ' + top.pts;
+        what = '<b>' + who(top) + ' &amp; ' + who(next) + ' \u00b7 ' + top.pts + '</b><span>tie for the lead</span>';
       }else{
         const verb = (top.id === currentLeader.id) ? 'holds' : 'takes';
-        what = who(top) + ' ' + verb + ' the lead \u00b7 ' + top.pts;
+        what = '<b>' + who(top) + ' \u00b7 ' + top.pts + '</b><span>' + verb + ' the lead</span>';
       }
-      const full = o.order.map(function(r){ return who(r) + ' ' + r.pts; }).join(' \u00b7 ');
-      return '<div class="dline"><span class="dteam">' + esc(o.team) + ' win</span>' +
-             '<span class="dwhat">' + what + '</span></div>' +
-             '<div class="dfull">' + full + '</div>';
+      return '<div class="dline"><span class="dteam">If ' + esc(o.team) + ' wins</span>' +
+             '<span class="dwhat">' + what + '</span></div>';
+    }).join('');
+    /* Full finishing order: one column per outcome, side by side. */
+    const cols = outcomes.map(function(o){
+      return '<div class="dcol"><div class="dcolhead">If ' + esc(o.team) + ' wins</div>' +
+        o.order.map(function(r, i){
+          const cls = r.id === me.id ? ' me' : (i === 0 ? ' first' : '');
+          return '<div class="drow' + cls + '"><i>' + (i + 1) + '</i><b>' + esc(r.name) + '</b><em>' + r.pts + '</em></div>';
+        }).join('') +
+      '</div>';
     }).join('');
 
     /* The board refreshes every few seconds and this gets rebuilt each time,
        so whether the full order is showing has to outlive the rebuild. */
     const label = function(){ return deciderOpen ? 'Hide full order' : 'Full finishing order'; };
     box.innerHTML =
-      '<div class="dhead"><i class="ddot"></i>Tonight decides it</div>' +
+      '<div class="dhead"><i class="ddot"></i>Tonight decides it<span>Last game</span></div>' +
       lines +
+      '<div class="dfull">' + cols + '</div>' +
       '<button class="dmore" type="button">' + label() + '</button>';
     box.classList.toggle('open', deciderOpen);
     box.querySelector('.dmore').onclick = function(){
@@ -4135,6 +4442,8 @@
     };
     box.hidden = false;
   }
+
+  const ICON_DOC = '<svg viewBox="0 0 16 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M2 1h8l4 4v14H2z"/><path d="M10 1v4h4M5 10h6M5 14h6"/></svg>';
 
   function renderBoard(){
     // Runs on every board refresh; can never be allowed to break the board.
@@ -4195,10 +4504,12 @@
         '<span class="lbname">' +
           (tag[r.id] ? '<em class="lbdup">(' + tag[r.id] + ')</em> ' : '') +
           esc(r.name) + '</span>' +
-        (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">\u{1F4C4}</span>' : '') +
+        (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">' + ICON_DOC + '</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
+    const cnt = document.getElementById('lbCount');
+    if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's');
     const finalNote = (weekComplete() && !demoOn())
       ? ('Final standings — Week ' + currentWeek) : '';
     note.textContent = boardNote || finalNote || (weekLocked ? '' : 'Lock in to post your score.');
@@ -4231,9 +4542,14 @@
     const me = player();
     me.name = v;
     put(PLAYER_KEY, me);
+    const wasLockIn = nameRequired;
     nameRequired = false;
     closeOverlay(nameOverlay);
     syncPool();
+    const sv = document.getElementById('setNameVal');
+    if(sv) sv.textContent = v;
+    // Locking in asked for the name first; now show what got locked.
+    if(wasLockIn && weekLocked) setTimeout(showLocked, 380);
   });
   document.getElementById('nameSkip').addEventListener('click', function(){
     closeOverlay(nameOverlay);
@@ -4344,9 +4660,31 @@
     }
   }
 
-  document.getElementById('verBadge').addEventListener('click', function(){
+  /* Settings: the gear beside the week picker. */
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  document.getElementById('gearBtn').addEventListener('click', function(){
+    document.getElementById('setNameVal').textContent = player().name || 'Not set';
     syncDemoUI();
-    openOverlay(document.getElementById('devOverlay'));
+    openOverlay(settingsOverlay);
+  });
+  /* Picking a setting slides Settings away first, then brings up what was
+     picked — one sheet at a time, never stacked. */
+  function fromSettings(next){
+    if(!settingsOverlay.classList.contains('show')){ next(); return; }
+    closeOverlay(settingsOverlay);
+    setTimeout(next, 300);
+  }
+  document.getElementById('setName').addEventListener('click', function(){
+    fromSettings(function(){ askName(false); });
+  });
+  document.getElementById('settingsClose').addEventListener('click', function(){ closeOverlay(settingsOverlay); });
+  settingsOverlay.addEventListener('click', function(e){ if(e.target === settingsOverlay) closeOverlay(settingsOverlay); });
+
+  document.getElementById('verBadge').addEventListener('click', function(){
+    fromSettings(function(){
+      syncDemoUI();
+      openOverlay(document.getElementById('devOverlay'));
+    });
   });
   const slotOverlay = document.getElementById('slotOverlay');
   document.getElementById('slotBack').addEventListener('click', function(){ closeOverlay(slotOverlay); });
