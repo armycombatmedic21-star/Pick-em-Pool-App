@@ -1362,6 +1362,13 @@
       </span>
       <button class="devtoggle" id="simToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel">
+        <b>Monday night preview</b>
+        <span>Every game final except one, with a pretend pool, so you can see "Tonight decides it." Nobody's real picks or scores are touched.</span>
+      </span>
+      <button class="devtoggle" id="mnfToggle">Off</button>
+    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
@@ -1546,7 +1553,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.2.2';
+  const APP_VERSION = '3.3.0';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2069,6 +2076,20 @@
     const d = new Date(g.date);
     return isNaN(d) ? true : d.getDay() === 0;
   }
+  // Night games kick off 7 PM Eastern or later — judged in Eastern time so
+  // Sunday night reads the same for everyone, wherever their phone is.
+  function isNightGame(g){
+    if(!g || !g.date) return false;
+    const d = new Date(g.date);
+    if(isNaN(d)) return false;
+    let h;
+    try{
+      h = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).format(d), 10);
+    }catch(e){ h = d.getHours(); }
+    return h >= 19;
+  }
+  // Bold white on the kickoff: Thursday, Saturday, Monday, and Sunday night.
+  function standsOut(g){ return !isSunday(g) || isNightGame(g); }
   // Kickoff for a Picks row, as two parts: "Sun" sits on line 1, "1:00 PM" under it.
   function kickoffParts(g){
     if(!g.date) return null;
@@ -2164,7 +2185,7 @@
             logoTag(logoForCity(g, onFav ? dogCity : favCity), 'plogo small') +
             '<span class="mutedcity">' + (onFav ? dogCity : favCity) + '</span>' +
           '</div>' +
-          (kick ? '<span class="kickoff' + (isSunday(g) ? '' : ' offday') + '">' +
+          (kick ? '<span class="kickoff' + (standsOut(g) ? ' offday' : '') + '">' +
             '<span class="kday">' + kick.day + '</span><span class="ktime">' + kick.time + '</span></span>' : '') +
         '</div>' +
         '<div class="actions">' +
@@ -3157,7 +3178,7 @@
       const k = kickoffText(lg, g);
       s1 = k.day;
       s2 = k.time;
-      sCls = 'pre' + (isSunday(g) ? '' : ' offgame');
+      sCls = 'pre' + (standsOut(g) ? ' offgame' : '');
     }
 
     // "1st & 10 at NE 46" — only exists while a game is being played
@@ -3407,7 +3428,7 @@
       else if(lg.state === 'post'){ s1 = 'Final'; cls = 'final'; }
       else{
         const k = kickoffText(lg, g); s1 = k.day; s2 = k.time;
-        if(!isSunday(g)) cls += ' offgame';
+        if(standsOut(g)) cls += ' offgame';
       }
       status.className = 'gstatus ' + cls;
       setText(status.querySelector('[data-role="s1"]'), s1);
@@ -4547,9 +4568,9 @@
     const box = document.getElementById('decider');
     if(!box) return;
     const hide = function(){ box.hidden = true; box.innerHTML = ''; deciderOpen = false; };
-    if(demoOn()) return hide();
+    if(demoOn() && demoMode() !== 'mnf') return hide();
 
-    const rows = board.filter(function(r){ return r.locked !== false; });
+    const rows = poolRows().filter(function(r){ return r.locked !== false; });
     const lg = lastGameLeft();
     if(!lg || rows.length < 2) return hide();
 
@@ -4631,7 +4652,8 @@
       note.textContent = 'Add your name to join the pool.';
       return;
     }
-    if(!board.length){
+    const pool = poolRows();
+    if(!pool.length){
       el.innerHTML = '';
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
       return;
@@ -4639,7 +4661,7 @@
     /* Only locked sheets are on the board. An unlocked entry stays in the
        database — that's what stopped people vanishing for good — but it isn't
        in the pool until they lock back in. */
-    const shown = board.filter(function(r){ return r.locked !== false; });
+    const shown = pool.filter(function(r){ return r.locked !== false; });
     if(!shown.length){
       el.innerHTML = '';
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
@@ -4649,7 +4671,7 @@
     /* Two people can pick the same name. Whoever got there first keeps it
        plain; the next one is (2). Numbered by who published first, so it
        doesn't shuffle as scores move. */
-    rebuildNameTags();
+    rebuildNameTags(pool);
     const tag = nameTags;
 
     // Only call someone the leader if they're actually clear of the field.
@@ -4729,9 +4751,9 @@
   /* "Jeri (2)": the second person to use a name gets a number after it. The
      leaderboard decides first (by who published first, as before), then
      anyone else seen in chat or online, in the order they showed up. */
-  function rebuildNameTags(){
+  function rebuildNameTags(rows){
     const people = [];
-    board.filter(function(r){ return r.locked !== false; }).slice()
+    (rows || board).filter(function(r){ return r.locked !== false; }).slice()
       .sort(function(a,b){ return (a.updated || 0) - (b.updated || 0); })
       .forEach(function(r){ people.push({ id: r.id, name: r.name }); });
     const firstSeen = {};
@@ -5001,6 +5023,64 @@
     const v = getLocal(DEMO_KEY);
     return !!(v && v.on);
   }
+  // 'mix' = every kind of game at once; 'mnf' = Monday night, one game left.
+  function demoMode(){
+    const v = getLocal(DEMO_KEY);
+    return (v && v.on) ? (v.mode === 'mnf' ? 'mnf' : 'mix') : '';
+  }
+
+  /* The pool the leaderboard and "Tonight decides it" read. In the Monday
+     night preview it's a pretend pool made on this phone — the real board
+     (and Firebase) are never changed, and nothing here is ever published. */
+  function poolRows(){ return demoMode() === 'mnf' ? demoBoard() : board; }
+
+  function demoBoard(){
+    const active = games.filter(function(g){ return !g.removed; });
+    if(!active.length) return [];
+    const n = active.length;
+    const sideOf = function(g, k){ return seedOf(g.id + ':' + k) % 3 === 0 ? 'b' : 'a'; };
+    const scoreFor = function(picks){
+      let pts = 0;
+      picks.forEach(function(pk, idx){
+        const g = gameById(pk.i), lg = g && liveFor(g);
+        if(!lg || !lg.completed) return;
+        const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+        const a = lg.scores[abA], b = lg.scores[abB];
+        if(typeof a !== 'number' || typeof b !== 'number') return;
+        const mine = pk.p === 'a' ? a : b, theirs = pk.p === 'a' ? b : a;
+        if(mine >= theirs) pts += idx + 1;
+      });
+      return pts;
+    };
+    const NAMES = ['Jeri', 'Tony', 'Deb', 'Mike', 'Carla', 'Rick', 'Jeri', 'Sam', 'Lou'];
+    const rows = NAMES.map(function(name, k){
+      const order = active.slice().sort(function(x, y){ return seedOf(x.id + '#' + k) - seedOf(y.id + '#' + k); });
+      const picks = order.map(function(g){ return { i: g.id, p: sideOf(g, k) }; });
+      return { id: 'sim' + k, name: name, points: scoreFor(picks), locked: true, share: false,
+               updated: k + 1, picks: picks };
+    });
+    const me = player();
+    if(me.name){
+      const mine = active.map(function(g){
+        return { i: g.id, p: pickedCityOf(g) === g.cityA ? 'a' : 'b' };
+      });
+      rows.push({ id: me.id, name: me.name, points: weekScore(games, demoResults).earned,
+                  locked: true, share: false, updated: 0, picks: mine });
+    }
+    // Make the last game matter: two pretend players split on it, both at
+    // their biggest number, three points apart at the top.
+    const last = lastGameLeft();
+    if(last && rows.length > 2){
+      const top = Math.max.apply(null, rows.map(function(r){ return r.points; }));
+      [[0, 'a', top + 2], [1, 'b', top - 1]].forEach(function(x){
+        const r = rows[x[0]];
+        r.picks = r.picks.filter(function(pk){ return pk.i !== last.id; });
+        r.picks.push({ i: last.id, p: x[1] });
+        r.points = x[2];
+      });
+    }
+    return rows.sort(function(a, b){ return b.points - a.points; });
+  }
 
   function seedOf(id){
     let s = 0;
@@ -5011,12 +5091,16 @@
   function simulateScoreboard(){
     const active = games.filter(function(g){ return !g.removed; });
     const minute = Math.floor(Date.now() / 60000);
+    // Monday night preview: the latest kickoff is the one game still going.
+    const mnf = demoMode() === 'mnf';
+    let lastId = active.length ? active[active.length - 1].id : null, lastT = -Infinity;
+    active.forEach(function(g){ const t = Date.parse(g.date || ''); if(!isNaN(t) && t >= lastT){ lastT = t; lastId = g.id; } });
     return active.map(function(g, i){
       const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
       const seed = seedOf(g.id);
       // Four states so the preview always shows a win, a loss, a live game
       // and one still to come — the whole range, not whatever chance gives.
-      const bucket = i % 4;   // 0 win · 1 loss · 2 live · 3 upcoming
+      const bucket = mnf ? (g.id === lastId ? 2 : i % 2) : i % 4;   // 0 win · 1 loss · 2 live · 3 upcoming
       const scores = {};
 
       if(bucket === 3){
@@ -5053,7 +5137,7 @@
         /* Live games take turns being each kind of live the real feed sends,
            so every detail can be checked: a drive in the red zone, halftime or
            end of a quarter, a two-minute drive at midfield, and overtime. */
-        const kind = Math.floor(i / 4) % 4;
+        const kind = mnf ? 2 : Math.floor(i / 4) % 4;
         const secs = 60 * (14 - (minute % 15));
         let period = 1 + (minute % 4);
         let clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
@@ -5076,7 +5160,7 @@
                  clock:clock, period:period, poss:poss, redZone:rz, downDistance:dd, date:g.date };
       }
       // One final ends level, to show a tie: no win, no loss, points not banked.
-      if(i === 5){ scores[abA] = scores[abB] = hi; }
+      if(i === 5 && !mnf){ scores[abA] = scores[abB] = hi; }
       return { id:g.id, abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
                state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
     });
@@ -5100,10 +5184,17 @@
 
   function syncDemoUI(){
     const on = demoOn();
+    const mode = demoMode();
     const t = document.getElementById('simToggle');
-    if(t){ t.textContent = on ? 'On' : 'Off'; t.classList.toggle('on', on); }
+    if(t){ t.textContent = mode === 'mix' ? 'On' : 'Off'; t.classList.toggle('on', mode === 'mix'); }
+    const m = document.getElementById('mnfToggle');
+    if(m){ m.textContent = mode === 'mnf' ? 'On' : 'Off'; m.classList.toggle('on', mode === 'mnf'); }
     const bar = document.getElementById('demoBar');
-    if(bar) bar.style.display = on ? 'block' : 'none';
+    if(bar){
+      bar.style.display = on ? 'block' : 'none';
+      bar.textContent = mode === 'mnf' ? 'MONDAY NIGHT PREVIEW \u2014 pretend pool, not real scores'
+                                       : 'SIMULATED GAMES \u2014 not real scores';
+    }
     const badge = document.getElementById('verBadge');
     if(badge){
       badge.textContent = 'v' + APP_VERSION + (on ? ' · SIM' : '');
@@ -5158,12 +5249,19 @@
   document.getElementById('devOverlay').addEventListener('click', function(e){
     if(e.target === this) closeOverlay(this);
   });
-  document.getElementById('simToggle').addEventListener('click', function(){
-    put(DEMO_KEY, { on: !demoOn() });
+  function setDemo(v){
+    put(DEMO_KEY, v);
     liveGames = [];
     demoResults = {};
     syncDemoUI();
     if(isTab('live')) refreshScores();
+    try{ renderBoard(); }catch(e){}
+  }
+  document.getElementById('simToggle').addEventListener('click', function(){
+    setDemo(demoMode() === 'mix' ? { on: false } : { on: true, mode: 'mix' });
+  });
+  document.getElementById('mnfToggle').addEventListener('click', function(){
+    setDemo(demoMode() === 'mnf' ? { on: false } : { on: true, mode: 'mnf' });
   });
 
   syncDemoUI();
