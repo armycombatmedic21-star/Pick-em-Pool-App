@@ -1563,7 +1563,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.3.1';
+  const APP_VERSION = '3.3.2';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3680,13 +3680,26 @@
     return { points: points, decided: decided, total: e.picks.length };
   }
 
+  /* 2026 test sheets from before launch, hidden from every standings table.
+     Nothing is deleted from Firebase; matched by week and exact name. The list
+     switches itself off on July 1, 2027 so it can never hide a real player next
+     season. To bring one back sooner, take its name out. (A function, so it's
+     ready before anything else runs.) */
+  function isHiddenSheet(week, name){
+    if(Date.now() >= Date.UTC(2027, 6, 1)) return false;
+    const HIDDEN = { 1: ['Test', 'Andrea', 'Jeri'], 3: ['Test', 'test', 'Andrea'] };
+    const list = HIDDEN[parseInt(week, 10)];
+    return !!(list && list.indexOf(name) !== -1);
+  }
+
   function entriesToRows(data){
     const rows = [];
     Object.keys(data || {}).forEach(function(id){
       const e = data[id];
       if(!e || !e.name || typeof e.points !== 'number') return;
       rows.push({ id: id, name: e.name, points: e.points,
-                  decided: e.decided || 0, total: e.total || 0 });
+                  decided: e.decided || 0, total: e.total || 0,
+                  locked: (e.locked !== false) });
     });
     return rows;
   }
@@ -3767,7 +3780,8 @@
               if(!e || !e.name) return;
               const sc = scoreWithMap(e, built.map);
               rows.push({ id: id, name: e.name, points: sc.points,
-                          decided: sc.decided, total: sc.total });
+                          decided: sc.decided, total: sc.total,
+                          locked: (e.locked !== false) });
             });
             for(let i = 0; i < seasonWeeks.length; i++){
               if(seasonWeeks[i].week === item.week) seasonWeeks[i].rows = rows;
@@ -3812,6 +3826,8 @@
     const byPlayer = {};
     seasonWeeks.forEach(function(wk){
       wk.rows.forEach(function(r){
+        // Same rule as the weekly board: an unlocked sheet isn't in the pool.
+        if(r.locked === false || isHiddenSheet(wk.week, r.name)) return;
         if(!byPlayer[r.id]) byPlayer[r.id] = { id: r.id, name: r.name, total: 0, wk: {} };
         byPlayer[r.id].name = r.name;          // latest name they used wins
         byPlayer[r.id].wk[wk.week] = r.points;
@@ -4530,7 +4546,9 @@
           });
         }
         rows.sort(function(a,b){ return b.points - a.points; });
-        board = rows;
+        // Hidden test sheets never reach the board. The self-heal below still
+        // checks the full list, so a test phone doesn't keep re-posting itself.
+        board = rows.filter(function(r){ return !isHiddenSheet(week, r.name); });
         boardNote = '';
 
         /* The board must agree with this phone in both directions. Locked and
