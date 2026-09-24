@@ -810,6 +810,7 @@
   .restag{ font-size:10px; font-weight:800; letter-spacing:0.8px; padding:2px 6px; border-radius:5px; }
   .restag.win{ color: var(--green); background: rgba(61,220,132,0.14); }
   .restag.loss{ color: var(--red); background: rgba(255,59,78,0.14); }
+  .restag.tie{ color: var(--text); background: rgba(147,174,200,0.14); }
 
   /* down and distance, spanning under the two team rows */
   .gdd{
@@ -850,6 +851,7 @@
   .gficon svg{ width:14px; height:14px; display:block; }
   .gficon.won{ color: var(--green); }
   .gficon.lost{ color: var(--red); }
+  .gftie{ flex:none; font-size:11px; font-weight:800; letter-spacing:0.6px; text-transform:uppercase; color: var(--muted); }
 
   /* Games you took off your sheet */
   .offsheet{ margin-top:16px; }
@@ -1385,7 +1387,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.0.1';
+  const APP_VERSION = '3.1.0';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2712,7 +2714,8 @@
       const pts = i + 1;
       possible += pts;
       const r = res[g.id];
-      if(r === 'win'){ earned += pts; decided++; }
+      // Pool rule: a tie pays everyone who picked either team.
+      if(r === 'win' || r === 'tie'){ earned += pts; decided++; }
       else if(r === 'loss'){ decided++; }
     });
     return { earned: earned, possible: possible, decided: decided, total: active.length };
@@ -2886,8 +2889,8 @@
       const other = lg.abbrs.filter(function(x){ return x !== mine; })[0];
       const myScore = lg.scores[mine], theirScore = lg.scores[other];
       if(typeof myScore !== 'number' || typeof theirScore !== 'number') return;
-      if(myScore === theirScore) return;   // tie: leave it for you to decide
-      results[g.id] = myScore > theirScore ? 'win' : 'loss';
+      // A tie counts as a win for both sides (pool rule), recorded as 'tie'.
+      results[g.id] = myScore === theirScore ? 'tie' : (myScore > theirScore ? 'win' : 'loss');
       changed = true;
     });
     if(changed) saveAll();
@@ -3002,7 +3005,7 @@
     const rz = !!(lg && lg.state === 'in' && lg.redZone && lg.poss && lg.downDistance);
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
     // Results fill in automatically when a game goes final — no buttons needed.
-    const resTag = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '✓ WON' : '✕ LOST') + '</span>' : '';
+    const resTag = r ? '<span class="restag ' + r + '">' + resLabel(r) + '</span>' : '';
 
     const liveCls = (lg && lg.state === 'in') ? ' islive' : '';
     const grp = cardGroup(lg, r);
@@ -3064,11 +3067,15 @@
     }
     const nm = function(c){ return '<span' + (c === pickCity ? ' class="mine"' : '') + '>' + esc(c) + '</span>'; };
     const score = (sa !== null && sh !== null) ? ' <span class="gfsc">' + sa + '\u2013' + sh + '</span> ' : ' ';
+    // A tie stays grey but still pays: "+6" and the word Tie instead of a mark.
     const res = r === 'win' ? 'won' : (r === 'loss' ? 'lost' : '');
-    return '<span class="gfbadge' + (res ? ' ' + res : '') + '">' + (r === 'win' ? '+' : '') + pts + '</span>' +
+    const paid = r === 'win' || r === 'tie';
+    return '<span class="gfbadge' + (res ? ' ' + res : '') + '">' + (paid ? '+' : '') + pts + '</span>' +
       '<span class="gfline">' + nm(away) + score + '@ ' + nm(home) + '</span>' +
-      (res ? '<span class="gficon ' + res + '">' + (res === 'won' ? ICON_WON : ICON_LOST) + '</span>' : '');
+      (res ? '<span class="gficon ' + res + '">' + (res === 'won' ? ICON_WON : ICON_LOST) + '</span>'
+           : (r === 'tie' ? '<span class="gftie">Tie</span>' : ''));
   }
+  function resLabel(r){ return r === 'win' ? '\u2713 WON' : (r === 'tie' ? 'TIE' : '\u2715 LOST'); }
 
   function groupHeads(){
     return '<div class="ggroup" data-group="live" style="order:0" hidden>' +
@@ -3084,18 +3091,18 @@
   }
   function syncGroups(active, shown){
     const n = { live: 0, next: 0, final: 0 };
-    let won = 0, lost = 0;
+    let won = 0, lost = 0, tied = 0;
     active.forEach(function(g){
       const r = shown[g.id];
       n[cardGroup(liveFor(g), r)]++;
-      if(r === 'win') won++; else if(r === 'loss') lost++;
+      if(r === 'win') won++; else if(r === 'loss') lost++; else if(r === 'tie') tied++;
     });
     ['live', 'next', 'final'].forEach(function(k){
       const h = resultsList.querySelector('.ggroup[data-group="' + k + '"]');
       if(!h) return;
       h.hidden = !n[k];
       let t = n[k] + ' game' + (n[k] === 1 ? '' : 's');
-      if(k === 'final' && (won || lost)) t += ' \u00B7 ' + won + '\u2013' + lost;
+      if(k === 'final' && (won || lost || tied)) t += ' \u00B7 ' + won + '\u2013' + lost + (tied ? '\u2013' + tied : '');
       setText(h.querySelector('[data-role="count"]'), t);
     });
   }
@@ -3244,7 +3251,7 @@
       setText(el2, s2);
       if(el2) el2.hidden = !s2;
       const rt = status.querySelector('[data-role="restag"]');
-      const want = r ? '<span class="restag ' + r + '">' + (r === 'win' ? '\u2713 WON' : '\u2715 LOST') + '</span>' : '';
+      const want = r ? '<span class="restag ' + r + '">' + resLabel(r) + '</span>' : '';
       if(rt && rt.innerHTML !== want) rt.innerHTML = want;
     }
 
@@ -3471,9 +3478,9 @@
       if(!g || !g.done) return;
       const mine = pk.p === 'a' ? g.a : g.b;
       const theirs = pk.p === 'a' ? g.b : g.a;
-      if(typeof mine !== 'number' || typeof theirs !== 'number' || mine === theirs) return;
+      if(typeof mine !== 'number' || typeof theirs !== 'number') return;
       decided++;
-      if(mine > theirs) points += (idx + 1);
+      if(mine >= theirs) points += (idx + 1);   // a tie pays both sides
     });
     return { points: points, decided: decided, total: e.picks.length };
   }
@@ -3844,12 +3851,14 @@
     const lg = liveGames.filter(function(x){ return x.id === gid; })[0];
     if(lg && lg.completed){
       const a = lg.scores[lg.away], b = lg.scores[lg.home];
-      if(typeof a === 'number' && typeof b === 'number' && a !== b){
+      if(typeof a === 'number' && typeof b === 'number'){
+        if(a === b) return 'tie';
         return ((side === 'a') ? (a > b) : (b > a)) ? 'win' : 'loss';
       }
       return null;
     }
     const r = results[gid];
+    if(r === 'tie') return 'tie';
     if(r !== 'win' && r !== 'loss') return null;
     const g = gameById(gid);
     const ms = g ? mySide(g) : null;
@@ -3858,7 +3867,7 @@
   }
 
   function cellFor(city, spread, res, pts, fav, opp){
-    const cls = res === 'win' ? ' won' : (res === 'loss' ? ' lost' : '');
+    const cls = (res === 'win' || res === 'tie') ? ' won' : (res === 'loss' ? ' lost' : '');
     return '<span class="vteam' + cls + '">' +
       '<span class="vtop">' +
         '<b class="vpt' + cls + '">' + pts + '</b>' +
@@ -3940,7 +3949,7 @@
 
     function num(pts, res){
       if(!pts) return '<b class="h2hn none">\u2014</b>';
-      return '<b class="h2hn' + (res === 'win' ? ' won' : res === 'loss' ? ' lost' : '') + '">' + pts + '</b>';
+      return '<b class="h2hn' + ((res === 'win' || res === 'tie') ? ' won' : res === 'loss' ? ' lost' : '') + '">' + pts + '</b>';
     }
     function pick(g, side, res, where){
       const sp = spreadForSide(g, side);
@@ -4294,9 +4303,9 @@
       const mine = pk.p === 'a' ? abA : abB;
       const other = pk.p === 'a' ? abB : abA;
       const a = lg.scores[mine], b = lg.scores[other];
-      if(typeof a !== 'number' || typeof b !== 'number' || a === b) return;
+      if(typeof a !== 'number' || typeof b !== 'number') return;
       decided++;
-      if(a > b) points += (idx + 1);
+      if(a >= b) points += (idx + 1);      // a tie pays both sides
     });
     return { points: points, decided: decided };
   }
@@ -4651,8 +4660,8 @@
         ? (g.abbrA || ABBR[g.cityA]) : (g.abbrB || ABBR[g.cityB]);
       const other = lg.abbrs.filter(function(x){ return x !== mine; })[0];
       const a = lg.scores[mine], b = lg.scores[other];
-      if(typeof a !== 'number' || typeof b !== 'number' || a === b) return;
-      demoResults[g.id] = a > b ? 'win' : 'loss';
+      if(typeof a !== 'number' || typeof b !== 'number') return;
+      demoResults[g.id] = a === b ? 'tie' : (a > b ? 'win' : 'loss');
     });
   }
 
