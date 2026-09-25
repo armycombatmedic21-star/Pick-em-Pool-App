@@ -422,7 +422,7 @@
   }
   @media (max-width: 400px){
     .gstatus{ width:86px; }
-    .gcard.islive .gstatus{ width:74px; }
+    .gcard.islive .gstatus{ width:52px; }
     .tname{ font-size:0.9rem; }
   }
   @media (max-width: 340px){
@@ -977,8 +977,20 @@
   .gstatus.live.solo .s1{ font-size:16px; color:#ffffff; }
   /* Live cards: the divider sits closer to the clock, giving names more room.
      "Halftime" stays one word, just a little smaller to fit. */
-  .gcard.islive .gstatus{ width:68px; }
-  .gcard.islive .gstatus.live.solo .s1{ font-size:13px; letter-spacing:-0.3px; }
+  .gcard.islive .gstatus{ width:52px; padding-left:6px; }
+  .gcard.islive .gstatus.live .s1{ font-size:14px; }
+  .gcard.islive .gstatus.live .s2{ font-size:16px; letter-spacing:-0.4px; }
+  .gcard.islive .gstatus.live.solo .s1{ font-size:10.5px; letter-spacing:-0.3px; }
+  /* Tighter live cards so team names fit on narrow Android phones: less
+     padding, smaller gaps, and the football tucked against the score, taking
+     space only on the team that has the ball. */
+  .gcard.islive{ padding:10px; }
+  .gcard.islive .gmain{ gap:8px; }
+  .gcard.islive .gdd{ padding-left:48px; }
+  .gcard.islive .trow{ gap:5px; }
+  .gcard.islive .tposs{ width:auto; margin-right:-3px; }
+  .gcard.islive .tscore{ min-width:22px; }
+  .tposs:empty{ display:none; }
   .gstatus.offgame .s1, .gstatus.offgame .s2{ color:#ffffff; }
   .s2[hidden]{ display:none; }
   .restag{ font-size:10px; font-weight:800; letter-spacing:0.8px; padding:2px 6px; border-radius:5px; }
@@ -1673,6 +1685,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.6.1</b> Live cards are tighter so team names fit on narrow Android phones: the clock column is slimmer, the football sits right against the score, and the gaps are smaller. Previews no longer mix in real results.</div>
       <div class="cl"><b>3.6.0</b> Sunday Night Football banner: once the night game is the only Sunday game left, it shows who will lead going into Monday night either way. Tonight decides it now waits for the day of the last game, says "Already decided" when nobody can catch the leader, and both banners show team logos and the margin. Live cards flash when a team scores, with a badge (TD, FG, Safety, extra point, two-point try) until the next drive starts. The leading score is bolder and team names get more room. Online dots show up within seconds.</div>
       <div class="cl"><b>3.5.0</b> The pool admin can take a sheet off this week's standings — that player can lock back in any time — and delete chat messages. A deleted message disappears for everyone within about 30 seconds.</div>
       <div class="cl"><b>3.4.0</b> Quick Tips: six short animated cards under "1 = least confident" showing how to drag, switch a pick, remove a game, jump to a spot, lock in and start over. Everyone sees them once. Once any game on your locked sheet goes final, that sheet stays locked for the week.</div>
@@ -1938,7 +1951,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.6.0';
+  const APP_VERSION = '3.6.1';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3296,12 +3309,10 @@
   });
   const resultsList = document.getElementById('resultsList');
 
+  // A preview shows only its own pretend results. Mixing in real ones put a
+  // real LOST on a game the preview was showing as live.
   function activeResults(){
-    if(!demoOn()) return results;
-    const merged = {};
-    Object.keys(results).forEach(function(k){ merged[k] = results[k]; });
-    Object.keys(demoResults).forEach(function(k){ merged[k] = demoResults[k]; });
-    return merged;
+    return demoOn() ? demoResults : results;
   }
 
   function weekScore(picks, res){
