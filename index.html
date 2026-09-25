@@ -84,6 +84,19 @@
   }
   .devtoggle.on{ background: var(--gold); border-color: var(--gold); color:#20180a; }
   .changelog{ margin-top:6px; }
+  /* Admin (this phone only) */
+  .confirmyes.danger{ background: var(--red); color:#ffffff; box-shadow:none; }
+  .confirmyes.danger:active{ background:#ff6573; }
+  .confirmsub{ margin:-8px 0 16px; color: var(--muted); font-size:13px; font-weight:700; }
+  .codeinput{ letter-spacing:10px; text-align:center; font-size:22px; }
+  .chatline{ display:flex; align-items:center; gap:8px; max-width:100%; }
+  .chatmsg.mine .chatline{ flex-direction:row-reverse; }
+  .chatdel{
+    position:relative; flex:none; width:24px; height:24px; padding:0; border-radius:50%;
+    border:1px solid rgba(255,59,78,0.45); background: rgba(255,59,78,0.1); color: var(--red);
+    font-size:15px; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .chatdel::before{ content:''; position:absolute; inset:-10px; }
   .changelog h3{
     font-size:0.8rem; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;
     color: var(--muted); margin:0 0 8px;
@@ -1596,14 +1609,32 @@
       </span>
       <button class="devtoggle" id="mnfToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel">
+        <b>Admin</b>
+        <span>Take a player off this week's standings, or delete chat messages. Only on this phone.</span>
+      </span>
+      <button class="devtoggle" id="adminToggle">Off</button>
+    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
-      <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
+      <div class="cl"><b>3.5.0</b> The pool admin can take a sheet off this week's standings — that player can lock back in any time — and delete chat messages. A deleted message disappears for everyone within about 30 seconds.</div>
+      <div class="cl"><b>3.4.0</b> Quick Tips: six short animated cards under "1 = least confident" showing how to drag, switch a pick, remove a game, jump to a spot, lock in and start over. Everyone sees them once. Once any game on your locked sheet goes final, that sheet stays locked for the week.</div>
+      <div class="cl"><b>3.3.2</b> Test sheets are hidden from the pool. Season Standings only counts sheets that were locked in.</div>
+      <div class="cl"><b>3.3.1</b> Bigger title with a slow white-to-cyan shimmer (it holds still if your phone has reduced motion on).</div>
+      <div class="cl"><b>3.3.0</b> Sunday night games stand out in bold white. Added a Monday night preview to this menu.</div>
+      <div class="cl"><b>3.2.2</b> Kickoff times stack on two lines so team names get more room. Tighter FAV/DOG chip and remove button.</div>
+      <div class="cl"><b>3.2.1</b> Header, week picker and status line fixes for Android.</div>
+      <div class="cl"><b>3.2.0</b> Pool Chat. Green dots show who's online, and two people with the same name show as "Jeri (2)". Live needs a name first.</div>
+      <div class="cl"><b>3.1.0</b> Ties pay both sides.</div>
+      <div class="cl"><b>3.0.1</b> Up next shows just the day for kickoff. Fuller game simulator.</div>
+      <div class="cl"><b>3.0.0</b> New look across Picks, Sheet, Live and every popup.</div>
       <div class="cl"><b>2.14.0</b> Your sheet follows the spread until you change something. Reordering, switching a pick to the underdog, or dropping a game now all stop the automatic reordering for that week. Reset to Spread Order puts it back.</div>
       <div class="cl"><b>2.12.0</b> Games in progress now have a white border. Green means a game you won, so a card still being played can't be mistaken for one already in the bank.</div>
       <div class="cl"><b>2.11.0</b> Live cards show a Red Zone badge when a drive gets inside the 20. Scores are all one colour now — the gold team name already tells you which one is your pick.</div>
       <div class="cl"><b>2.10.0</b> Games you took off your sheet now appear at the bottom of the Score Tracker, dimmed, so you can still follow them. They show a dash instead of points — they were never in play.</div>
+      <div class="cl"><b>2.9.0</b> Fixed people vanishing from the leaderboard after unlocking and locking back in. Unlocking no longer removes you — you show as not locked in until you lock again. Your own row is now green.</div>
       <div class="cl"><b>2.8.0</b> Open Sheets: lock your picks in, open your sheet, and you can see the sheet of anyone else who has opened theirs. Compare by confidence rank or head-to-head game by game. Resets every week.</div>
       <div class="cl"><b>2.7.2</b> Small fixes under the hood.</div>
       <div class="cl"><b>2.7.1</b> Small fixes under the hood.</div>
@@ -1779,6 +1810,52 @@
   </div>
 </div>
 
+<div class="overlay" id="adminCodeOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Admin code">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Admin code</h2></div>
+    <p>Enter it once and this phone remembers. After that it's just the switch.</p>
+    <input id="adminCodeInput" class="nameinput codeinput" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+    <p class="namenote" id="adminCodeNote"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="adminCodeGo">Turn On Admin</button>
+      <button class="confirmcancel" id="adminCodeCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminPlayerOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Admin">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><h2 id="adminPlayerName"></h2></div>
+    <p class="confirmsub" id="adminPlayerSub"></p>
+    <div class="confirmrow">
+      <button class="confirmyes danger" id="adminRemove">Unlock and remove this week</button>
+      <button class="confirmcancel" id="adminView">View sheet</button>
+      <button class="confirmcancel" id="adminPlayerCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminConfirmOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Confirm">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><h2 id="adminConfirmTitle"></h2></div>
+    <p id="adminConfirmText"></p>
+    <div class="confirmrow">
+      <button class="confirmyes danger" id="adminConfirmYes"></button>
+      <button class="confirmcancel" id="adminConfirmCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminNoticeOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Sheet unlocked">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></span><h2>Admin unlocked your sheet</h2></div>
+    <p id="adminNoticeText"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="adminNoticeOk">Got it</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Copied</div>
 
 <script>
@@ -1806,7 +1883,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.4.0';
+  const APP_VERSION = '3.5.0';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3090,12 +3167,13 @@
   function doLock(){
     if(weekLocked){ askUnlock(); return; }
     weekLocked = true;
+    noteLockTime(currentWeek);
     freezeOrder();
     saveAll();
     syncLockBtn();
     stampLine(currentWeek);
     if(!player().name){ askName(true); return; }
-    syncPool();
+    publishNow();
     showLocked();
   }
 
@@ -4603,6 +4681,7 @@
     if(!row || !row.dataset.pid) return;
     const pid = row.dataset.pid;
     if(pid === player().id) return;
+    if(adminOn()){ openAdminPlayer(pid); return; }
     const them = board.filter(function(r){ return r.id === pid; })[0];
     if(!them || !them.share) return;
     if(!sharingOn(currentWeek)){ askShare(pid); return; }
@@ -4700,6 +4779,7 @@
     // Always `results`, never activeResults() — simulated wins must never
     // reach the pool, even while the preview toggle is on.
     const sc = weekScore(games, results);
+    lastPushAt = Date.now();
     // Picks ride along so other devices can score this sheet from live data
     // even while this phone is closed. They are never displayed to anyone.
     const picks = activeGames().map(function(g){
@@ -4812,6 +4892,7 @@
                         picks: Array.isArray(e.picks) ? e.picks : [],
                         share: !!e.share,
                         locked: (e.locked !== false),
+                        adminAt: (typeof e.adminUnlockedAt === 'number') ? e.adminUnlockedAt : 0,
                         updated: e.updated || 0 });
           });
         }
@@ -4826,6 +4907,15 @@
            way a failed or late write gets corrected on the next load instead
            of leaving you stuck in the wrong state. */
         const meNow = player();
+        /* The admin unlocked this sheet from their phone. Respect it here, before
+           the self-heal below would put it straight back on the board. A lock-in
+           made after the admin's unlock wins. */
+        if(week === currentWeek && meNow.id && weekLocked){
+          const mineA = rows.filter(function(r){ return r.id === meNow.id; })[0];
+          if(mineA && mineA.locked === false && mineA.adminAt && mineA.adminAt > lockTime(week)){
+            adminUnlockedMe(week);
+          }
+        }
         if(week === currentWeek && meNow.name && meNow.id && (Date.now() - lastHeal) > 8000){
           const mine = rows.filter(function(r){ return r.id === meNow.id; })[0];
           if(weekLocked && !mine){
@@ -5003,9 +5093,45 @@
     note.textContent = boardNote || finalNote || (weekLocked ? '' : 'Lock in to post your score.');
   }
 
+  /* Background refreshes read the board first, so an admin unlock is seen
+     before this phone publishes again. Locking in publishes first — a fresh
+     lock-in always wins. */
+  let lastPushAt = 0;
   function syncPool(){
+    const week = currentWeek, started = Date.now();
+    fetchBoard(week, function(){
+      renderBoard();
+      // Skip only if the board's own self-heal already published just now.
+      if(week === currentWeek && lastPushAt < started) pushScore();
+    });
+  }
+  function publishNow(){
     pushScore();
     fetchBoard(currentWeek, renderBoard);
+  }
+
+  const LOCKAT_KEY = 'pickem-lockat';
+  function lockTime(week){
+    const v = getLocal(LOCKAT_KEY);
+    return (v && typeof v['w' + week] === 'number') ? v['w' + week] : 0;
+  }
+  function noteLockTime(week){
+    const v = getLocal(LOCKAT_KEY) || {};
+    v['w' + week] = Date.now();
+    put(LOCKAT_KEY, v);
+  }
+
+  /* This phone's sheet was unlocked by the admin. */
+  function adminUnlockedMe(week){
+    weekLocked = false;
+    saveAll();
+    syncLockBtn();
+    stampLine(week);
+    render();
+    const text = 'You\u2019re off the Week ' + week + ' standings. Lock in again any time to get back on.';
+    document.getElementById('adminNoticeText').textContent = text;
+    if(overlayStack.length) toast('Admin unlocked your sheet \u2014 removed from standings this week');
+    else openOverlay(adminNoticeOverlay);
   }
 
   /* ---------- online dots ----------
@@ -5103,19 +5229,33 @@
     return CHAT_COLORS[h % CHAT_COLORS.length];
   }
 
-  function pollChat(){
+  /* full: re-read the last 200 so messages the admin deleted drop off this
+     phone too. Otherwise only messages newer than the last one seen are read. */
+  function pollChat(full){
     if(chatBusy || document.hidden || !player().name || typeof fetch !== 'function') return;
     const week = chatWeek();
     if(week !== chatWeekLoaded){ chatMsgs = []; chatSeen = {}; chatLastT = 0; chatWeekLoaded = week; }
-    const q = chatLastT
-      ? '?orderBy=%22t%22&startAt=' + (chatLastT + 1)
-      : '?orderBy=%22t%22&limitToLast=200';
+    const whole = !chatLastT || full === true;
+    const q = whole
+      ? '?orderBy=%22t%22&limitToLast=200'
+      : '?orderBy=%22t%22&startAt=' + (chatLastT + 1);
     chatBusy = true;
     fetch(chatUrl(week) + q)
       .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
       .then(function(data){
         if(week !== chatWeek()) return;
         let added = false;
+        if(whole && chatMsgs.length){
+          const keys = Object.keys(data || {});
+          let oldest = Infinity;
+          keys.forEach(function(k){ const m = data[k]; if(m && typeof m.t === 'number' && m.t < oldest) oldest = m.t; });
+          const before = chatMsgs.length;
+          // Anything older than the 200 just read wasn't checked, so it stays.
+          chatMsgs = chatMsgs.filter(function(m){
+            return (data && data[m.id]) || (keys.length >= 200 && m.t < oldest);
+          });
+          if(chatMsgs.length !== before) added = true;
+        }
         Object.keys(data || {}).forEach(function(k){
           const m = data[k];
           if(chatSeen[k] || !m || typeof m.t !== 'number' || typeof m.text !== 'string' || typeof m.pid !== 'string') return;
@@ -5199,6 +5339,7 @@
       return;
     }
     let prev = null;
+    const admin = adminOn();
     chatList.innerHTML = items.map(function(m){
       if(m.sys){ prev = null; return '<div class="chatsys">' + esc(m.text) + '</div>'; }
       const mine = m.pid === me.id;
@@ -5207,8 +5348,12 @@
       const who = !first ? '' : mine
         ? '<span class="chatwho" style="color: var(--green)"><i>' + esc(chatTime(m.t)) + ' \u00B7 </i>' + esc(shownName(m.pid, me.name || m.name)) + '</span>'
         : '<span class="chatwho" style="color:' + chatColor(m.pid) + '">' + esc(shownName(m.pid, m.name)) + ' <i>\u00B7 ' + esc(chatTime(m.t)) + '</i></span>';
-      return '<div class="chatmsg' + (mine ? ' mine' : '') + (first ? ' first' : '') + '">' + who +
-        '<div class="chatbubble">' + esc(m.text) + '</div></div>';
+      const bubble = '<div class="chatbubble">' + esc(m.text) + '</div>';
+      const body = admin
+        ? '<div class="chatline">' + bubble +
+            '<button class="chatdel" type="button" data-mid="' + esc(m.id) + '" aria-label="Delete message">\u00D7</button></div>'
+        : bubble;
+      return '<div class="chatmsg' + (mine ? ' mine' : '') + (first ? ' first' : '') + '">' + who + body + '</div>';
     }).join('');
     if(!keepBottom || nearBottom) chatList.scrollTop = chatList.scrollHeight;
   }
@@ -5220,7 +5365,7 @@
     openOverlay(chatOverlay);
     chatList.scrollTop = chatList.scrollHeight;
     markChatRead();
-    pollChat();
+    pollChat(true);
     readPresence();
   }
 
@@ -5262,7 +5407,7 @@
   setInterval(function(){
     if(document.hidden) return;
     chatTicks++;
-    pollChat();
+    pollChat(chatTicks % 6 === 0);
     if(chatTicks % 3 === 0) readPresence();
     if(chatTicks % 6 === 0) beat();
   }, 5000);
@@ -5271,6 +5416,159 @@
     beat(); pollChat(); readPresence();
   });
   window.addEventListener('pagehide', dropPresence);
+
+  /* ---------- admin (this phone only) ----------
+     A code-gated switch in the Preview Menu. It only decides which buttons this
+     phone shows. The database lets any app make these same writes, so this is
+     for cleaning up the pool, not security. */
+  const ADMIN_KEY = 'pickem-admin';
+  const ADMIN_CODE = '1777';
+  const adminCodeOverlay = document.getElementById('adminCodeOverlay');
+  const adminPlayerOverlay = document.getElementById('adminPlayerOverlay');
+  const adminConfirmOverlay = document.getElementById('adminConfirmOverlay');
+  const adminNoticeOverlay = document.getElementById('adminNoticeOverlay');
+  let adminPid = null;
+  let adminAction = null;
+
+  function adminUnlocked(){ const v = getLocal(ADMIN_KEY); return !!(v && v.ok === true); }
+  function adminOn(){ const v = getLocal(ADMIN_KEY); return !!(v && v.ok === true && v.on === true); }
+  function syncAdminUI(){
+    const t = document.getElementById('adminToggle');
+    if(t){ const on = adminOn(); t.textContent = on ? 'On' : 'Off'; t.classList.toggle('on', on); }
+  }
+  function setAdmin(on){
+    put(ADMIN_KEY, { ok: true, on: !!on });
+    syncAdminUI();
+    try{ renderBoard(); }catch(e){}
+    if(chatOverlay.classList.contains('show')) renderChat(true);
+    toast(on ? 'Admin on' : 'Admin off');
+  }
+  document.getElementById('adminToggle').addEventListener('click', function(){
+    if(adminUnlocked()){ setAdmin(!adminOn()); return; }
+    document.getElementById('adminCodeInput').value = '';
+    document.getElementById('adminCodeNote').textContent = '';
+    openOverlay(adminCodeOverlay);
+  });
+  function tryAdminCode(){
+    const v = String(document.getElementById('adminCodeInput').value || '').trim();
+    if(v !== ADMIN_CODE){
+      document.getElementById('adminCodeNote').textContent = 'That\u2019s not it.';
+      return;
+    }
+    closeOverlay(adminCodeOverlay);
+    setAdmin(true);
+  }
+  document.getElementById('adminCodeGo').addEventListener('click', tryAdminCode);
+  document.getElementById('adminCodeInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); tryAdminCode(); }
+  });
+  document.getElementById('adminCodeCancel').addEventListener('click', function(){ closeOverlay(adminCodeOverlay); });
+  adminCodeOverlay.addEventListener('click', function(e){ if(e.target === adminCodeOverlay) closeOverlay(adminCodeOverlay); });
+
+  // Tapping a name on the leaderboard with admin on.
+  function openAdminPlayer(pid){
+    const r = board.filter(function(x){ return x.id === pid; })[0];
+    if(!r) return;
+    adminPid = pid;
+    document.getElementById('adminPlayerName').textContent = shownName(pid, r.name);
+    document.getElementById('adminPlayerSub').textContent =
+      'Week ' + currentWeek + ' \u00B7 ' + r.points + ' pts';
+    openOverlay(adminPlayerOverlay);
+  }
+  document.getElementById('adminPlayerCancel').addEventListener('click', function(){ closeOverlay(adminPlayerOverlay); });
+  adminPlayerOverlay.addEventListener('click', function(e){ if(e.target === adminPlayerOverlay) closeOverlay(adminPlayerOverlay); });
+  document.getElementById('adminView').addEventListener('click', function(){
+    const pid = adminPid;
+    closeOverlay(adminPlayerOverlay);
+    setTimeout(function(){
+      showPlayerSheet(pid);
+      if(!liveGames.length){
+        fetchScores(currentWeek, function(){
+          if(viewOverlay.classList.contains('show')) showPlayerSheet(pid);
+        });
+      }
+    }, 300);
+  });
+  document.getElementById('adminRemove').addEventListener('click', function(){
+    const pid = adminPid, week = currentWeek;
+    const r = board.filter(function(x){ return x.id === pid; })[0];
+    if(!r) return;
+    const name = shownName(pid, r.name);
+    closeOverlay(adminPlayerOverlay);
+    setTimeout(function(){
+      askAdmin('Remove ' + name + '?',
+        'Their Week ' + week + ' sheet unlocks and they drop off the leaderboard and Season Standings for this week. They can lock back in.',
+        'Unlock and remove',
+        function(){ adminUnlockPlayer(pid, week, name); });
+    }, 300);
+  });
+
+  function askAdmin(title, text, yes, action){
+    adminAction = action;
+    document.getElementById('adminConfirmTitle').textContent = title;
+    document.getElementById('adminConfirmText').textContent = text;
+    document.getElementById('adminConfirmYes').textContent = yes;
+    openOverlay(adminConfirmOverlay);
+  }
+  document.getElementById('adminConfirmYes').addEventListener('click', function(){
+    const act = adminAction;
+    adminAction = null;
+    closeOverlay(adminConfirmOverlay);
+    if(act) act();
+  });
+  document.getElementById('adminConfirmCancel').addEventListener('click', function(){
+    adminAction = null; closeOverlay(adminConfirmOverlay);
+  });
+  adminConfirmOverlay.addEventListener('click', function(e){
+    if(e.target === adminConfirmOverlay){ adminAction = null; closeOverlay(adminConfirmOverlay); }
+  });
+
+  /* Flags their entry unlocked. The board only shows locked sheets, so that
+     alone takes them off it for everyone; adminUnlockedAt tells their own
+     phone to unlock too instead of putting itself straight back. */
+  function adminUnlockPlayer(pid, week, name){
+    if(!adminOn() || typeof fetch !== 'function') return;
+    const at = Date.now();
+    fetch(entryUrl(week, pid), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locked: false, adminUnlockedAt: at, updated: at })
+    })
+      .then(function(r){
+        if(!r.ok) throw new Error('rejected');
+        toast(name + ' removed from Week ' + week);
+        fetchBoard(week, renderBoard);
+      })
+      .catch(function(){ toast('Couldn\u2019t reach the pool \u2014 try again'); });
+  }
+
+  document.getElementById('adminNoticeOk').addEventListener('click', function(){ closeOverlay(adminNoticeOverlay); });
+  adminNoticeOverlay.addEventListener('click', function(e){ if(e.target === adminNoticeOverlay) closeOverlay(adminNoticeOverlay); });
+
+  // Chat: the × on each message with admin on.
+  chatList.addEventListener('click', function(e){
+    const b = e.target.closest ? e.target.closest('.chatdel') : null;
+    if(!b || !adminOn()) return;
+    const id = b.dataset.mid;
+    const m = chatMsgs.filter(function(x){ return x.id === id; })[0];
+    if(!m) return;
+    const week = chatWeek();
+    const snippet = m.text.length > 80 ? m.text.slice(0, 80) + '\u2026' : m.text;
+    askAdmin('Delete this message?',
+      shownName(m.pid, m.name) + ': \u201C' + snippet + '\u201D',
+      'Delete',
+      function(){
+        fetch(DB_URL + '/chat/w' + week + '/' + encodeURIComponent(id) + '.json', { method: 'DELETE' })
+          .then(function(r){
+            if(!r.ok) throw new Error('rejected');
+            chatMsgs = chatMsgs.filter(function(x){ return x.id !== id; });
+            renderChat(true);
+            syncChatBadge();
+            toast('Message deleted');
+          })
+          .catch(function(){ toast('Couldn\u2019t delete \u2014 try again'); });
+      });
+  });
 
   /* name prompt */
   const nameOverlay = document.getElementById('nameOverlay');
@@ -5301,7 +5599,7 @@
     nameRequired = false;
     nameWhy = '';
     closeOverlay(nameOverlay);
-    syncPool();
+    if(wasLockIn) publishNow(); else syncPool();
     syncNameGate();
     beat();
     const sv = document.getElementById('setNameVal');
@@ -5729,6 +6027,7 @@
   document.getElementById('verBadge').addEventListener('click', function(){
     fromSettings(function(){
       syncDemoUI();
+      syncAdminUI();
       openOverlay(document.getElementById('devOverlay'));
     });
   });
