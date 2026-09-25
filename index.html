@@ -83,6 +83,8 @@
     background: transparent; border:1px solid var(--line); color: var(--muted);
   }
   .devtoggle.on{ background: var(--gold); border-color: var(--gold); color:#20180a; }
+  .simgroup{ margin-left:12px; padding-left:12px; border-left:2px solid var(--line); }
+  .simgroup[hidden]{ display:none; }
   .changelog{ margin-top:6px; }
   /* Admin (this phone only) */
   .confirmyes.danger{ background: var(--red); color:#ffffff; box-shadow:none; }
@@ -420,6 +422,7 @@
   }
   @media (max-width: 400px){
     .gstatus{ width:86px; }
+    .gcard.islive .gstatus{ width:74px; }
     .tname{ font-size:0.9rem; }
   }
   @media (max-width: 340px){
@@ -952,6 +955,8 @@
   /* One job: report the score. The gold team name already says which is yours. */
   .tscore{ flex:none; min-width:26px; text-align:right; font-size:18px; font-weight:600; color:#ffffff; }
   .trow.leading .tscore{ font-weight:800; }
+  /* While a game is on, the trailing score steps back a notch so the leader reads first. */
+  .gcard.islive .trow:not(.leading) .tscore{ font-weight:500; }
   .tscore.pending{ color:#4a6280; }
   /* the football sits right before the score of whoever has the ball */
   .tposs{ flex:none; width:13px; order:1; display:flex; align-items:center; }
@@ -970,6 +975,10 @@
   .gstatus.live .s1{ color: var(--text); }
   .gstatus.live .s2{ font-size:18px; color:#ffffff; letter-spacing:-0.3px; }
   .gstatus.live.solo .s1{ font-size:16px; color:#ffffff; }
+  /* Live cards: the divider sits closer to the clock, giving names more room.
+     "Halftime" stays one word, just a little smaller to fit. */
+  .gcard.islive .gstatus{ width:68px; }
+  .gcard.islive .gstatus.live.solo .s1{ font-size:13px; letter-spacing:-0.3px; }
   .gstatus.offgame .s1, .gstatus.offgame .s2{ color:#ffffff; }
   .s2[hidden]{ display:none; }
   .restag{ font-size:10px; font-weight:800; letter-spacing:0.8px; padding:2px 6px; border-radius:5px; }
@@ -992,6 +1001,24 @@
     color:#fff; background: var(--red);
   }
   .rzchip[hidden]{ display:none; }
+  /* Scoring plays: a quick bright flash, a soft cyan border for 30 s, and a
+     badge plus a cyan score until the next drive starts. */
+  .gcard.islive{ transition: border-color 0.9s ease, box-shadow 0.9s ease; }
+  .gcard.islive.scored{ border-color: rgba(53,208,255,0.55); box-shadow: 0 0 12px rgba(53,208,255,0.14); }
+  .gcard.islive.flash{ animation: playflash 1.5s ease-out; }
+  @keyframes playflash{
+    0%, 35%{ border-color:#35d0ff; box-shadow: inset 0 0 0 999px rgba(53,208,255,0.08), 0 0 26px rgba(53,208,255,0.45); }
+    100%{ border-color: rgba(53,208,255,0.55); box-shadow: inset 0 0 0 999px rgba(53,208,255,0), 0 0 12px rgba(53,208,255,0.14); }
+  }
+  .trow .tscore{ transition: color 0.9s ease; }
+  .trow.justscored .tscore{ color: var(--cyan); }
+  .playtag{
+    flex:none; padding:2px 7px; border-radius:6px; white-space:nowrap;
+    font-size:11px; font-weight:800; letter-spacing:0.4px; color:#03131f;
+    background: var(--cyan); box-shadow: 0 0 12px rgba(53,208,255,0.45);
+  }
+  .playtag[hidden]{ display:none; }
+  @media (prefers-reduced-motion: reduce){ .gcard.islive.flash{ animation:none; } }
 
   /* A final game folds to one line: points, score, result. */
   .gfinal{ display:none; align-items:center; gap:10px; min-height:26px; }
@@ -1047,6 +1074,10 @@
     display:flex; align-items:center; gap:10px; min-height:50px;
     border-top:1px solid var(--hair);
   }
+  .dlogo{ flex:none; width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
+  .dlogo img{ width:22px; height:22px; object-fit:contain; display:block; }
+  .dsub{ margin:-4px 0 0; padding:0 2px 10px 19px; font-size:12px; font-weight:600; color: var(--muted); }
+  .decider.sunday{ padding-bottom:2px; border-color: rgba(53,208,255,0.28); box-shadow:none; }
   .dteam{ flex:1; min-width:0; font-size:14px; font-weight:700; color: var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .dwhat{ flex:none; max-width:62%; display:flex; flex-direction:column; align-items:flex-end; gap:1px; text-align:right; }
   .dwhat b{ font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
@@ -1597,6 +1628,14 @@
     </div>
     <div class="devrow">
       <span class="devlabel">
+        <b>Simulations</b>
+        <span>Preview modes for testing, one at a time. Locked with the admin code.</span>
+      </span>
+      <button class="devtoggle" id="simsOpen">Open</button>
+    </div>
+    <div class="simgroup" id="simGroup" hidden>
+    <div class="devrow">
+      <span class="devlabel">
         <b>Simulate live games</b>
         <span>Fills the Score Tracker with fake in-progress games so you can see how it looks on a Sunday. Real results are never touched.</span>
       </span>
@@ -1611,6 +1650,21 @@
     </div>
     <div class="devrow">
       <span class="devlabel">
+        <b>Sunday night preview</b>
+        <span>Every Sunday game final except the night game, with Monday night still to come and a pretend pool, so you can see the Sunday Night Football banner. Nobody's real picks or scores are touched.</span>
+      </span>
+      <button class="devtoggle" id="snfToggle">Off</button>
+    </div>
+    <div class="devrow">
+      <span class="devlabel">
+        <b>Score flash preview</b>
+        <span>A sped-up afternoon on Live: a score about every 6 seconds, so you can watch the flash, the badge and the extra point, and the badge clearing when the next drive starts. Pretend scores only.</span>
+      </span>
+      <button class="devtoggle" id="flashToggle">Off</button>
+    </div>
+    </div>
+    <div class="devrow">
+      <span class="devlabel">
         <b>Admin</b>
         <span>Take a player off this week's standings, or delete chat messages. Only on this phone.</span>
       </span>
@@ -1619,6 +1673,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.6.0</b> Sunday Night Football banner: once the night game is the only Sunday game left, it shows who will lead going into Monday night either way. Tonight decides it now waits for the day of the last game, says "Already decided" when nobody can catch the leader, and both banners show team logos and the margin. Live cards flash when a team scores, with a badge (TD, FG, Safety, extra point, two-point try) until the next drive starts. The leading score is bolder and team names get more room. Online dots show up within seconds.</div>
       <div class="cl"><b>3.5.0</b> The pool admin can take a sheet off this week's standings — that player can lock back in any time — and delete chat messages. A deleted message disappears for everyone within about 30 seconds.</div>
       <div class="cl"><b>3.4.0</b> Quick Tips: six short animated cards under "1 = least confident" showing how to drag, switch a pick, remove a game, jump to a spot, lock in and start over. Everyone sees them once. Once any game on your locked sheet goes final, that sheet stays locked for the week.</div>
       <div class="cl"><b>3.3.2</b> Test sheets are hidden from the pool. Season Standings only counts sheets that were locked in.</div>
@@ -1883,7 +1938,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.5.0';
+  const APP_VERSION = '3.6.0';
   const APP_BUILT = 'Sep 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3319,9 +3374,88 @@
       .catch(function(){ done(null); });
   }
 
+  /* ---------- scoring flashes ----------
+     ESPN's scoreboard has no "touchdown" flag, so plays are read from the score
+     moving between two checks: +6 a touchdown (a +1 or +2 for the same team
+     within 3 minutes is the try), +7 / +8 a touchdown and its try together,
+     +3 a field goal, +2 otherwise a safety. A score going down (a correction)
+     is ignored, and a game's first check never flashes. The badge holds until
+     ESPN shows the next drive's down and distance — the kickoff has happened —
+     never under 30 seconds, never over 4 minutes. Nothing is saved or sent. */
+  const PLAY_MIN = 30000, PLAY_MAX = 240000, TRY_WINDOW = 180000;
+  let playKey = '';
+  let playScores = {};
+  let plays = {};
+  function playCity(lg, ab){
+    const g = gameById(lg.id);
+    if(g){
+      if((g.abbrA || ABBR[g.cityA]) === ab) return g.cityA;
+      if((g.abbrB || ABBR[g.cityB]) === ab) return g.cityB;
+    }
+    return ab;
+  }
+  function notePlays(list){
+    const key = (demoOn() ? 'demo-' + demoMode() : 'real') + ':' + currentWeek;
+    if(key !== playKey){ playKey = key; playScores = {}; plays = {}; }
+    const now = Date.now();
+    (list || []).forEach(function(lg){
+      if(!lg || !lg.id || !Array.isArray(lg.abbrs)) return;
+      const after = {};
+      let whole = lg.abbrs.length === 2;
+      lg.abbrs.forEach(function(ab){
+        const v = lg.scores ? lg.scores[ab] : NaN;
+        if(typeof v === 'number' && !isNaN(v)) after[ab] = v; else whole = false;
+      });
+      if(!whole) return;
+      const prior = playScores[lg.id];
+      playScores[lg.id] = { s: after, st: lg.state, t: now };
+      /* Only a change seen between two back-to-back checks of a game in
+         progress is a play. Coming back to the app, or a game's first live
+         check after kickoff, just sets the starting point. */
+      const before = (prior && prior.st === 'in' && now - prior.t < 45000) ? prior.s : null;
+      const p = plays[lg.id];
+      if(lg.state !== 'in'){ if(p) delete plays[lg.id]; return; }
+      // The next drive has started: a new down and distance since the score.
+      const dd = lg.downDistance || '';
+      if(p && !p.ended && dd && dd !== p.dd) p.ended = true;
+      if(!before) return;
+      let best = null;
+      lg.abbrs.forEach(function(ab){
+        const d = after[ab] - (typeof before[ab] === 'number' ? before[ab] : after[ab]);
+        if(d > 0 && (!best || d > best.d)) best = { ab: ab, d: d };
+      });
+      if(!best || best.d > 8) return;            // more than one score between checks: missed, not guessed
+      const city = playCity(lg, best.ab);
+      if((best.d === 1 || best.d === 2) && p && p.waitTry && p.ab === best.ab && now - p.t < TRY_WINDOW){
+        p.label = 'TD + ' + (best.d === 1 ? 'XP ' : '2PT ') + city;
+        p.waitTry = false;
+        p.flashAt = now;
+        p.dd = dd;
+        p.ended = false;
+        return;
+      }
+      let label;
+      if(best.d >= 6) label = 'TD' + (best.d === 7 ? ' + XP' : (best.d === 8 ? ' + 2PT' : '')) + ' ' + city;
+      else if(best.d >= 3) label = 'FG ' + city;
+      else if(best.d === 2) label = 'Safety ' + city;
+      else return;                               // a lone point with no touchdown before it
+      plays[lg.id] = { ab: best.ab, label: label, t: now, flashAt: now, dd: dd,
+                       waitTry: best.d === 6, ended: false };
+    });
+  }
+  function activePlay(lg){
+    const p = lg && plays[lg.id];
+    if(!p) return null;
+    const age = Date.now() - p.t;
+    if(age >= PLAY_MAX){ delete plays[lg.id]; return null; }
+    if(age >= PLAY_MIN && p.ended) return null;
+    return p;
+  }
+
   function fetchScores(week, done){
     if(demoOn()){
       liveGames = simulateScoreboard();
+      notePlays(liveGames);
       computeDemoResults();
       liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
       liveLoading = false;
@@ -3385,6 +3519,7 @@
           });
         });
         liveGames = out;
+        if(week === currentWeek) notePlays(out);
         noteFinals(week, data.events);
         liveStatus = weekComplete()
           ? ('Week ' + week + ' final')
@@ -3565,6 +3700,7 @@
         '</div>' +
       '</div>' +
       '<div class="gdd" data-role="dd"' + ((dd || rz) ? '' : ' hidden') + '>' +
+        '<span class="playtag" data-role="play" hidden></span>' +
         '<span data-role="ddtext">' + dd + '</span>' +
         '<span class="rzchip" data-role="rz"' + (rz ? '' : ' hidden') + '>Red Zone</span>' +
       '</div>' +
@@ -3758,8 +3894,10 @@
         else if(lg.scores[b] > lg.scores[a]) leader = b;
       }
     }
+    const play = live ? activePlay(lg) : null;
     card.querySelectorAll('.trow').forEach(function(row){
       const ab = row.dataset.ab;
+      row.classList.toggle('justscored', !!(play && play.ab === ab));
       const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
       const scoreEl = row.querySelector('[data-role="score"]');
       const hasScore = started && sc !== null;
@@ -3801,12 +3939,28 @@
     // down and distance, plus the red zone chip
     const dd = card.querySelector('[data-role="dd"]');
     if(dd){
-      const txt = (live && lg.downDistance) ? lg.downDistance : '';
-      const inRz = !!(live && lg.redZone && lg.poss && lg.downDistance);
+      // While a scoring badge is up it owns this line: the down and distance
+      // from before the score is stale, and nobody is in the red zone.
+      const txt = (live && lg.downDistance && !play) ? lg.downDistance : '';
+      const inRz = !!(live && lg.redZone && lg.poss && lg.downDistance && !play);
       setText(dd.querySelector('[data-role="ddtext"]'), txt);
       const chip = dd.querySelector('[data-role="rz"]');
       if(chip) chip.hidden = !inRz;
-      dd.hidden = !(txt || inRz);
+      const tag = dd.querySelector('[data-role="play"]');
+      if(tag){ setText(tag, play ? play.label : ''); tag.hidden = !play; }
+      dd.hidden = !(txt || inRz || play);
+    }
+    const now = Date.now();
+    card.classList.toggle('scored', !!(play && now - play.t < PLAY_MIN));
+    if(play && now - play.flashAt < 4000){
+      if(card.dataset.flash !== String(play.flashAt)){
+        card.dataset.flash = String(play.flashAt);
+        card.classList.remove('flash');
+        void card.offsetWidth;                 // restart the animation
+        card.classList.add('flash');
+      }
+    }else{
+      card.classList.remove('flash');
     }
 
     card.classList.toggle('islive', live);
@@ -3850,7 +4004,7 @@
       if(weekComplete() && !demoOn()){
         if(liveTimer){ clearInterval(liveTimer); liveTimer = null; liveTimerRate = 0; }
       }else if(liveTimer){
-        const want = anyGameLive() ? 10000 : 300000;
+        const want = liveRate();
         if(want !== liveTimerRate) startLiveTimer();
       }
     });
@@ -3913,6 +4067,10 @@
   }
 
   // 20s while anything is actually being played, 5 min otherwise.
+  function liveRate(){
+    if(demoMode() === 'flash') return 3000;
+    return anyGameLive() ? 10000 : 300000;
+  }
   function anyGameLive(){
     for(let i = 0; i < liveGames.length; i++){
       if(liveGames[i].state === 'in') return true;
@@ -3955,7 +4113,7 @@
     liveTimerRate = 0;
     // Nothing left to poll for once every game is in the books.
     if(weekComplete() && !demoOn()) return;
-    const every = anyGameLive() ? 10000 : 300000;
+    const every = liveRate();
     liveTimerRate = every;
     liveTimer = setInterval(function(){
       if(!isTab('live')){ clearInterval(liveTimer); liveTimer = null; return; }
@@ -3963,7 +4121,7 @@
         openResults(true);
         syncPool();          // keep your published score current while you sit here
         // speed up or slow down as games kick off and finish
-        const want = anyGameLive() ? 20000 : 300000;
+        const want = liveRate();
         if(want !== liveTimerRate) startLiveTimer();
       });
     }, every);
@@ -4951,53 +5109,115 @@
     }).sort(function(a,b){ return b.pts - a.pts; });
   }
 
+  /* ---------- the night banners ----------
+     Sunday Night Football: once the Sunday night game is the only Sunday game
+     left (Monday still to come), who will lead going into Monday night.
+     Monday: once one game is left in the week and it's played today —
+     "Tonight decides it", or "Already decided" when the same player wins the
+     week whichever team wins. Both previews in the Preview Menu skip the date
+     checks so they can be seen any day. */
+  function playsToday(lg){
+    if(lg.state === 'in') return true;                 // already under way
+    const t = Date.parse(lg.date || '');
+    return !isNaN(t) && sameDay(new Date(t), new Date());
+  }
+  function sundayNightGame(){
+    const pending = liveGames.filter(function(lg){ return stillPending(lg); });
+    if(pending.length < 2) return null;                  // nothing after it: that's Monday's banner
+    if(demoMode() === 'snf'){
+      const on = pending.filter(function(lg){ return lg.state === 'in'; });
+      return on.length === 1 ? on[0] : null;
+    }
+    if(new Date().getDay() !== 0) return null;          // Sundays only
+    const today = pending.filter(playsToday);
+    if(today.length !== 1) return null;                  // other Sunday games still going
+    return today[0];
+  }
+  function nightMatchup(lg){ return (lg.away || '') + ' @ ' + (lg.home || ''); }
+  function nextDayName(lg){
+    let first = null;
+    liveGames.forEach(function(x){
+      if(x === lg || !stillPending(x)) return;
+      const t = Date.parse(x.date || '');
+      if(!isNaN(t) && (first === null || t < first)) first = t;
+    });
+    if(first === null) return 'Monday night';
+    const d = new Date(first);
+    return d.getDay() === 1 ? 'Monday night' : d.toLocaleDateString([], {weekday:'long'});
+  }
+
   let deciderOpen = false;
   function renderDecider(){
     const box = document.getElementById('decider');
     if(!box) return;
     const hide = function(){ box.hidden = true; box.innerHTML = ''; deciderOpen = false; };
-    if(demoOn() && demoMode() !== 'mnf') return hide();
+    if(demoOn() && demoMode() !== 'mnf' && demoMode() !== 'snf') return hide();
 
     const rows = poolRows().filter(function(r){ return r.locked !== false; });
-    const lg = lastGameLeft();
-    if(!lg || rows.length < 2) return hide();
+    if(rows.length < 2) return hide();
+
+    let lg = lastGameLeft(), sunday = false;
+    if(lg && demoMode() !== 'mnf' && !playsToday(lg)) lg = null;     // Monday's banner waits for Monday
+    if(!lg && demoMode() !== 'mnf'){ lg = sundayNightGame(); sunday = !!lg; }
+    if(!lg) return hide();
 
     const g = gameById(lg.id);
-    const teamName = function(side){
-      if(g) return side === 'a' ? g.cityA : g.cityB;
-      return side === 'a' ? lg.away : lg.home;
+    const sideInfo = function(side){
+      const city = g ? (side === 'a' ? g.cityA : g.cityB) : (side === 'a' ? lg.away : lg.home);
+      const ab = g ? (side === 'a' ? (g.abbrA || ABBR[g.cityA]) : (g.abbrB || ABBR[g.cityB]))
+                   : (side === 'a' ? lg.away : lg.home);
+      const logo = (lg.logos && lg.logos[ab]) || (g ? logoForCity(g, city) : '');
+      return { team: city, logo: logo };
     };
 
-    const now = rows.slice().sort(function(a,b){ return b.points - a.points; })
-                    .map(function(r){ return r.id; }).join(',');
+    const sorted = rows.slice().sort(function(a,b){ return b.points - a.points; });
+    const currentLeader = sorted[0];
     const outcomes = ['a','b'].map(function(side){
-      return { side: side, team: teamName(side), order: projectBoard(rows, lg.id, side) };
+      const info = sideInfo(side);
+      return { side: side, team: info.team, logo: info.logo, order: projectBoard(rows, lg.id, side) };
     });
-
-    // Nothing to announce if neither result moves anybody.
-    const moves = outcomes.some(function(o){
-      return o.order.map(function(r){ return r.id; }).join(',') !== now;
-    });
-    if(!moves) return hide();
+    const outright = function(o){ return !(o.order[1] && o.order[1].pts === o.order[0].pts); };
+    // The same player on top, alone, whichever team wins.
+    const decided = outcomes.every(outright) && outcomes[0].order[0].id === outcomes[1].order[0].id;
 
     const me = player();
     const who = function(r){
       return '<span class="' + (r.id === me.id ? 'dmine' : 'dname') + '">' + esc(r.name) + '</span>';
     };
-    const currentLeader = rows.slice().sort(function(a,b){ return b.points - a.points; })[0];
-
     const lines = outcomes.map(function(o){
       const top = o.order[0], next = o.order[1];
       let what;
       if(next && next.pts === top.pts){
         what = '<b>' + who(top) + ' &amp; ' + who(next) + ' \u00b7 ' + top.pts + '</b><span>tie for the lead</span>';
       }else{
-        const verb = (top.id === currentLeader.id) ? 'holds' : 'takes';
-        what = '<b>' + who(top) + ' \u00b7 ' + top.pts + '</b><span>' + verb + ' the lead</span>';
+        const by = next ? ' by ' + (top.pts - next.pts) : '';
+        const verb = (decided && !sunday) ? 'wins the week'
+                   : ((top.id === currentLeader.id) ? 'holds the lead' : 'takes the lead');
+        what = '<b>' + who(top) + ' \u00b7 ' + top.pts + '</b><span>' + verb + by + '</span>';
       }
-      return '<div class="dline"><span class="dteam">If ' + esc(o.team) + ' wins</span>' +
+      const logo = o.logo ? '<img src="' + o.logo + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '';
+      return '<div class="dline"><span class="dlogo">' + logo + '</span>' +
+             '<span class="dteam">If ' + esc(o.team) + ' wins</span>' +
              '<span class="dwhat">' + what + '</span></div>';
     }).join('');
+
+    const head = '<div class="dhead"><i class="ddot"></i>' +
+      (sunday ? 'Sunday Night Football' : (decided ? 'Already decided' : 'Tonight decides it')) +
+      '<span>' + esc(nightMatchup(lg)) + '</span></div>';
+
+    if(sunday){
+      const lead = decided ? outcomes[0].order[0] : null;
+      const sub = lead
+        ? esc(lead.name) + ' leads going into ' + nextDayName(lg) + ' either way'
+        : 'Who will lead going into ' + nextDayName(lg);
+      box.innerHTML = head + '<div class="dsub">' + sub + '</div>' + lines;
+      box.classList.add('sunday');
+      box.classList.remove('open');
+      box.hidden = false;
+      return;
+    }
+    box.classList.remove('sunday');
+
     /* Full finishing order: one column per outcome, side by side. */
     const cols = outcomes.map(function(o){
       return '<div class="dcol"><div class="dcolhead">If ' + esc(o.team) + ' wins</div>' +
@@ -5011,9 +5231,7 @@
     /* The board refreshes every few seconds and this gets rebuilt each time,
        so whether the full order is showing has to outlive the rebuild. */
     const label = function(){ return deciderOpen ? 'Hide full order' : 'Full finishing order'; };
-    box.innerHTML =
-      '<div class="dhead"><i class="ddot"></i>Tonight decides it<span>Last game</span></div>' +
-      lines +
+    box.innerHTML = head + lines +
       '<div class="dfull">' + cols + '</div>' +
       '<button class="dmore" type="button">' + label() + '</button>';
     box.classList.toggle('open', deciderOpen);
@@ -5408,7 +5626,7 @@
     if(document.hidden) return;
     chatTicks++;
     pollChat(chatTicks % 6 === 0);
-    if(chatTicks % 3 === 0) readPresence();
+    readPresence();                  // every 5 s, so a new dot shows up fast
     if(chatTicks % 6 === 0) beat();
   }, 5000);
   document.addEventListener('visibilitychange', function(){
@@ -5445,10 +5663,12 @@
   }
   document.getElementById('adminToggle').addEventListener('click', function(){
     if(adminUnlocked()){ setAdmin(!adminOn()); return; }
+    adminCodeThen = null;
     document.getElementById('adminCodeInput').value = '';
     document.getElementById('adminCodeNote').textContent = '';
     openOverlay(adminCodeOverlay);
   });
+  let adminCodeThen = null;          // something other than the admin switch asked for the code
   function tryAdminCode(){
     const v = String(document.getElementById('adminCodeInput').value || '').trim();
     if(v !== ADMIN_CODE){
@@ -5456,14 +5676,39 @@
       return;
     }
     closeOverlay(adminCodeOverlay);
+    if(adminCodeThen){
+      const next = adminCodeThen;
+      adminCodeThen = null;
+      put(ADMIN_KEY, { ok: true, on: adminOn() });   // remembered; admin itself stays as it was
+      next();
+      return;
+    }
     setAdmin(true);
   }
   document.getElementById('adminCodeGo').addEventListener('click', tryAdminCode);
   document.getElementById('adminCodeInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter'){ e.preventDefault(); tryAdminCode(); }
   });
-  document.getElementById('adminCodeCancel').addEventListener('click', function(){ closeOverlay(adminCodeOverlay); });
+  document.getElementById('adminCodeCancel').addEventListener('click', function(){ adminCodeThen = null; closeOverlay(adminCodeOverlay); });
   adminCodeOverlay.addEventListener('click', function(e){ if(e.target === adminCodeOverlay) closeOverlay(adminCodeOverlay); });
+
+  function syncSimsUI(){
+    const grp = document.getElementById('simGroup');
+    const btn = document.getElementById('simsOpen');
+    if(!grp || !btn) return;
+    if(demoOn()) grp.hidden = false;
+    btn.textContent = grp.hidden ? 'Open' : 'Close';
+  }
+  document.getElementById('simsOpen').addEventListener('click', function(){
+    const grp = document.getElementById('simGroup');
+    if(!grp.hidden){ grp.hidden = true; syncSimsUI(); return; }
+    const show = function(){ grp.hidden = false; syncDemoUI(); syncSimsUI(); };
+    if(adminUnlocked()){ show(); return; }
+    adminCodeThen = show;
+    document.getElementById('adminCodeInput').value = '';
+    document.getElementById('adminCodeNote').textContent = '';
+    openOverlay(adminCodeOverlay);
+  });
 
   // Tapping a name on the leaderboard with admin on.
   function openAdminPlayer(pid){
@@ -5622,13 +5867,13 @@
   // 'mix' = every kind of game at once; 'mnf' = Monday night, one game left.
   function demoMode(){
     const v = getLocal(DEMO_KEY);
-    return (v && v.on) ? (v.mode === 'mnf' ? 'mnf' : 'mix') : '';
+    return (v && v.on) ? ((v.mode === 'mnf' || v.mode === 'snf' || v.mode === 'flash') ? v.mode : 'mix') : '';
   }
 
   /* The pool the leaderboard and "Tonight decides it" read. In the Monday
      night preview it's a pretend pool made on this phone — the real board
      (and Firebase) are never changed, and nothing here is ever published. */
-  function poolRows(){ return demoMode() === 'mnf' ? demoBoard() : board; }
+  function poolRows(){ return (demoMode() === 'mnf' || demoMode() === 'snf') ? demoBoard() : board; }
 
   function demoBoard(){
     const active = games.filter(function(g){ return !g.removed; });
@@ -5665,7 +5910,7 @@
     }
     // Make the last game matter: two pretend players split on it, both at
     // their biggest number, three points apart at the top.
-    const last = lastGameLeft();
+    const last = lastGameLeft() || (demoMode() === 'snf' ? sundayNightGame() : null);
     if(last && rows.length > 2){
       const top = Math.max.apply(null, rows.map(function(r){ return r.points; }));
       [[0, 'a', top + 2], [1, 'b', top - 1]].forEach(function(x){
@@ -5684,19 +5929,98 @@
     return s;
   }
 
+  /* Score flash preview: a sped-up afternoon. A scoring play about every 6
+     seconds somewhere, a 4-second wait for the extra point or two-point try,
+     and a 40-second break before the kickoff and the next drive. Pretend
+     scores only — kept in memory on this phone, never saved or sent. */
+  let flashSim = null;
+  function simulateFlash(){
+    const active = games.filter(function(g){ return !g.removed; });
+    const now = Date.now();
+    if(!flashSim || flashSim.week !== currentWeek){
+      flashSim = { week: currentWeek, next: now + 4000, g: {} };
+      active.forEach(function(g, i){
+        const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+        const seed = seedOf(g.id);
+        flashSim.g[g.id] = {
+          kind: i % 7 === 5 ? 'post' : (i % 7 === 6 ? 'pre' : 'in'),
+          a: abA, b: abB, sa: (seed % 3) * 7, sb: ((seed >> 2) % 3) * 3,
+          poss: seed % 2 ? abA : abB, drive: 25 + (seed % 40), wait: 0, tryFor: '', kickTo: ''
+        };
+      });
+    }
+    const S = flashSim;
+    Object.keys(S.g).forEach(function(id){
+      const x = S.g[id];
+      if(x.tryFor && now >= x.tryAt){                 // the try after a touchdown
+        const r = Math.random();
+        const add = r < 0.85 ? 1 : (r < 0.95 ? 2 : 0);
+        if(x.tryFor === x.a) x.sa += add; else x.sb += add;
+        x.tryFor = '';
+      }
+      if(x.wait && now >= x.wait){                    // kickoff: the next drive starts
+        x.poss = x.kickTo; x.drive = 25; x.wait = 0; x.kickTo = '';
+      }
+    });
+    if(now >= S.next){
+      S.next = now + 6000;
+      const ids = Object.keys(S.g).filter(function(id){ return S.g[id].kind === 'in' && !S.g[id].wait; });
+      if(ids.length){
+        const x = S.g[ids[Math.floor(Math.random() * ids.length)]];
+        const off = x.poss, def = off === x.a ? x.b : x.a;
+        const add = function(ab, n){ if(ab === x.a) x.sa += n; else x.sb += n; };
+        const r = Math.random();
+        if(r < 0.55){ add(off, 6); x.tryFor = off; x.tryAt = now + 4000; x.kickTo = def; }
+        else if(r < 0.9){ add(off, 3); x.kickTo = def; }
+        else { add(def, 2); x.kickTo = def; }          // safety: the defence scores and receives the free kick
+        x.wait = now + 40000;
+      }
+    }
+    return active.map(function(g){
+      const x = S.g[g.id];
+      const scores = {};
+      scores[x.a] = x.sa; scores[x.b] = x.sb;
+      if(x.kind === 'pre'){
+        scores[x.a] = 0; scores[x.b] = 0;
+        return { id:g.id, abbrs:[x.a,x.b], scores:scores, logos:{}, away:x.a, home:x.b,
+                 state:'pre', completed:false, detail:'', clock:'', period:0, date:g.date };
+      }
+      if(x.kind === 'post'){
+        if(x.sa === x.sb) scores[x.a] += 3;
+        return { id:g.id, abbrs:[x.a,x.b], scores:scores, logos:{}, away:x.a, home:x.b,
+                 state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
+      }
+      const dd = x.wait ? '' : ('1st & 10 at ' + x.poss + ' ' + x.drive);
+      return { id:g.id, abbrs:[x.a,x.b], scores:scores, logos:{}, away:x.a, home:x.b,
+               state:'in', completed:false, statusName:'STATUS_IN_PROGRESS', detail:'Q2 8:14',
+               clock:'8:14', period:2, poss: x.wait ? '' : x.poss, redZone:false, downDistance:dd, date:g.date };
+    });
+  }
+
   function simulateScoreboard(){
+    if(demoMode() === 'flash') return simulateFlash();
     const active = games.filter(function(g){ return !g.removed; });
     const minute = Math.floor(Date.now() / 60000);
     // Monday night preview: the latest kickoff is the one game still going.
-    const mnf = demoMode() === 'mnf';
+    const mnf = demoMode() === 'mnf', snf = demoMode() === 'snf';
     let lastId = active.length ? active[active.length - 1].id : null, lastT = -Infinity;
     active.forEach(function(g){ const t = Date.parse(g.date || ''); if(!isNaN(t) && t >= lastT){ lastT = t; lastId = g.id; } });
+    // Sunday night preview: the latest game waits for Monday, the one before it is live.
+    let snfId = null, snfT = -Infinity;
+    active.forEach(function(g, i){
+      if(g.id === lastId) return;
+      const t = Date.parse(g.date || '');
+      const k = isNaN(t) ? i : t;
+      if(snfId === null || k >= snfT){ snfT = k; snfId = g.id; }
+    });
     return active.map(function(g, i){
       const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
       const seed = seedOf(g.id);
       // Four states so the preview always shows a win, a loss, a live game
       // and one still to come — the whole range, not whatever chance gives.
-      const bucket = mnf ? (g.id === lastId ? 2 : i % 2) : i % 4;   // 0 win · 1 loss · 2 live · 3 upcoming
+      const bucket = mnf ? (g.id === lastId ? 2 : i % 2)
+                   : snf ? (g.id === lastId ? 3 : (g.id === snfId ? 2 : i % 2))
+                   : i % 4;   // 0 win · 1 loss · 2 live · 3 upcoming
       const scores = {};
 
       if(bucket === 3){
@@ -5733,7 +6057,7 @@
         /* Live games take turns being each kind of live the real feed sends,
            so every detail can be checked: a drive in the red zone, halftime or
            end of a quarter, a two-minute drive at midfield, and overtime. */
-        const kind = mnf ? 2 : Math.floor(i / 4) % 4;
+        const kind = (mnf || snf) ? 2 : Math.floor(i / 4) % 4;
         const secs = 60 * (14 - (minute % 15));
         let period = 1 + (minute % 4);
         let clock = Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2);
@@ -5756,7 +6080,7 @@
                  clock:clock, period:period, poss:poss, redZone:rz, downDistance:dd, date:g.date };
       }
       // One final ends level, to show a tie: no win, no loss, points not banked.
-      if(i === 5 && !mnf){ scores[abA] = scores[abB] = hi; }
+      if(i === 5 && !mnf && !snf){ scores[abA] = scores[abB] = hi; }
       return { id:g.id, abbrs:[abA,abB], scores:scores, logos:{}, away:abA, home:abB,
                state:'post', completed:true, detail:'Final', clock:'0:00', period:4, date:g.date };
     });
@@ -5785,10 +6109,16 @@
     if(t){ t.textContent = mode === 'mix' ? 'On' : 'Off'; t.classList.toggle('on', mode === 'mix'); }
     const m = document.getElementById('mnfToggle');
     if(m){ m.textContent = mode === 'mnf' ? 'On' : 'Off'; m.classList.toggle('on', mode === 'mnf'); }
+    const sn = document.getElementById('snfToggle');
+    if(sn){ sn.textContent = mode === 'snf' ? 'On' : 'Off'; sn.classList.toggle('on', mode === 'snf'); }
+    const fl = document.getElementById('flashToggle');
+    if(fl){ fl.textContent = mode === 'flash' ? 'On' : 'Off'; fl.classList.toggle('on', mode === 'flash'); }
     const bar = document.getElementById('demoBar');
     if(bar){
       bar.style.display = on ? 'block' : 'none';
       bar.textContent = mode === 'mnf' ? 'MONDAY NIGHT PREVIEW \u2014 pretend pool, not real scores'
+                      : mode === 'snf' ? 'SUNDAY NIGHT PREVIEW \u2014 pretend pool, not real scores'
+                      : mode === 'flash' ? 'SCORE FLASH PREVIEW \u2014 sped up, not real scores'
                                        : 'SIMULATED GAMES \u2014 not real scores';
     }
     const badge = document.getElementById('verBadge');
@@ -6028,6 +6358,7 @@
     fromSettings(function(){
       syncDemoUI();
       syncAdminUI();
+      syncSimsUI();
       openOverlay(document.getElementById('devOverlay'));
     });
   });
@@ -6058,6 +6389,14 @@
   });
   document.getElementById('mnfToggle').addEventListener('click', function(){
     setDemo(demoMode() === 'mnf' ? { on: false } : { on: true, mode: 'mnf' });
+  });
+  document.getElementById('snfToggle').addEventListener('click', function(){
+    setDemo(demoMode() === 'snf' ? { on: false } : { on: true, mode: 'snf' });
+  });
+  document.getElementById('flashToggle').addEventListener('click', function(){
+    flashSim = null;
+    setDemo(demoMode() === 'flash' ? { on: false } : { on: true, mode: 'flash' });
+    if(isTab('live')) startLiveTimer();
   });
 
   syncDemoUI();
@@ -6107,6 +6446,10 @@
     // A locked sheet belongs on the board from the moment the app opens,
     // whether or not anyone visits the Score Tracker.
     if(weekLocked && player().name) syncPool();
+
+    // Check in the moment the app opens, not at the first 30-second tick.
+    beat();
+    readPresence();
 
     // Quick Tips, once, for everyone.
     maybeAutoTips();
