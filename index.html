@@ -706,7 +706,7 @@
 
   .scorewrap{ display:flex; gap:10px; margin-bottom:16px; align-items:stretch; }
   .scorecard{
-    flex:none; width:132px;
+    flex:none; width:124px;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     padding:14px 10px; border-radius:16px; text-align:center;
     background: linear-gradient(170deg, rgba(53,208,255,0.12), #0b1321 70%);
@@ -747,6 +747,9 @@
   .cardbanner span{ letter-spacing:0; text-transform:none; font-weight:700; color: var(--faint); }
   .lblist{
     display:flex; flex-direction:column; gap:3px;
+    /* 3.7.3: reach 6px into the card's left margin so the online dot before
+       the rank sits inside the scroll box instead of being cut off by it */
+    margin-left:-6px; padding-left:6px;
     max-height:168px; overflow-y:auto; -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
   }
@@ -894,7 +897,12 @@
   .sheeticon.own{ color: var(--faint); }
   .lbrank{ flex:none; width:12px; margin-right:-2px; font-size:12px; font-weight:800; color: var(--muted); }
   /* 3.7.2: online dot sits in the margin before the rank, so it costs names no room */
-  .lbrow .beacon.lbdot{ position:absolute; left:-4px; top:50%; width:5px; height:5px; margin-top:-2.5px; }
+  .lbrow .beacon.lbdot{ position:absolute; left:-4px; top:50%; width:5px; height:5px; margin-top:-2.5px; animation-name: lbdotring; }
+  @keyframes lbdotring{
+    0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.6); }
+    70%{ box-shadow: 0 0 0 3px rgba(53,208,255,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
+  }
   .lbname{
     flex:1; min-width:0; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -1709,6 +1717,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.7.3</b> Fixed the online dot on the leaderboard being cut off. Your Score is a little narrower so names get more room.</div>
       <div class="cl"><b>3.7.2</b> Leaderboard names get more room on narrow phones: rank and name moved left, and the online dot now sits just before the rank.</div>
       <div class="cl"><b>3.7.1</b> Advanced leaderboard: the win % now also counts who has the ball and where, so it's sharper late in close games.</div>
       <div class="cl"><b>3.7.0</b> Leaderboard: tap the small Basic button to switch to Advanced, which adds each player's chance to win the week. The first time, a short note explains how it works. Your phone remembers your choice. Tap it again for Basic.</div>
@@ -1994,7 +2003,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.7.2';
+  const APP_VERSION = '3.7.3';
   const APP_BUILT = 'Sep 26, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
