@@ -898,6 +898,12 @@
   .lbrank{ flex:none; width:12px; margin-right:-2px; font-size:12px; font-weight:800; color: var(--muted); }
   /* 3.7.2: online dot sits in the margin before the rank, so it costs names no room */
   .lbrow .beacon.lbdot{ position:absolute; left:-4px; top:50%; width:5px; height:5px; margin-top:-2.5px; animation-name: lbdotring; }
+  /* 3.7.4: faint line under each player (not the last), from the name to the
+     points, so it's easy to see whose score is whose. Sits in the 3px gap. */
+  .lbrow:not(:last-child)::after{
+    content:''; position:absolute; left:18px; right:4px; bottom:-2px; height:1px;
+    background: rgba(147,174,200,0.10); pointer-events:none;
+  }
   @keyframes lbdotring{
     0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.6); }
     70%{ box-shadow: 0 0 0 3px rgba(53,208,255,0); }
@@ -1717,6 +1723,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.7.4</b> A faint line under each player on the leaderboard makes it easier to see whose score is whose.</div>
       <div class="cl"><b>3.7.3</b> Fixed the online dot on the leaderboard being cut off. Your Score is a little narrower so names get more room.</div>
       <div class="cl"><b>3.7.2</b> Leaderboard names get more room on narrow phones: rank and name moved left, and the online dot now sits just before the rank.</div>
       <div class="cl"><b>3.7.1</b> Advanced leaderboard: the win % now also counts who has the ball and where, so it's sharper late in close games.</div>
@@ -2003,7 +2010,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.7.3';
+  const APP_VERSION = '3.7.4';
   const APP_BUILT = 'Sep 26, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
