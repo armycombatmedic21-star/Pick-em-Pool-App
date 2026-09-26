@@ -713,7 +713,7 @@
     border:1px solid rgba(53,208,255,0.25);
   }
   .lbcard{
-    flex:1 1 0; min-width:0; padding:12px 10px 8px; border-radius:16px;
+    flex:1 1 0; min-width:0; padding:12px 10px 8px 6px; border-radius:16px;
     background: var(--card); border:1px solid var(--hair);
   }
   .cardbanner{
@@ -873,8 +873,8 @@
 
   /* Leaderboard */
   .lbrow{
-    display:flex; align-items:center; gap:8px; min-height:30px;
-    padding:0 8px; border-radius:8px;
+    position:relative; display:flex; align-items:center; gap:8px; min-height:30px;
+    padding:0 8px 0 4px; border-radius:8px;
     font-size:13px; font-weight:600;
   }
   /* Second person to use a name */
@@ -892,7 +892,9 @@
   .sheeticon svg{ width:11px; height:13px; display:block; }
   /* yours: a marker, not a control */
   .sheeticon.own{ color: var(--faint); }
-  .lbrank{ flex:none; width:14px; font-size:12px; font-weight:800; color: var(--muted); }
+  .lbrank{ flex:none; width:12px; margin-right:-2px; font-size:12px; font-weight:800; color: var(--muted); }
+  /* 3.7.2: online dot sits in the margin before the rank, so it costs names no room */
+  .lbrow .beacon.lbdot{ position:absolute; left:-4px; top:50%; width:5px; height:5px; margin-top:-2.5px; }
   .lbname{
     flex:1; min-width:0; color: var(--text);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
@@ -1707,6 +1709,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.7.2</b> Leaderboard names get more room on narrow phones: rank and name moved left, and the online dot now sits just before the rank.</div>
       <div class="cl"><b>3.7.1</b> Advanced leaderboard: the win % now also counts who has the ball and where, so it's sharper late in close games.</div>
       <div class="cl"><b>3.7.0</b> Leaderboard: tap the small Basic button to switch to Advanced, which adds each player's chance to win the week. The first time, a short note explains how it works. Your phone remembers your choice. Tap it again for Basic.</div>
       <div class="cl"><b>3.6.1</b> Live cards are tighter so team names fit on narrow Android phones: the clock column is slimmer, the football sits right against the score, and the gaps are smaller. Previews no longer mix in real results.</div>
@@ -1991,7 +1994,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.7.1';
+  const APP_VERSION = '3.7.2';
   const APP_BUILT = 'Sep 26, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5565,10 +5568,10 @@
       return '<div class="lbrow' + (isMe ? ' me' : '') +
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
+        (isOnline(r.id) ? '<i class="beacon lbdot" aria-label="Online"></i>' : '') +
         '<span class="lbrank">' + (i + 1) + '</span>' +
         '<span class="lbname">' + esc(r.name) +
           (tag[r.id] ? ' <em class="lbdup">(' + tag[r.id] + ')</em>' : '') + '</span>' +
-        (isOnline(r.id) ? '<i class="beacon" aria-label="Online"></i>' : '') +
         (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">' + ICON_DOC + '</span>' : '') +
         (odds ? '<span class="lbwin">' + esc(odds[r.id] || '\u2013') + '</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
