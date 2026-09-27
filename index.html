@@ -1814,6 +1814,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.9.1</b> Updates are fully silent: no more "Updated to" note when the app opens.</div>
       <div class="cl"><b>3.9.0</b> Leaderboard: when your spot is scrolled out of view, your row stays pinned to the edge of the board until your real spot comes into view. When the order changes, players slide to their new places instead of jumping. New Quick Tips on Live (pops up once, then use the Quick Tips button under the leaderboard). New leaderboard shuffle preview in Simulations.</div>
       <div class="cl"><b>3.8.1</b> The app now updates itself. Open it and you’re on the newest version; if you’re in the middle of something, a “New version ready” bar lets you tap to update when you’re ready. Live now is back to fewest points first.</div>
       <div class="cl"><b>3.8.0</b> Took an underdog? Once the game starts, its card gets a gold “Your Underdog” tag — tap it to see how many others took them too. Live now shows your biggest games first. Online dots and Pool Chat now update instantly.</div>
@@ -2143,7 +2144,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.9.0';
+  const APP_VERSION = '3.9.1';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3439,13 +3440,10 @@
     document.getElementById('updGo').textContent = 'Wait';
     setTimeout(function(){ goUpdate(updFound, true); }, 350);
   });
-  // Just updated: say so once.
+  // Just updated: mark it done. Updates are silent (3.9.1) — no note.
   (function(){
     const m = updMemo();
-    if(m && m.to === APP_VERSION && !m.shown){
-      setUpdMemo({ to: m.to, t: m.t, shown: true });
-      setTimeout(function(){ toast('Updated to ' + APP_VERSION); }, 900);
-    }
+    if(m && m.to === APP_VERSION && !m.shown) setUpdMemo({ to: m.to, t: m.t, shown: true });
   })();
 
   const sheetList = document.getElementById('sheetList');
