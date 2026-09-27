@@ -680,8 +680,16 @@
     padding:10px 12px calc(12px + env(safe-area-inset-bottom)) 16px;
     border-top:1px solid var(--hair); background: rgba(6,11,22,0.6);
   }
+  /* 4.0.0: the box grows with what you type, up to 5 lines, then scrolls. */
+  .chatcompose{ position:relative; align-items:flex-end; }
+  .chatcount{ position:absolute; right:68px; top:-20px; padding:1px 7px; border-radius:8px;
+    background: rgba(6,11,22,0.85); font-size:11px; font-weight:700; color: var(--faint); }
+  .chatcount[hidden]{ display:none; }
+  .chatcount.full{ color: var(--gold); }
   #chatInput{
-    flex:1; min-width:0; height:44px; padding:0 16px; border-radius:22px;
+    display:block; resize:none; overflow-y:hidden; font-family:inherit;
+    line-height:20px; min-height:44px; max-height:124px; padding:11px 16px;
+    flex:1; min-width:0; height:44px; border-radius:22px;
     border:1px solid var(--hair2); background: rgba(6,11,22,0.6); color:#ffffff;
     font-size:16px; font-weight:600; outline:none;
   }
@@ -1101,6 +1109,15 @@
     background: var(--cyan); box-shadow: 0 0 12px rgba(53,208,255,0.45);
   }
   .playtag[hidden]{ display:none; }
+  /* Turnovers (4.0.0): same shape as the scoring badge, in amber. */
+  .gcard.islive.turned{ border-color: rgba(255,176,32,0.55); box-shadow: 0 0 12px rgba(255,176,32,0.14); }
+  .gcard.islive.flashto{ animation: toflash 1.5s ease-out; }
+  @keyframes toflash{
+    0%, 35%{ border-color:#ffb020; box-shadow: inset 0 0 0 999px rgba(255,176,32,0.08), 0 0 26px rgba(255,176,32,0.45); }
+    100%{ border-color: rgba(255,176,32,0.55); box-shadow: inset 0 0 0 999px rgba(255,176,32,0), 0 0 12px rgba(255,176,32,0.14); }
+  }
+  .playtag.to{ background:#ffb020; box-shadow: 0 0 12px rgba(255,176,32,0.45); }
+  @media (prefers-reduced-motion: reduce){ .gcard.islive.flashto{ animation:none; } }
   @media (prefers-reduced-motion: reduce){ .gcard.islive.flash{ animation:none; } }
 
   /* A final game folds to one line: points, score, result. */
@@ -1198,6 +1215,39 @@
 
   .weekhead{ font-size:12px; font-weight:700; color: var(--faint); margin:0 2px 2px; }
   .weekhead:empty{ display:none; }
+  /* ---- Root for (4.0.0): royal blue #4f7cff, used for nothing else ---- */
+  .rootbtn{ display:block; width:100%; height:46px; margin:0 0 12px; border-radius:14px;
+    border:1px solid rgba(79,124,255,0.6); background: rgba(79,124,255,0.16);
+    color:#dbe5ff; font: 800 15px var(--font); animation: rootglow 2.4s ease-in-out infinite; }
+  .rootbtn[hidden]{ display:none; }
+  .rootbar{ position:sticky; top: calc(8px + env(safe-area-inset-top, 0px)); z-index:30;
+    display:flex; align-items:center; gap:12px; height:48px; padding:0 6px 0 10px; margin:-4px 0 14px;
+    border-radius:12px; border:1px solid rgba(79,124,255,0.7);
+    background: linear-gradient(rgba(79,124,255,0.22), rgba(79,124,255,0.22)), #0a1224;
+    animation: rootbarglow 2.4s ease-in-out infinite; }
+  .rootbar[hidden]{ display:none; }
+  .rooteye{ flex:none; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:#8fb0ff; background: rgba(79,124,255,0.22); animation: eyepulse 2.4s ease-in-out infinite; }
+  .rooteye svg{ width:18px; height:18px; }
+  .roottxt{ flex:1; min-width:0; display:flex; align-items:baseline; gap:8px; }
+  .rootk{ flex:none; font-size:11px; font-weight:800; letter-spacing:1.4px; color:#8fb0ff; }
+  .rootname{ font-size:17px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rootx{ flex:none; width:36px; height:36px; border:none; border-radius:10px; background: rgba(79,124,255,0.25);
+    color:#e6ecff; font-size:15px; font-weight:800; }
+  .rootframe{ position:fixed; inset:0; z-index:60; pointer-events:none; border:3px solid #4f7cff;
+    box-shadow: inset 0 0 18px rgba(79,124,255,0.35); }
+  .rootframe[hidden]{ display:none; }
+  .rootkick{ color:#4f7cff; }
+  .rootasktext{ color: var(--muted); font-size:15px; line-height:1.5; margin:0 0 18px; }
+  .rootasktext b{ color:#fff; }
+  .confirmyes.rootgo{ background:#4f7cff; color:#fff; }
+  @keyframes rootglow{ 0%,100%{ box-shadow:0 0 0 0 rgba(79,124,255,0); border-color: rgba(79,124,255,0.6); }
+    50%{ box-shadow:0 0 16px 2px rgba(79,124,255,0.45); border-color: rgba(79,124,255,1); } }
+  @keyframes rootbarglow{ 0%,100%{ box-shadow:0 6px 16px rgba(0,0,0,0.45), 0 0 0 0 rgba(79,124,255,0); border-color: rgba(79,124,255,0.7); }
+    50%{ box-shadow:0 6px 16px rgba(0,0,0,0.45), 0 0 18px 2px rgba(79,124,255,0.5); border-color: rgba(79,124,255,1); } }
+  @keyframes eyepulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(79,124,255,0.55); color:#8fb0ff; }
+    50%{ box-shadow:0 0 0 6px rgba(79,124,255,0), 0 0 14px rgba(79,124,255,0.6); color:#dbe5ff; } }
+  @media (prefers-reduced-motion: reduce){ .rootbtn, .rootbar, .rooteye{ animation:none; } }
   /* 3.9.0: Live Quick Tips pill rides on the right of the Week row, in the
      gap above it, so the page is no taller. */
   .weekhead{ position:relative; }
@@ -1658,7 +1708,7 @@
     </div>
     <div class="scorewrap">
       <div class="scorecard">
-        <div class="cardbanner">Your Score</div>
+        <div class="cardbanner" id="scoreBanner">Your Score</div>
         <div class="scorebig" id="scoreBig">0</div>
         <div class="scorelabel" id="scoreLabel">points banked</div>
         <div class="scorerule"></div>
@@ -1673,6 +1723,8 @@
         <div class="lbnote" id="lbNote"></div>
       </div>
     </div>
+    <div class="rootbar" id="rootBar" hidden><span class="rooteye" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></span><span class="roottxt"><span class="rootk">ROOTING FOR</span><b class="rootname" id="rootName"></b></span><button type="button" class="rootx" id="rootX" aria-label="Stop rooting">✕</button></div>
+    <div class="rootframe" id="rootFrame" hidden></div>
     <div class="decider" id="decider" hidden></div>
     <div class="weekhead" id="weekHead"><span id="weekHeadTxt"></span><button class="tipbtn livetipbtn" id="liveTipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button></div>
     <div id="resultsList"></div>
@@ -1814,6 +1866,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone\u2019s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap \u2715 or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
       <div class="cl"><b>3.9.1</b> Updates are fully silent: no more "Updated to" note when the app opens.</div>
       <div class="cl"><b>3.9.0</b> Leaderboard: when your spot is scrolled out of view, your row stays pinned to the edge of the board until your real spot comes into view. When the order changes, players slide to their new places instead of jumping. New Quick Tips on Live (pops up once, then use the Quick Tips button under the leaderboard). New leaderboard shuffle preview in Simulations.</div>
       <div class="cl"><b>3.8.1</b> The app now updates itself. Open it and you’re on the newest version; if you’re in the middle of something, a “New version ready” bar lets you tap to update when you’re ready. Live now is back to fewest points first.</div>
@@ -1919,11 +1972,21 @@
       <button class="backbtn" id="viewClose">‹ Back</button>
       <h2 id="viewTitle">Sheet</h2>
     </div>
+    <button type="button" class="rootbtn" id="rootBtn" hidden>Root for</button>
     <div class="viewtabs">
       <button class="viewtab" data-view="ladder">Ladder</button>
       <button class="viewtab" data-view="h2h">Head-to-Head</button>
     </div>
     <div id="viewList"></div>
+  </div>
+</div>
+
+<div class="overlay" id="rootAsk">
+  <div class="sheet" role="dialog" aria-label="Root for">
+    <div class="tipshead"><div class="tipstitle"><span class="kicker rootkick">ROOT FOR</span><h2 id="rootAskTitle">Root for?</h2></div></div>
+    <p class="rootasktext" id="rootAskText"></p>
+    <div class="tipnav"><button class="confirmyes rootgo" id="rootGo">Root for</button></div>
+    <button class="closebtn" id="rootNo">Cancel</button>
   </div>
 </div>
 
@@ -2011,7 +2074,7 @@
     </div>
     <div class="chatlist" id="chatList"></div>
     <div class="chatcompose">
-      <input id="chatInput" type="text" maxlength="200" placeholder="Message the pool" autocomplete="off" enterkeyhint="send">
+      <textarea id="chatInput" rows="1" maxlength="200" placeholder="Message the pool" autocomplete="off" enterkeyhint="send"></textarea><span class="chatcount" id="chatCount" hidden>0 / 200</span>
       <button class="chatsend" id="chatSend" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
   </div>
@@ -2144,7 +2207,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.9.1';
+  const APP_VERSION = '4.0.0';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3685,6 +3748,28 @@
   let playKey = '';
   let playScores = {};
   let plays = {};
+  /* ---- Turnover badges (4.0.0) ----
+     Only the play types seen in ESPN's real game-day feed (Sep 27 captures):
+     interceptions, pick-sixes, fumbles lost (incl. sack fumbles) and kickoff
+     fumbles the kicking team recovers. ESPN's lastPlay.team is the team that
+     gains the ball. When ESPN says who has the ball, it has to be that team.
+     Turnover on downs, muffed punts etc. aren't here until we've seen them. */
+  let toSeen = {};
+  function turnoverOf(lp, poss){
+    if(!lp || !lp.id || !lp.team) return null;
+    const t = lp.type, ab = lp.team, txt = lp.text || '';
+    if(/No Play|NULLIFIED/i.test(txt)) return null;
+    if(poss && poss !== ab) return null;
+    if(t === 'Interception Return Touchdown') return { kind: 'Pick-six', ab: ab };
+    if(t === 'Pass Interception Return') return { kind: 'INT', ab: ab };
+    if(t === 'Fumble Recovery (Opponent)' || t === 'Sack Opp Fumble Recovery') return { kind: 'Fumble', ab: ab };
+    if(t === 'Kickoff'){
+      // ESPN files a lost kickoff return under plain "Kickoff"; the text tells.
+      const k = / from ([A-Z]{2,3}) \d/.exec(txt), r = /RECOVERED by ([A-Z]{2,3})-/.exec(txt);
+      if(k && r && k[1] === r[1]) return { kind: 'Fumble', ab: ab };
+    }
+    return null;
+  }
   function playCity(lg, ab){
     const g = gameById(lg.id);
     if(g){
@@ -3695,7 +3780,7 @@
   }
   function notePlays(list){
     const key = (demoOn() ? 'demo-' + demoMode() : 'real') + ':' + currentWeek;
-    if(key !== playKey){ playKey = key; playScores = {}; plays = {}; }
+    if(key !== playKey){ playKey = key; playScores = {}; plays = {}; toSeen = {}; }
     const now = Date.now();
     (list || []).forEach(function(lg){
       if(!lg || !lg.id || !Array.isArray(lg.abbrs)) return;
@@ -3717,6 +3802,18 @@
       // The next drive has started: a new down and distance since the score.
       const dd = lg.downDistance || '';
       if(p && !p.ended && dd && dd !== p.dd) p.ended = true;
+      // Turnover: a new last play, seen between two back-to-back checks.
+      const lp = lg.lastPlay, lpPrev = toSeen[lg.id];
+      if(lp && lp.id) toSeen[lg.id] = lp.id;
+      if(before && lp && lp.id && lpPrev && lp.id !== lpPrev){
+        const to = turnoverOf(lp, lg.poss);
+        if(to){
+          const tc = playCity(lg, to.ab);
+          plays[lg.id] = { ab: to.ab, to: true, t: now, flashAt: now, dd: dd, waitTry: false, ended: false,
+                           label: to.kind === 'Pick-six' ? 'Pick-six \u00b7 ' + tc : to.kind + ' \u00b7 ' + tc + ' ball' };
+          return;
+        }
+      }
       if(!before) return;
       let best = null;
       lg.abbrs.forEach(function(ab){
@@ -3790,6 +3887,14 @@
           if(!dd && sit.shortDownDistanceText){
             dd = sit.shortDownDistanceText + (sit.possessionText ? ' at ' + sit.possessionText : '');
           }
+          // 4.0.0: the last play, for turnover badges.
+          const lpRaw = sit.lastPlay || null;
+          const lastPlay = (lpRaw && lpRaw.id) ? {
+            id: String(lpRaw.id),
+            type: (lpRaw.type && lpRaw.type.text) || '',
+            text: lpRaw.text || '',
+            team: (lpRaw.team && lpRaw.team.id) ? (idToAbbr[String(lpRaw.team.id)] || '') : ''
+          } : null;
           const st = (ev.status && ev.status.type) || {};
           const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
           const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
@@ -3814,6 +3919,7 @@
             poss: possAbbr || '',
             redZone: redZone,
             downDistance: dd,
+            lastPlay: lastPlay,
             date: ev.date || ''
           });
         });
@@ -3989,7 +4095,7 @@
     const dog = isLiveDog(g, lg);
     return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + '" data-id="' + g.id +
         '" style="order:' + cardOrder(grp, pts) + '">' +
-      '<button type="button" class="dogtab" data-role="dog" aria-label="Your underdog: see who else took them"' + (dog ? '' : ' hidden') + '>YOUR UNDERDOG' + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 5 3.5 8 6.5"/></svg>' + '</button>' +
+      '<button type="button" class="dogtab" data-role="dog" aria-label="Underdog: see who else took them"' + (dog ? '' : ' hidden') + '>' + dogLabel() + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 5 3.5 8 6.5"/></svg>' + '</button>' +
       '<div class="gmain">' +
         '<span class="gpts' + (r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '')) + '">' +
           pts + '<em>pts</em></span>' +
@@ -4016,6 +4122,10 @@
   /* 3.8.0 "Your Underdog": a game in progress where your pick is the
      underdog on the spread. Only after kickoff, so it never shows anyone's
      picks early. No line posted = no underdog. */
+  function dogLabel(){
+    const r = rootRow();
+    return r ? esc(String(r.name).toUpperCase()) + '\u2019S UNDERDOG' : 'YOUR UNDERDOG';
+  }
   function isLiveDog(g, lg){
     return !!(g && g.pick === 'dog' && typeof g.spread === 'number' && g.spread > 0 &&
               lg && lg.state === 'in');
@@ -4023,9 +4133,10 @@
   /* How many other locked sheets took the same underdog — a count only,
      never names or their points. "more" = how many of them put more points
      on it than you. */
-  function dogCrowd(g, myPts){
+  function dogCrowd(g, myPts, whoId){
     const me = player(), key = matchKey(g), dogCity = dogCityOf(g);
-    const others = poolRows().filter(function(r){ return r.locked !== false && r.id !== me.id; });
+    const skip = whoId || me.id;
+    const others = poolRows().filter(function(r){ return r.locked !== false && r.id !== skip; });
     let n = 0, more = 0;
     others.forEach(function(r){
       (Array.isArray(r.picks) ? r.picks : []).forEach(function(pk, idx){
@@ -4135,7 +4246,7 @@
      of things that actually move: scores, the clock, possession, down and
      distance, and the win/loss marks. */
   function paintCards(active, shown){
-    const ids = active.map(function(g){ return g.id; }).join(',');
+    const ids = rootedId() + ':' + active.map(function(g){ return g.id; }).join(',');
     if(resultsList.dataset.ids !== ids){
       resultsList.innerHTML = groupHeads() + active.map(function(g,i){
         return gameCard(g, i + 1, shown[g.id]);
@@ -4238,7 +4349,7 @@
     const play = live ? activePlay(lg) : null;
     card.querySelectorAll('.trow').forEach(function(row){
       const ab = row.dataset.ab;
-      row.classList.toggle('justscored', !!(play && play.ab === ab));
+      row.classList.toggle('justscored', !!(play && !play.to && play.ab === ab));
       const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
       const scoreEl = row.querySelector('[data-role="score"]');
       const hasScore = started && sc !== null;
@@ -4288,20 +4399,21 @@
       const chip = dd.querySelector('[data-role="rz"]');
       if(chip) chip.hidden = !inRz;
       const tag = dd.querySelector('[data-role="play"]');
-      if(tag){ setText(tag, play ? play.label : ''); tag.hidden = !play; }
+      if(tag){ setText(tag, play ? play.label : ''); tag.hidden = !play; tag.classList.toggle('to', !!(play && play.to)); }
       dd.hidden = !(txt || inRz || play);
     }
     const now = Date.now();
-    card.classList.toggle('scored', !!(play && now - play.t < PLAY_MIN));
+    card.classList.toggle('scored', !!(play && !play.to && now - play.t < PLAY_MIN));
+    card.classList.toggle('turned', !!(play && play.to && now - play.t < PLAY_MIN));
     if(play && now - play.flashAt < 4000){
       if(card.dataset.flash !== String(play.flashAt)){
         card.dataset.flash = String(play.flashAt);
-        card.classList.remove('flash');
+        card.classList.remove('flash', 'flashto');
         void card.offsetWidth;                 // restart the animation
-        card.classList.add('flash');
+        card.classList.add(play.to ? 'flashto' : 'flash');
       }
     }else{
-      card.classList.remove('flash');
+      card.classList.remove('flash', 'flashto');
     }
 
     card.classList.toggle('islive', live);
@@ -4356,27 +4468,31 @@
   }
 
   function openResults(skipFetch){
-    document.getElementById('resultsTitle').textContent = 'Score Tracker';
+    const rootR = rootRow();
+    const rootList = rootR ? rootGames(rootR) : null;
+    const viewGames = rootList || games;
+    document.getElementById('resultsTitle').textContent = rootR ? rootR.name + '\u2019s Live' : 'Score Tracker';
+    syncRootChrome(rootR);
     hydrateSeason();
-    const active = activeGames();
+    const active = viewGames.filter(function(g){ return !g.removed; });
 
     document.getElementById('liveStatus').textContent = liveLoading ? 'Loading scores…' : liveStatus;
 
     const wh = document.getElementById('weekHeadTxt');
     if(wh) wh.textContent = 'Week ' + currentWeek + ' of ' + MAX_WEEK;
 
-    const shown = activeResults();
+    const shown = rootList ? rootResults(rootList) : activeResults();
     paintCards(active, shown);
 
     /* Games you dropped still get a card, at the bottom and dimmed. They keep
        a dash where the points go — a removed game isn't worth zero, it isn't
        in play at all, and a 0 would read like a pick you lost. */
-    const dropped = games.filter(function(g){ return g.removed; });
+    const dropped = viewGames.filter(function(g){ return g.removed; });
     const off = document.getElementById('offSheet');
     if(off) off.hidden = !dropped.length;
     paintOffSheet(dropped);
 
-    const sc = weekScore(games, shown);
+    const sc = weekScore(viewGames, shown);
     document.getElementById('scoreBig').textContent = sc.earned;
     document.getElementById('scoreLabel').textContent = 'points banked';
     // Still in play: what the games without a result are worth.
@@ -5053,6 +5169,73 @@
     return out;
   }
 
+  /* ---------- Root for (4.0.0) ----------
+     Once you're out of it, watch the week through someone else's shared
+     sheet. Display only: it builds a copy of the week with their picks and
+     points and hands that to the Live tab. Your games, your results and the
+     score you publish are never touched, nothing goes to Firebase, and it's
+     saved on this phone only, for one week number. A different week (or
+     them un-sharing, locking out, or leaving) and it simply isn't there. */
+  const ROOT_KEY = 'pickem-root';
+  let rootPending = '';
+  let rootById = {};
+  function rootRow(){
+    const v = getLocal(ROOT_KEY);
+    if(!v || !v.pid || v.week !== currentWeek) return null;
+    if(v.pid === player().id) return null;
+    const row = board.filter(function(r){ return r.id === v.pid; })[0];
+    if(!row || !row.share || row.locked === false || !Array.isArray(row.picks) || !row.picks.length) return null;
+    return row;
+  }
+  function rootedId(){ const r = rootRow(); return r ? r.id : ''; }
+  // Their week as a list shaped like yours: their order (= their points),
+  // their side on each game; games they don't have come last, as dropped.
+  function rootGames(row){
+    const used = {}, list = [];
+    row.picks.forEach(function(pk){
+      if(!pk) return;
+      const g2 = gameById(pk.i);
+      if(!g2) return;
+      const key = matchKey(g2);
+      const g = games.filter(function(x){ return x === g2 || matchKey(x) === key; })[0];
+      if(!g || used[g.id]) return;
+      const city = pk.p === 'a' ? g2.cityA : g2.cityB;
+      if(city !== g.cityA && city !== g.cityB) return;
+      used[g.id] = true;
+      list.push(Object.assign({}, g, { removed: false, pick: city === favCityOf(g) ? 'fav' : 'dog' }));
+    });
+    games.forEach(function(g){ if(!used[g.id]) list.push(Object.assign({}, g, { removed: true })); });
+    rootById = {};
+    list.forEach(function(c){ rootById[c.id] = c; });
+    return list;
+  }
+  // Their wins and losses straight from the scoreboard (never your marks).
+  function rootResults(list){
+    const out = {};
+    list.forEach(function(c){
+      if(c.removed) return;
+      const lg = liveFor(c);
+      if(!lg || !lg.completed) return;
+      const theirs = pickedCityOf(c) === c.cityA ? (c.abbrA || ABBR[c.cityA]) : (c.abbrB || ABBR[c.cityB]);
+      const other = lg.abbrs.filter(function(x){ return x !== theirs; })[0];
+      const a = lg.scores[theirs], b = lg.scores[other];
+      if(typeof a !== 'number' || typeof b !== 'number') return;
+      out[c.id] = a === b ? 'tie' : (a > b ? 'win' : 'loss');
+    });
+    return out;
+  }
+  function syncRootChrome(row){
+    document.getElementById('rootBar').hidden = !row;
+    document.getElementById('rootFrame').hidden = !row;
+    document.getElementById('rootName').textContent = row ? row.name : '';
+    document.getElementById('scoreBanner').textContent = row ? row.name + '\u2019s Score' : 'Your Score';
+  }
+  function rootRefresh(){
+    resultsList.dataset.ids = '';
+    if(isTab('live')) openResults(true);
+  }
+  function rootStop(){ put(ROOT_KEY, { pid: '', week: 0 }); rootRefresh(); }
+
   function showPlayerSheet(id){
     const row = board.filter(function(r){ return r.id === id; })[0];
     if(!row) return;
@@ -5062,6 +5245,12 @@
     const me = player();
     document.getElementById('viewTitle').textContent =
       (me.name || 'You') + ' vs ' + row.name;
+    const rb = document.getElementById('rootBtn');
+    const canRoot = row.id !== me.id && !!row.share && row.locked !== false &&
+                    Array.isArray(row.picks) && row.picks.length > 0;
+    rb.hidden = !canRoot;
+    rb.dataset.pid = row.id;
+    rb.textContent = (rootedId() === row.id ? 'Stop rooting for ' : 'Root for ') + row.name;
 
     const list = document.getElementById('viewList');
     const theirs = Array.isArray(row.picks) ? row.picks : [];
@@ -5199,7 +5388,8 @@
   // "Your Underdog" tab on a live card -> small slide-up (3.8.0)
   const dogOverlay = document.getElementById('dogOverlay');
   function openDog(id){
-    const g = gameById(id);
+    const rootR = rootRow();
+    const g = (rootR && rootById[id]) || gameById(id);
     const card = resultsList.querySelector('.gcard[data-id="' + id + '"]');
     if(!g || !card) return;
     const ptsEl = card.querySelector('.gpts');
@@ -5209,9 +5399,12 @@
     const opp = city === g.cityA ? abB : abA;
     document.getElementById('dogTeam').textContent = city;
     document.getElementById('dogLine').textContent = '+' + g.spread + (opp ? ' vs ' + opp : '');
-    const c = dogCrowd(g, pts);
-    document.getElementById('dogText').innerHTML = 'You have <b>' + pts + ' point' + (pts === 1 ? '' : 's') +
-      '</b> on them. ' + esc(dogCrowdText(c, city));
+    const c = dogCrowd(g, pts, rootR ? rootR.id : '');
+    let crowd = dogCrowdText(c, city);
+    if(rootR) crowd = crowd.replace(/ than you/g, ' than ' + rootR.name);
+    document.querySelector('#dogOverlay .dogsheettag').innerHTML = dogLabel();
+    document.getElementById('dogText').innerHTML = (rootR ? esc(rootR.name) + ' has <b>' : 'You have <b>') +
+      pts + ' point' + (pts === 1 ? '' : 's') + '</b> on them. ' + esc(crowd);
     openOverlay(dogOverlay);
   }
   resultsList.addEventListener('click', function(e){
@@ -5230,6 +5423,34 @@
   document.getElementById('lbInfoOk').addEventListener('click', function(){ closeOverlay(lbInfoOverlay); });
   lbInfoOverlay.addEventListener('click', function(e){ if(e.target === lbInfoOverlay) closeOverlay(lbInfoOverlay); });
 
+  document.getElementById('rootBtn').addEventListener('click', function(){
+    const pid = this.dataset.pid || '';
+    const row = board.filter(function(r){ return r.id === pid; })[0];
+    if(!row) return;
+    if(rootedId() === pid){ closeOverlay(viewOverlay); rootStop(); return; }
+    rootPending = pid;
+    const n = esc(row.name);
+    document.getElementById('rootAskTitle').textContent = 'Root for ' + row.name + '?';
+    document.getElementById('rootAskText').innerHTML = 'Your Live tab turns into <b>' + n + '\u2019s</b>: ' +
+      'their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, ' +
+      'and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> ' +
+      'on it any time to switch back to your own view. It ends on its own when the week does.';
+    document.getElementById('rootGo').textContent = 'Root for ' + row.name;
+    openOverlay(rootAsk);
+  });
+  const rootAsk = document.getElementById('rootAsk');
+  document.getElementById('rootNo').addEventListener('click', function(){ closeOverlay(rootAsk); });
+  rootAsk.addEventListener('click', function(e){ if(e.target === rootAsk) closeOverlay(rootAsk); });
+  document.getElementById('rootGo').addEventListener('click', function(){
+    const row = board.filter(function(r){ return r.id === rootPending; })[0];
+    closeOverlay(rootAsk);
+    closeOverlay(viewOverlay);
+    if(!row) return;
+    put(ROOT_KEY, { pid: row.id, name: row.name, week: currentWeek, t: Date.now() });
+    rootRefresh();
+    try{ window.scrollTo(0, 0); }catch(e){}
+  });
+  document.getElementById('rootX').addEventListener('click', rootStop);
   document.getElementById('lbList').addEventListener('scroll', function(){
     try{ syncLbPin(); }catch(e){}
   }, { passive: true });
@@ -5884,6 +6105,8 @@
     const el = document.getElementById('lbList');
     const m = el && el.querySelector('.lbrow.me');
     if(!m) return;
+    // Hidden, or everyone fits: nothing is out of view, so no shadow.
+    if(!el.clientHeight || el.scrollHeight <= el.clientHeight + 1){ m.classList.remove('pinb', 'pint'); return; }
     const pv = m.previousElementSibling;
     const top = pv ? (pv.offsetTop + pv.offsetHeight + 3 - el.offsetTop) : 0;
     const bot = top + m.offsetHeight;
@@ -5937,14 +6160,16 @@
     if(lbAdv()){ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } }
 
     const slideFrom = lbPositions(el);
+    const hiId = rootedId() || me.id;
     el.innerHTML = shown.map(function(r, i){
       const isMe = r.id === me.id;
+      const isHi = r.id === hiId;
       /* Your own icon is a status marker, not a button — same badge so you can
          see at a glance that your sheet is open, but it isn't pressable and
          doesn't get the press styling that would imply it is. */
       const tappable = !!r.share && !isMe;
       const lead = outright && i === 0 && r.points === top;
-      return '<div class="lbrow' + (isMe ? ' me' : '') +
+      return '<div class="lbrow' + (isHi ? ' me' : '') +
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
         (isOnline(r.id) ? '<i class="beacon lbdot" aria-label="Online"></i>' : '') +
@@ -6426,7 +6651,7 @@
   let chatSending = false;
   function sendChat(){
     const input = document.getElementById('chatInput');
-    const text = String(input.value || '').trim().slice(0, 200);
+    const text = String(input.value || '').replace(/\s*\n\s*/g, ' ').trim().slice(0, 200);
     const me = player();
     if(!text || chatSending) return;
     if(!me.name){ askName(true, 'live'); return; }
@@ -6442,6 +6667,7 @@
       .then(function(r){
         if(!r.ok) throw new Error('bad');
         input.value = '';
+        sizeChat();
         chatBusy = false;
         pollChat();
       })
@@ -6456,6 +6682,19 @@
   document.getElementById('chatInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter'){ e.preventDefault(); sendChat(); }
   });
+  function sizeChat(){
+    const i = document.getElementById('chatInput'), c = document.getElementById('chatCount');
+    i.style.height = '44px';
+    const full = i.scrollHeight + 2;
+    i.style.height = Math.max(44, Math.min(full, 124)) + 'px';
+    i.style.overflowY = full > 124 ? 'auto' : 'hidden';
+    i.style.borderRadius = full > 46 ? '18px' : '';
+    const n = (i.value || '').length;
+    c.textContent = n + ' / 200';
+    c.hidden = !n;
+    c.classList.toggle('full', n >= 200);
+  }
+  document.getElementById('chatInput').addEventListener('input', sizeChat);
 
   /* One clock, every 5 s: keep the live connections open (they follow the
      chat week), fall back to asking if a connection isn't working, let stale
