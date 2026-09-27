@@ -966,6 +966,26 @@
     box-shadow: 0 0 18px rgba(255,255,255,0.07);
   }
   .gcard.pregame{ opacity:0.85; }
+  /* 3.8.0: "Your Underdog" tab on the top edge of a live card */
+  .gcard.hasdog{ margin-top:8px; }
+  .dogtab{
+    position:absolute; top:-9px; left:12px; z-index:2;
+    display:inline-flex; align-items:center; gap:5px; height:18px; padding:0 8px;
+    border-radius:9px; border:1px solid rgba(244,196,61,0.6); background:#0c1628;
+    color: var(--gold); font-size:9px; font-weight:800; letter-spacing:0.9px; line-height:1;
+    white-space:nowrap; cursor:pointer;
+  }
+  .dogtab[hidden]{ display:none; }
+  .dogtab::before{ content:''; position:absolute; top:-10px; bottom:-10px; left:-6px; right:-6px; }
+  .dogtab svg{ width:7px; height:7px; flex:none; }
+  .dogsheettag{
+    display:inline-flex; align-items:center; height:20px; padding:0 9px; border-radius:10px;
+    border:1px solid rgba(244,196,61,0.6); color: var(--gold);
+    font-size:9.5px; font-weight:800; letter-spacing:0.9px;
+  }
+  .doghead{ display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin:10px 0 4px; }
+  .doghead b{ font-size:24px; font-weight:800; letter-spacing:-0.5px; color: var(--gold); }
+  .doghead span{ font-size:14px; font-weight:700; color: var(--muted); }
   .gmain{ display:flex; align-items:center; gap:10px; }
   .gpts{
     flex:none; width:40px; height:48px; border-radius:11px;
@@ -1495,6 +1515,42 @@
     .tipdot{ transition:none; }
   }
 
+  /* 3.8.1: "New version ready" bar — only while someone is using the app */
+  .updbar{
+    position:fixed; left:12px; right:12px; top: calc(env(safe-area-inset-top, 0px) + 10px);
+    z-index:55; max-width:480px; margin:0 auto;
+    display:flex; align-items:center; gap:12px; padding:12px 12px 12px 14px;
+    border:none; border-radius:16px; text-align:left; cursor:pointer;
+    background: linear-gradient(170deg, #0f3552, #0b1c30); color:#ffffff;
+    animation: updPulse 1.4s ease-in-out infinite;
+  }
+  .updbar[hidden]{ display:none; }
+  @keyframes updPulse{
+    0%, 100%{ box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 10px rgba(53,208,255,0.35); }
+    50%{ box-shadow: 0 0 0 1px rgba(53,208,255,1), 0 0 28px rgba(53,208,255,0.75); }
+  }
+  .updicon{
+    flex:none; width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    background: rgba(53,208,255,0.16); border:1px solid rgba(53,208,255,0.45);
+  }
+  .updicon svg{ width:18px; height:18px; }
+  .updspin{ display:none; width:16px; height:16px; border-radius:50%;
+    border:2.5px solid rgba(53,208,255,0.25); border-top-color: var(--cyan); animation: updSpin 0.8s linear infinite; }
+  .updbar.busy .updicon svg{ display:none; }
+  .updbar.busy .updspin{ display:block; }
+  @keyframes updSpin{ to{ transform:rotate(360deg); } }
+  .updtxt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .updkick{ display:flex; align-items:center; gap:6px; font-size:10px; font-weight:800; letter-spacing:1.3px; color: var(--cyan); }
+  .updkick i{ width:6px; height:6px; border-radius:50%; background: var(--cyan); animation: updBlink 1.4s ease-in-out infinite; }
+  @keyframes updBlink{ 0%, 100%{ opacity:1; } 50%{ opacity:0.25; } }
+  .updtxt strong{ font-size:15px; font-weight:800; color:#ffffff; }
+  .updtxt small{ font-size:12px; font-weight:600; color:#b9cadb; }
+  .updgo{ flex:none; height:34px; padding:0 14px; border-radius:10px; display:flex; align-items:center;
+    background: var(--cyan); color:#03131f; font-size:13px; font-weight:800; }
+  @media (prefers-reduced-motion: reduce){
+    .updbar{ animation:none; box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 18px rgba(53,208,255,0.5); }
+    .updkick i{ animation:none; }
+  }
   .toast{
     position:fixed; left:50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%);
     background:#1a2a42; color:#ffffff; font-weight:700; font-size:14px;
@@ -1723,6 +1779,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.8.1</b> The app now updates itself. Open it and you’re on the newest version; if you’re in the middle of something, a “New version ready” bar lets you tap to update when you’re ready. Live now is back to fewest points first.</div>
+      <div class="cl"><b>3.8.0</b> Took an underdog? Once the game starts, its card gets a gold “Your Underdog” tag — tap it to see how many others took them too. Live now shows your biggest games first. Online dots and Pool Chat now update instantly.</div>
       <div class="cl"><b>3.7.4</b> A faint line under each player on the leaderboard makes it easier to see whose score is whose.</div>
       <div class="cl"><b>3.7.3</b> Fixed the online dot on the leaderboard being cut off. Your Score is a little narrower so names get more room.</div>
       <div class="cl"><b>3.7.2</b> Leaderboard names get more room on narrow phones: rank and name moved left, and the online dot now sits just before the rank.</div>
@@ -1869,6 +1927,17 @@
   </div>
 </div>
 
+<div class="overlay" id="dogOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Your underdog">
+    <span class="dogsheettag">YOUR UNDERDOG</span>
+    <div class="doghead"><b id="dogTeam"></b><span id="dogLine"></span></div>
+    <p id="dogText"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="dogOk">Got it</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="lockedOverlay">
   <div class="confirmcard lockedcard" role="dialog" aria-label="Locked in">
     <div class="lockpop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>
@@ -1984,6 +2053,11 @@
 </div>
 
 <div class="toast" id="toast">Copied</div>
+<button type="button" class="updbar" id="updBar" hidden aria-label="New version ready. Tap to update.">
+  <span class="updicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cyan)" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><i class="updspin"></i></span>
+  <span class="updtxt"><span class="updkick"><i></i><b id="updKick">NEW VERSION READY</b></span><strong id="updTitle">Tap to update the app</strong><small id="updSub"></small></span>
+  <span class="updgo" id="updGo">Update</span>
+</button>
 
 <script>
 (function(){
@@ -2010,8 +2084,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.7.4';
-  const APP_BUILT = 'Sep 26, 2026';
+  const APP_VERSION = '3.8.1';
+  const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3218,6 +3292,103 @@
     setTimeout(function(){ t.classList.remove('show'); }, 1700);
   }
 
+  /* ---------- automatic updates (3.8.1) ----------
+     Every time the app is opened or switched back to (and every ~5 minutes
+     while it's open) it reads a fresh copy of itself and compares
+     APP_VERSION. Newer + nothing in progress -> it reloads quietly into the
+     new version. Newer but someone is in the middle of something (a sheet is
+     open, dragging, typing) -> the pulsing "New version ready" bar instead;
+     it never reloads under someone's finger.
+     The reload goes to "?v=<new version>", a new address, so GitHub Pages and
+     the phone can't hand back the old cached page; the address bar is tidied
+     right after. If it somehow still lands on the old version, it won't try
+     again for 10 minutes (no reload loops). Nothing is sent anywhere. */
+  const UPD_KEY = 'pickem-upd';        // sessionStorage: { to, t, shown }
+  (function tidyUpdateUrl(){
+    try{
+      if(/[?&]v=/.test(location.search) && history.replaceState){
+        history.replaceState(history.state, '', location.pathname + location.hash);
+      }
+    }catch(e){}
+  })();
+  function verParts(v){ return String(v || '').split('.').map(function(x){ return parseInt(x, 10) || 0; }); }
+  function isNewerVer(a, b){
+    const x = verParts(a), y = verParts(b);
+    for(let i = 0; i < Math.max(x.length, y.length); i++){
+      const d = (x[i] || 0) - (y[i] || 0);
+      if(d) return d > 0;
+    }
+    return false;
+  }
+  function updMemo(){ try{ return JSON.parse(sessionStorage.getItem(UPD_KEY) || 'null'); }catch(e){ return null; } }
+  function setUpdMemo(v){ try{ sessionStorage.setItem(UPD_KEY, JSON.stringify(v)); }catch(e){} }
+  let updLastCheck = 0, updFound = '', updChecking = false;
+  function appBusy(){
+    if(document.querySelector('.overlay.show')) return true;
+    if(document.querySelector('.dragging, .pressing')) return true;
+    const a = document.activeElement;
+    if(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return true;
+    const ci = document.getElementById('chatInput');
+    return !!(ci && ci.value && ci.value.trim());
+  }
+  function goUpdate(ver, force){
+    const m = updMemo();
+    if(!force && m && m.to === ver && Date.now() - m.t < 600000) return false;
+    setUpdMemo({ to: ver, t: Date.now() });
+    const url = location.pathname + '?v=' + encodeURIComponent(ver) + location.hash;
+    try{ (window.pickemNavigate || function(u){ location.replace(u); })(url); }catch(e){ return false; }
+    return true;
+  }
+  function showUpdBar(){
+    const bar = document.getElementById('updBar');
+    if(!bar || !updFound) return;
+    bar.classList.remove('busy');
+    document.getElementById('updKick').textContent = 'NEW VERSION READY';
+    document.getElementById('updTitle').textContent = 'Tap to update the app';
+    document.getElementById('updSub').textContent = 'Version ' + updFound + ' \u00B7 takes a second, picks stay put';
+    document.getElementById('updGo').textContent = 'Update';
+    bar.hidden = false;
+  }
+  function checkUpdate(reason){
+    if(typeof fetch !== 'function' || document.hidden || updChecking) return;
+    const now = Date.now();
+    if(now - updLastCheck < (reason === 'wake' ? 60000 : 240000)) return;
+    updChecking = true;
+    fetch(location.pathname + '?check=' + now, { cache: 'no-store' })
+      .then(function(r){
+        if(!(r && r.ok && typeof r.text === 'function')) return '';
+        updLastCheck = Date.now();          // only a real answer counts; no signal = try again next time
+        return r.text();
+      })
+      .then(function(html){
+        const m = /const APP_VERSION = '([0-9.]+)'/.exec(html || '');
+        if(!m || !isNewerVer(m[1], APP_VERSION)) return;
+        updFound = m[1];
+        if(reason === 'wake' && !appBusy() && goUpdate(updFound, false)) return;
+        showUpdBar();
+      })
+      .catch(function(){})
+      .then(function(){ updChecking = false; });
+  }
+  document.getElementById('updBar').addEventListener('click', function(){
+    const bar = this;
+    if(bar.classList.contains('busy') || !updFound) return;
+    bar.classList.add('busy');
+    document.getElementById('updKick').textContent = 'UPDATING';
+    document.getElementById('updTitle').textContent = 'Getting ' + updFound + '\u2026';
+    document.getElementById('updSub').textContent = 'One second. Your picks are saved.';
+    document.getElementById('updGo').textContent = 'Wait';
+    setTimeout(function(){ goUpdate(updFound, true); }, 350);
+  });
+  // Just updated: say so once.
+  (function(){
+    const m = updMemo();
+    if(m && m.to === APP_VERSION && !m.shown){
+      setUpdMemo({ to: m.to, t: m.t, shown: true });
+      setTimeout(function(){ toast('Updated to ' + APP_VERSION); }, 900);
+    }
+  })();
+
   const sheetList = document.getElementById('sheetList');
 
   function renderSheet(){
@@ -3757,8 +3928,10 @@
 
     const liveCls = (lg && lg.state === 'in') ? ' islive' : '';
     const grp = cardGroup(lg, r);
-    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + '" data-id="' + g.id +
+    const dog = isLiveDog(g, lg);
+    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + '" data-id="' + g.id +
         '" style="order:' + cardOrder(grp, pts) + '">' +
+      '<button type="button" class="dogtab" data-role="dog" aria-label="Your underdog: see who else took them"' + (dog ? '' : ' hidden') + '>YOUR UNDERDOG' + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 5 3.5 8 6.5"/></svg>' + '</button>' +
       '<div class="gmain">' +
         '<span class="gpts' + (r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '')) + '">' +
           pts + '<em>pts</em></span>' +
@@ -3782,6 +3955,44 @@
      Cards are built once in point order and never rebuilt on a refresh, so the
      groups come from the flex order of each card rather than moving elements
      around — a game that kicks off just changes its order and slides up. */
+  /* 3.8.0 "Your Underdog": a game in progress where your pick is the
+     underdog on the spread. Only after kickoff, so it never shows anyone's
+     picks early. No line posted = no underdog. */
+  function isLiveDog(g, lg){
+    return !!(g && g.pick === 'dog' && typeof g.spread === 'number' && g.spread > 0 &&
+              lg && lg.state === 'in');
+  }
+  /* How many other locked sheets took the same underdog — a count only,
+     never names or their points. "more" = how many of them put more points
+     on it than you. */
+  function dogCrowd(g, myPts){
+    const me = player(), key = matchKey(g), dogCity = dogCityOf(g);
+    const others = poolRows().filter(function(r){ return r.locked !== false && r.id !== me.id; });
+    let n = 0, more = 0;
+    others.forEach(function(r){
+      (Array.isArray(r.picks) ? r.picks : []).forEach(function(pk, idx){
+        if(!pk) return;
+        const g2 = gameById(pk.i);
+        if(!g2 || (g2 !== g && matchKey(g2) !== key)) return;
+        const city = pk.p === 'a' ? g2.cityA : g2.cityB;
+        if(city !== dogCity) return;
+        n++;
+        if(idx + 1 > myPts) more++;
+      });
+    });
+    return { others: others.length, n: n, more: more };
+  }
+  function dogCrowdText(c, city){
+    const moreTxt = !c.more ? '' :
+      (c.n === 1 ? ', with more points than you' :
+        (c.more === c.n ? ', all with more points than you' :
+          (c.more === 1 ? ', one with more points than you' : ', some with more points than you')));
+    if(!c.n) return 'Nobody else took ' + city + '.';
+    if(c.n === c.others && c.others >= 2) return 'Everyone else took ' + city + ' too' + moreTxt + '.';
+    if(c.n === 1) return '1 other player took ' + city + ' too' + moreTxt + '.';
+    return c.n + ' other players took ' + city + ' too' + moreTxt + '.';
+  }
+
   function cardGroup(lg, r){
     if(lg && lg.state === 'in') return 'live';
     if(r || (lg && lg.state === 'post')) return 'final';
@@ -3791,6 +4002,8 @@
     return grp === 'final' ? ' isfinal' : (grp === 'next' ? ' pregame' : '');
   }
   function cardOrder(grp, pts){
+    // Fewest points first in every group (3.8.0 tried most-first in Live now;
+    // Wes put it back in 3.8.1).
     return (grp === 'live' ? 0 : grp === 'next' ? 1000 : 2000) + pts;
   }
   // "Q2 - 6:31" -> ["Q2", "6:31"]; "Halftime" stays whole.
@@ -4034,6 +4247,10 @@
     }
 
     card.classList.toggle('islive', live);
+    const dog = isLiveDog(g, lg);
+    card.classList.toggle('hasdog', dog);
+    const dogTab = card.querySelector('[data-role="dog"]');
+    if(dogTab && dogTab.hidden === dog) dogTab.hidden = !dog;
     card.classList.toggle('won', r === 'win');
     card.classList.toggle('lost', r === 'loss');
     const grp = cardGroup(lg, r);
@@ -4920,6 +5137,34 @@
       }
     }
   });
+  // "Your Underdog" tab on a live card -> small slide-up (3.8.0)
+  const dogOverlay = document.getElementById('dogOverlay');
+  function openDog(id){
+    const g = gameById(id);
+    const card = resultsList.querySelector('.gcard[data-id="' + id + '"]');
+    if(!g || !card) return;
+    const ptsEl = card.querySelector('.gpts');
+    const pts = parseInt(ptsEl ? ptsEl.textContent : '', 10) || 0;
+    const city = dogCityOf(g);
+    const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+    const opp = city === g.cityA ? abB : abA;
+    document.getElementById('dogTeam').textContent = city;
+    document.getElementById('dogLine').textContent = '+' + g.spread + (opp ? ' vs ' + opp : '');
+    const c = dogCrowd(g, pts);
+    document.getElementById('dogText').innerHTML = 'You have <b>' + pts + ' point' + (pts === 1 ? '' : 's') +
+      '</b> on them. ' + esc(dogCrowdText(c, city));
+    openOverlay(dogOverlay);
+  }
+  resultsList.addEventListener('click', function(e){
+    const tab = e.target && e.target.closest ? e.target.closest('.dogtab') : null;
+    if(!tab) return;
+    e.stopPropagation();
+    const card = tab.closest('.gcard');
+    if(card) openDog(card.dataset.id);
+  });
+  document.getElementById('dogOk').addEventListener('click', function(){ closeOverlay(dogOverlay); });
+  dogOverlay.addEventListener('click', function(e){ if(e.target === dogOverlay) closeOverlay(dogOverlay); });
+
   const LBINFO_KEY = 'pickem-lbinfo';
   let lbInfoShown = false;
   const lbInfoOverlay = document.getElementById('lbInfoOverlay');
@@ -5645,15 +5890,19 @@
 
   /* ---------- online dots ----------
      The app talks to Firebase with plain requests, so it can't use Firebase's
-     own disconnect detection. Instead each open phone with a name checks in
-     every 30 seconds (server time), and anyone seen in the last two minutes is
-     online. Closing or backgrounding the app removes the check-in. */
-  const ONLINE_WINDOW = 120000;
+     own disconnect detection. Each open phone with a name checks in every
+     15 seconds (server time) and the moment it opens or comes back; anyone
+     seen in the last 45 seconds is online. Closing or backgrounding the app
+     removes the check-in. Since 3.8.0 other phones hear about it through a
+     live connection (see "live connection" below), not by asking every 5 s.
+     serverSkew corrects for a phone whose clock is off. */
+  const ONLINE_WINDOW = 45000;
+  let serverSkew = 0;
   function presenceUrl(id){ return DB_URL + '/presence/' + encodeURIComponent(id) + '.json'; }
   function isOnline(id){
     if(id === player().id && player().name && !document.hidden) return true;
     const p = presence[id];
-    return !!(p && typeof p.t === 'number' && (Date.now() - p.t) < ONLINE_WINDOW);
+    return !!(p && typeof p.t === 'number' && (Date.now() + serverSkew - p.t) < ONLINE_WINDOW);
   }
   function beat(){
     const me = player();
@@ -5662,7 +5911,17 @@
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: me.name, t: { '.sv': 'timestamp' } })
-    }).catch(function(){});
+    })
+      .then(function(r){ return (r && r.ok && typeof r.json === 'function') ? r.json() : null; })
+      .then(function(d){
+        // Firebase answers with the server time it stored: use it to correct
+        // this phone's clock (ignore anything silly).
+        if(d && typeof d.t === 'number'){
+          const s = d.t - Date.now();
+          if(Math.abs(s) < 86400000) serverSkew = s;
+        }
+      })
+      .catch(function(){});
   }
   function dropPresence(){
     const me = player();
@@ -5878,6 +6137,173 @@
     readPresence();
   }
 
+  /* ---------- live connection (3.8.0) ----------
+     Instead of asking Firebase "anything new?" every 5 seconds, each open
+     phone keeps two live connections (Firebase's REST streaming, which is
+     plain EventSource): one on /presence and one on this week's chat.
+     Firebase pushes every change the moment it happens, so dots and messages
+     show up in about a second. Closed when the app is hidden, reopened when it
+     comes back. If a connection isn't working (or the phone has no
+     EventSource), the old 5-second checks run instead — never worse than
+     before. */
+  const streams = { presence: null, chat: null, chatWeek: 0 };
+  const streamBlocked = { presence: 0, chat: 0 };
+  let presenceLive = false, chatLive = false;
+  function hasStream(){ return typeof EventSource === 'function'; }
+  function streamMsg(e){
+    try{ const m = JSON.parse(e && e.data); return (m && typeof m.path === 'string') ? m : null; }
+    catch(err){ return null; }
+  }
+  // Apply a Firebase put/patch at `path` to a map of { key: object }.
+  function applyAt(root, path, data, patch){
+    const parts = String(path).split('/').filter(Boolean);
+    const out = Object.assign({}, root || {});
+    const merge = function(into, obj){
+      Object.keys(obj || {}).forEach(function(k){ if(obj[k] === null) delete into[k]; else into[k] = obj[k]; });
+      return into;
+    };
+    if(!parts.length){
+      if(patch) return merge(out, data);
+      return (data && typeof data === 'object') ? Object.assign({}, data) : {};
+    }
+    const k = parts[0];
+    if(parts.length === 1){
+      if(patch) out[k] = merge(Object.assign({}, out[k] || {}), data);
+      else if(data === null) delete out[k];
+      else out[k] = data;
+      return out;
+    }
+    if(parts.length === 2){
+      const cur = Object.assign({}, out[k] || {});
+      if(data === null) delete cur[parts[1]]; else cur[parts[1]] = data;
+      out[k] = cur;
+      return out;
+    }
+    return out;
+  }
+  let onlineSig = '';
+  function presenceChanged(force){
+    const sig = Object.keys(presence).filter(function(id){ return isOnline(id); }).sort().join(',');
+    if(!force && sig === onlineSig) return;
+    onlineSig = sig;
+    if(isTab('live')){ try{ renderBoard(); }catch(e){} }
+    if(chatOverlay.classList.contains('show')){ try{ renderChatPeople(); }catch(e){} }
+  }
+  function closeStream(which, block){
+    const es = streams[which];
+    streams[which] = null;
+    if(es){ try{ es.close(); }catch(e){} }
+    if(which === 'chat'){ chatLive = false; streams.chatWeek = 0; } else presenceLive = false;
+    if(block) streamBlocked[which] = Date.now();
+  }
+  function watchErrors(es, which){
+    es.onerror = function(){
+      if(streams[which] !== es) return;
+      if(which === 'chat') chatLive = false; else presenceLive = false;   // 5 s checks cover the gap
+      if(es.readyState === 2) closeStream(which, true);                   // gave up: retry in a minute
+    };
+    es.addEventListener('cancel', function(){ if(streams[which] === es) closeStream(which, true); });
+    es.addEventListener('auth_revoked', function(){ if(streams[which] === es) closeStream(which, true); });
+  }
+  function openPresenceStream(){
+    if(streams.presence || !hasStream() || document.hidden) return;
+    if(Date.now() - streamBlocked.presence < 60000) return;
+    let es;
+    try{ es = new EventSource(DB_URL + '/presence.json'); }catch(e){ streamBlocked.presence = Date.now(); return; }
+    streams.presence = es;
+    const on = function(patch){
+      return function(e){
+        if(streams.presence !== es) return;
+        const m = streamMsg(e);
+        if(!m) return;
+        presence = applyAt(presence, m.path, m.data, patch);
+        presenceLive = true;
+        presenceChanged(true);
+      };
+    };
+    es.addEventListener('put', on(false));
+    es.addEventListener('patch', on(true));
+    watchErrors(es, 'presence');
+  }
+  function chatApply(week, path, data, patch){
+    if(week !== chatWeek()) return;
+    if(week !== chatWeekLoaded){ chatMsgs = []; chatSeen = {}; chatLastT = 0; chatWeekLoaded = week; }
+    let changed = false;
+    const add = function(k, m){
+      if(chatSeen[k] || !m || typeof m.t !== 'number' || typeof m.text !== 'string' || typeof m.pid !== 'string') return;
+      chatSeen[k] = true;
+      chatMsgs.push({ id: k, pid: m.pid, name: String(m.name || ''), text: m.text, t: m.t });
+      if(m.t > chatLastT) chatLastT = m.t;
+      changed = true;
+    };
+    const drop = function(k){
+      const before = chatMsgs.length;
+      chatMsgs = chatMsgs.filter(function(x){ return x.id !== k; });
+      delete chatSeen[k];
+      if(chatMsgs.length !== before) changed = true;
+    };
+    const parts = String(path).split('/').filter(Boolean);
+    if(!parts.length){
+      if(patch){
+        Object.keys(data || {}).forEach(function(k){ if(data[k] === null) drop(k); else add(k, data[k]); });
+      }else{
+        // The whole week: anything not in it was deleted (admin).
+        const all = (data && typeof data === 'object') ? data : {};
+        const before = chatMsgs.length;
+        chatMsgs = chatMsgs.filter(function(x){ return !!all[x.id]; });
+        Object.keys(chatSeen).forEach(function(k){ if(!all[k]) delete chatSeen[k]; });
+        if(chatMsgs.length !== before) changed = true;
+        Object.keys(all).forEach(function(k){ add(k, all[k]); });
+      }
+    }else if(parts.length === 1){
+      if(data === null) drop(parts[0]); else add(parts[0], data);
+    }
+    if(!changed) return;
+    chatMsgs.sort(function(a,b){ return a.t - b.t; });
+    if(chatOverlay.classList.contains('show')){ renderChat(true); markChatRead(); }
+    else syncChatBadge();
+  }
+  function openChatStream(){
+    if(!hasStream() || document.hidden || !player().name) return;
+    const week = chatWeek();
+    if(streams.chat && streams.chatWeek === week) return;
+    if(streams.chat) closeStream('chat');
+    if(Date.now() - streamBlocked.chat < 60000) return;
+    let es;
+    try{ es = new EventSource(chatUrl(week)); }catch(e){ streamBlocked.chat = Date.now(); return; }
+    streams.chat = es;
+    streams.chatWeek = week;
+    const on = function(patch){
+      return function(e){
+        if(streams.chat !== es) return;
+        const m = streamMsg(e);
+        if(!m) return;
+        chatLive = true;
+        chatApply(week, m.path, m.data, patch);
+      };
+    };
+    es.addEventListener('put', on(false));
+    es.addEventListener('patch', on(true));
+    watchErrors(es, 'chat');
+  }
+  function streamsOn(){ openPresenceStream(); openChatStream(); }
+  function streamsOff(){ closeStream('presence'); closeStream('chat'); }
+  /* The moment the app appears — opened, switched back to, phone unlocked,
+     back online — check in and reconnect. Phones don't all send the same
+     signal, so listen for all of them (at most once every 1.5 s). */
+  let lastWake = 0;
+  function wake(){
+    if(document.hidden) return;
+    const now = Date.now();
+    if(now - lastWake < 1500) return;
+    lastWake = now;
+    beat();
+    streamsOn();
+    if(!presenceLive) readPresence();
+    if(!chatLive) pollChat();
+    checkUpdate('wake');
+  }
+
   let chatSending = false;
   function sendChat(){
     const input = document.getElementById('chatInput');
@@ -5912,19 +6338,27 @@
     if(e.key === 'Enter'){ e.preventDefault(); sendChat(); }
   });
 
-  // One clock for both: chat every 5 s, who's online every 15 s, check in every 30 s.
+  /* One clock, every 5 s: keep the live connections open (they follow the
+     chat week), fall back to asking if a connection isn't working, let stale
+     dots go out, and check in every 15 s. */
   setInterval(function(){
     if(document.hidden) return;
     chatTicks++;
-    pollChat(chatTicks % 6 === 0);
-    readPresence();                  // every 5 s, so a new dot shows up fast
-    if(chatTicks % 6 === 0) beat();
+    streamsOn();
+    if(!chatLive) pollChat(chatTicks % 6 === 0);
+    if(!presenceLive) readPresence();
+    else presenceChanged(false);
+    if(chatTicks % 3 === 0) beat();
+    if(chatTicks % 60 === 0) checkUpdate('timer');   // every ~5 minutes while open
   }, 5000);
   document.addEventListener('visibilitychange', function(){
-    if(document.hidden){ dropPresence(); return; }
-    beat(); pollChat(); readPresence();
+    if(document.hidden){ streamsOff(); dropPresence(); return; }
+    wake();
   });
-  window.addEventListener('pagehide', dropPresence);
+  window.addEventListener('pageshow', wake);
+  window.addEventListener('focus', wake);
+  window.addEventListener('online', wake);
+  window.addEventListener('pagehide', function(){ streamsOff(); dropPresence(); });
 
   /* ---------- admin (this phone only) ----------
      A code-gated switch in the Preview Menu. It only decides which buttons this
@@ -6738,9 +7172,12 @@
     // whether or not anyone visits the Score Tracker.
     if(weekLocked && player().name) syncPool();
 
-    // Check in the moment the app opens, not at the first 30-second tick.
+    // Check in the moment the app opens, and open the live connections.
     beat();
     readPresence();
+    try{ streamsOn(); }catch(e){}
+    // Opened an old copy? Check right away and update quietly if nothing's open.
+    setTimeout(function(){ checkUpdate('wake'); }, 600);
 
     // Quick Tips, once, for everyone.
     maybeAutoTips();
