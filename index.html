@@ -1866,6 +1866,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.0.1</b> Root for stays on when you close and reopen the app (until you tap \u2715 or the week ends).</div>
       <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone\u2019s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap \u2715 or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
       <div class="cl"><b>3.9.1</b> Updates are fully silent: no more "Updated to" note when the app opens.</div>
       <div class="cl"><b>3.9.0</b> Leaderboard: when your spot is scrolled out of view, your row stays pinned to the edge of the board until your real spot comes into view. When the order changes, players slide to their new places instead of jumping. New Quick Tips on Live (pops up once, then use the Quick Tips button under the leaderboard). New leaderboard shuffle preview in Simulations.</div>
@@ -2207,7 +2208,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.0.0';
+  const APP_VERSION = '4.0.1';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -4470,6 +4471,7 @@
   function openResults(skipFetch){
     const rootR = rootRow();
     const rootList = rootR ? rootGames(rootR) : null;
+    rootPaintedId = rootR ? rootR.id : '';
     const viewGames = rootList || games;
     document.getElementById('resultsTitle').textContent = rootR ? rootR.name + '\u2019s Live' : 'Score Tracker';
     syncRootChrome(rootR);
@@ -5178,6 +5180,7 @@
      them un-sharing, locking out, or leaving) and it simply isn't there. */
   const ROOT_KEY = 'pickem-root';
   let rootPending = '';
+  let rootPaintedId = '';   // whose view the Live tab was last drawn as
   let rootById = {};
   function rootRow(){
     const v = getLocal(ROOT_KEY);
@@ -6182,6 +6185,9 @@
       '</div>';
     }).join('');
     try{ lbSlide(el, slideFrom); syncLbPin(); }catch(e){}
+    /* 4.0.1: reopening the app draws Live before the pool has loaded, so a
+       saved Root for can't apply yet. Once the pool arrives, redraw as them. */
+    if(isTab('live') && rootedId() !== rootPaintedId) setTimeout(function(){ openResults(true); }, 0);
     const cnt = document.getElementById('lbCount');
     const on = shown.filter(function(r){ return isOnline(r.id); }).length;
     if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's') +
