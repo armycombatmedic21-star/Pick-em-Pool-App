@@ -914,6 +914,20 @@
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .lbpts{ flex:none; min-width:22px; text-align:right; font-size:14px; font-weight:800; color:#ffffff; }
+  /* 3.9.0: your row stays in sight. While your real spot is scrolled out of
+     the box it sticks to the bottom (or top) edge; once your spot is in view
+     it lets go and sits in place. Solid backgrounds so rows behind can't show
+     through; the left shadow covers the online dot of the row underneath. */
+  .lblist .lbrow.me{
+    position:sticky; top:0; bottom:0; z-index:2;
+    background: linear-gradient(rgba(61,220,132,0.12), rgba(61,220,132,0.12)), #0c1624;
+  }
+  .lblist .lbrow.me.lead{ background: linear-gradient(rgba(244,196,61,0.12), rgba(244,196,61,0.12)), #0c1624; }
+  .lblist .lbrow.me.pinb{ box-shadow: -6px 0 0 #0c1624, 0 -6px 10px -4px rgba(0,0,0,0.75); }
+  .lblist .lbrow.me.pint{ box-shadow: -6px 0 0 #0c1624, 0 6px 10px -4px rgba(0,0,0,0.75); }
+  /* rows that are sliding to a new place ride above the ones standing still */
+  .lblist .lbrow.moving{ z-index:1; }
+  .lblist .lbrow.me.moving{ z-index:3; }
   .lbnote{
     font-size:11px; font-weight:600; color: var(--muted);
     margin-top:6px; line-height:1.35; text-align:center;
@@ -1184,6 +1198,20 @@
 
   .weekhead{ font-size:12px; font-weight:700; color: var(--faint); margin:0 2px 2px; }
   .weekhead:empty{ display:none; }
+  /* 3.9.0: Live Quick Tips pill rides on the right of the Week row, in the
+     gap above it, so the page is no taller. */
+  .weekhead{ position:relative; }
+  .weekhead .livetipbtn{ position:absolute; right:0; top:50%; margin-top:-17px; }
+  .lvstage .lbcard{ position:absolute; left:10px; right:10px; top:14px; }
+  .lvstage .lblist{ max-height:none; overflow:visible; }
+  .lbcard:not(.adv) .lbwin{ display:none; }
+  .lvstage .tipptr{ left:44px; top:36px; transition: left 0.9s cubic-bezier(0.4,0,0.2,1), top 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, transform 0.12s ease; }
+  .lvstage .tipptr.away{ left:78%; top:88%; }
+  .lvstage .tipptr.on{ opacity:1; }
+  .lvstage .tipptr.press{ transform:scale(0.82); }
+  .lvstage .tipring{ left:52px; top:44px; }
+  .lvstage .tipring.go{ animation: lvring 0.6s ease-out; }
+  @keyframes lvring{ 0%{ opacity:0.9; transform:scale(0.5); } 100%{ opacity:0; transform:scale(1.6); } }
 
   /* Season Standings disclosure at the foot of Live */
   .seasonbox{ margin:16px 0 4px; }
@@ -1646,7 +1674,7 @@
       </div>
     </div>
     <div class="decider" id="decider" hidden></div>
-    <div class="weekhead" id="weekHead"></div>
+    <div class="weekhead" id="weekHead"><span id="weekHeadTxt"></span><button class="tipbtn livetipbtn" id="liveTipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button></div>
     <div id="resultsList"></div>
 
     <div class="offsheet" id="offSheet" hidden>
@@ -1768,6 +1796,13 @@
       </span>
       <button class="devtoggle" id="flashToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel">
+        <b>Leaderboard shuffle preview</b>
+        <span>A sped-up finish with a pretend pool: you start near the bottom with your row pinned, then a game goes final about every 2 seconds and the board slides into its new order. Starts over after the last game. Nobody's real picks or scores are touched.</span>
+      </span>
+      <button class="devtoggle" id="shuffleToggle">Off</button>
+    </div>
     </div>
     <div class="devrow">
       <span class="devlabel">
@@ -1779,6 +1814,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>3.9.0</b> Leaderboard: when your spot is scrolled out of view, your row stays pinned to the edge of the board until your real spot comes into view. When the order changes, players slide to their new places instead of jumping. New Quick Tips on Live (pops up once, then use the Quick Tips button under the leaderboard). New leaderboard shuffle preview in Simulations.</div>
       <div class="cl"><b>3.8.1</b> The app now updates itself. Open it and you’re on the newest version; if you’re in the middle of something, a “New version ready” bar lets you tap to update when you’re ready. Live now is back to fewest points first.</div>
       <div class="cl"><b>3.8.0</b> Took an underdog? Once the game starts, its card gets a gold “Your Underdog” tag — tap it to see how many others took them too. Live now shows your biggest games first. Online dots and Pool Chat now update instantly.</div>
       <div class="cl"><b>3.7.4</b> A faint line under each player on the leaderboard makes it easier to see whose score is whose.</div>
@@ -1996,6 +2032,29 @@
   </div>
 </div>
 
+<div class="overlay" id="liveTipsOverlay">
+  <div class="sheet" role="dialog" aria-label="Quick Tips">
+    <div class="tipshead">
+      <div class="tipstitle"><span class="kicker">CONFIDENCE POOL</span><h2>Quick Tips</h2></div>
+      <span class="tipcount">1 of 1</span>
+    </div>
+    <div class="tipcard">
+      <div class="tipstage lvstage" aria-hidden="true">
+        <div class="lbcard" id="lvDemo">
+          <div class="lbtop"><span class="lbmode" id="lvPill">Basic</span><span class="lbcount">5 players · 3 online</span></div>
+          <div class="lbhead"><span class="lbtitle">Leaderboard</span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
+          <div class="lblist"><div class="lbrow lead"><i class="beacon lbdot"></i><span class="lbrank">1</span><span class="lbname">Player 1</span><span class="lbwin">48%</span><span class="lbpts">71</span></div><div class="lbrow me"><i class="beacon lbdot"></i><span class="lbrank">2</span><span class="lbname">Player 2</span><span class="lbwin">31%</span><span class="lbpts">62</span></div><div class="lbrow"><span class="lbrank">3</span><span class="lbname">Player 3</span><span class="lbwin">15%</span><span class="lbpts">58</span></div><div class="lbrow"><i class="beacon lbdot"></i><span class="lbrank">4</span><span class="lbname">Player 4</span><span class="lbwin">6%</span><span class="lbpts">51</span></div><div class="lbrow"><span class="lbrank">5</span><span class="lbname">Player 5</span><span class="lbwin">&lt;1%</span><span class="lbpts">44</span></div></div>
+        </div>
+        <span class="tipring" id="lvRing"></span><span class="tipptr" id="lvPtr"></span>
+      </div>
+      <div class="tiptext"><h3>Basic or Advanced</h3><p>Tap the small <b>Basic</b> button on the leaderboard to switch to <b>Advanced</b>. It adds each player’s chance to win the week. Tap it again for Basic.</p></div>
+    </div>
+    <div class="tipdots"><span class="tipdot on"></span></div>
+    <div class="tipnav"><button class="confirmyes" id="liveTipsOk">Got it</button></div>
+    <button class="closebtn" id="liveTipsClose">Close</button>
+  </div>
+</div>
+
 <div class="overlay" id="closedOverlay">
   <div class="confirmcard" role="dialog" aria-label="Picks are final">
     <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Picks are final</h2></div>
@@ -2084,7 +2143,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '3.8.1';
+  const APP_VERSION = '3.9.0';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3525,6 +3584,7 @@
     if(name === 'sheet') renderSheet();
     if(name === 'live') enterLive();
     if(name === 'picks' && prev !== 'picks') maybeAutoTips();
+    if(name === 'live' && prev !== 'live') maybeLiveTips();
 
     window.scrollTo(0, 0);
     saveView(name);
@@ -4304,7 +4364,7 @@
 
     document.getElementById('liveStatus').textContent = liveLoading ? 'Loading scores…' : liveStatus;
 
-    const wh = document.getElementById('weekHead');
+    const wh = document.getElementById('weekHeadTxt');
     if(wh) wh.textContent = 'Week ' + currentWeek + ' of ' + MAX_WEEK;
 
     const shown = activeResults();
@@ -4356,6 +4416,7 @@
   // 20s while anything is actually being played, 5 min otherwise.
   function liveRate(){
     if(demoMode() === 'flash') return 3000;
+    if(demoMode() === 'shuffle') return 1000;
     return anyGameLive() ? 10000 : 300000;
   }
   function anyGameLive(){
@@ -5171,6 +5232,9 @@
   document.getElementById('lbInfoOk').addEventListener('click', function(){ closeOverlay(lbInfoOverlay); });
   lbInfoOverlay.addEventListener('click', function(e){ if(e.target === lbInfoOverlay) closeOverlay(lbInfoOverlay); });
 
+  document.getElementById('lbList').addEventListener('scroll', function(){
+    try{ syncLbPin(); }catch(e){}
+  }, { passive: true });
   document.getElementById('lbList').addEventListener('click', function(e){
     const row = e.target.closest ? e.target.closest('.lbrow') : null;
     if(!row || !row.dataset.pid) return;
@@ -5774,6 +5838,61 @@
     return out;
   }
 
+  /* ---- Leaderboard motion (3.9.0) ----
+     When the order changes, each row slides from where it was to its new
+     spot instead of jumping. Only rows that were on the board a moment ago
+     move; nothing slides on the first draw, a week change, or while Live is
+     hidden. The box itself never changes size, so the page doesn't move. */
+  const LB_SLIDE_MS = 450;
+  function lbMotionOK(){
+    try{ return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }catch(e){ return true; }
+  }
+  function lbPositions(el){
+    if(!el || !el.children.length || !lbMotionOK()) return null;
+    if(el.dataset.wk !== String(currentWeek) || !el.getClientRects().length) return null;
+    const at = {};
+    for(let i = 0; i < el.children.length; i++){
+      const r = el.children[i];
+      if(r.dataset && r.dataset.pid) at[r.dataset.pid] = r.getBoundingClientRect().top;
+    }
+    return at;
+  }
+  function lbSlide(el, from){
+    el.dataset.wk = String(currentWeek);
+    if(!from) return;
+    const moving = [];
+    for(let i = 0; i < el.children.length; i++){
+      const r = el.children[i], was = from[r.dataset.pid];
+      if(typeof was !== 'number') continue;
+      const d = was - r.getBoundingClientRect().top;
+      if(Math.abs(d) < 1) continue;
+      r.style.transition = 'none';
+      r.style.transform = 'translateY(' + d + 'px)';
+      r.classList.add('moving');
+      moving.push(r);
+    }
+    if(!moving.length) return;
+    void el.offsetHeight;                       // lock in the start positions
+    moving.forEach(function(r){
+      r.style.transition = 'transform ' + LB_SLIDE_MS + 'ms cubic-bezier(0.25, 0.8, 0.25, 1)';
+      r.style.transform = '';
+    });
+    setTimeout(function(){
+      moving.forEach(function(r){ r.classList.remove('moving'); r.style.transition = ''; });
+    }, LB_SLIDE_MS + 60);
+  }
+  // Your row: which edge (if any) it's stuck to right now, for the shadow.
+  function syncLbPin(){
+    const el = document.getElementById('lbList');
+    const m = el && el.querySelector('.lbrow.me');
+    if(!m) return;
+    const pv = m.previousElementSibling;
+    const top = pv ? (pv.offsetTop + pv.offsetHeight + 3 - el.offsetTop) : 0;
+    const bot = top + m.offsetHeight;
+    m.classList.toggle('pinb', bot > el.scrollTop + el.clientHeight + 1);
+    m.classList.toggle('pint', top < el.scrollTop - 1);
+  }
+
   function renderBoard(){
     // Runs on every board refresh; can never be allowed to break the board.
     try{ renderDecider(); }catch(e){}
@@ -5819,6 +5938,7 @@
     let odds = null;
     if(lbAdv()){ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } }
 
+    const slideFrom = lbPositions(el);
     el.innerHTML = shown.map(function(r, i){
       const isMe = r.id === me.id;
       /* Your own icon is a status marker, not a button — same badge so you can
@@ -5838,6 +5958,7 @@
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
+    try{ lbSlide(el, slideFrom); syncLbPin(); }catch(e){}
     const cnt = document.getElementById('lbCount');
     const on = shown.filter(function(r){ return isOnline(r.id); }).length;
     if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's') +
@@ -6571,6 +6692,7 @@
     closeOverlay(nameOverlay);
     if(wasLockIn) publishNow(); else syncPool();
     syncNameGate();
+    if(isTab('live')) maybeLiveTips();
     beat();
     const sv = document.getElementById('setNameVal');
     if(sv) sv.textContent = v;
@@ -6592,13 +6714,13 @@
   // 'mix' = every kind of game at once; 'mnf' = Monday night, one game left.
   function demoMode(){
     const v = getLocal(DEMO_KEY);
-    return (v && v.on) ? ((v.mode === 'mnf' || v.mode === 'snf' || v.mode === 'flash') ? v.mode : 'mix') : '';
+    return (v && v.on) ? ((v.mode === 'mnf' || v.mode === 'snf' || v.mode === 'flash' || v.mode === 'shuffle') ? v.mode : 'mix') : '';
   }
 
   /* The pool the leaderboard and "Tonight decides it" read. In the Monday
      night preview it's a pretend pool made on this phone — the real board
      (and Firebase) are never changed, and nothing here is ever published. */
-  function poolRows(){ return (demoMode() === 'mnf' || demoMode() === 'snf') ? demoBoard() : board; }
+  function poolRows(){ return (demoMode() === 'mnf' || demoMode() === 'snf' || demoMode() === 'shuffle') ? demoBoard() : board; }
 
   function demoBoard(){
     const active = games.filter(function(g){ return !g.removed; });
@@ -6636,7 +6758,7 @@
     // Make the last game matter: two pretend players split on it, both at
     // their biggest number, three points apart at the top.
     const last = lastGameLeft() || (demoMode() === 'snf' ? sundayNightGame() : null);
-    if(last && rows.length > 2){
+    if(last && rows.length > 2 && demoMode() !== 'shuffle'){
       const top = Math.max.apply(null, rows.map(function(r){ return r.points; }));
       [[0, 'a', top + 2], [1, 'b', top - 1]].forEach(function(x){
         const r = rows[x[0]];
@@ -6722,8 +6844,56 @@
     });
   }
 
+  /* Leaderboard shuffle preview (3.9.0): a sped-up finish so you can watch
+     your pinned row and the board reorder. A few of your small games are
+     already lost, so you start near the bottom; then one game goes final
+     about every 2 seconds, smallest of yours first, and your pick wins each
+     one. Everyone in the pretend pool who took the same side scores at the
+     same moment, so several rows slide at once. After the last game it holds
+     for a few seconds and starts over. Pretend scores only — nothing saved
+     or sent. */
+  let shuffleSim = null;
+  const SHUFFLE_GAP = 1500;
+  function simulateShuffle(){
+    const active = games.filter(function(g){ return !g.removed; });
+    const now = Date.now();
+    if(!shuffleSim || shuffleSim.week !== currentWeek || shuffleSim.n !== active.length || now > shuffleSim.end){
+      const lost = {}, at = {};
+      let k = 0;
+      active.forEach(function(g, i){
+        if(i % 2 === 1 && i < 12) lost[g.id] = true;
+        else at[g.id] = now + 2500 + (k++) * SHUFFLE_GAP;
+      });
+      shuffleSim = { week: currentWeek, n: active.length, lost: lost, at: at,
+                     end: now + 2500 + k * SHUFFLE_GAP + 6000 };
+    }
+    const S = shuffleSim;
+    return active.map(function(g){
+      const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+      const mine = pickedCityOf(g) === g.cityA ? abA : abB, other = mine === abA ? abB : abA;
+      const seed = seedOf(g.id), hi = 20 + seed % 15, lo = hi - 3 - (seed % 8);
+      const scores = {};
+      const base = { id:g.id, abbrs:[abA,abB], logos:{}, away:abA, home:abB, date:g.date };
+      const fin = function(w, l){
+        scores[mine] = w; scores[other] = l;
+        return Object.assign(base, { scores:scores, state:'post', completed:true, detail:'Final', clock:'0:00', period:4 });
+      };
+      if(S.lost[g.id]) return fin(lo, hi);
+      const t = S.at[g.id];
+      if(now >= t) return fin(hi, lo);
+      if(t - now <= 3 * SHUFFLE_GAP){
+        scores[mine] = hi - 3; scores[other] = lo;
+        return Object.assign(base, { scores:scores, state:'in', completed:false, statusName:'STATUS_IN_PROGRESS',
+          detail:'Q4 1:12', clock:'1:12', period:4, poss:mine, redZone:false, downDistance:'1st & 10 at ' + other + ' 30' });
+      }
+      scores[abA] = 0; scores[abB] = 0;
+      return Object.assign(base, { scores:scores, state:'pre', completed:false, detail:'', clock:'', period:0 });
+    });
+  }
+
   function simulateScoreboard(){
     if(demoMode() === 'flash') return simulateFlash();
+    if(demoMode() === 'shuffle') return simulateShuffle();
     const active = games.filter(function(g){ return !g.removed; });
     const minute = Math.floor(Date.now() / 60000);
     // Monday night preview: the latest kickoff is the one game still going.
@@ -6838,12 +7008,15 @@
     if(sn){ sn.textContent = mode === 'snf' ? 'On' : 'Off'; sn.classList.toggle('on', mode === 'snf'); }
     const fl = document.getElementById('flashToggle');
     if(fl){ fl.textContent = mode === 'flash' ? 'On' : 'Off'; fl.classList.toggle('on', mode === 'flash'); }
+    const sh = document.getElementById('shuffleToggle');
+    if(sh){ sh.textContent = mode === 'shuffle' ? 'On' : 'Off'; sh.classList.toggle('on', mode === 'shuffle'); }
     const bar = document.getElementById('demoBar');
     if(bar){
       bar.style.display = on ? 'block' : 'none';
       bar.textContent = mode === 'mnf' ? 'MONDAY NIGHT PREVIEW \u2014 pretend pool, not real scores'
                       : mode === 'snf' ? 'SUNDAY NIGHT PREVIEW \u2014 pretend pool, not real scores'
                       : mode === 'flash' ? 'SCORE FLASH PREVIEW \u2014 sped up, not real scores'
+                      : mode === 'shuffle' ? 'LEADERBOARD SHUFFLE PREVIEW \u2014 pretend pool, not real scores'
                                        : 'SIMULATED GAMES \u2014 not real scores';
     }
     const badge = document.getElementById('verBadge');
@@ -7022,6 +7195,66 @@
   /* Everyone gets the tips once, on their own — new players and old alike.
      Only on Picks, only when nothing else is open, and only where the phone
      can remember it was shown. */
+  /* ---------- Live Quick Tips (3.9.0) ----------
+     Pops up by itself the first time Live opens on this phone; the Quick Tips
+     pill on the Week row brings it back any time. One card for now: Basic vs
+     Advanced, drawn with the real leaderboard classes. The pointer taps the
+     pill, Advanced adds the WIN column, then it taps back to Basic. The loop
+     only runs while the sheet is open. Reduced motion: holds on Advanced. */
+  const LIVETIPS_KEY = 'pickem-livetips';
+  const LIVETIPS_VERSION = 1;
+  const liveTipsOverlay = document.getElementById('liveTipsOverlay');
+  let lvTimers = [];
+  function liveTipsSeen(){
+    const v = getLocal(LIVETIPS_KEY);
+    return !!(v && typeof v.seen === 'number' && v.seen >= LIVETIPS_VERSION);
+  }
+  function lvSet(adv){
+    const card = document.getElementById('lvDemo');
+    card.classList.toggle('adv', adv);
+    document.getElementById('lvPill').textContent = adv ? 'Advanced' : 'Basic';
+  }
+  function lvStop(){
+    lvTimers.forEach(clearTimeout); lvTimers = [];
+    const p = document.getElementById('lvPtr');
+    p.classList.remove('on', 'press'); p.classList.add('away');
+    lvSet(false);
+  }
+  function lvLater(fn, ms){ lvTimers.push(setTimeout(fn, ms)); }
+  function lvLoop(){
+    if(!liveTipsOverlay.classList.contains('show')) return;
+    const p = document.getElementById('lvPtr'), r = document.getElementById('lvRing');
+    const tap = function(adv){
+      p.classList.add('press');
+      r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
+      lvLater(function(){ p.classList.remove('press'); lvSet(adv); }, 140);
+    };
+    p.classList.add('away', 'on');
+    lvLater(function(){ p.classList.remove('away'); }, 250);
+    lvLater(function(){ tap(true); }, 1300);
+    lvLater(function(){ tap(false); }, 3200);
+    lvLater(function(){ p.classList.remove('on'); }, 4700);
+    lvLater(lvLoop, 5400);
+  }
+  function openLiveTips(){
+    put(LIVETIPS_KEY, { seen: LIVETIPS_VERSION, t: Date.now() });
+    lvStop();
+    openOverlay(liveTipsOverlay);
+    if(lbMotionOK()) lvLater(lvLoop, 500); else lvSet(true);
+  }
+  function closeLiveTips(){ closeOverlay(liveTipsOverlay); lvStop(); }
+  function maybeLiveTips(){
+    if(!hasLocal || liveTipsSeen()) return;
+    setTimeout(function(){
+      if(liveTipsSeen() || !isTab('live') || !player().name || overlayStack.length || document.hidden) return;
+      openLiveTips();
+    }, 900);
+  }
+  document.getElementById('liveTipsBtn').addEventListener('click', openLiveTips);
+  document.getElementById('liveTipsOk').addEventListener('click', closeLiveTips);
+  document.getElementById('liveTipsClose').addEventListener('click', closeLiveTips);
+  liveTipsOverlay.addEventListener('click', function(e){ if(e.target === liveTipsOverlay) closeLiveTips(); });
+
   function maybeAutoTips(){
     if(!hasLocal || tipsSeen()) return;
     setTimeout(function(){
@@ -7118,6 +7351,11 @@
   document.getElementById('snfToggle').addEventListener('click', function(){
     setDemo(demoMode() === 'snf' ? { on: false } : { on: true, mode: 'snf' });
   });
+  document.getElementById('shuffleToggle').addEventListener('click', function(){
+    shuffleSim = null;
+    setDemo(demoMode() === 'shuffle' ? { on: false } : { on: true, mode: 'shuffle' });
+    if(isTab('live')) startLiveTimer();
+  });
   document.getElementById('flashToggle').addEventListener('click', function(){
     flashSim = null;
     setDemo(demoMode() === 'flash' ? { on: false } : { on: true, mode: 'flash' });
@@ -7181,6 +7419,7 @@
 
     // Quick Tips, once, for everyone.
     maybeAutoTips();
+    maybeLiveTips();
 
     // Confirm against ESPN in the background and move if we guessed wrong.
     detectCurrentWeek(function(w){
