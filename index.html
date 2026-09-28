@@ -1269,6 +1269,12 @@
   .anwkhead{ flex:1; min-width:0; }
   .anchip{ display:inline-block; font-size:10px; font-weight:800; letter-spacing:1.4px; padding:4px 8px; border-radius:6px; margin-bottom:8px; }
   .anchip.fav, .anchip.won{ color:#03131f; background: var(--gold); } .anchip.run, .anchip.hunt{ color: var(--green); background: rgba(61,220,132,0.14); }
+  .anwk.early .anring, .anwk.early .vs, .anwk.early .anres, .anwk.early .anconf, .anwk.early .anconfwhy,
+  .anwk.early .tflag, .anwk.early .tband{ display:none; }
+  .anwk.early .anvs{ grid-template-columns: 1fr 1fr; }
+  .anwk.early .side.w{ border-color: rgba(61,220,132,0.35); background: rgba(6,11,22,0.6); }
+  .anwk.early .side.w > b{ color: var(--green); }
+  .anleft{ font-size:17px; font-weight:800; color:#fff; text-align:center; padding:4px 0 2px; }
   .anchip.early{ color: var(--cyan); background: rgba(53,208,255,0.14); animation: anchipglow 2.4s ease-in-out infinite; }
   @keyframes anchipglow{ 0%,100%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } 50%{ box-shadow:0 0 12px 2px rgba(53,208,255,0.45); } }
   @media (prefers-reduced-motion: reduce){ .anchip.early{ animation:none; } }
@@ -1979,6 +1985,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.1.6</b> Analysis shows chances once 3 or fewer games are left (the button then reads e.g. Analysis (16%) and pulses). Before that it says Too early to tell and shows your points now and best case. Button and card always match.</div>
+      <div class="cl"><b>4.1.5</b> The Analysis button and card share one calculation, updated every 15 seconds, so they always show the same number.</div>
       <div class="cl"><b>4.1.4</b> The Analysis button only pulses once it shows your chance to win. Before that it\u2019s a normal button.</div>
       <div class="cl"><b>4.1.3</b> Once 5 games are final, the Analysis button shows your chance to win the week, e.g. Analysis (16%). Before that, Analysis says Too early to tell.</div>
       <div class="cl"><b>4.1.2</b> Analysis is one card now: Current Outlook, with the time it was worked out. It updates every 10 seconds while it\u2019s open.</div>
@@ -2112,7 +2120,7 @@
       <div class="anvs">
         <div class="side"><span id="anBestL">Your best case</span><b id="anBest"></b><small id="anBestSub"></small></div>
         <div class="vs">VS</div>
-        <div class="side w"><span>Likely winning total</span><b id="anWinT"></b><small id="anRange"></small><button type="button" class="anconf" id="anConf"></button></div>
+        <div class="side w"><span id="anWinL">Likely winning total</span><b id="anWinT"></b><small id="anRange"></small><button type="button" class="anconf" id="anConf"></button></div>
       </div>
       <div class="anconfwhy" id="anConfWhy" hidden></div>
       <div class="anres" id="anRes"></div>
@@ -2351,7 +2359,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.1.4';
+  const APP_VERSION = '4.1.6';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5515,34 +5523,47 @@
     try{ q = anQuick(); }catch(e){ q = null; }
     pill.hidden = !q || !q.active.length;
     if(!q || !q.active.length) return;
-    /* 4.1.3: once AN_MIN_FINAL games are final, the button also shows the
-       chance to win: the same full simulation the card runs (same data, same
-       fixed seed, so the two always match), at most every 20 s, only while
-       Live is on screen. Worked out just after the paint so it never holds
-       the screen up. */
-    const finals = q.active.filter(function(g){ return !!anFinal(g); }).length;
-    if(finals < AN_MIN_FINAL){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); anPillCache = null; return; }
-    const key = q.V.id + ':' + currentWeek;
-    if(anPillCache && anPillCache.key === key){ pill.textContent = 'Analysis (' + anPctText(anPillCache.chance) + ')'; pill.classList.add('pulse'); }
-    else{ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); }
-    if(anPillBusy || (anPillCache && anPillCache.key === key && Date.now() - anPillCache.t < 20000)) return;
-    if(!isTab('live') || document.hidden) return;
-    anPillBusy = true;
-    setTimeout(function(){
-      try{
-        const q2 = anQuick();
-        if(q2.V.id + ':' + currentWeek === key){
-          const M = anSimulate(q2);
-          anPillCache = { key: key, chance: M.chance, t: Date.now() };
-          const p2 = document.getElementById('anPill');
-          if(p2){ p2.textContent = 'Analysis (' + anPctText(M.chance) + ')'; p2.classList.add('pulse'); }
-        }
-      }catch(e){}
-      anPillBusy = false;
-    }, 60);
+    /* 4.1.5: one shared calculation, every 15 s, feeds both the button and
+       the open card, so they always show the same number. */
+    if(anLeft(q) > AN_MAX_LEFT){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); return; }
+    const S = anShared, key = q.V.id + ':' + currentWeek;
+    if(S && S.key === key){ pill.textContent = 'Analysis (' + anPctText(S.M.chance) + ')'; pill.classList.add('pulse'); }
+    else{ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); anSoon(); }
   }
-  const AN_MIN_FINAL = 5;
-  let anPillCache = null, anPillBusy = false;
+  const AN_MAX_LEFT = 3;   // chances (and the simulation) start at 3 or fewer games left
+  function anLeft(q){ return q.active.filter(function(g){ return !anFinal(g); }).length; }
+  const AN_EVERY = 15000;
+  let anShared = null, anBusy = false;
+  // The shared result for whoever's being viewed, recalculated if older than 15 s.
+  function anCompute(q, force){
+    const key = q.V.id + ':' + currentWeek;
+    if(!force && anShared && anShared.key === key && Date.now() - anShared.t < AN_EVERY) return anShared.M;
+    const M = anSimulate(q);
+    anShared = { key: key, M: M, t: Date.now() };
+    return M;
+  }
+  // Work it out just after the paint, so it never holds the screen up.
+  function anSoon(){
+    if(anBusy || !isTab('live') || document.hidden) return;
+    anBusy = true;
+    setTimeout(function(){ anTick(); anBusy = false; }, 60);
+  }
+  function anTick(){
+    if(!isTab('live') || document.hidden) return;
+    let q = null;
+    try{ q = anQuick(); }catch(e){ return; }
+    if(!q.active.length) return;
+    const open = anOverlay.classList.contains('show');
+    const early = anLeft(q) > AN_MAX_LEFT;
+    if(early){ if(open && anW){ try{ anFillEarly(q, anW); }catch(e){} } return; }
+    let M = null;
+    try{ M = anCompute(q, true); }catch(e){ return; }
+    const pill = document.getElementById('anPill');
+    if(pill){ pill.textContent = 'Analysis (' + anPctText(M.chance) + ')'; pill.classList.add('pulse'); }
+    if(open && anW){ try{ anFill(q, anW, true, M); }catch(e){} }
+  }
+  let anW = null;
+  setInterval(anTick, AN_EVERY);
   function anPctText(ch){ const c = Math.round(ch * 100); return c < 1 ? '<1%' : (c > 99 ? '>99%' : c + '%'); }
   function anSign(n){ return n > 0 ? '+' + n : (n < 0 ? '\u2212' + (-n) : '\u00b10'); }
   function anRng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
@@ -5619,16 +5640,16 @@
     anSet('anBestL', W.Pos + ' best case');
     anSet('anPct', '\u2026'); anSet('anHead', 'Working it out\u2026'); anSet('anText', '');
     openOverlay(anOverlay);
-    setTimeout(function(){ try{ anFill(q, W, false); }catch(e){ anSet('anHead', 'Couldn\u2019t work this out right now.'); } }, 40);
-    if(anTimer) clearInterval(anTimer);
-    anTimer = setInterval(function(){
-      if(!anOverlay.classList.contains('show')){ clearInterval(anTimer); anTimer = null; return; }
-      try{ const q2 = anQuick(); if(q2.active.length) anFill(q2, W, true); }catch(e){}
-    }, 10000);
+    anW = W;
+    setTimeout(function(){
+      try{
+        if(anLeft(q) > AN_MAX_LEFT) anFillEarly(q, W);
+        else anFill(q, W, false, anCompute(q, false));
+      }catch(e){ anSet('anHead', 'Couldn\u2019t work this out right now.'); }
+    }, 40);
   }
-  let anTimer = null;
-  function anFill(q, W, again){
-    const M = anSimulate(q), V = q.V;
+  function anFill(q, W, again, M){
+    const V = q.V;
     const total = q.active.length * (q.active.length + 1) / 2;
     let left = 0, chalkLeft = 0, gamesLeft = 0;
     const path = [];
@@ -5644,16 +5665,13 @@
     // state
     const ch = M.chance;
     let st;
-    const finalsNow = q.active.filter(function(g){ return !!anFinal(g); }).length;
-    if(finalsNow < AN_MIN_FINAL) st = 'early';
-    else if(!gamesLeft && q.you >= M.hi) st = 'won';
+    if(!gamesLeft && q.you >= M.hi) st = 'won';
     else if(ch >= 0.6) st = 'fav';
     else if(ch >= 0.3) st = 'run';
     else if(best < M.lo) st = 'out';
     else if(ch >= 0.05) st = 'hunt';
     else st = 'long';
     const T = {
-      early: ['TOO EARLY TO TELL', 'Everyone\u2019s still in it.', 'About 1 in ' + POOL_SIZE + ' is a normal chance right now. This sharpens once ' + AN_MIN_FINAL + ' games are final.'],
       won:  ['LIKELY WON', W.Pos + ' total is very likely a winning score.', 'A winner usually lands around ' + M.win + '. ' + W.You + ' finished above that range.'],
       fav:  ['FAVORITE TO WIN', W.Are + ' the favorite to win this week.', W.Are + ' more likely to win than anyone else, but it\u2019s not locked up yet.'],
       run:  ['IN THE RUNNING', W.Are + ' right in the race.', W.Are + ' one of the favorites. ' + W.Pos + ' games decide it.'],
@@ -5662,6 +5680,7 @@
       out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even if ' + W.pos + ' games all win, ' + W.would + ' finish below where a winner usually lands.']
     }[st];
     document.getElementById('anWk').className = 'anwk' + ((st === 'out' || st === 'long') ? ' out' : '');
+    anSet('anWinL', 'Likely winning total'); anSet('anBestL', W.Pos + ' best case');
     const chip = document.getElementById('anChip'); chip.className = 'anchip ' + st; chip.textContent = T[0];
     anSet('anHead', T[1]); anSet('anText', T[2]);
     const c = Math.round(ch * 100);
@@ -5716,8 +5735,30 @@
       'The likely winning total is the median winning score across all simulations, and the range shown covers the middle 80%. Precision tightens as games go final.';
   }
   function nm_(V){ return V.name; }
+  // Before 3 or fewer games are left: no simulation, just the plain numbers.
+  function anFillEarly(q, W){
+    let left = 0, n = 0;
+    q.active.forEach(function(g){ if(!anFinal(g)){ left += q.V.sheet[g.id].pts; n++; } });
+    const best = q.you + left;
+    document.getElementById('anWk').className = 'anwk early';
+    const chip = document.getElementById('anChip'); chip.className = 'anchip early'; chip.textContent = 'TOO EARLY TO TELL';
+    anSet('anHead', 'Everyone\u2019s still in it.');
+    anSet('anText', 'Chances show up once ' + AN_MAX_LEFT + ' or fewer games are left.');
+    anSet('anBestL', 'Now'); anSet('anBest', q.you); anSet('anBestSub', W.Pos + ' points so far');
+    anSet('anWinL', 'Best case'); anSet('anWinT', best); anSet('anRange', 'if ' + W.pos + ' games win');
+    const top = best + 8, pc = function(x){ return Math.min(100, x / top * 100); };
+    document.getElementById('anNowBar').style.width = pc(q.you) + '%';
+    anWidth(document.getElementById('anMaxBar'), pc(best) - pc(q.you), pc(q.you));
+    const nl = document.getElementById('anNowL'), ml = document.getElementById('anMaxL');
+    nl.textContent = 'Now ' + q.you; nl.style.left = Math.max(9, pc(q.you)) + '%'; nl.style.transform = 'translateX(-50%)';
+    ml.textContent = 'Best ' + best; ml.style.left = Math.min(91, pc(best)) + '%'; ml.style.transform = 'translateX(-50%)';
+    ml.hidden = Math.abs(pc(best) - pc(q.you)) < 14;
+    document.getElementById('anPath').innerHTML = '<div class="anleft">' + n + ' game' + (n === 1 ? '' : 's') + ' left \u00b7 worth ' + left + ' points</div>';
+    anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+    document.getElementById('anWhat').innerHTML = '<b>Methodology.</b> Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
+  }
   document.getElementById('anPill').addEventListener('click', openAnalysis);
-  function closeAnalysis(){ closeOverlay(anOverlay); if(anTimer){ clearInterval(anTimer); anTimer = null; } }
+  function closeAnalysis(){ closeOverlay(anOverlay); }
   document.getElementById('anOk').addEventListener('click', closeAnalysis);
   document.getElementById('anBack').addEventListener('click', closeAnalysis);
   anOverlay.addEventListener('click', function(e){ if(e.target === anOverlay) closeAnalysis(); });
