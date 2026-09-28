@@ -1269,6 +1269,10 @@
   .anwkhead{ flex:1; min-width:0; }
   .anchip{ display:inline-block; font-size:10px; font-weight:800; letter-spacing:1.4px; padding:4px 8px; border-radius:6px; margin-bottom:8px; }
   .anchip.fav, .anchip.won{ color:#03131f; background: var(--gold); } .anchip.run, .anchip.hunt{ color: var(--green); background: rgba(61,220,132,0.14); }
+  .anchip.likelywon, .anchip.likelywin{ color:#03131f; background: var(--gold); } .anchip.mix{ color: var(--green); background: rgba(61,220,132,0.14); }
+  .anchip.outside{ color:#b5c7da; background: rgba(147,174,200,0.16); } .anchip.notwon{ color:#ff7a86; background: rgba(255,59,78,0.14); }
+  .anwk.final .anpath, .anwk.final .tmax, .anwk.final #anMaxL{ display:none; }
+  .anwk.final .anring .rin span{ font-size:9px; line-height:1.2; max-width:58px; text-align:center; letter-spacing:0.6px; }
   .anwk.early .anring, .anwk.early .vs, .anwk.early .anres, .anwk.early .anconf, .anwk.early .anconfwhy,
   .anwk.early .tflag, .anwk.early .tband{ display:none; }
   .anwk.early .anvs{ grid-template-columns: 1fr 1fr; }
@@ -1330,6 +1334,14 @@
   .anwk.out .anstep .sp{ color: var(--muted); }
   .anstep .st{ min-width:64px; text-align:right; font-size:20px; font-weight:800; color:#fff; }
   .anstep .st small{ display:block; font-size:10.5px; color: var(--muted); letter-spacing:0.5px; }
+  .anmeth{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:42px; margin-top:12px;
+    border-radius:12px; border:1px solid rgba(53,208,255,0.45); background: rgba(53,208,255,0.10);
+    color: var(--cyan); font: 800 14px var(--font); }
+  .anmeth:active{ background: rgba(53,208,255,0.2); }
+  .anchev{ display:inline-block; transition: transform 0.2s ease; }
+  .anmeth[aria-expanded="true"] .anchev{ transform: rotate(180deg); }
+  .anwhat[hidden]{ display:none; }
+  .anwhat{ margin-top:12px !important; padding:12px 14px; border-radius:12px; background: rgba(6,11,22,0.55); border:1px solid rgba(53,208,255,0.2); }
   .anwhat{ font-size:13.5px; line-height:1.5; color: var(--muted); margin:0 2px 16px; font-weight:600; }
   .anwhat b{ color: var(--text); }
   @media (prefers-reduced-motion: reduce){ .anbtrack i, .antrack .tnow, .anring .rfg{ transition:none; } }
@@ -1985,6 +1997,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.1.8</b> Analysis: Got it sits above a Methodology button that opens the explanation.</div>
+      <div class="cl"><b>4.1.7</b> When your last game of the week finishes, Analysis slides up once to show how your week ended (Likely won, Likely winner, In the mix, Outside chance or Probably not). Rooting for someone? It shows theirs.</div>
       <div class="cl"><b>4.1.6</b> Analysis shows chances once 3 or fewer games are left (the button then reads e.g. Analysis (16%) and pulses). Before that it says Too early to tell and shows your points now and best case. Button and card always match.</div>
       <div class="cl"><b>4.1.5</b> The Analysis button and card share one calculation, updated every 15 seconds, so they always show the same number.</div>
       <div class="cl"><b>4.1.4</b> The Analysis button only pulses once it shows your chance to win. Before that it\u2019s a normal button.</div>
@@ -2128,8 +2142,9 @@
         <div class="tlabels"><span class="tl now" id="anNowL"></span><span class="tl" id="anMaxL"></span></div></div>
       <div class="anpath" id="anPath"></div>
     </div>
-    <div class="anwhat" id="anWhat"></div>
     <div class="tipnav"><button class="confirmyes" id="anOk">Got it</button></div>
+    <button type="button" class="anmeth" id="anMethBtn" aria-expanded="false" aria-controls="anWhat">Methodology <span class="anchev" aria-hidden="true">▾</span></button>
+    <div class="anwhat" id="anWhat" hidden></div>
   </div>
 </div>
 
@@ -2359,7 +2374,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.1.6';
+  const APP_VERSION = '4.1.8';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5526,6 +5541,7 @@
     /* 4.1.5: one shared calculation, every 15 s, feeds both the button and
        the open card, so they always show the same number. */
     if(anLeft(q) > AN_MAX_LEFT){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); return; }
+    try{ anMaybeFinal(q); }catch(e){}
     const S = anShared, key = q.V.id + ':' + currentWeek;
     if(S && S.key === key){ pill.textContent = 'Analysis (' + anPctText(S.M.chance) + ')'; pill.classList.add('pulse'); }
     else{ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); anSoon(); }
@@ -5563,6 +5579,26 @@
     if(open && anW){ try{ anFill(q, anW, true, M); }catch(e){} }
   }
   let anW = null;
+  /* 4.1.7: when your last game goes final (or the person you're rooting
+     for), Analysis slides up once, 5 s later, if Live is on screen. Once
+     per week on this phone; only for a week whose last game kicked off in
+     the past 36 h, so a rolled-over or old week never pops up. */
+  const ANFINAL_KEY = 'pickem-anfinal';
+  let anFinalTimer = null;
+  function anMaybeFinal(q){
+    if(anFinalTimer || anLeft(q) > 0 || !isTab('live') || document.hidden) return;
+    const seen = getLocal(ANFINAL_KEY) || {};
+    if(seen['w' + currentWeek]) return;
+    const last = Math.max.apply(null, q.active.map(function(g){ return Date.parse(g.date) || 0; }));
+    if(!last || Date.now() - last > 36 * 3600 * 1000) return;
+    anFinalTimer = setTimeout(function(){
+      anFinalTimer = null;
+      const s2 = getLocal(ANFINAL_KEY) || {};
+      if(s2['w' + currentWeek] || !isTab('live') || document.hidden || overlayStack.length) return;
+      s2['w' + currentWeek] = Date.now(); put(ANFINAL_KEY, s2);
+      openAnalysis();
+    }, 5000);
+  }
   setInterval(anTick, AN_EVERY);
   function anPctText(ch){ const c = Math.round(ch * 100); return c < 1 ? '<1%' : (c > 99 ? '>99%' : c + '%'); }
   function anSign(n){ return n > 0 ? '+' + n : (n < 0 ? '\u2212' + (-n) : '\u00b10'); }
@@ -5630,6 +5666,7 @@
   function openAnalysis(){
     const q = anQuick();
     if(!q.active.length) return;
+    if(anLeft(q) === 0){ const s = getLocal(ANFINAL_KEY) || {}; if(!s['w' + currentWeek]){ s['w' + currentWeek] = Date.now(); put(ANFINAL_KEY, s); } }
     const V = q.V, nm = V.name;
     // Words for "you" or the person you're rooting for.
     const W = V.root
@@ -5641,6 +5678,7 @@
     anSet('anPct', '\u2026'); anSet('anHead', 'Working it out\u2026'); anSet('anText', '');
     openOverlay(anOverlay);
     anW = W;
+    document.getElementById('anWhat').hidden = true; document.getElementById('anMethBtn').setAttribute('aria-expanded', 'false');
     setTimeout(function(){
       try{
         if(anLeft(q) > AN_MAX_LEFT) anFillEarly(q, W);
@@ -5665,13 +5703,19 @@
     // state
     const ch = M.chance;
     let st;
-    if(!gamesLeft && q.you >= M.hi) st = 'won';
+    const done = !gamesLeft;
+    if(done) st = q.you >= M.hi ? 'likelywon' : (ch >= 0.6 ? 'likelywin' : (ch >= 0.3 ? 'mix' : (ch >= 0.05 ? 'outside' : 'notwon')));
     else if(ch >= 0.6) st = 'fav';
     else if(ch >= 0.3) st = 'run';
     else if(best < M.lo) st = 'out';
     else if(ch >= 0.05) st = 'hunt';
     else st = 'long';
     const T = {
+      likelywon: ['LIKELY WON', W.Pos + ' ' + q.you + ' is very likely a winning score.', 'It\u2019s above the range where winners usually land.'],
+      likelywin: ['LIKELY WINNER', W.Pos + ' ' + q.you + ' is above where winners usually land.', 'Good chance it holds up, but we can\u2019t see every sheet.'],
+      mix:       ['IN THE MIX', W.Pos + ' ' + q.you + ' is right where winners usually land.', 'Could go either way.'],
+      outside:   ['OUTSIDE CHANCE', (V.root ? W.Pos + ' ' : '') + q.you + ' is a little under where winners usually land.', 'Someone we can\u2019t see probably beat it.'],
+      notwon:    ['PROBABLY NOT', W.Pos + ' ' + q.you + ' is below where winners usually land.', 'Better luck next week.'],
       won:  ['LIKELY WON', W.Pos + ' total is very likely a winning score.', 'A winner usually lands around ' + M.win + '. ' + W.You + ' finished above that range.'],
       fav:  ['FAVORITE TO WIN', W.Are + ' the favorite to win this week.', W.Are + ' more likely to win than anyone else, but it\u2019s not locked up yet.'],
       run:  ['IN THE RUNNING', W.Are + ' right in the race.', W.Are + ' one of the favorites. ' + W.Pos + ' games decide it.'],
@@ -5679,19 +5723,22 @@
       long: ['LONG SHOT', 'It\u2019ll take a lot to go right.', W.Pos + ' games would all need to win, and others would need to lose.'],
       out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even if ' + W.pos + ' games all win, ' + W.would + ' finish below where a winner usually lands.']
     }[st];
-    document.getElementById('anWk').className = 'anwk' + ((st === 'out' || st === 'long') ? ' out' : '');
-    anSet('anWinL', 'Likely winning total'); anSet('anBestL', W.Pos + ' best case');
+    const dim = st === 'out' || st === 'long' || st === 'outside' || st === 'notwon';
+    document.getElementById('anWk').className = 'anwk' + (dim ? ' out' : '') + (done ? ' final' : '');
+    anSet('anWinL', 'Likely winning total'); anSet('anBestL', W.Pos + (done ? ' final' : ' best case'));
+    const ringLbl = document.querySelector('#anOverlay .anring .rin span');
+    if(ringLbl) ringLbl.textContent = done ? (V.root ? 'chance won' : 'chance you won') : 'to win';
     const chip = document.getElementById('anChip'); chip.className = 'anchip ' + st; chip.textContent = T[0];
     anSet('anHead', T[1]); anSet('anText', T[2]);
     const c = Math.round(ch * 100);
     anSet('anPct', anPctText(ch));
     const ring = document.getElementById('anRing');
-    ring.style.stroke = (st === 'out' || st === 'long') ? 'var(--faint)' : '';
+    ring.style.stroke = dim ? 'var(--faint)' : '';
     const ringTo = String(232.5 * (1 - Math.max(0.01, ch)));
     if(again){ ring.style.strokeDashoffset = ringTo; }
     else{ ring.style.strokeDashoffset = '232.5';
       requestAnimationFrame(function(){ requestAnimationFrame(function(){ ring.style.strokeDashoffset = ringTo; }); }); }
-    anSet('anBest', best); anSet('anBestSub', q.you + ' now + ' + left + ' left');
+    anSet('anBest', best); anSet('anBestSub', done ? 'all games final' : q.you + ' now + ' + left + ' left');
     anSet('anWinT', '~' + M.win); anSet('anRange', 'usually ' + M.lo + '\u2013' + M.hi);
     const cf = Math.max(0, M.w5 - 0.05);
     const lvl = cf >= 0.75 ? [5, 'Very high'] : (cf >= 0.55 ? [4, 'High'] : (cf >= 0.35 ? [3, 'Medium'] : (cf >= 0.2 ? [2, 'Low'] : [1, 'Very low'])));
@@ -5704,7 +5751,8 @@
     conf.onclick = function(){ why.hidden = !why.hidden; };
     const gap = best - M.win, res = document.getElementById('anRes');
     res.className = 'anres ' + (gap >= 0 ? 'good' : 'bad');
-    res.textContent = gap > 0 ? W.Pos + ' best case beats it by ' + gap : (gap === 0 ? W.Pos + ' best case ties it' : W.Pos + ' best case falls ' + (-gap) + ' short');
+    const what = W.Pos + (done ? ' final' : ' best case');
+    res.textContent = gap > 0 ? what + ' beats it by ' + gap : (gap === 0 ? what + ' ties it' : what + ' falls ' + (-gap) + ' short');
     // track
     const top = Math.max(M.hi, best) + 8, pc = function(x){ return Math.min(100, x / top * 100); };
     const nowBar = document.getElementById('anNowBar');
@@ -5717,7 +5765,7 @@
     fl.style.transform = fp > 78 ? 'translateX(-92%)' : (fp < 22 ? 'translateX(-8%)' : 'translateX(-50%)');
     const clamp = function(x){ return Math.max(9, Math.min(91, x)); };
     const nl = document.getElementById('anNowL'), ml = document.getElementById('anMaxL');
-    nl.textContent = 'Now ' + q.you; nl.style.left = clamp(pc(q.you)) + '%';
+    nl.textContent = (done ? (V.root ? V.name : 'You') : 'Now') + ' ' + q.you; nl.style.left = clamp(pc(q.you)) + '%';
     nl.style.transform = Math.abs(pc(q.you) - fp) < 12 ? 'translateX(-100%)' : 'translateX(-50%)';
     ml.textContent = 'Best ' + best; ml.style.left = clamp(pc(best)) + '%'; ml.style.transform = 'translateX(-50%)';
     ml.hidden = best === q.you || Math.abs(pc(best) - pc(q.you)) < 14;
@@ -5730,7 +5778,7 @@
         '<span class="sp">+' + x.p + '</span><span class="st">' + run + '<small>TOTAL</small></span></div>';
     }).join('') : '';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = '<b>Methodology.</b> The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 25-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
+    document.getElementById('anWhat').innerHTML = 'The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 25-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
       'Games in progress are weighted by ESPN\u2019s live win probability, and games yet to kick off by sportsbook moneylines with the bookmaker\u2019s margin removed (or the point spread where no line is posted). ' +
       'The likely winning total is the median winning score across all simulations, and the range shown covers the middle 80%. Precision tightens as games go final.';
   }
@@ -5755,12 +5803,16 @@
     ml.hidden = Math.abs(pc(best) - pc(q.you)) < 14;
     document.getElementById('anPath').innerHTML = '<div class="anleft">' + n + ' game' + (n === 1 ? '' : 's') + ' left \u00b7 worth ' + left + ' points</div>';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = '<b>Methodology.</b> Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
+    document.getElementById('anWhat').innerHTML = 'Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
   }
   document.getElementById('anPill').addEventListener('click', openAnalysis);
   function closeAnalysis(){ closeOverlay(anOverlay); }
   document.getElementById('anOk').addEventListener('click', closeAnalysis);
   document.getElementById('anBack').addEventListener('click', closeAnalysis);
+  document.getElementById('anMethBtn').addEventListener('click', function(){
+    const w = document.getElementById('anWhat'), open = w.hidden;
+    w.hidden = !open; this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
   anOverlay.addEventListener('click', function(e){ if(e.target === anOverlay) closeAnalysis(); });
 
   function showPlayerSheet(id){
