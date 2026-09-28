@@ -1215,6 +1215,108 @@
 
   .weekhead{ font-size:12px; font-weight:700; color: var(--faint); margin:0 2px 2px; }
   .weekhead:empty{ display:none; }
+  /* ---- Analysis (4.1.0) ---- */
+  .anpill{ margin-top:8px; height:28px; padding:0 12px; border-radius:14px; border:1px solid rgba(53,208,255,0.55);
+    background: rgba(53,208,255,0.12); color: var(--cyan); font: 800 12px var(--font); letter-spacing:0.3px;
+    display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .anpill[hidden]{ display:none; }
+  .anpill:active{ background: rgba(53,208,255,0.22); }
+  .anpn.up{ color: var(--green); } .anpn.down{ color:#ff5a6a; } .anpn.even{ color: var(--muted); }
+  #anOverlay .sheet{ padding-bottom:26px; }
+  .anverdict{ display:flex; align-items:center; gap:14px; padding:16px; border-radius:16px; margin:2px 0 12px; }
+  .anverdict.up{ background: rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.45); }
+  .anverdict.down{ background: rgba(255,59,78,0.10); border:1px solid rgba(255,59,78,0.45); }
+  .anverdict.even{ background: rgba(147,174,200,0.10); border:1px solid rgba(147,174,200,0.35); }
+  .anvicon{ flex:none; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .up .anvicon{ background: var(--green); color:#03131f; } .down .anvicon{ background: var(--red); color:#fff; } .even .anvicon{ background: var(--muted); color:#03131f; }
+  .anvicon svg{ width:26px; height:26px; }
+  .anvtext b{ display:block; font-size:22px; font-weight:800; color:#fff; line-height:1.15; }
+  .anvtext span{ display:block; margin-top:3px; font-size:15px; font-weight:700; }
+  .up .anvtext span{ color: var(--green); } .down .anvtext span{ color:#ff7a86; } .even .anvtext span{ color: var(--muted); }
+  .anmeaning{ margin:0 2px 16px; font-size:16px; line-height:1.45; color: var(--text); font-weight:600; }
+  .ansect{ display:inline-flex; align-items:center; gap:8px; margin:6px 0 0; padding:9px 14px 9px 12px;
+    font-size:13px; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; color:#fff;
+    background: rgba(147,174,200,0.10); border:1px solid rgba(147,174,200,0.28); border-bottom:none; border-radius:12px 12px 0 0; }
+  .ansect::before{ content:''; width:8px; height:8px; border-radius:50%; background: var(--cyan); box-shadow:0 0 8px rgba(53,208,255,0.8); }
+  .anbars{ padding:14px; border-radius:0 14px 14px 14px; background: rgba(6,11,22,0.55); border:1px solid rgba(147,174,200,0.28); margin-bottom:18px; }
+  .anbar{ display:flex; align-items:center; gap:10px; height:40px; }
+  .anblabel{ width:74px; font-size:14px; font-weight:800; color: var(--text); line-height:1.1; }
+  .anblabel small{ display:block; font-size:10.5px; color: var(--faint); font-weight:700; }
+  .anbtrack{ position:relative; flex:1; height:14px; border-radius:7px; background: rgba(147,174,200,0.12); overflow:hidden; }
+  .anbtrack i{ position:relative; z-index:1; display:block; height:100%; border-radius:7px; background: var(--green); width:0; transition: width 0.7s cubic-bezier(0.2,0.8,0.2,1); }
+  .anbar.chalk .anbtrack i{ background: var(--muted); } .anbar.win .anbtrack i{ background: var(--gold); }
+  .anbtrack s{ position:absolute; top:0; bottom:0; border-radius:0 7px 7px 0; text-decoration:none;
+    background: repeating-linear-gradient(135deg, rgba(61,220,132,0.55) 0 5px, rgba(61,220,132,0.15) 5px 10px); }
+  .anbar.chalk .anbtrack s{ background: repeating-linear-gradient(135deg, rgba(147,174,200,0.55) 0 5px, rgba(147,174,200,0.15) 5px 10px); }
+  .anbar.win .anbtrack s{ background: repeating-linear-gradient(135deg, rgba(244,196,61,0.6) 0 5px, rgba(244,196,61,0.15) 5px 10px); }
+  .anbar b{ width:38px; text-align:right; font-size:20px; font-weight:800; color:#fff; }
+  .ankey{ display:flex; gap:16px; margin-top:10px; font-size:12.5px; font-weight:700; color: var(--muted); }
+  .ankey i{ display:inline-block; width:14px; height:10px; border-radius:3px; margin-right:6px; }
+  .ankey .k1{ background: var(--text); } .ankey .k2{ background: repeating-linear-gradient(135deg, rgba(220,232,245,0.7) 0 3px, rgba(220,232,245,0.15) 3px 6px); }
+  .anbfoot{ margin-top:6px; font-size:12.5px; font-weight:700; color: var(--faint); }
+  .anwk{ position:relative; overflow:hidden; padding:18px 16px 16px; border-radius:0 18px 18px 18px; margin-bottom:20px;
+    background: radial-gradient(120% 90% at 100% 0%, rgba(244,196,61,0.10), transparent 55%), linear-gradient(180deg,#0f1b2e,#0a1322);
+    border:1px solid rgba(147,174,200,0.28); box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05); }
+  .anwk.out{ background: radial-gradient(120% 90% at 100% 0%, rgba(255,59,78,0.08), transparent 55%), linear-gradient(180deg,#0f1b2e,#0a1322); }
+  .anwktop{ display:flex; gap:14px; align-items:center; margin-bottom:16px; }
+  .anwkhead{ flex:1; min-width:0; }
+  .anchip{ display:inline-block; font-size:10px; font-weight:800; letter-spacing:1.4px; padding:4px 8px; border-radius:6px; margin-bottom:8px; }
+  .anchip.fav, .anchip.won{ color:#03131f; background: var(--gold); } .anchip.run, .anchip.hunt{ color: var(--green); background: rgba(61,220,132,0.14); }
+  .anchip.long{ color:#b5c7da; background: rgba(147,174,200,0.16); } .anchip.out{ color:#ff7a86; background: rgba(255,59,78,0.14); }
+  .anwkhead b{ display:block; font-size:20px; font-weight:800; color:#fff; line-height:1.2; }
+  .anwkhead p{ margin:6px 0 0; font-size:14px; line-height:1.45; color:#b5c7da; font-weight:600; }
+  .anring{ position:relative; flex:none; width:88px; height:88px; }
+  .anring svg{ width:88px; height:88px; transform: rotate(-90deg); }
+  .anring circle{ fill:none; stroke-width:8; } .anring .rbg{ stroke: rgba(147,174,200,0.15); }
+  .anring .rfg{ stroke: var(--gold); stroke-linecap:round; stroke-dasharray:232.5; stroke-dashoffset:232.5; transition: stroke-dashoffset 1s cubic-bezier(0.2,0.8,0.2,1); }
+  .anring .rin{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .anring .rin b{ font-size:22px; font-weight:800; color:#fff; line-height:1; }
+  .anring .rin span{ font-size:10.5px; font-weight:800; letter-spacing:0.8px; color: var(--muted); text-transform:uppercase; margin-top:3px; }
+  .anvs{ display:grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items:stretch; gap:8px; margin-bottom:10px; }
+  .anvs .side{ padding:12px 10px; border-radius:14px; text-align:center; background: rgba(6,11,22,0.6); border:1px solid rgba(61,220,132,0.35); }
+  .anvs .side.w{ border-color: rgba(244,196,61,0.45); background: rgba(244,196,61,0.07); }
+  .anvs .side > span{ min-height:28px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color: var(--muted); line-height:1.3; }
+  .anvs .side > b{ display:block; margin:6px 0 4px; font-size:34px; font-weight:800; line-height:1; color: var(--green); }
+  .anvs .side.w > b{ color: var(--gold); }
+  .anvs .side small{ display:block; font-size:12px; font-weight:700; color: var(--muted); }
+  .anvs .vs{ align-self:center; font-size:12px; font-weight:800; color: var(--faint); letter-spacing:1px; }
+  .anconf{ margin-top:8px; display:inline-flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:2px 5px; padding:4px 8px;
+    border:none; border-radius:8px; background: rgba(6,11,22,0.5); font: 800 11.5px var(--font); color: var(--muted); }
+  .anconf b{ color: var(--text); } .anconf i{ font-style:normal; font-size:9px; letter-spacing:1.5px; color: var(--gold); } .anconf i u{ text-decoration:none; color:#3a4b62; }
+  .anconfwhy{ margin:-2px 0 10px; padding:9px 12px; border-radius:10px; background: rgba(244,196,61,0.07); border:1px solid rgba(244,196,61,0.25);
+    font-size:13px; line-height:1.45; font-weight:600; color: var(--text); }
+  .anconfwhy[hidden]{ display:none; }
+  .anres{ text-align:center; font-size:15px; font-weight:800; margin:4px 0 20px; padding:8px 10px; border-radius:10px; }
+  .anres.good{ color: var(--green); background: rgba(61,220,132,0.10); } .anres.bad{ color:#ff7a86; background: rgba(255,59,78,0.10); }
+  .antrackwrap{ padding:22px 4px 0; margin-bottom:10px; }
+  .antrack{ position:relative; height:14px; border-radius:7px; background: rgba(147,174,200,0.12); }
+  .antrack .tband{ position:absolute; top:-7px; bottom:-7px; border-radius:8px; background: linear-gradient(90deg, rgba(244,196,61,0), rgba(244,196,61,0.22), rgba(244,196,61,0)); }
+  .antrack .tnow{ position:absolute; left:0; top:0; bottom:0; border-radius:7px; background: linear-gradient(90deg,#27b96c,#3ddc84); box-shadow:0 0 12px rgba(61,220,132,0.35); z-index:2; width:0; transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+  .antrack .tmax{ position:absolute; top:0; bottom:0; border-radius:0 7px 7px 0; z-index:1; background: repeating-linear-gradient(135deg, rgba(61,220,132,0.55) 0 5px, rgba(61,220,132,0.15) 5px 10px); }
+  .antrack .tflag{ position:absolute; top:-12px; bottom:-12px; width:0; z-index:3; }
+  .antrack .tflag::before{ content:''; position:absolute; left:-1.5px; top:0; bottom:0; width:3px; border-radius:2px; background: var(--gold); box-shadow:0 0 8px rgba(244,196,61,0.6); }
+  .antrack .tflag em{ position:absolute; bottom:100%; margin-bottom:4px; white-space:nowrap; font-style:normal; font-size:11.5px; font-weight:800; color: var(--gold); }
+  .antrackwrap .tlabels{ position:relative; height:22px; margin-top:8px; }
+  .antrackwrap .tl{ position:absolute; white-space:nowrap; font-size:11.5px; font-weight:800; color: var(--muted); } .antrackwrap .tl.now{ color: var(--green); }
+  .anpath{ margin-top:6px; border-top:1px solid rgba(147,174,200,0.1); padding-top:16px; }
+  .anpath:empty{ display:none; }
+  .anpathhead{ display:flex; align-items:center; gap:10px; font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; }
+  .anpathhead::before{ content:''; width:4px; height:20px; border-radius:2px; background: var(--green); }
+  .anwk.out .anpathhead::before{ background: var(--faint); }
+  .anstep{ position:relative; display:flex; align-items:center; gap:12px; padding:12px 0 12px 26px; border-bottom:1px solid rgba(147,174,200,0.08); }
+  .anstep:last-child{ border-bottom:none; }
+  .anstep::before{ content:''; position:absolute; left:6px; top:0; bottom:0; width:2px; background: rgba(147,174,200,0.18); }
+  .anstep:first-of-type::before{ top:50%; } .anstep:last-child::before{ bottom:50%; }
+  .anstep i{ position:absolute; left:0; top:50%; margin-top:-7px; width:14px; height:14px; border-radius:50%; background:#0a1322; border:3px solid var(--green); box-sizing:border-box; }
+  .anwk.out .anstep i{ border-color: var(--faint); }
+  .anstep .sg{ flex:1; min-width:0; } .anstep .sg b{ display:block; font-size:18px; font-weight:800; color:#fff; } .anstep .sg span{ font-size:14px; font-weight:700; color:#b5c7da; }
+  .anstep .sp{ min-width:44px; text-align:right; font-size:20px; font-weight:800; color: var(--green); }
+  .anwk.out .anstep .sp{ color: var(--muted); }
+  .anstep .st{ min-width:64px; text-align:right; font-size:20px; font-weight:800; color:#fff; }
+  .anstep .st small{ display:block; font-size:10.5px; color: var(--muted); letter-spacing:0.5px; }
+  .anwhat{ font-size:13.5px; line-height:1.5; color: var(--muted); margin:0 2px 16px; font-weight:600; }
+  .anwhat b{ color: var(--text); }
+  @media (prefers-reduced-motion: reduce){ .anbtrack i, .antrack .tnow, .anring .rfg{ transition:none; } }
   /* ---- Root for (4.0.0): royal blue #4f7cff, used for nothing else ---- */
   .rootbtn{ display:block; width:100%; height:46px; margin:0 0 12px; border-radius:14px;
     border:1px solid rgba(79,124,255,0.6); background: rgba(79,124,255,0.16);
@@ -1715,6 +1817,7 @@
         <div class="scoreleft" id="scoreLeft">0</div>
         <div class="scoreleftlbl">still in play</div>
         <div class="scorecompare" id="scoreCompare"></div>
+        <button type="button" class="anpill" id="anPill" hidden>Analysis <span class="anpn" id="anNum"></span></button>
       </div>
       <div class="lbcard">
         <div class="lbtop"><button type="button" class="lbmode" id="lbMode" aria-pressed="false">Basic</button><span class="lbcount" id="lbCount"></span></div>
@@ -1866,6 +1969,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.1.0</b> Analysis: tap it on your score card to see how you\u2019re doing against chalk (the \u201csafe\u201d sheet), where a likely winner is right now, what total usually wins the week, your chance to win, and what you need. While rooting, it shows theirs.</div>
       <div class="cl"><b>4.0.1</b> Root for stays on when you close and reopen the app (until you tap \u2715 or the week ends).</div>
       <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone\u2019s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap \u2715 or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
       <div class="cl"><b>3.9.1</b> Updates are fully silent: no more "Updated to" note when the app opens.</div>
@@ -1979,6 +2083,41 @@
       <button class="viewtab" data-view="h2h">Head-to-Head</button>
     </div>
     <div id="viewList"></div>
+  </div>
+</div>
+
+<div class="overlay" id="anOverlay">
+  <div class="sheet" role="dialog" aria-label="Analysis">
+    <div class="tipshead"><div class="tipstitle"><span class="kicker">ANALYSIS</span><h2 id="anTitle">How you’re doing</h2></div></div>
+    <div class="anverdict" id="anVerdict"><span class="anvicon" id="anvIcon"></span><div class="anvtext"><b id="anvHead"></b><span id="anvSub"></span></div></div>
+    <p class="anmeaning" id="anMeaning"></p>
+    <div class="ansect">As it stands now</div>
+    <div class="anbars">
+      <div class="anbar"><span class="anblabel" id="anYouL">You</span><span class="anbtrack"><i id="abYou"></i><s id="abYouX"></s></span><b id="abYouN"></b></div>
+      <div class="anbar chalk"><span class="anblabel">Typical<small>chalk</small></span><span class="anbtrack"><i id="abChalk"></i><s id="abChalkX"></s></span><b id="abChalkN"></b></div>
+      <div class="anbar win"><span class="anblabel">Likely leader</span><span class="anbtrack"><i id="abWin"></i><s id="abWinX"></s></span><b id="abWinN"></b></div>
+      <div class="ankey"><span><i class="k1"></i>Points now</span><span><i class="k2"></i>Still possible</span></div>
+      <div class="anbfoot" id="anFoot"></div>
+    </div>
+    <div class="ansect">By the end of the week</div>
+    <div class="anwk" id="anWk">
+      <div class="anwktop">
+        <div class="anwkhead"><span class="anchip" id="anChip"></span><b id="anHead"></b><p id="anText"></p></div>
+        <div class="anring"><svg viewBox="0 0 88 88" aria-hidden="true"><circle class="rbg" cx="44" cy="44" r="37"/><circle class="rfg" id="anRing" cx="44" cy="44" r="37"/></svg><div class="rin"><b id="anPct"></b><span>to win</span></div></div>
+      </div>
+      <div class="anvs">
+        <div class="side"><span id="anBestL">Your best case</span><b id="anBest"></b><small id="anBestSub"></small></div>
+        <div class="vs">VS</div>
+        <div class="side w"><span>Likely winning total</span><b id="anWinT"></b><small id="anRange"></small><button type="button" class="anconf" id="anConf"></button></div>
+      </div>
+      <div class="anconfwhy" id="anConfWhy" hidden></div>
+      <div class="anres" id="anRes"></div>
+      <div class="antrackwrap"><div class="antrack"><span class="tband" id="anBand"></span><span class="tnow" id="anNowBar"></span><span class="tmax" id="anMaxBar"></span><span class="tflag" id="anFlag"><em id="anFlagL"></em></span></div>
+        <div class="tlabels"><span class="tl now" id="anNowL"></span><span class="tl" id="anMaxL"></span></div></div>
+      <div class="anpath" id="anPath"></div>
+    </div>
+    <div class="anwhat" id="anWhat"></div>
+    <div class="tipnav"><button class="confirmyes" id="anOk">Got it</button></div>
   </div>
 </div>
 
@@ -2208,7 +2347,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.0.1';
+  const APP_VERSION = '4.1.0';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -3890,6 +4029,13 @@
           }
           // 4.0.0: the last play, for turnover badges.
           const lpRaw = sit.lastPlay || null;
+          // 4.1.0: ESPN's live win chance and the pregame moneyline, for Analysis.
+          const prob = lpRaw && lpRaw.probability;
+          const wp = (prob && typeof prob.homeWinPercentage === 'number')
+            ? { home: prob.homeWinPercentage, away: prob.awayWinPercentage } : null;
+          const oddsRaw = (comp.odds || [])[0] || null, mlRaw = oddsRaw && oddsRaw.moneyline;
+          const mlOf = function(s){ const x = s && ((s.close && s.close.odds) || (s.open && s.open.odds)); const n = parseFloat(x); return isNaN(n) ? 0 : n; };
+          const ml = mlRaw ? { home: mlOf(mlRaw.home), away: mlOf(mlRaw.away) } : null;
           const lastPlay = (lpRaw && lpRaw.id) ? {
             id: String(lpRaw.id),
             type: (lpRaw.type && lpRaw.type.text) || '',
@@ -3921,6 +4067,8 @@
             redZone: redZone,
             downDistance: dd,
             lastPlay: lastPlay,
+            wp: wp,
+            ml: ml,
             date: ev.date || ''
           });
         });
@@ -4502,6 +4650,7 @@
     active.forEach(function(g, i){ if(!shown[g.id]) inPlay += i + 1; });
     document.getElementById('scoreLeft').textContent = inPlay;
 
+    try{ syncAnPill(); }catch(e){}
     const cmp = document.getElementById('scoreCompare');
     cmp.textContent = (sc.decided === 0) ? 'Results fill in as games go final.'
       : sc.decided + ' of ' + sc.total + ' scored';
@@ -5238,6 +5387,315 @@
     if(isTab('live')) openResults(true);
   }
   function rootStop(){ put(ROOT_KEY, { pid: '', week: 0 }); rootRefresh(); }
+
+  /* ---------- Analysis (4.1.0) ----------
+     Chalk = every favorite, most points on the biggest spread, over the same
+     games as the sheet being viewed. Lines are the ones in effect when you
+     locked in (from this phone's line history); with no lock time for the
+     week, Friday night's lines; with no history, today's line.
+     "Likely winning total" plays the rest of the week out SIM_RUNS times with
+     a POOL_SIZE-player pool: every locked sheet we can see, plus typical
+     players for the rest. Finished games use the real result, live games
+     ESPN's live win chance, the rest the moneyline (or the spread). Display
+     only: nothing is saved or sent. While rooting, it's their sheet. */
+  const POOL_SIZE = 25, SIM_RUNS = 2000;
+  function anLockTime(week){
+    const v = getLocal(LOCKAT_KEY) || {};
+    return typeof v['w' + week] === 'number' ? v['w' + week] : 0;
+  }
+  function anFriday(){
+    const days = {};
+    games.forEach(function(g){ const d = new Date(g.date); if(!isNaN(d)){ const k = d.toDateString(); days[k] = (days[k] || 0) + 1; } });
+    let best = '', n = 0;
+    Object.keys(days).forEach(function(k){ if(days[k] > n){ n = days[k]; best = k; } });
+    if(!best) return 0;
+    const s = new Date(best); s.setDate(s.getDate() - 2); s.setHours(23, 59, 0, 0);
+    return s.getTime();
+  }
+  function anLineAt(g, T){
+    const h = Array.isArray(g.history) ? g.history : [];
+    let e = null;
+    for(let i = 0; i < h.length; i++){ if(h[i] && h[i].t <= T) e = h[i]; }
+    if(!e && h.length) e = h[0];
+    if(e && typeof e.sp === 'number') return { sp: e.sp, fav: e.fav || g.fav };
+    return { sp: typeof g.spread === 'number' ? g.spread : 0, fav: g.fav };
+  }
+  function anChalk(active){
+    const lockT = anLockTime(currentWeek), T = lockT || anFriday() || Date.now();
+    const rows = active.map(function(g){
+      const L = anLineAt(g, T);
+      const city = L.sp === 0 ? homeCityOf(g) : (L.fav === 'A' ? g.cityA : g.cityB);
+      return { id: g.id, sp: L.sp, city: city, d: Date.parse(g.date) || 0 };
+    });
+    rows.sort(function(a, b){ return a.sp - b.sp || b.d - a.d || (a.id < b.id ? 1 : -1); });
+    const map = {};
+    rows.forEach(function(r, k){ map[r.id] = { city: r.city, pts: k + 1 }; });
+    return { map: map, T: T, fromLock: !!lockT };
+  }
+  // Winner city of a finished game ('tie' for a tie), else ''.
+  function anFinal(g){
+    const lg = liveFor(g);
+    if(!lg || !lg.completed) return '';
+    const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+    const a = lg.scores[abA], b = lg.scores[abB];
+    if(typeof a !== 'number' || typeof b !== 'number') return '';
+    return a === b ? 'tie' : (a > b ? g.cityA : g.cityB);
+  }
+  function anPhi(x){
+    const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2);
+    const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x / 2);
+    return 0.5 * (1 + (x < 0 ? -y : y));
+  }
+  function anImplied(o){ o = Number(o); if(!o) return 0; return o < 0 ? (-o) / (-o + 100) : 100 / (o + 100); }
+  // Chance city A wins a game that isn't final.
+  function anChanceA(g){
+    const lg = liveFor(g);
+    const abA = g.abbrA || ABBR[g.cityA];
+    if(lg && lg.state === 'in' && lg.wp && typeof lg.wp.home === 'number'){
+      return lg.home === abA ? lg.wp.home : lg.wp.away;
+    }
+    if(lg && lg.ml && lg.ml.home && lg.ml.away){
+      const ph = anImplied(lg.ml.home), pa = anImplied(lg.ml.away);
+      if(ph && pa){ const home = ph / (ph + pa); return lg.home === abA ? home : 1 - home; }
+    }
+    const pf = anPhi((typeof g.spread === 'number' ? g.spread : 0) / 13.5);
+    return g.fav === 'A' ? pf : 1 - pf;
+  }
+  // A published sheet as { gameId: { city, pts } }.
+  function anSheetOf(row){
+    const out = {};
+    (Array.isArray(row.picks) ? row.picks : []).forEach(function(pk, idx){
+      if(!pk) return;
+      const g2 = gameById(pk.i);
+      if(!g2) return;
+      const key = matchKey(g2);
+      const g = games.filter(function(x){ return x === g2 || matchKey(x) === key; })[0];
+      if(!g || out[g.id]) return;
+      out[g.id] = { city: pk.p === 'a' ? g2.cityA : g2.cityB, pts: idx + 1 };
+    });
+    return out;
+  }
+  function anMySheet(){
+    const out = {};
+    activeGames().forEach(function(g, i){ out[g.id] = { city: pickedCityOf(g), pts: i + 1 }; });
+    return out;
+  }
+  // Who we're looking at: you, or who you're rooting for.
+  function anViewed(){
+    const r = rootRow();
+    if(r) return { id: r.id, name: r.name, sheet: anSheetOf(r), root: true };
+    const me = player();
+    return { id: me.id, name: me.name || 'You', sheet: anMySheet(), root: false };
+  }
+  function anBanked(sheet){
+    let t = 0;
+    Object.keys(sheet).forEach(function(id){
+      const g = gameById(id); if(!g) return;
+      const w = anFinal(g);
+      if(w && (w === 'tie' || w === sheet[id].city)) t += sheet[id].pts;
+    });
+    return t;
+  }
+  // Pill numbers, cheap enough for every repaint.
+  function anQuick(){
+    const V = anViewed();
+    const active = games.filter(function(g){ return !!V.sheet[g.id]; });
+    const C = anChalk(active);
+    const anyFinal = active.some(function(g){ return !!anFinal(g); });
+    return { V: V, active: active, C: C, you: anBanked(V.sheet), chalk: anBanked(C.map), anyFinal: anyFinal };
+  }
+  function syncAnPill(){
+    const pill = document.getElementById('anPill');
+    if(!pill) return;
+    let q = null;
+    try{ q = anQuick(); }catch(e){ q = null; }
+    pill.hidden = !q || !q.active.length;
+    if(!q) return;
+    const n = document.getElementById('anNum'), d = q.you - q.chalk;
+    n.textContent = q.anyFinal ? '(' + anSign(d) + ')' : '';
+    n.className = 'anpn ' + (d > 0 ? 'up' : (d < 0 ? 'down' : 'even'));
+  }
+  function anSign(n){ return n > 0 ? '+' + n : (n < 0 ? '\u2212' + (-n) : '\u00b10'); }
+  function anRng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function anSimulate(q){
+    const G = games.slice(), n = G.length, idx = {};
+    G.forEach(function(g, i){ idx[g.id] = i; });
+    const fixed = G.map(function(g){ return anFinal(g); });
+    const pA = G.map(function(g, i){ return fixed[i] ? 0 : anChanceA(g); });
+    const toArr = function(sheet){ const side = new Int8Array(n), pts = new Int16Array(n);
+      Object.keys(sheet).forEach(function(id){ const i = idx[id]; if(i === undefined) return;
+        side[i] = sheet[id].city === G[i].cityA ? 1 : 2; pts[i] = sheet[id].pts; }); return { side: side, pts: pts }; };
+    const me = player();
+    const real = [];
+    poolRows().forEach(function(r){
+      if(r.locked === false || !Array.isArray(r.picks) || !r.picks.length || r.id === me.id) return;
+      real.push({ id: r.id, a: toArr(anSheetOf(r)) });
+    });
+    real.push({ id: me.id, a: toArr(anMySheet()) });
+    const viewedIdx = real.findIndex(function(x){ return x.id === q.V.id; });
+    const synth = Math.max(0, POOL_SIZE - real.length);
+    // typical players pick over the viewed sheet's games
+    const tg = q.active.map(function(g){ const i = idx[g.id]; const s = typeof g.spread === 'number' ? g.spread : 0;
+      return { i: i, s: s, favSide: g.fav === 'A' ? 1 : 2 }; });
+    const r = anRng(20260927 + currentWeek);
+    const gauss = function(){ const u = r() || 1e-9, v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+    const res = new Int8Array(n), tSide = new Int8Array(n), tPts = new Int16Array(n);
+    const wins = [], nowTop = [];
+    let vWins = 0;
+    const score = function(a, fin){ let t = 0; for(let i = 0; i < n; i++){ if(!a.pts[i]) continue;
+        const w = fin ? (fixed[i] ? res[i] : 0) : res[i]; if(w === 3 || (w && w === a.side[i])) t += a.pts[i]; } return t; };
+    for(let k = 0; k < SIM_RUNS; k++){
+      for(let i = 0; i < n; i++){ const f = fixed[i];
+        res[i] = f ? (f === 'tie' ? 3 : (f === G[i].cityA ? 1 : 2)) : (r() < pA[i] ? 1 : 2); }
+      let best = -1, bestNow = -1, others = -1, mine = 0;
+      for(let p = 0; p < real.length; p++){
+        const f = score(real[p].a, false), b = score(real[p].a, true);
+        if(f > best) best = f; if(b > bestNow) bestNow = b;
+        if(p === viewedIdx) mine = f; else if(f > others) others = f;
+      }
+      for(let p = 0; p < synth; p++){
+        tSide.fill(0); tPts.fill(0);
+        const keys = tg.map(function(x){ const fav = r() < Math.min(0.97, 0.55 + 0.045 * x.s);
+          tSide[x.i] = fav ? x.favSide : (x.favSide === 1 ? 2 : 1); return { i: x.i, k: x.s * (fav ? 1 : -0.3) + gauss() * 2.2 }; });
+        keys.sort(function(a, b){ return a.k - b.k; }).forEach(function(x, j){ tPts[x.i] = j + 1; });
+        const a = { side: tSide, pts: tPts }, f = score(a, false), b = score(a, true);
+        if(f > best) best = f; if(b > bestNow) bestNow = b; if(f > others) others = f;
+      }
+      wins.push(best); nowTop.push(bestNow);
+      if(mine > others) vWins += 1; else if(mine === others) vWins += 0.5;
+    }
+    wins.sort(function(a, b){ return a - b; }); nowTop.sort(function(a, b){ return a - b; });
+    const med = wins[SIM_RUNS >> 1];
+    return { win: med, lo: wins[Math.floor(SIM_RUNS * 0.1)], hi: wins[Math.floor(SIM_RUNS * 0.9)], now: nowTop[SIM_RUNS >> 1],
+      chance: viewedIdx >= 0 ? vWins / SIM_RUNS : 0,
+      w5: wins.filter(function(x){ return Math.abs(x - med) <= 5; }).length / SIM_RUNS };
+  }
+  const anOverlay = document.getElementById('anOverlay');
+  const AN_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  const AN_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
+  const AN_EVEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 9h14M5 15h14"/></svg>';
+  function anSet(id, v){ const e = document.getElementById(id); if(e) e.textContent = v; }
+  function anWidth(el, pct, left){ if(left !== undefined) el.style.left = left + '%'; el.style.width = Math.max(0, pct) + '%'; }
+  function openAnalysis(){
+    const q = anQuick();
+    if(!q.active.length) return;
+    const V = q.V, nm = V.name;
+    // Words for "you" or the person you're rooting for.
+    const W = V.root
+      ? { are: nm + ' is', Are: nm + ' is', pos: nm + '\u2019s', Pos: nm + '\u2019s', has: nm + ' has', you: nm, You: nm, would: nm + ' would', title: nm + '\u2019s week' }
+      : { are: 'you\u2019re', Are: 'You\u2019re', pos: 'your', Pos: 'Your', has: 'you have', you: 'you', You: 'You', would: 'you\u2019d', title: 'How you\u2019re doing' };
+    anSet('anTitle', W.title);
+    anSet('anYouL', V.root ? nm : 'You');
+    anSet('anBestL', W.Pos + ' best case');
+    const d = q.you - q.chalk, cls = !q.anyFinal ? 'even' : (d > 0 ? 'up' : (d < 0 ? 'down' : 'even'));
+    document.getElementById('anVerdict').className = 'anverdict ' + cls;
+    document.getElementById('anvIcon').innerHTML = cls === 'up' ? AN_UP : (cls === 'down' ? AN_DOWN : AN_EVEN);
+    anSet('anvHead', !q.anyFinal ? 'No games are final yet' : (cls === 'up' ? W.Are + ' beating chalk' : (cls === 'down' ? W.Are + ' behind chalk' : W.Are + ' even with chalk')));
+    anSet('anvSub', !q.anyFinal ? 'Check back once games finish' : (cls === 'even' ? 'so far' : 'by ' + Math.abs(d) + ' point' + (Math.abs(d) === 1 ? '' : 's') + ' so far'));
+    anSet('anMeaning', !q.anyFinal ? '' : (cls === 'up' ? 'That\u2019s good. ' + W.Are + ' probably ahead of most of the pool this week.'
+      : (cls === 'down' ? 'Right now ' + W.are + ' probably behind most of the pool.' : W.Are + ' about where a typical player is.')));
+    anSet('anPct', '\u2026'); anSet('anHead', 'Working it out\u2026'); anSet('anText', '');
+    openOverlay(anOverlay);
+    setTimeout(function(){ try{ anFill(q, W); }catch(e){ anSet('anHead', 'Couldn\u2019t work this out right now.'); } }, 40);
+  }
+  function anFill(q, W){
+    const M = anSimulate(q), V = q.V;
+    const total = q.active.length * (q.active.length + 1) / 2;
+    let left = 0, chalkLeft = 0, gamesLeft = 0;
+    const path = [];
+    q.active.slice().sort(function(a, b){ return (Date.parse(a.date) || 0) - (Date.parse(b.date) || 0); }).forEach(function(g){
+      if(anFinal(g)) return;
+      const s = V.sheet[g.id], lg = liveFor(g);
+      left += s.pts; gamesLeft++;
+      chalkLeft += q.C.map[g.id] ? q.C.map[g.id].pts : 0;
+      const when = lg && lg.state === 'in' ? 'Live now' : (function(){ const k = kickoffText(lg, g); return (k.day + ' ' + k.time).trim(); })();
+      path.push({ t: s.city, p: s.pts, w: when });
+    });
+    const best = q.you + left;
+    // bars: out of the week's total
+    [['abYou', q.you, best], ['abChalk', q.chalk, q.chalk + chalkLeft], ['abWin', M.now, M.win]].forEach(function(x){
+      const i = document.getElementById(x[0]), s = document.getElementById(x[0] + 'X');
+      i.style.width = '0';
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ i.style.width = (x[1] / total * 100) + '%'; }); });
+      s.style.left = (x[1] / total * 100) + '%'; s.style.width = (Math.max(0, x[2] - x[1]) / total * 100) + '%';
+      anSet(x[0] + 'N', (x[0] === 'abWin' ? '~' : '') + x[1]);
+    });
+    anSet('anFoot', 'Out of ' + total + ' points this week.');
+    // state
+    const ch = M.chance;
+    let st;
+    if(!gamesLeft && q.you >= M.hi) st = 'won';
+    else if(ch >= 0.6) st = 'fav';
+    else if(ch >= 0.3) st = 'run';
+    else if(best < M.lo) st = 'out';
+    else if(ch >= 0.05) st = 'hunt';
+    else st = 'long';
+    const T = {
+      won:  ['LIKELY WON', W.Pos + ' total is very likely a winning score.', 'A winner usually lands around ' + M.win + '. ' + W.You + ' finished above that range.'],
+      fav:  ['FAVORITE TO WIN', W.Are + ' the favorite to win this week.', W.Are + ' more likely to win than anyone else, but it\u2019s not locked up yet.'],
+      run:  ['IN THE RUNNING', W.Are + ' right in the race.', W.Are + ' one of the favorites. ' + W.Pos + ' games decide it.'],
+      hunt: ['IN THE HUNT', W.You + ' can still win, with some help.', W.You + ' would need ' + W.pos + ' games to win, plus some other results to go ' + (V.root ? 'their' : 'your') + ' way.'],
+      long: ['LONG SHOT', 'It\u2019ll take a lot to go right.', W.Pos + ' games would all need to win, and others would need to lose.'],
+      out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even if ' + W.pos + ' games all win, ' + W.would + ' finish below where a winner usually lands.']
+    }[st];
+    document.getElementById('anWk').className = 'anwk' + ((st === 'out' || st === 'long') ? ' out' : '');
+    const chip = document.getElementById('anChip'); chip.className = 'anchip ' + st; chip.textContent = T[0];
+    anSet('anHead', T[1]); anSet('anText', T[2]);
+    const c = Math.round(ch * 100);
+    anSet('anPct', c < 1 ? '<1%' : (c > 99 ? '>99%' : c + '%'));
+    const ring = document.getElementById('anRing');
+    ring.style.stroke = (st === 'out' || st === 'long') ? 'var(--faint)' : '';
+    ring.style.strokeDashoffset = '232.5';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ ring.style.strokeDashoffset = String(232.5 * (1 - Math.max(0.01, ch))); }); });
+    anSet('anBest', best); anSet('anBestSub', q.you + ' now + ' + left + ' left');
+    anSet('anWinT', '~' + M.win); anSet('anRange', 'usually ' + M.lo + '\u2013' + M.hi);
+    const cf = Math.max(0, M.w5 - 0.05);
+    const lvl = cf >= 0.75 ? [5, 'Very high'] : (cf >= 0.55 ? [4, 'High'] : (cf >= 0.35 ? [3, 'Medium'] : (cf >= 0.2 ? [2, 'Low'] : [1, 'Very low'])));
+    let dots = ''; for(let k = 0; k < 5; k++) dots += k < lvl[0] ? '\u25cf' : '<u>\u25cf</u>';
+    const conf = document.getElementById('anConf'), why = document.getElementById('anConfWhy');
+    conf.innerHTML = 'Confidence: <b>' + lvl[1] + '</b> <i>' + dots + '</i>';
+    why.hidden = true;
+    why.textContent = 'At this point in the week, the real winning total usually lands within 5 points of ' + M.win +
+      ' \u2014 about ' + Math.round(cf * 10) + ' times out of 10. It gets more certain as games finish.';
+    conf.onclick = function(){ why.hidden = !why.hidden; };
+    const gap = best - M.win, res = document.getElementById('anRes');
+    res.className = 'anres ' + (gap >= 0 ? 'good' : 'bad');
+    res.textContent = gap > 0 ? W.Pos + ' best case beats it by ' + gap : (gap === 0 ? W.Pos + ' best case ties it' : W.Pos + ' best case falls ' + (-gap) + ' short');
+    // track
+    const top = Math.max(M.hi, best) + 8, pc = function(x){ return Math.min(100, x / top * 100); };
+    const nowBar = document.getElementById('anNowBar'); nowBar.style.width = '0';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ nowBar.style.width = pc(q.you) + '%'; }); });
+    anWidth(document.getElementById('anMaxBar'), pc(best) - pc(q.you), pc(q.you));
+    anWidth(document.getElementById('anBand'), pc(M.hi) - pc(M.lo), pc(M.lo));
+    const flag = document.getElementById('anFlag'), fp = pc(M.win); flag.style.left = fp + '%';
+    const fl = document.getElementById('anFlagL'); fl.textContent = 'Winning total ~' + M.win;
+    fl.style.transform = fp > 78 ? 'translateX(-92%)' : (fp < 22 ? 'translateX(-8%)' : 'translateX(-50%)');
+    const clamp = function(x){ return Math.max(9, Math.min(91, x)); };
+    const nl = document.getElementById('anNowL'), ml = document.getElementById('anMaxL');
+    nl.textContent = 'Now ' + q.you; nl.style.left = clamp(pc(q.you)) + '%';
+    nl.style.transform = Math.abs(pc(q.you) - fp) < 12 ? 'translateX(-100%)' : 'translateX(-50%)';
+    ml.textContent = 'Best ' + best; ml.style.left = clamp(pc(best)) + '%'; ml.style.transform = 'translateX(-50%)';
+    ml.hidden = best === q.you || Math.abs(pc(best) - pc(q.you)) < 14;
+    // path
+    let run = q.you;
+    const head = (st === 'fav' || st === 'won') ? 'What keeps ' + (V.root ? nm_(V) : 'you') + ' on top' : 'What ' + (V.root ? nm_(V) + ' needs' : 'you need') + ' to win';
+    document.getElementById('anPath').innerHTML = path.length ? '<div class="anpathhead">' + esc(head) + '</div>' + path.map(function(x){
+      run += x.p;
+      return '<div class="anstep"><i></i><div class="sg"><b>' + esc(x.t) + ' win</b><span>' + esc(x.w) + '</span></div>' +
+        '<span class="sp">+' + x.p + '</span><span class="st">' + run + '<small>TOTAL</small></span></div>';
+    }).join('') : '';
+    const when = new Date(q.C.T);
+    const whenTxt = isNaN(when) ? '' : when.toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+    document.getElementById('anWhat').innerHTML = '<b>How this works.</b> <b>Chalk</b> is the \u201csafe\u201d sheet: every favorite, most points on the biggest favorites. ' +
+      'It scores about what a typical player does' + (whenTxt ? ' (lines from ' + (q.C.fromLock ? 'when you locked in, ' : '') + esc(whenTxt) + ')' : '') + '. ' +
+      'The <b>likely winner</b> is worked out by playing the rest of the week out 2,000 times with a 25-player pool (the sheets we can see, plus typical players for the rest), ' +
+      'using the betting odds and today\u2019s results. It\u2019s an estimate, and it gets more accurate as games finish.';
+  }
+  function nm_(V){ return V.name; }
+  document.getElementById('anPill').addEventListener('click', openAnalysis);
+  document.getElementById('anOk').addEventListener('click', function(){ closeOverlay(anOverlay); });
+  anOverlay.addEventListener('click', function(e){ if(e.target === anOverlay) closeOverlay(anOverlay); });
 
   function showPlayerSheet(id){
     const row = board.filter(function(r){ return r.id === id; })[0];
