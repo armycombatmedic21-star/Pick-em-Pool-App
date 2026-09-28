@@ -1221,6 +1221,12 @@
     display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
   .anpill[hidden]{ display:none; }
   .anpill:active{ background: rgba(53,208,255,0.22); }
+  .anpill{ animation: anpulse 2.6s ease-in-out infinite; }
+  @keyframes anpulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(53,208,255,0); border-color: rgba(53,208,255,0.55); }
+    50%{ box-shadow:0 0 12px 1px rgba(53,208,255,0.45); border-color: rgba(53,208,255,0.95); } }
+  @media (prefers-reduced-motion: reduce){ .anpill{ animation:none; } }
+  #anOverlay .tipshead{ align-items:center; }
+  .anback{ flex:none; }
   .anpn.up{ color: var(--green); } .anpn.down{ color:#ff5a6a; } .anpn.even{ color: var(--muted); }
   #anOverlay .sheet{ padding-bottom:26px; }
   .anverdict{ display:flex; align-items:center; gap:14px; padding:16px; border-radius:16px; margin:2px 0 12px; }
@@ -1817,7 +1823,7 @@
         <div class="scoreleft" id="scoreLeft">0</div>
         <div class="scoreleftlbl">still in play</div>
         <div class="scorecompare" id="scoreCompare"></div>
-        <button type="button" class="anpill" id="anPill" hidden>Analysis <span class="anpn" id="anNum"></span></button>
+        <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
       <div class="lbcard">
         <div class="lbtop"><button type="button" class="lbmode" id="lbMode" aria-pressed="false">Basic</button><span class="lbcount" id="lbCount"></span></div>
@@ -1969,6 +1975,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.1.1</b> Analysis is simpler: it opens straight to As it stands now, has a Back button up top, and the button on your score card just says Analysis.</div>
       <div class="cl"><b>4.1.0</b> Analysis: tap it on your score card to see how you\u2019re doing against chalk (the \u201csafe\u201d sheet), where a likely winner is right now, what total usually wins the week, your chance to win, and what you need. While rooting, it shows theirs.</div>
       <div class="cl"><b>4.0.1</b> Root for stays on when you close and reopen the app (until you tap \u2715 or the week ends).</div>
       <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone\u2019s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap \u2715 or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
@@ -2088,9 +2095,7 @@
 
 <div class="overlay" id="anOverlay">
   <div class="sheet" role="dialog" aria-label="Analysis">
-    <div class="tipshead"><div class="tipstitle"><span class="kicker">ANALYSIS</span><h2 id="anTitle">How you’re doing</h2></div></div>
-    <div class="anverdict" id="anVerdict"><span class="anvicon" id="anvIcon"></span><div class="anvtext"><b id="anvHead"></b><span id="anvSub"></span></div></div>
-    <p class="anmeaning" id="anMeaning"></p>
+    <div class="tipshead"><div class="tipstitle"><span class="kicker">ANALYSIS</span><h2 id="anTitle">How you’re doing</h2></div><button type="button" class="backbtn anback" id="anBack">‹ Back</button></div>
     <div class="ansect">As it stands now</div>
     <div class="anbars">
       <div class="anbar"><span class="anblabel" id="anYouL">You</span><span class="anbtrack"><i id="abYou"></i><s id="abYouX"></s></span><b id="abYouN"></b></div>
@@ -2347,7 +2352,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.1.0';
+  const APP_VERSION = '4.1.1';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5511,9 +5516,6 @@
     try{ q = anQuick(); }catch(e){ q = null; }
     pill.hidden = !q || !q.active.length;
     if(!q) return;
-    const n = document.getElementById('anNum'), d = q.you - q.chalk;
-    n.textContent = q.anyFinal ? '(' + anSign(d) + ')' : '';
-    n.className = 'anpn ' + (d > 0 ? 'up' : (d < 0 ? 'down' : 'even'));
   }
   function anSign(n){ return n > 0 ? '+' + n : (n < 0 ? '\u2212' + (-n) : '\u00b10'); }
   function anRng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
@@ -5588,13 +5590,6 @@
     anSet('anTitle', W.title);
     anSet('anYouL', V.root ? nm : 'You');
     anSet('anBestL', W.Pos + ' best case');
-    const d = q.you - q.chalk, cls = !q.anyFinal ? 'even' : (d > 0 ? 'up' : (d < 0 ? 'down' : 'even'));
-    document.getElementById('anVerdict').className = 'anverdict ' + cls;
-    document.getElementById('anvIcon').innerHTML = cls === 'up' ? AN_UP : (cls === 'down' ? AN_DOWN : AN_EVEN);
-    anSet('anvHead', !q.anyFinal ? 'No games are final yet' : (cls === 'up' ? W.Are + ' beating chalk' : (cls === 'down' ? W.Are + ' behind chalk' : W.Are + ' even with chalk')));
-    anSet('anvSub', !q.anyFinal ? 'Check back once games finish' : (cls === 'even' ? 'so far' : 'by ' + Math.abs(d) + ' point' + (Math.abs(d) === 1 ? '' : 's') + ' so far'));
-    anSet('anMeaning', !q.anyFinal ? '' : (cls === 'up' ? 'That\u2019s good. ' + W.Are + ' probably ahead of most of the pool this week.'
-      : (cls === 'down' ? 'Right now ' + W.are + ' probably behind most of the pool.' : W.Are + ' about where a typical player is.')));
     anSet('anPct', '\u2026'); anSet('anHead', 'Working it out\u2026'); anSet('anText', '');
     openOverlay(anOverlay);
     setTimeout(function(){ try{ anFill(q, W); }catch(e){ anSet('anHead', 'Couldn\u2019t work this out right now.'); } }, 40);
@@ -5695,6 +5690,7 @@
   function nm_(V){ return V.name; }
   document.getElementById('anPill').addEventListener('click', openAnalysis);
   document.getElementById('anOk').addEventListener('click', function(){ closeOverlay(anOverlay); });
+  document.getElementById('anBack').addEventListener('click', function(){ closeOverlay(anOverlay); });
   anOverlay.addEventListener('click', function(e){ if(e.target === anOverlay) closeOverlay(anOverlay); });
 
   function showPlayerSheet(id){
