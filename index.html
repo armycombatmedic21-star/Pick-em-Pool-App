@@ -2083,6 +2083,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.4.1</b> The Advanced leaderboard's win chances now wait until the first game on your sheet kicks off (they show a dash before that).</div>
       <div class="cl"><b>4.4.0</b> Pin a game: tap the pin on any Live now or Up next card to keep it at the top of that section, and tap it again to put it back (pins are just on your phone and reset each week). Your Underdog now shows before kickoff too, in silver; how many others took them still waits until the game starts. Live Quick Tips has a new Pin card and just a Got it button. Analysis plays out a 25-entry pool again.</div>
       <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks. Games with the same spread are now ordered by the moneyline, so the stronger favorite gets more points.</div>
       <div class="cl"><b>4.3.0</b> The FAV and DOG win chances on the Picks tab now come from sportsbook moneylines (the spread is the backup when no moneyline is posted). Analysis now plays out a 28-entry pool to match the real pool. Quote marks in What's new display properly.</div>
@@ -2490,7 +2491,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.4.0';
+  const APP_VERSION = '4.4.1';
   const APP_BUILT = 'Oct 1, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -4478,6 +4479,14 @@
     return r ? esc(String(r.name).toUpperCase()) + '\u2019S UNDERDOG' : 'YOUR UNDERDOG';
   }
   // 4.4.0: shows before kickoff too (Up next); still gone once the game is final.
+  function lbWinWaits(){
+    try{ if(edgeOn()) return false; }catch(e){}
+    return !games.some(function(g){
+      if(g.removed) return false;
+      const lg = liveFor(g);
+      return !!(lg && lg.state && lg.state !== 'pre');
+    });
+  }
   function isLiveDog(g, lg){
     return !!(g && g.pick === 'dog' && typeof g.spread === 'number' && g.spread > 0 && lg && lg.state === 'pre') || isLiveDogIn(g, lg);
   }
@@ -7098,7 +7107,10 @@
     // Advanced view only: chance to win. Anything going wrong here just
     // leaves the % off — it can never stop the board from drawing.
     let odds = null;
-    if(lbAdv()){ if(stale) odds = {}; else{ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } } }
+    // 4.4.1: WIN column shows a dash for everyone until the first game on your
+    // own sheet kicks off, so nobody can tune picks against it. Edge Engine
+    // (this phone only) always sees the numbers.
+    if(lbAdv()){ if(stale || lbWinWaits()) odds = {}; else{ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } } }
 
     const slideFrom = lbPositions(el);
     // 4.2.0: saved board -> fresh board is a catch-up swap: slower slide.
