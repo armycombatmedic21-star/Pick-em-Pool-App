@@ -224,7 +224,27 @@
   }
   .lockbtn.on svg{ color: var(--cyan); }
   /* Quick Tips: a small pill under the 1-to-N scale, above the first game. */
-  .tiprow{ display:flex; margin: 0 0 12px; }
+  .tiprow{ display:flex; align-items:center; margin: 0 0 12px; }
+  /* 4.3.0: Edge Engine pill (this phone only) */
+  .edgebtn{ margin-left:auto; position:relative; overflow:hidden; display:inline-flex; align-items:center;
+    height:30px; min-width:156px; padding:0 13px 0 5px; border-radius:15px;
+    border:1px solid rgba(53,208,255,0.55); background:linear-gradient(180deg, rgba(53,208,255,0.16), rgba(53,208,255,0.05));
+    color:#ffffff; font-size:13px; font-weight:800; letter-spacing:0.1px; font-family:inherit;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(53,208,255,0.18); -webkit-tap-highlight-color:transparent; }
+  .edgebtn[hidden]{ display:none; }
+  .edgebtn::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
+  .edgebtn .edgefill{ position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg, rgba(53,208,255,0.28), rgba(53,208,255,0.5)); pointer-events:none; }
+  .edgebtn .edgelbl{ position:relative; display:flex; align-items:center; gap:7px; width:100%; }
+  .edgebtn .edgepct{ margin-left:auto; font-variant-numeric:tabular-nums; color:#9fe8ff; font-weight:700; }
+  .edgeico{ flex:none; width:20px; height:20px; border-radius:50%; background:var(--cyan); display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(53,208,255,0.45); }
+  .edgeico svg{ width:11px; height:11px; display:block; }
+  @keyframes edgeflash{ 0%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } 30%{ box-shadow:0 0 0 3px rgba(53,208,255,0.55), 0 0 26px rgba(53,208,255,0.7); background:rgba(53,208,255,0.45); } 100%{ box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); } }
+  .edgebtn.flash{ animation: edgeflash .55s ease-out; }
+  @keyframes edgerow{ 0%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } 40%{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.8), 0 0 18px rgba(53,208,255,0.35); } 100%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } }
+  #list li.edgeflash{ animation: edgerow .55s ease-out; }
+  #list li.edged{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.75), 0 0 16px rgba(53,208,255,0.25); transition: box-shadow 1.2s ease; }
+  #list li.edgefade{ transition: box-shadow 1.2s ease; }
+  @media (prefers-reduced-motion: reduce){ .edgebtn.flash, #list li.edgeflash{ animation:none; } }
   .tipbtn{
     position:relative; display:inline-flex; align-items:center; gap:8px;
     height:30px; padding:0 13px 0 5px; border-radius:15px;
@@ -1803,7 +1823,7 @@
 
   <div class="rankhead"><b>Your Ranking</b><span id="rankCount"></span></div>
   <div class="scale"><span>1 = least confident</span><i></i><span id="scaleTop">highest = safest lock</span></div>
-  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button></div>
+  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button><button class="edgebtn" id="edgeBtn" type="button" hidden></button></div>
 
   <ul id="list"></ul>
   <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -2002,23 +2022,28 @@
       </span>
       <button class="devtoggle" id="adminToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel"><b>Edge Engine</b></span>
+      <button class="devtoggle" id="edgeToggle">Off</button>
+    </div>
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.3.0</b> The FAV and DOG win chances on the Picks tab now come from sportsbook moneylines (the spread is the backup when no moneyline is posted). Analysis now plays out a 28-entry pool to match the real pool. Quote marks in What's new display properly.</div>
       <div class="cl"><b>4.2.0</b> The leaderboard shows up the moment you open the app (or pick a week), then players slide into their new places as fresh scores come in. When someone takes over first place, their row glows gold twice. The end-of-week Analysis always uses the final scores.</div>
-      <div class="cl"><b>4.1.10</b> Analysis waits until the score and leaderboard are on screen before doing its math or showing the end-of-week card, stops recalculating once every game is final, and reads more naturally while rooting (\u201cMom would need Chicago to win\u201d). Early in the week it says It\u2019s too early to tell.</div>
-      <div class="cl"><b>4.1.9</b> Analysis: the explanation is now a small \u201cHow is this calculated?\u201d link under Got it.</div>
+      <div class="cl"><b>4.1.10</b> Analysis waits until the score and leaderboard are on screen before doing its math or showing the end-of-week card, stops recalculating once every game is final, and reads more naturally while rooting (“Mom would need Chicago to win”). Early in the week it says It’s too early to tell.</div>
+      <div class="cl"><b>4.1.9</b> Analysis: the explanation is now a small “How is this calculated?” link under Got it.</div>
       <div class="cl"><b>4.1.8</b> Analysis: Got it sits above a Methodology button that opens the explanation.</div>
       <div class="cl"><b>4.1.7</b> When your last game of the week finishes, Analysis slides up once to show how your week ended (Likely won, Likely winner, In the mix, Outside chance or Probably not). Rooting for someone? It shows theirs.</div>
       <div class="cl"><b>4.1.6</b> Analysis shows chances once 3 or fewer games are left (the button then reads e.g. Analysis (16%) and pulses). Before that it says Too early to tell and shows your points now and best case. Button and card always match.</div>
       <div class="cl"><b>4.1.5</b> The Analysis button and card share one calculation, updated every 15 seconds, so they always show the same number.</div>
-      <div class="cl"><b>4.1.4</b> The Analysis button only pulses once it shows your chance to win. Before that it\u2019s a normal button.</div>
+      <div class="cl"><b>4.1.4</b> The Analysis button only pulses once it shows your chance to win. Before that it’s a normal button.</div>
       <div class="cl"><b>4.1.3</b> Once 5 games are final, the Analysis button shows your chance to win the week, e.g. Analysis (16%). Before that, Analysis says Too early to tell.</div>
-      <div class="cl"><b>4.1.2</b> Analysis is one card now: Current Outlook, with the time it was worked out. It updates every 10 seconds while it\u2019s open.</div>
+      <div class="cl"><b>4.1.2</b> Analysis is one card now: Current Outlook, with the time it was worked out. It updates every 10 seconds while it’s open.</div>
       <div class="cl"><b>4.1.1</b> Analysis is simpler: it opens straight to As it stands now, has a Back button up top, and the button on your score card just says Analysis.</div>
-      <div class="cl"><b>4.1.0</b> Analysis: tap it on your score card to see how you\u2019re doing against chalk (the \u201csafe\u201d sheet), where a likely winner is right now, what total usually wins the week, your chance to win, and what you need. While rooting, it shows theirs.</div>
-      <div class="cl"><b>4.0.1</b> Root for stays on when you close and reopen the app (until you tap \u2715 or the week ends).</div>
-      <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone\u2019s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap \u2715 or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
+      <div class="cl"><b>4.1.0</b> Analysis: tap it on your score card to see how you’re doing against chalk (the “safe” sheet), where a likely winner is right now, what total usually wins the week, your chance to win, and what you need. While rooting, it shows theirs.</div>
+      <div class="cl"><b>4.0.1</b> Root for stays on when you close and reopen the app (until you tap ✕ or the week ends).</div>
+      <div class="cl"><b>4.0.0</b> Root for: out of it this week? Open someone’s shared sheet and tap Root for. Your Live tab shows the week through their picks until you tap ✕ or the week ends. Turnover badges: interceptions, pick-sixes and lost fumbles get an amber badge on the live card. The Pool Chat box now grows as you type, with a character count.</div>
       <div class="cl"><b>3.9.1</b> Updates are fully silent: no more "Updated to" note when the app opens.</div>
       <div class="cl"><b>3.9.0</b> Leaderboard: when your spot is scrolled out of view, your row stays pinned to the edge of the board until your real spot comes into view. When the order changes, players slide to their new places instead of jumping. New Quick Tips on Live (pops up once, then use the Quick Tips button under the leaderboard). New leaderboard shuffle preview in Simulations.</div>
       <div class="cl"><b>3.8.1</b> The app now updates itself. Open it and you’re on the newest version; if you’re in the middle of something, a “New version ready” bar lets you tap to update when you’re ready. Live now is back to fewest points first.</div>
@@ -2307,6 +2332,19 @@
   </div>
 </div>
 
+<div class="overlay" id="edgeCodeOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Edge Engine code">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Edge Engine code</h2></div>
+    <p>Enter it once and this phone remembers. After that it's just the switch.</p>
+    <input id="edgeCodeInput" class="nameinput codeinput" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+    <p class="namenote" id="edgeCodeNote"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="edgeCodeGo">Turn On Edge Engine</button>
+      <button class="confirmcancel" id="edgeCodeCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="adminCodeOverlay">
   <div class="confirmcard" role="dialog" aria-label="Admin code">
     <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Admin code</h2></div>
@@ -2385,8 +2423,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.2.0';
-  const APP_BUILT = 'Sep 27, 2026';
+  const APP_VERSION = '4.3.0';
+  const APP_BUILT = 'Sep 30, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2422,9 +2460,21 @@
     }
     return 0.95;
   }
+  // 4.3.0: the sportsbook moneyline (margin removed) when ESPN posts one.
+  function mlFavProb(g){
+    let lg = null;
+    try{ lg = liveFor(g); }catch(e){ return null; }
+    if(!lg || !lg.ml || !lg.ml.home || !lg.ml.away) return null;
+    const ph = anImplied(lg.ml.home), pa = anImplied(lg.ml.away);
+    if(!ph || !pa) return null;
+    const abA = g.abbrA || ABBR[g.cityA];
+    const pA = lg.home === abA ? ph / (ph + pa) : pa / (ph + pa);
+    return g.fav === 'B' ? 1 - pA : pA;
+  }
   function pickWinProb(g){
     if(typeof g.spread !== 'number') return 0.5;
-    const p = favWinProb(g.spread);
+    const m = mlFavProb(g);
+    const p = m === null ? favWinProb(g.spread) : m;
     return g.pick === 'fav' ? p : (1 - p);
   }
 
@@ -2459,6 +2509,7 @@
     }
     put(picksKey(currentWeek), { frozen: weekFrozen, locked: weekLocked, games: games });
     put(resKey(currentWeek), results);
+    try{ edgeSync(); }catch(e){}
   }
 
   /* ---------- week lines: pulled live from ESPN ----------
@@ -2977,6 +3028,7 @@
 
   function render(){
     syncRankHead();
+    try{ edgeSync(); }catch(e){}
     // If the same games are already on screen in the same order, update them in
     // place — rebuilding would re-create every <img> and make the logos blink.
     const kids = Array.prototype.slice.call(listEl.children);
@@ -5452,7 +5504,7 @@
      players for the rest. Finished games use the real result, live games
      ESPN's live win chance, the rest the moneyline (or the spread). Display
      only: nothing is saved or sent. While rooting, it's their sheet. */
-  const POOL_SIZE = 25, SIM_RUNS = 2000;
+  const POOL_SIZE = 28, SIM_RUNS = 2000;
   function anLockTime(week){
     const v = getLocal(LOCKAT_KEY) || {};
     return typeof v['w' + week] === 'number' ? v['w' + week] : 0;
@@ -5567,13 +5619,15 @@
     if(!q || !q.active.length) return;
     /* 4.1.5: one shared calculation, every 15 s, feeds both the button and
        the open card, so they always show the same number. */
-    if(anLeft(q) > AN_MAX_LEFT){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); return; }
+    if(anEarly(q)){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); return; }
     try{ anMaybeFinal(q); }catch(e){}
     const S = anShared, key = q.V.id + ':' + currentWeek;
     if(S && S.key === key){ pill.textContent = 'Analysis (' + anPctText(S.M.chance) + ')'; pill.classList.add('pulse'); }
     else{ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); anSoon(); }
   }
   const AN_MAX_LEFT = 3;   // chances (and the simulation) start at 3 or fewer games left
+  // 4.3.0: with the Edge Engine on (this phone only), Analysis runs all week.
+  function anEarly(q){ return !edgeOn() && anLeft(q) > AN_MAX_LEFT; }
   function anLeft(q){ return q.active.filter(function(g){ return !anFinal(g); }).length; }
   const AN_EVERY = 15000;
   let anShared = null, anBusy = false;
@@ -5601,7 +5655,7 @@
     try{ q = anQuick(); }catch(e){ return; }
     if(!q.active.length) return;
     const open = anOverlay.classList.contains('show');
-    const early = anLeft(q) > AN_MAX_LEFT;
+    const early = anEarly(q);
     if(early){ if(open && anW){ try{ anFillEarly(q, anW); }catch(e){} } return; }
     let M = null;
     // 4.1.10: once every game is final, the answer can't change unless a sheet
@@ -5721,7 +5775,7 @@
     document.getElementById('anWhat').hidden = true; document.getElementById('anMethBtn').setAttribute('aria-expanded', 'false');
     setTimeout(function(){
       try{
-        if(anLeft(q) > AN_MAX_LEFT) anFillEarly(q, W);
+        if(anEarly(q)) anFillEarly(q, W);
         else if(anLeft(q) === 0){
           /* 4.2.0: every game is final. Reuse the saved answer only if it was
              worked out after the final (it carries the pool's signature);
@@ -5828,7 +5882,7 @@
         '<span class="sp">+' + x.p + '</span><span class="st">' + run + '<small>TOTAL</small></span></div>';
     }).join('') : '';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = 'The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 25-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
+    document.getElementById('anWhat').innerHTML = 'The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 28-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
       'Games in progress are weighted by ESPN\u2019s live win probability, and games yet to kick off by sportsbook moneylines with the bookmaker\u2019s margin removed (or the point spread where no line is posted). ' +
       'The likely winning total is the median winning score across all simulations, and the range shown covers the middle 80%. Precision tightens as games go final.';
   }
@@ -5859,7 +5913,7 @@
     ml.hidden = Math.abs(pc(best) - pc(q.you)) < 14;
     document.getElementById('anPath').innerHTML = '<div class="anleft">' + n + ' game' + (n === 1 ? '' : 's') + ' left \u00b7 worth ' + left + ' points</div>';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = 'Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
+    document.getElementById('anWhat').innerHTML = 'Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 28-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
   }
   document.getElementById('anPill').addEventListener('click', openAnalysis);
   function closeAnalysis(){ closeOverlay(anOverlay); }
@@ -7434,6 +7488,262 @@
      A code-gated switch in the Preview Menu. It only decides which buttons this
      phone shows. The database lets any app make these same writes, so this is
      for cleaning up the pool, not security. */
+
+  /* ---------- 4.3.0: Edge Engine (this phone only, code 1987) ----------
+     Builds the sheet with the best chance of finishing FIRST in the pool,
+     not the most expected points. Plays the week out 4,000 times against
+     every locked sheet in the app plus typical players up to POOL_SIZE
+     (same typical-player model as Analysis), starting from chalk (every
+     favorite, ranked by win chance), then keeps any single change (flip a
+     pick, or swap two games' points) that wins more often, until none
+     does. Game chances: moneyline, else spread. Display + this phone's
+     sheet only; nothing new is sent anywhere. */
+  const EDGE_KEY = 'pickem-edge';
+  const EDGE_CODE = '1987';
+  const EDGE_RUNS = 4000;
+  const edgeCodeOverlay = document.getElementById('edgeCodeOverlay');
+  let edgeApplied = null;   // { week, sig, snap: { frozen, games } } while "Edge Applied" shows
+  let edgeBusy = false;
+  const EDGE_BOLT = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7 .8 2.2 7h3.2l-.8 4.2L9.8 4.8H6.5z" fill="#03131f"/></svg>';
+  const EDGE_CHECK = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function edgeUnlocked(){ const v = getLocal('pickem-edge'); return !!(v && v.ok === true); }
+  function edgeOn(){ const v = getLocal('pickem-edge'); return !!(v && v.ok === true && v.on === true); }
+  function edgeSig(){
+    return currentWeek + '|' + games.map(function(g){ return g.id + (g.removed ? 'r' : '') + g.pick + g.spread; }).join(',');
+  }
+  function edgePillHtml(state, pct){
+    if(state === 'busy') return '<span class="edgefill"></span><span class="edgelbl"><span class="edgeico">' + EDGE_BOLT + '</span>Calculating<span class="edgepct">' + (pct || 0) + '%</span></span>';
+    if(state === 'done') return '<span class="edgefill"></span><span class="edgelbl"><span class="edgeico">' + EDGE_CHECK + '</span>Edge Applied</span>';
+    return '<span class="edgefill"></span><span class="edgelbl"><span class="edgeico">' + EDGE_BOLT + '</span>Edge Engine</span>';
+  }
+  // Keeps the pill honest: any change to the sheet or its lines ends "Edge Applied".
+  function edgeSync(){
+    const b = document.getElementById('edgeBtn');
+    if(!b) return;
+    const act = games.filter(function(g){ return !g.removed; });
+    const show = edgeOn() && !weekLocked && act.length >= 2 && !isPreviewWeek();
+    b.hidden = !show;
+    if(edgeBusy) return;
+    if(edgeApplied && (edgeApplied.week !== currentWeek || edgeApplied.sig !== edgeSig())) edgeApplied = null;
+    const want = edgeApplied ? 'done' : 'idle';
+    if(b.dataset.state !== want){ b.dataset.state = want; b.innerHTML = edgePillHtml(want); }
+  }
+  function isPreviewWeek(){ try{ return demoOn(); }catch(e){ return false; } }
+  function syncEdgeUI(){
+    const t = document.getElementById('edgeToggle');
+    if(t){ const on = edgeOn(); t.textContent = on ? 'On' : 'Off'; t.classList.toggle('on', on); }
+  }
+  function setEdge(on){
+    put(EDGE_KEY, { ok: true, on: !!on });
+    syncEdgeUI();
+    edgeSync();
+    try{ syncAnPill(); }catch(e){}
+    toast(on ? 'Edge Engine on' : 'Edge Engine off');
+  }
+  document.getElementById('edgeToggle').addEventListener('click', function(){
+    if(edgeUnlocked()){ setEdge(!edgeOn()); return; }
+    document.getElementById('edgeCodeInput').value = '';
+    document.getElementById('edgeCodeNote').textContent = '';
+    openOverlay(edgeCodeOverlay);
+  });
+  function tryEdgeCode(){
+    const v = String(document.getElementById('edgeCodeInput').value || '').trim();
+    if(v !== EDGE_CODE){ document.getElementById('edgeCodeNote').textContent = 'That\u2019s not it.'; return; }
+    closeOverlay(edgeCodeOverlay);
+    setEdge(true);
+  }
+  document.getElementById('edgeCodeGo').addEventListener('click', tryEdgeCode);
+  document.getElementById('edgeCodeInput').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); tryEdgeCode(); } });
+  document.getElementById('edgeCodeCancel').addEventListener('click', function(){ closeOverlay(edgeCodeOverlay); });
+  edgeCodeOverlay.addEventListener('click', function(e){ if(e.target === edgeCodeOverlay) closeOverlay(edgeCodeOverlay); });
+
+  // The math, split into steps so the progress bar keeps moving.
+  function edgePlan(){
+    const act = games.filter(function(g){ return !g.removed; });
+    const n = act.length, S = EDGE_RUNS, idx = {};
+    act.forEach(function(g, i){ idx[g.id] = i; });
+    const pFav = act.map(function(g){
+      const f = anFinal(g);
+      if(f === 'tie') return -1;
+      if(f) return f === favCityOf(g) ? 1 : 0;
+      if(typeof g.spread !== 'number') return 0.5;
+      const pA = anChanceA(g);
+      return g.fav === 'B' ? 1 - pA : pA;
+    });
+    const spr = act.map(function(g){ return typeof g.spread === 'number' ? Math.abs(g.spread) : 0; });
+    const r = anRng(19870000 + currentWeek * 7919);
+    const gauss = function(){ const u = r() || 1e-9, v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+    // outcome per run: 1 = favorite won, 2 = underdog won, 3 = tie (both sides score)
+    const res = new Int8Array(S * n);
+    for(let s = 0; s < S; s++) for(let i = 0; i < n; i++){
+      const p = pFav[i]; res[s * n + i] = p < 0 ? 3 : (r() < p ? 1 : 2);
+    }
+    // other entries: locked sheets we can see (not ours) + typical players
+    const me = player(), real = [];
+    poolRows().forEach(function(row){
+      if(row.locked === false || !Array.isArray(row.picks) || !row.picks.length || row.id === me.id) return;
+      const sh = anSheetOf(row), side = new Int8Array(n), pts = new Int16Array(n);
+      Object.keys(sh).forEach(function(id){ const i = idx[id]; if(i === undefined) return;
+        side[i] = sh[id].city === favCityOf(act[i]) ? 1 : 2; pts[i] = sh[id].pts; });
+      real.push({ side: side, pts: pts });
+    });
+    const synth = Math.max(0, POOL_SIZE - 1 - real.length);
+    const oMax = new Int16Array(S), oCnt = new Int16Array(S);
+    const tSide = new Int8Array(n), tPts = new Int16Array(n);
+    const add = function(s, side, pts){
+      let t = 0;
+      for(let i = 0; i < n; i++){ const w = res[s * n + i]; if(pts[i] && (w === 3 || w === side[i])) t += pts[i]; }
+      if(t > oMax[s]){ oMax[s] = t; oCnt[s] = 1; } else if(t === oMax[s]) oCnt[s] += 1;
+    };
+    for(let s = 0; s < S; s++){
+      oMax[s] = -1;
+      for(let p = 0; p < real.length; p++) add(s, real[p].side, real[p].pts);
+      for(let p = 0; p < synth; p++){
+        const keys = [];
+        for(let i = 0; i < n; i++){
+          const fav = r() < Math.min(0.97, 0.55 + 0.045 * spr[i]);
+          tSide[i] = fav ? 1 : 2; keys.push({ i: i, k: spr[i] * (fav ? 1 : -0.3) + gauss() * 2.2 });
+        }
+        keys.sort(function(a, b){ return a.k - b.k; }).forEach(function(x, j){ tPts[x.i] = j + 1; });
+        add(s, tSide, tPts);
+      }
+    }
+    // start from chalk: every favorite, most likely winner gets the most points
+    const order = act.map(function(g, i){ return i; }).sort(function(a, b){
+      const pa = pFav[a] < 0 ? 0.5 : pFav[a], pb = pFav[b] < 0 ? 0.5 : pFav[b];
+      return pa - pb || spr[a] - spr[b];
+    });
+    const pts = new Int16Array(n), fav = new Uint8Array(n).fill(1);
+    order.forEach(function(i, j){ pts[i] = j + 1; });
+    const hit = new Uint8Array(S * n), mine = new Int32Array(S);
+    const hitOf = function(s, i, f){ const w = res[s * n + i]; return (w === 3 || (f ? w === 1 : w === 2)) ? 1 : 0; };
+    for(let s = 0; s < S; s++){ let t = 0; for(let i = 0; i < n; i++){ const h1 = hitOf(s, i, fav[i]); hit[s * n + i] = h1; t += h1 * pts[i]; } mine[s] = t; }
+    const share = function(m, s){ return m > oMax[s] ? 1 : (m === oMax[s] ? 1 / (1 + oCnt[s]) : 0); };
+    let cur = 0; for(let s = 0; s < S; s++) cur += share(mine[s], s);
+    const MIN_GAIN = S * 0.0008;
+    // one pass: try every flip and every swap, keep the single best
+    function step(){
+      let best = cur + MIN_GAIN, move = null;
+      for(let i = 0; i < n; i++){
+        let v = 0;
+        for(let s = 0; s < S; s++){ const h0 = hit[s * n + i], h1 = hitOf(s, i, fav[i] ? 0 : 1); v += share(mine[s] + (h1 - h0) * pts[i], s); }
+        if(v > best){ best = v; move = { t: 'f', i: i }; }
+      }
+      for(let i = 0; i < n; i++) for(let j = i + 1; j < n; j++){
+        const d = pts[j] - pts[i]; if(!d) continue;
+        let v = 0;
+        for(let s = 0; s < S; s++) v += share(mine[s] + d * (hit[s * n + i] - hit[s * n + j]), s);
+        if(v > best){ best = v; move = { t: 's', i: i, j: j }; }
+      }
+      if(!move) return false;
+      if(move.t === 'f'){
+        const i = move.i; fav[i] = fav[i] ? 0 : 1;
+        for(let s = 0; s < S; s++){ const h1 = hitOf(s, i, fav[i]); mine[s] += (h1 - hit[s * n + i]) * pts[i]; hit[s * n + i] = h1; }
+      }else{
+        const i = move.i, j = move.j, d = pts[j] - pts[i];
+        for(let s = 0; s < S; s++) mine[s] += d * (hit[s * n + i] - hit[s * n + j]);
+        const t = pts[i]; pts[i] = pts[j]; pts[j] = t;
+      }
+      cur = best;
+      return true;
+    }
+    return { act: act, pts: pts, fav: fav, step: step, chance: function(){ return cur / S; } };
+  }
+  function edgeRects(){ const m = {}; Array.prototype.forEach.call(listEl.children, function(li){ m[li.dataset.id] = li.getBoundingClientRect().top; }); return m; }
+  function edgeSlide(first, changedIds){
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    Array.prototype.forEach.call(listEl.children, function(li){
+      const top = first[li.dataset.id];
+      if(!reduce && typeof top === 'number'){ const dy = top - li.getBoundingClientRect().top; if(dy){ li.style.transition = 'none'; li.style.transform = 'translateY(' + dy + 'px)'; } }
+    });
+    void listEl.offsetHeight;
+    Array.prototype.forEach.call(listEl.children, function(li){
+      if(li.style.transform){ li.style.transition = 'transform .6s cubic-bezier(.2,.8,.2,1)'; li.style.transform = ''; }
+    });
+    setTimeout(function(){
+      Array.prototype.forEach.call(listEl.children, function(li){
+        li.style.transition = ''; li.style.transform = '';
+        if(changedIds && changedIds[li.dataset.id]) li.classList.add('edged');
+      });
+      setTimeout(function(){
+        Array.prototype.forEach.call(listEl.children, function(li){
+          if(li.classList.contains('edged')){ li.classList.add('edgefade'); li.classList.remove('edged'); setTimeout(function(){ li.classList.remove('edgefade'); }, 1300); }
+        });
+      }, 3000);
+    }, reduce ? 0 : 620);
+  }
+  function edgeRun(){
+    const b = document.getElementById('edgeBtn');
+    if(edgeBusy || weekLocked) return;
+    if(edgeApplied){ edgeUndo(); return; }
+    edgeBusy = true;
+    const week = currentWeek;
+    b.dataset.state = 'busy'; b.innerHTML = edgePillHtml('busy', 0);
+    const fill = b.querySelector('.edgefill'), pctEl = b.querySelector('.edgepct');
+    const t0 = Date.now(), MIN_MS = 1600;
+    let plan = null, done = false, steps = 0, failed = false;
+    const paint = function(){
+      if(!edgeBusy) return;
+      let f = Math.min(1, (Date.now() - t0) / MIN_MS); f = 1 - Math.pow(1 - f, 1.6);
+      let shown = Math.min(done ? 1 : 0.95, f);
+      if(done && (Date.now() - t0) >= MIN_MS) shown = 1;
+      fill.style.width = (shown * 100) + '%'; pctEl.textContent = Math.round(shown * 100) + '%';
+      if(shown >= 1){ setTimeout(finish, 120); return; }
+      requestAnimationFrame(paint);
+    };
+    requestAnimationFrame(paint);
+    const work = function(){
+      try{
+        if(!plan) plan = edgePlan();
+        else if(steps < 40 && plan.step()) steps++;
+        else { done = true; return; }
+      }catch(e){ failed = true; done = true; return; }
+      setTimeout(work, 0);
+    };
+    setTimeout(work, 30);
+    function finish(){
+      edgeBusy = false;
+      if(failed || !plan || currentWeek !== week || weekLocked){ b.dataset.state = ''; edgeSync(); if(failed) toast('Edge Engine couldn\u2019t finish'); return; }
+      const snap = { frozen: weekFrozen, games: JSON.parse(JSON.stringify(games)) };
+      const beforeIdx = {}; games.filter(function(g){ return !g.removed; }).forEach(function(g, i){ beforeIdx[g.id] = i + ':' + g.pick; });
+      const first = edgeRects();
+      // new order for the active games, dropped into the slots they already use
+      const ranked = plan.act.map(function(g, i){ return { g: g, p: plan.pts[i], fav: plan.fav[i] }; })
+        .sort(function(a, b){ return a.p - b.p; });
+      ranked.forEach(function(x){ x.g.pick = x.fav ? 'fav' : 'dog'; });
+      let k = 0;
+      games = games.map(function(g){ return g.removed ? g : ranked[k++].g; });
+      weekFrozen = true;
+      const changed = {};
+      games.filter(function(g){ return !g.removed; }).forEach(function(g, i){ if(beforeIdx[g.id] !== i + ':' + g.pick) changed[g.id] = true; });
+      b.classList.add('flash');
+      Array.prototype.forEach.call(listEl.children, function(li){ li.classList.add('edgeflash'); });
+      setTimeout(function(){
+        Array.prototype.forEach.call(listEl.children, function(li){ li.classList.remove('edgeflash'); });
+        saveAll();
+        stampLine(currentWeek);
+        render();
+        edgeApplied = { week: currentWeek, sig: edgeSig(), snap: snap };
+        edgeSlide(first, changed);
+        setTimeout(function(){ b.classList.remove('flash'); b.dataset.state = ''; edgeSync(); }, 620);
+      }, 450);
+    }
+  }
+  function edgeUndo(){
+    const a = edgeApplied;
+    edgeApplied = null;
+    if(!a || a.week !== currentWeek || weekLocked){ edgeSync(); return; }
+    const first = edgeRects();
+    games = a.snap.games;
+    weekFrozen = a.snap.frozen;
+    saveAll();
+    stampLine(currentWeek);
+    render();
+    edgeSlide(first, null);
+    edgeSync();
+  }
+  document.getElementById('edgeBtn').addEventListener('click', edgeRun);
+  edgeSync();
   const ADMIN_KEY = 'pickem-admin';
   const ADMIN_CODE = '1777';
   const adminCodeOverlay = document.getElementById('adminCodeOverlay');
@@ -8265,6 +8575,7 @@
     fromSettings(function(){
       syncDemoUI();
       syncAdminUI();
+      try{ syncEdgeUI(); }catch(e){}
       syncSimsUI();
       openOverlay(document.getElementById('devOverlay'));
     });
