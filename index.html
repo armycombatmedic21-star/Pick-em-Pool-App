@@ -1038,21 +1038,43 @@
     box-shadow: 0 0 18px rgba(255,255,255,0.07);
   }
   .gcard.pregame{ opacity:0.85; }
+  /* 4.4.0: pin button on the top-left edge of Live now / Up next cards */
+  .gcard[data-grp]:not(.isfinal){ margin-top:12px; }
+  .pinbtn{ position:absolute; top:-11px; left:10px; z-index:3; width:23px; height:23px; border-radius:50%; padding:0;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    background:#0c1628; border:1.5px solid rgba(53,208,255,0.75); transition: background .2s ease, box-shadow .2s ease; }
+  .pinbtn[hidden]{ display:none; }
+  .pinbtn::before{ content:''; position:absolute; top:-10px; bottom:-10px; left:-8px; right:-8px; }
+  .pinbtn svg{ width:14px; height:14px; transform:rotate(-45deg); display:block; }
+  .pinbtn svg path{ fill:none; stroke: var(--cyan); stroke-width:1.1; stroke-linejoin:round; transition: fill .2s ease, stroke .2s ease; }
+  .pinbtn.on{ background: var(--cyan); border-color: var(--cyan); box-shadow:0 0 10px rgba(53,208,255,0.55); }
+  .pinbtn.on svg path{ fill:#03131f; stroke:#03131f; }
+  .gcard.pinned{ box-shadow: inset 0 0 0 1px rgba(53,208,255,0.45); }
+  .gcard.islive.pinned{ border-color: rgba(53,208,255,0.55); box-shadow: inset 0 0 0 1px rgba(53,208,255,0.45), 0 0 18px rgba(53,208,255,0.08); }
+  .gcard.pinmove{ z-index:5; box-shadow: 0 0 0 1.5px rgba(53,208,255,0.8), 0 0 26px rgba(53,208,255,0.45) !important; }
+  @keyframes pinpulse{ 0%{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.8), 0 0 26px rgba(53,208,255,0.45); }
+    45%{ box-shadow:0 0 0 2px rgba(53,208,255,1), 0 0 38px rgba(53,208,255,0.7); }
+    100%{ box-shadow: inset 0 0 0 1px rgba(53,208,255,0.45); } }
+  .gcard.pinpulse{ animation: pinpulse .7s ease-out; }
+  @media (prefers-reduced-motion: reduce){ .gcard.pinpulse{ animation:none; } }
   /* 3.8.0: "Your Underdog" tab on the top edge of a live card */
   .gcard.hasdog{ margin-top:8px; }
+  /* 4.4.0: silver (underdogs are silver across the app), soft glow, text
+     nudged 1px down so the capitals sit optically centered. Sits right of the pin. */
   .dogtab{
-    position:absolute; top:-9px; left:12px; z-index:2;
-    display:inline-flex; align-items:center; gap:5px; height:18px; padding:0 8px;
-    border-radius:9px; border:1px solid rgba(244,196,61,0.6); background:#0c1628;
-    color: var(--gold); font-size:9px; font-weight:800; letter-spacing:0.9px; line-height:1;
-    white-space:nowrap; cursor:pointer;
+    position:absolute; top:-9px; left:39px; z-index:2;
+    display:inline-flex; align-items:center; gap:5px; height:19px; padding:1px 9px 0;
+    border-radius:10px; border:1px solid rgba(230,236,243,0.9); background:#0c1628;
+    color:#e6ecf3; font-size:9px; font-weight:800; letter-spacing:0.9px; line-height:1;
+    white-space:nowrap; cursor:pointer; box-shadow:0 0 10px rgba(214,224,236,0.35);
   }
+  .gcard.isfinal .dogtab{ left:12px; }
   .dogtab[hidden]{ display:none; }
   .dogtab::before{ content:''; position:absolute; top:-10px; bottom:-10px; left:-6px; right:-6px; }
   .dogtab svg{ width:7px; height:7px; flex:none; }
   .dogsheettag{
-    display:inline-flex; align-items:center; height:20px; padding:0 9px; border-radius:10px;
-    border:1px solid rgba(244,196,61,0.6); color: var(--gold);
+    display:inline-flex; align-items:center; height:20px; padding:1px 9px 0; border-radius:10px;
+    border:1px solid rgba(230,236,243,0.9); color:#e6ecf3; box-shadow:0 0 10px rgba(214,224,236,0.3);
     font-size:9.5px; font-weight:800; letter-spacing:0.9px;
   }
   .doghead{ display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 8px; margin:10px 0 4px; }
@@ -1435,6 +1457,15 @@
   .weekhead .livetipbtn{ position:absolute; right:0; top:50%; margin-top:-17px; }
   .lvstage .lbcard{ position:absolute; left:10px; right:10px; top:14px; }
   .lvstage .lblist{ max-height:none; overflow:visible; }
+  /* 4.4.0: the demo pill is a span, so center its text like the real button */
+  .lvstage .lbmode{ display:inline-flex; align-items:center; justify-content:center; }
+  /* 4.4.0: Pin a game card */
+  .pnstage .pncol{ position:absolute; left:10px; right:10px; top:15px; }
+  .pnstage .gcard{ position:absolute; left:0; right:0; height:70px; margin:0; overflow:visible; transition: top .7s cubic-bezier(.22,.8,.25,1); }
+  .pnstage .tipptr{ transition: left .8s cubic-bezier(.3,.7,.3,1), top .8s cubic-bezier(.3,.7,.3,1), opacity .3s ease, transform .12s ease; }
+  .pnstage .tipptr.on{ opacity:1; }
+  .pnstage .tipptr.press{ transform:scale(0.82); }
+  .pnstage .tipring.go{ animation: lvring 0.6s ease-out; }
   .lbcard:not(.adv) .lbwin{ display:none; }
   .lvstage .tipptr{ left:44px; top:36px; transition: left 0.9s cubic-bezier(0.4,0,0.2,1), top 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, transform 0.12s ease; }
   .lvstage .tipptr.away{ left:78%; top:88%; }
@@ -2052,6 +2083,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.4.0</b> Pin a game: tap the pin on any Live now or Up next card to keep it at the top of that section, and tap it again to put it back (pins are just on your phone and reset each week). Your Underdog now shows before kickoff too, in silver; how many others took them still waits until the game starts. Live Quick Tips has a new Pin card and just a Got it button. Analysis plays out a 25-entry pool again.</div>
       <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks. Games with the same spread are now ordered by the moneyline, so the stronger favorite gets more points.</div>
       <div class="cl"><b>4.3.0</b> The FAV and DOG win chances on the Picks tab now come from sportsbook moneylines (the spread is the backup when no moneyline is posted). Analysis now plays out a 28-entry pool to match the real pool. Quote marks in What's new display properly.</div>
       <div class="cl"><b>4.2.0</b> The leaderboard shows up the moment you open the app (or pick a week), then players slide into their new places as fresh scores come in. When someone takes over first place, their row glows gold twice. The end-of-week Analysis always uses the final scores.</div>
@@ -2327,9 +2359,10 @@
   <div class="sheet" role="dialog" aria-label="Quick Tips">
     <div class="tipshead">
       <div class="tipstitle"><span class="kicker">CONFIDENCE POOL</span><h2>Quick Tips</h2></div>
-      <span class="tipcount">1 of 1</span>
+      <span class="tipcount" id="liveTipCount">1 of 2</span>
     </div>
-    <div class="tipcard">
+    <div id="liveTipCards">
+    <div class="tipcard" data-ltip="basic">
       <div class="tipstage lvstage" aria-hidden="true">
         <div class="lbcard" id="lvDemo">
           <div class="lbtop"><span class="lbmode" id="lvPill">Basic</span><span class="lbcount">5 players · 3 online</span></div>
@@ -2340,9 +2373,19 @@
       </div>
       <div class="tiptext"><h3>Basic or Advanced</h3><p>Tap the small <b>Basic</b> button on the leaderboard to switch to <b>Advanced</b>. It adds each player’s chance to win the week. Tap it again for Basic.</p></div>
     </div>
-    <div class="tipdots"><span class="tipdot on"></span></div>
-    <div class="tipnav"><button class="confirmyes" id="liveTipsOk">Got it</button></div>
-    <button class="closebtn" id="liveTipsClose">Close</button>
+    <div class="tipcard" data-ltip="pin" hidden>
+      <div class="tipstage pnstage" aria-hidden="true">
+        <div class="pncol" id="pnCol"></div>
+        <span class="tipring" id="pnRing"></span><span class="tipptr" id="pnPtr"></span>
+      </div>
+      <div class="tiptext"><h3>Pin a game</h3><p>Tap the <b>pin</b> on any game to keep it at the top of <b>Live now</b> or <b>Up next</b>. Tap it again to put it back. Pins are just for you.</p></div>
+    </div>
+    </div>
+    <div class="tipdots" id="liveTipDots"></div>
+    <div class="tipnav">
+      <button class="tipback" id="liveTipBack" hidden>Back</button>
+      <button class="confirmyes" id="liveTipsOk">Got it</button>
+    </div>
   </div>
 </div>
 
@@ -2447,8 +2490,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.3.1';
-  const APP_BUILT = 'Sep 30, 2026';
+  const APP_VERSION = '4.4.0';
+  const APP_BUILT = 'Oct 1, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -4399,8 +4442,10 @@
     const liveCls = (lg && lg.state === 'in') ? ' islive' : '';
     const grp = cardGroup(lg, r);
     const dog = isLiveDog(g, lg);
-    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + '" data-id="' + g.id +
-        '" style="order:' + cardOrder(grp, pts) + '">' +
+    const pinOn = grp !== 'final' && pinIndex(g.id) >= 0;
+    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + (pinOn ? ' pinned' : '') + '" data-id="' + g.id +
+        '" data-grp="' + grp + '" data-pts="' + pts + '" style="order:' + cardOrder(grp, pts, g.id) + '">' +
+      pinBtnHtml(g.id, grp) +
       '<button type="button" class="dogtab" data-role="dog" aria-label="Underdog: see who else took them"' + (dog ? '' : ' hidden') + '>' + dogLabel() + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 5 3.5 8 6.5"/></svg>' + '</button>' +
       '<div class="gmain">' +
         '<span class="gpts' + (r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '')) + '">' +
@@ -4432,7 +4477,11 @@
     const r = rootRow();
     return r ? esc(String(r.name).toUpperCase()) + '\u2019S UNDERDOG' : 'YOUR UNDERDOG';
   }
+  // 4.4.0: shows before kickoff too (Up next); still gone once the game is final.
   function isLiveDog(g, lg){
+    return !!(g && g.pick === 'dog' && typeof g.spread === 'number' && g.spread > 0 && lg && lg.state === 'pre') || isLiveDogIn(g, lg);
+  }
+  function isLiveDogIn(g, lg){
     return !!(g && g.pick === 'dog' && typeof g.spread === 'number' && g.spread > 0 &&
               lg && lg.state === 'in');
   }
@@ -4476,10 +4525,68 @@
   function groupCls(grp){
     return grp === 'final' ? ' isfinal' : (grp === 'next' ? ' pregame' : '');
   }
-  function cardOrder(grp, pts){
+  function cardOrder(grp, pts, id){
     // Fewest points first in every group (3.8.0 tried most-first in Live now;
-    // Wes put it back in 3.8.1).
-    return (grp === 'live' ? 0 : grp === 'next' ? 1000 : 2000) + pts;
+    // Wes put it back in 3.8.1). 4.4.0: pinned games sit above the rest of
+    // Live now / Up next, in the order they were pinned (never in Final).
+    // Section headers sit 50 above their cards (-50 / 950 / 1950), leaving room
+    // for pinned games right under the header; everything else is unchanged.
+    const base = grp === 'live' ? 0 : grp === 'next' ? 1000 : 2000;
+    if(grp !== 'final' && id){ const k = pinIndex(id); if(k >= 0) return base - 49 + k; }
+    return base + pts;
+  }
+  /* ---------- 4.4.0: pins ----------
+     This phone only, one list per week (so they reset each week), stored as
+     game ids in the order they were pinned. */
+  const PIN_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z"/></svg>';
+  function pinKey(){ return 'pickem-pins-w' + currentWeek; }
+  function pinList(){ let v = null; try{ v = getLocal(pinKey()); }catch(e){ v = null; } return Array.isArray(v) ? v : []; }
+  function pinIndex(id){ return pinList().indexOf(id); }
+  function pinBtnHtml(id, grp){
+    const on = grp !== 'final' && pinIndex(id) >= 0;
+    return '<button type="button" class="pinbtn' + (on ? ' on' : '') + '" data-role="pin" aria-label="' + (on ? 'Unpin' : 'Pin to top') + '" aria-pressed="' + on + '"' + (grp === 'final' ? ' hidden' : '') + '>' + PIN_SVG + '</button>';
+  }
+  function syncPinState(card, grp){
+    const on = grp !== 'final' && pinIndex(card.dataset.id) >= 0;
+    card.classList.toggle('pinned', on);
+    const b = card.querySelector('[data-role="pin"]');
+    if(b){
+      if(b.hidden !== (grp === 'final')) b.hidden = grp === 'final';
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.setAttribute('aria-label', on ? 'Unpin' : 'Pin to top');
+    }
+  }
+  function togglePin(card){
+    const id = card.dataset.id;
+    const list = pinList(), k = list.indexOf(id), pinning = k < 0;
+    if(pinning) list.push(id); else list.splice(k, 1);
+    put(pinKey(), list);
+    const cards = Array.prototype.slice.call(resultsList.querySelectorAll('.gcard'));
+    const first = new Map();
+    cards.forEach(function(c){ first.set(c, c.getBoundingClientRect().top); });
+    cards.forEach(function(c){
+      const grp = c.dataset.grp || 'next', pts = parseInt(c.dataset.pts, 10) || 0;
+      const ord = String(cardOrder(grp, pts, c.dataset.id));
+      if(c.style.order !== ord) c.style.order = ord;
+      syncPinState(c, grp);
+    });
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce) return;
+    cards.forEach(function(c){
+      const dy = first.get(c) - c.getBoundingClientRect().top;
+      if(dy){ c.style.transition = 'none'; c.style.transform = 'translateY(' + dy + 'px)'; }
+    });
+    void resultsList.offsetHeight;
+    if(pinning) card.classList.add('pinmove');
+    cards.forEach(function(c){ if(c.style.transform){ c.style.transition = 'transform .7s cubic-bezier(.22,.8,.25,1)'; c.style.transform = ''; } });
+    setTimeout(function(){
+      cards.forEach(function(c){ c.style.transition = ''; });
+      if(pinning){
+        card.classList.remove('pinmove', 'pinpulse'); void card.offsetWidth; card.classList.add('pinpulse');
+        setTimeout(function(){ card.classList.remove('pinpulse'); }, 750);
+      }
+    }, 720);
   }
   // "Q2 - 6:31" -> ["Q2", "6:31"]; "Halftime" stays whole.
   function splitClock(txt){
@@ -4515,14 +4622,14 @@
   function resLabel(r){ return r === 'win' ? '\u2713 WON' : (r === 'tie' ? 'TIE' : '\u2715 LOST'); }
 
   function groupHeads(){
-    return '<div class="ggroup" data-group="live" style="order:0" hidden>' +
+    return '<div class="ggroup" data-group="live" style="order:-50" hidden>' +
         '<div class="gghead"><i class="gdot"></i><b>Live now</b><span data-role="count"></span></div>' +
         '<div class="gsweep"><i></i></div>' +
       '</div>' +
-      '<div class="ggroup" data-group="next" style="order:1000" hidden>' +
+      '<div class="ggroup" data-group="next" style="order:950" hidden>' +
         '<div class="gghead"><b>Up next</b><span data-role="count"></span></div>' +
       '</div>' +
-      '<div class="ggroup" data-group="final" style="order:2000" hidden>' +
+      '<div class="ggroup" data-group="final" style="order:1950" hidden>' +
         '<div class="gghead"><b>Final</b><span data-role="count"></span></div>' +
       '</div>';
   }
@@ -4732,8 +4839,11 @@
     const grp = cardGroup(lg, r);
     card.classList.toggle('isfinal', grp === 'final');
     card.classList.toggle('pregame', grp === 'next');
-    const ord = String(cardOrder(grp, pts));
+    card.dataset.grp = grp;
+    card.dataset.pts = String(pts);
+    const ord = String(cardOrder(grp, pts, g.id));
     if(card.style.order !== ord) card.style.order = ord;
+    syncPinState(card, grp);
     const fin = card.querySelector('[data-role="final"]');
     if(fin){
       const want = grp === 'final' ? finalLine(g, pts, r, lg) : '';
@@ -5567,7 +5677,7 @@
      players for the rest. Finished games use the real result, live games
      ESPN's live win chance, the rest the moneyline (or the spread). Display
      only: nothing is saved or sent. While rooting, it's their sheet. */
-  const POOL_SIZE = 28, SIM_RUNS = 2000;
+  const POOL_SIZE = 25, SIM_RUNS = 2000;
   function anLockTime(week){
     const v = getLocal(LOCKAT_KEY) || {};
     return typeof v['w' + week] === 'number' ? v['w' + week] : 0;
@@ -5945,7 +6055,7 @@
         '<span class="sp">+' + x.p + '</span><span class="st">' + run + '<small>TOTAL</small></span></div>';
     }).join('') : '';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = 'The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 28-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
+    document.getElementById('anWhat').innerHTML = 'The Current Outlook is a Monte Carlo projection. Each time it opens, the rest of the week is simulated 2,000 times across a 25-entry field: every locked sheet in the app, with the remaining entries modeled on typical pick and confidence behavior. ' +
       'Games in progress are weighted by ESPN\u2019s live win probability, and games yet to kick off by sportsbook moneylines with the bookmaker\u2019s margin removed (or the point spread where no line is posted). ' +
       'The likely winning total is the median winning score across all simulations, and the range shown covers the middle 80%. Precision tightens as games go final.';
   }
@@ -5976,7 +6086,7 @@
     ml.hidden = Math.abs(pc(best) - pc(q.you)) < 14;
     document.getElementById('anPath').innerHTML = '<div class="anleft">' + n + ' game' + (n === 1 ? '' : 's') + ' left \u00b7 worth ' + left + ' points</div>';
     anSet('anAsOf', '\u00b7 as of ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    document.getElementById('anWhat').innerHTML = 'Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 28-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
+    document.getElementById('anWhat').innerHTML = 'Once ' + AN_MAX_LEFT + ' or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.';
   }
   document.getElementById('anPill').addEventListener('click', openAnalysis);
   function closeAnalysis(){ closeOverlay(anOverlay); }
@@ -6151,15 +6261,29 @@
     const opp = city === g.cityA ? abB : abA;
     document.getElementById('dogTeam').textContent = city;
     document.getElementById('dogLine').textContent = '+' + g.spread + (opp ? ' vs ' + opp : '');
-    const c = dogCrowd(g, pts, rootR ? rootR.id : '');
-    let crowd = dogCrowdText(c, city);
-    if(rootR) crowd = crowd.replace(/ than you/g, ' than ' + rootR.name);
+    // 4.4.0: before kickoff the count stays hidden, so it never hints at picks early.
+    const lgNow = liveFor(g);
+    let crowd;
+    if(!(lgNow && lgNow.state === 'in')){
+      crowd = 'Once the game starts, you\u2019ll see how many others took them too.';
+    }else{
+      const c = dogCrowd(g, pts, rootR ? rootR.id : '');
+      crowd = dogCrowdText(c, city);
+      if(rootR) crowd = crowd.replace(/ than you/g, ' than ' + rootR.name);
+    }
     document.querySelector('#dogOverlay .dogsheettag').innerHTML = dogLabel();
     document.getElementById('dogText').innerHTML = (rootR ? esc(rootR.name) + ' has <b>' : 'You have <b>') +
       pts + ' point' + (pts === 1 ? '' : 's') + '</b> on them. ' + esc(crowd);
     openOverlay(dogOverlay);
   }
   resultsList.addEventListener('click', function(e){
+    const pin = e.target && e.target.closest ? e.target.closest('[data-role="pin"]') : null;
+    if(pin){
+      e.stopPropagation();
+      const pc = pin.closest('.gcard');
+      if(pc) togglePin(pc);
+      return;
+    }
     const tab = e.target && e.target.closest ? e.target.closest('.dogtab') : null;
     if(!tab) return;
     e.stopPropagation();
@@ -8570,8 +8694,13 @@
      Advanced, drawn with the real leaderboard classes. The pointer taps the
      pill, Advanced adds the WIN column, then it taps back to Basic. The loop
      only runs while the sheet is open. Reduced motion: holds on Advanced. */
+  /* 4.4.0: a second card, "Pin a game". Players who already saw the Live tips
+     (version 1) get a one-time slide-up with just the Pin card; brand-new
+     players get the whole deck. The Quick Tips pill always opens the whole
+     deck. Only a Got it button (Next on earlier cards); tap outside to close. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 1;
+  const LIVETIPS_VERSION = 2;
+  let ltDeck = ['basic', 'pin'], ltIndex = 0, pnTimers = [];
   const liveTipsOverlay = document.getElementById('liveTipsOverlay');
   let lvTimers = [];
   function liveTipsSeen(){
@@ -8591,7 +8720,7 @@
   }
   function lvLater(fn, ms){ lvTimers.push(setTimeout(fn, ms)); }
   function lvLoop(){
-    if(!liveTipsOverlay.classList.contains('show')) return;
+    if(!liveTipsOverlay.classList.contains('show') || ltDeck[ltIndex] !== 'basic') return;
     const p = document.getElementById('lvPtr'), r = document.getElementById('lvRing');
     const tap = function(adv){
       p.classList.add('press');
@@ -8605,24 +8734,133 @@
     lvLater(function(){ p.classList.remove('on'); }, 4700);
     lvLater(lvLoop, 5400);
   }
-  function openLiveTips(){
-    put(LIVETIPS_KEY, { seen: LIVETIPS_VERSION, t: Date.now() });
-    lvStop();
-    openOverlay(liveTipsOverlay);
-    if(lbMotionOK()) lvLater(lvLoop, 500); else lvSet(true);
+  /* Pin a game demo: three live cards drawn with the real card classes. The
+     pointer taps the bottom card's pin, it glows and slides to the top and
+     pulses, then gets tapped again and slides back. Reduced motion: holds pinned. */
+  const PN_CARDS = [
+    { pts: 1, a: ['Houston', '2.5', 7, true], b: ['Indianapolis', '', 3, false], q: 'Q1', c: '8:14' },
+    { pts: 2, a: ['Carolina', '2.5', 21, true], b: ['Cleveland', '', 20, false], q: 'Q4', c: '8:14' },
+    { pts: 3, a: ['Tennessee', '', 14, true], b: ['NY Giants', '3', 10, false], q: 'Q3', c: '8:14', dog: true }
+  ];
+  const PN_H = 70, PN_GAP = 13;
+  let pnOrder = [0, 1, 2];
+  function pnRow(t, home){
+    return '<div class="trow' + (t[3] ? ' mine' : '') + '"><span class="tlogo"></span>' +
+      '<span class="tname">' + (home ? '<i>@</i>' : '') + t[0] + (t[1] ? '<b class="tspread">\u2212' + t[1] + '</b>' : '') + '</span>' +
+      '<span class="tscore">' + t[2] + '</span><span class="tposs"></span></div>';
   }
-  function closeLiveTips(){ closeOverlay(liveTipsOverlay); lvStop(); }
+  function pnBuild(){
+    const col = document.getElementById('pnCol');
+    if(col.children.length) return;
+    col.innerHTML = PN_CARDS.map(function(d){
+      return '<div class="gcard islive' + (d.dog ? ' hasdog' : '') + '">' +
+        '<span class="pinbtn">' + PIN_SVG + '</span>' +
+        (d.dog ? '<span class="dogtab">YOUR UNDERDOG</span>' : '') +
+        '<div class="gmain"><span class="gpts">' + d.pts + '<em>pts</em></span>' +
+        '<div class="gteams">' + pnRow(d.a, false) + pnRow(d.b, true) + '</div>' +
+        '<div class="gstatus live"><span class="s1">' + d.q + '</span><span class="s2">' + d.c + '</span></div></div></div>';
+    }).join('');
+  }
+  function pnPlace(){
+    const cards = document.getElementById('pnCol').children;
+    pnOrder.forEach(function(ci, i){ cards[ci].style.top = (i * (PN_H + PN_GAP)) + 'px'; });
+  }
+  function pnSet(on){
+    const cards = document.getElementById('pnCol').children, c = cards[2];
+    if(!c) return;
+    c.querySelector('.pinbtn').classList.toggle('on', on);
+    if(on){
+      c.classList.add('pinmove', 'pinned'); pnOrder = [2, 0, 1]; pnPlace();
+      pnLater(function(){ c.classList.remove('pinmove'); c.classList.add('pinpulse'); pnLater(function(){ c.classList.remove('pinpulse'); }, 750); }, 720);
+    }else{
+      c.classList.remove('pinned', 'pinpulse', 'pinmove'); pnOrder = [0, 1, 2]; pnPlace();
+    }
+  }
+  function pnLater(fn, ms){ pnTimers.push(setTimeout(fn, ms)); }
+  function pnStop(){
+    pnTimers.forEach(clearTimeout); pnTimers = [];
+    const p = document.getElementById('pnPtr');
+    if(p) p.classList.remove('on', 'press');
+    const cards = document.getElementById('pnCol').children;
+    if(cards[2]){ cards[2].classList.remove('pinned', 'pinpulse', 'pinmove'); cards[2].querySelector('.pinbtn').classList.remove('on'); }
+    pnOrder = [0, 1, 2]; if(cards.length) pnPlace();
+  }
+  function pnLoop(){
+    if(!liveTipsOverlay.classList.contains('show') || ltDeck[ltIndex] !== 'pin') return;
+    const stage = document.querySelector('.pnstage'), p = document.getElementById('pnPtr'), r = document.getElementById('pnRing');
+    const at = function(){
+      const b = document.getElementById('pnCol').children[2].querySelector('.pinbtn').getBoundingClientRect(), s = stage.getBoundingClientRect();
+      return [b.left - s.left + b.width / 2, b.top - s.top + b.height / 2];
+    };
+    const go = function(xy){ p.style.left = xy[0] + 'px'; p.style.top = xy[1] + 'px'; r.style.left = xy[0] + 'px'; r.style.top = xy[1] + 'px'; };
+    const tap = function(on){
+      p.classList.add('press'); r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
+      pnLater(function(){ p.classList.remove('press'); pnSet(on); }, 140);
+    };
+    p.style.transition = 'none'; go([stage.clientWidth - 30, stage.clientHeight - 20]); void p.offsetWidth; p.style.transition = '';
+    p.classList.add('on');
+    pnLater(function(){ go(at()); }, 400);
+    pnLater(function(){ tap(true); }, 1400);
+    pnLater(function(){ go(at()); }, 2900);
+    pnLater(function(){ tap(false); }, 4300);
+    pnLater(function(){ p.classList.remove('on'); }, 5600);
+    pnLater(pnLoop, 6600);
+  }
+  function ltShow(i){
+    ltIndex = Math.max(0, Math.min(ltDeck.length - 1, i));
+    const want = ltDeck[ltIndex];
+    lvStop(); pnStop();
+    Array.prototype.forEach.call(document.querySelectorAll('#liveTipCards .tipcard'), function(c){ c.hidden = c.dataset.ltip !== want; });
+    document.getElementById('liveTipCount').textContent = (ltIndex + 1) + ' of ' + ltDeck.length;
+    const dots = document.getElementById('liveTipDots');
+    dots.innerHTML = ltDeck.length > 1 ? ltDeck.map(function(k, j){ return '<span class="tipdot' + (j === ltIndex ? ' on' : '') + '" data-i="' + j + '"></span>'; }).join('') : '<span class="tipdot on"></span>';
+    document.getElementById('liveTipBack').hidden = ltIndex === 0;
+    document.getElementById('liveTipsOk').textContent = ltIndex === ltDeck.length - 1 ? 'Got it' : 'Next';
+    if(want === 'pin'){
+      pnBuild(); pnPlace();
+      if(lbMotionOK()) pnLater(pnLoop, 500); else pnSet(true);
+    }else{
+      if(lbMotionOK()) lvLater(lvLoop, 500); else lvSet(true);
+    }
+  }
+  function openLiveTips(deck){
+    put(LIVETIPS_KEY, { seen: LIVETIPS_VERSION, t: Date.now() });
+    ltDeck = Array.isArray(deck) && deck.length ? deck : ['basic', 'pin'];
+    openOverlay(liveTipsOverlay);
+    ltShow(0);
+  }
+  function closeLiveTips(){ closeOverlay(liveTipsOverlay); lvStop(); pnStop(); }
   function maybeLiveTips(){
     if(!hasLocal || liveTipsSeen()) return;
     setTimeout(function(){
       if(liveTipsSeen() || !isTab('live') || !player().name || overlayStack.length || document.hidden) return;
-      openLiveTips();
+      const v = getLocal(LIVETIPS_KEY);
+      const sawOld = !!(v && typeof v.seen === 'number' && v.seen >= 1);
+      openLiveTips(sawOld ? ['pin'] : ['basic', 'pin']);
     }, 900);
   }
-  document.getElementById('liveTipsBtn').addEventListener('click', openLiveTips);
-  document.getElementById('liveTipsOk').addEventListener('click', closeLiveTips);
-  document.getElementById('liveTipsClose').addEventListener('click', closeLiveTips);
+  document.getElementById('liveTipsBtn').addEventListener('click', function(){ openLiveTips(['basic', 'pin']); });
+  document.getElementById('liveTipsOk').addEventListener('click', function(){
+    if(ltIndex >= ltDeck.length - 1) closeLiveTips(); else ltShow(ltIndex + 1);
+  });
+  document.getElementById('liveTipBack').addEventListener('click', function(){ ltShow(ltIndex - 1); });
+  document.getElementById('liveTipDots').addEventListener('click', function(e){
+    const d = e.target.closest ? e.target.closest('.tipdot') : null;
+    if(d && d.dataset.i) ltShow(Number(d.dataset.i));
+  });
   liveTipsOverlay.addEventListener('click', function(e){ if(e.target === liveTipsOverlay) closeLiveTips(); });
+  (function(){
+    const cards = document.getElementById('liveTipCards');
+    let sx = null, sy = null;
+    cards.addEventListener('touchstart', function(e){ const t = e.touches && e.touches[0]; sx = t ? t.clientX : null; sy = t ? t.clientY : null; }, { passive: true });
+    cards.addEventListener('touchend', function(e){
+      const t = e.changedTouches && e.changedTouches[0];
+      if(sx === null || !t) return;
+      const dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+      if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) || ltDeck.length < 2) return;
+      ltShow(ltIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  })();
 
   function maybeAutoTips(){
     if(!hasLocal || tipsSeen()) return;
