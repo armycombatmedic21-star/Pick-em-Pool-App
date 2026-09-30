@@ -232,6 +232,19 @@
     color:#ffffff; font-size:13px; font-weight:800; letter-spacing:0.1px; font-family:inherit;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(53,208,255,0.18); -webkit-tap-highlight-color:transparent; }
   .edgebtn[hidden]{ display:none; }
+  /* 4.3.1: Win % pill (this phone only, with the Edge Engine on), centered between Quick Tips and Edge Engine */
+  .tiprow .tipbtn{ flex:none; white-space:nowrap; }
+  .winpill{ flex:none; position:relative; display:inline-flex; align-items:center; gap:5px; height:30px; padding:0 10px 0 8px; margin:0 auto;
+    border-radius:15px; border:1px solid rgba(53,208,255,0.32); background:linear-gradient(180deg, rgba(53,208,255,0.10), rgba(53,208,255,0.03));
+    color:#ffffff; font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; font-family:inherit; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+  .winpill[hidden]{ display:none; }
+  .winpill::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
+  .winpill svg{ width:13px; height:13px; display:block; }
+  .winpill .wl{ color:#9fb3c8; font-size:11px; letter-spacing:0.6px; }
+  .winpill .wv{ transition: color .6s ease, text-shadow .6s ease; }
+  .winpill.flash .wv{ color: var(--cyan); text-shadow:0 0 10px rgba(53,208,255,0.6); transition:none; }
+  .tiprow:has(.winpill:not([hidden])) .edgebtn{ margin-left:0; min-width:140px; }
+  @media (max-width:370px){ .winpill .wl{ display:none; } .tiprow .edgebtn{ min-width:0 !important; } }
   .edgebtn::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
   .edgebtn .edgefill{ position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg, rgba(53,208,255,0.28), rgba(53,208,255,0.5)); pointer-events:none; }
   .edgebtn .edgelbl{ position:relative; display:flex; align-items:center; gap:7px; width:100%; }
@@ -1833,7 +1846,7 @@
 
   <div class="rankhead"><b>Your Ranking</b><span id="rankCount"></span></div>
   <div class="scale"><span>1 = least confident</span><i></i><span id="scaleTop">highest = safest lock</span></div>
-  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button><button class="edgebtn" id="edgeBtn" type="button" hidden></button></div>
+  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button><button class="winpill" id="winPill" type="button" hidden aria-label="Chance to win"></button><button class="edgebtn" id="edgeBtn" type="button" hidden></button></div>
 
   <ul id="list"></ul>
   <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -2039,7 +2052,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
-      <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks.</div>
+      <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks. Games with the same spread are now ordered by the moneyline, so the stronger favorite gets more points.</div>
       <div class="cl"><b>4.3.0</b> The FAV and DOG win chances on the Picks tab now come from sportsbook moneylines (the spread is the backup when no moneyline is posted). Analysis now plays out a 28-entry pool to match the real pool. Quote marks in What's new display properly.</div>
       <div class="cl"><b>4.2.0</b> The leaderboard shows up the moment you open the app (or pick a week), then players slide into their new places as fresh scores come in. When someone takes over first place, their row glows gold twice. The end-of-week Analysis always uses the final scores.</div>
       <div class="cl"><b>4.1.10</b> Analysis waits until the score and leaderboard are on screen before doing its math or showing the end-of-week card, stops recalculating once every game is final, and reads more naturally while rooting (“Mom would need Chicago to win”). Early in the week it says It’s too early to tell.</div>
@@ -2644,6 +2657,11 @@
     const sa = (typeof a.spread === 'number' && isFinite(a.spread)) ? a.spread : 999;
     const sb = (typeof b.spread === 'number' && isFinite(b.spread)) ? b.spread : 999;
     if(sa !== sb) return sa - sb;
+    /* 4.3.1: same spread -> the moneyline breaks the tie (the stronger
+       favorite is safer, so it gets more points). No moneyline -> as before. */
+    let pa = null, pb = null;
+    try{ pa = mlFavProb(a); pb = mlFavProb(b); }catch(e){ pa = pb = null; }
+    if(pa !== null && pb !== null && Math.abs(pa - pb) > 1e-9) return pa - pb;
     return (a.baseRank || 0) - (b.baseRank || 0);   // stable, never random
   }
 
@@ -7572,6 +7590,7 @@
     if(edgeApplied && (edgeApplied.week !== currentWeek || edgeApplied.sig !== edgeSig())) edgeApplied = null;
     const want = edgeApplied ? 'done' : 'idle';
     if(b.dataset.state !== want){ b.dataset.state = want; b.innerHTML = edgePillHtml(want); }
+    try{ winSoon(); }catch(e){}
   }
   function isPreviewWeek(){ try{ return demoOn(); }catch(e){ return false; } }
   function syncEdgeUI(){
@@ -7582,6 +7601,7 @@
     put(EDGE_KEY, { ok: true, on: !!on });
     syncEdgeUI();
     edgeSync();
+    try{ winSoon(0); }catch(e){}
     try{ syncAnPill(); }catch(e){}
     toast(on ? 'Edge Engine on' : 'Edge Engine off');
   }
@@ -7788,6 +7808,51 @@
     edgeSync();
   }
   document.getElementById('edgeBtn').addEventListener('click', edgeRun);
+
+  /* 4.3.1: Win % on the Picks tab (Edge Engine on). Same shared Analysis
+     calculation as the Live tab (anCompute / anShared, keyed by this exact
+     sheet), so the two always show the same number. Recalculates shortly
+     after any change to the sheet, and every 15 s while the Picks tab is up. */
+  var winTimer = null, winLast = null;
+  const WIN_RING = '<svg viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="rgba(53,208,255,.35)" stroke-width="2"/><path d="M7 1.8a5.2 5.2 0 0 1 4.6 7.6" fill="none" stroke="#35d0ff" stroke-width="2" stroke-linecap="round"/></svg>';
+  function winShow(){
+    let q = null;
+    try{ q = anQuick(); }catch(e){ q = null; }
+    return edgeOn() && !isPreviewWeek() && !!q && q.active.length > 0 && !q.V.root;
+  }
+  function winPaint(txt){
+    const p = document.getElementById('winPill');
+    if(!p) return;
+    p.innerHTML = WIN_RING + '<span class="wl">WIN</span><span class="wv">' + txt + '</span>';
+  }
+  function winSoon(delay){
+    const p = document.getElementById('winPill');
+    if(!p) return;
+    const show = winShow();
+    p.hidden = !show;
+    if(!show){ winLast = null; return; }
+    if(!p.innerHTML) winPaint('\u2026');
+    if(winTimer) clearTimeout(winTimer);
+    winTimer = setTimeout(winRun, typeof delay === 'number' ? delay : 450);
+  }
+  function winRun(){
+    winTimer = null;
+    if(edgeBusy || document.hidden){ winSoon(600); return; }
+    if(!winShow()) return;
+    let M = null;
+    try{ M = anCompute(anQuick(), false); }catch(e){ return; }
+    const txt = anPctText(M.chance);
+    const p = document.getElementById('winPill');
+    winPaint(txt);
+    if(winLast !== null && winLast !== txt && p){
+      p.classList.remove('flash'); void p.offsetWidth; p.classList.add('flash');
+      setTimeout(function(){ p.classList.remove('flash'); }, 2000);
+    }
+    winLast = txt;
+    try{ syncAnPill(); }catch(e){}
+  }
+  document.getElementById('winPill').addEventListener('click', function(){ try{ openAnalysis(); }catch(e){} });
+  setInterval(function(){ if(isTab('picks') && !document.hidden && winShow()) winSoon(0); }, 15000);
   edgeSync();
   const ADMIN_KEY = 'pickem-admin';
   const ADMIN_CODE = '1777';
