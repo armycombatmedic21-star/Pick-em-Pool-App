@@ -935,6 +935,13 @@
   .lblist .lbrow.me.pint{ box-shadow: -6px 0 0 #0c1624, 0 6px 10px -4px rgba(0,0,0,0.75); }
   /* rows that are sliding to a new place ride above the ones standing still */
   .lblist .lbrow.moving{ z-index:1; }
+  /* 4.2.0: new leader, two slow gold breaths after the rows land */
+  .lblist .lbrow.newlead::before{
+    content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(244,196,61,0.55), inset 0 0 18px 0 rgba(244,196,61,0.28);
+    opacity:0; animation: lbnewlead 1200ms ease-in-out var(--nlDelay, 0ms) 2;
+  }
+  @keyframes lbnewlead{ 0%, 100%{ opacity:0; } 50%{ opacity:1; } }
   .lblist .lbrow.me.moving{ z-index:3; }
   .lbnote{
     font-size:11px; font-weight:600; color: var(--muted);
@@ -1998,6 +2005,8 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.2.0</b> The leaderboard shows up the moment you open the app (or pick a week), then players slide into their new places as fresh scores come in. When someone takes over first place, their row glows gold twice. The end-of-week Analysis always uses the final scores.</div>
+      <div class="cl"><b>4.1.10</b> Analysis waits until the score and leaderboard are on screen before doing its math or showing the end-of-week card, stops recalculating once every game is final, and reads more naturally while rooting (\u201cMom would need Chicago to win\u201d). Early in the week it says It\u2019s too early to tell.</div>
       <div class="cl"><b>4.1.9</b> Analysis: the explanation is now a small \u201cHow is this calculated?\u201d link under Got it.</div>
       <div class="cl"><b>4.1.8</b> Analysis: Got it sits above a Methodology button that opens the explanation.</div>
       <div class="cl"><b>4.1.7</b> When your last game of the week finishes, Analysis slides up once to show how your week ended (Likely won, Likely winner, In the mix, Outside chance or Probably not). Rooting for someone? It shows theirs.</div>
@@ -2376,7 +2385,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.1.9';
+  const APP_VERSION = '4.2.0';
   const APP_BUILT = 'Sep 27, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2786,6 +2795,7 @@
        numbers until the next fetch lands. */
     liveGames = [];
     board = [];
+    boardWeek = 0;
     boardNote = '';
     liveStatus = '';
     const dec = document.getElementById('decider');
@@ -3615,6 +3625,8 @@
   function updMemo(){ try{ return JSON.parse(sessionStorage.getItem(UPD_KEY) || 'null'); }catch(e){ return null; } }
   function setUpdMemo(v){ try{ sessionStorage.setItem(UPD_KEY, JSON.stringify(v)); }catch(e){} }
   let updLastCheck = 0, updFound = '', updChecking = false;
+  // 4.2.0: at open, leave the network to the leaderboard for a few seconds.
+  const UPD_T0 = Date.now(), UPD_START_DELAY = 3000;
   function appBusy(){
     if(document.querySelector('.overlay.show')) return true;
     if(document.querySelector('.dragging, .pressing')) return true;
@@ -3644,6 +3656,7 @@
   function checkUpdate(reason){
     if(typeof fetch !== 'function' || document.hidden || updChecking) return;
     const now = Date.now();
+    if(reason === 'wake' && now - UPD_T0 < UPD_START_DELAY - 50) return;   // the startup check covers it
     if(now - updLastCheck < (reason === 'wake' ? 60000 : 240000)) return;
     updChecking = true;
     fetch(location.pathname + '?check=' + now, { cache: 'no-store' })
@@ -4631,7 +4644,7 @@
 
   function refreshScores(){
     document.getElementById('liveStatus').textContent = 'Loading scores…';
-    if(!seasonLoading) fetchSeason(renderSeason);
+    seasonAfterBoard();
     fetchScores(currentWeek, function(){
       openResults(true);
       syncPool();
@@ -4702,7 +4715,7 @@
       syncPool();
       startBoardTimer();
       // Whole-season read: once per visit, not on every 20-second tick.
-      if(!seasonLoading) fetchSeason(renderSeason);
+      seasonAfterBoard();
       startSeasonTimer();
     }
   }
@@ -4784,6 +4797,18 @@
   let seasonWeeks = [];       // [{week, rows:[{id,name,points,live}]}]
   let seasonNote = '';
   let seasonLoading = false;
+  /* 4.2.0: the whole-season read is the biggest download, so it waits for this
+     week's leaderboard (or 4 s at most) instead of racing it at open. */
+  let seasonWait = null;
+  function seasonAfterBoard(){
+    if(seasonLoading || seasonWait) return;
+    if(boardWeek === currentWeek){ fetchSeason(renderSeason); return; }
+    seasonWait = setTimeout(seasonGo, 4000);
+  }
+  function seasonGo(){
+    if(seasonWait){ clearTimeout(seasonWait); seasonWait = null; }
+    if(!seasonLoading) fetchSeason(renderSeason);
+  }
   let seasonTried = false;
 
   // eventId -> { a:awayScore, b:homeScore, done }
@@ -5552,6 +5577,9 @@
   function anLeft(q){ return q.active.filter(function(g){ return !anFinal(g); }).length; }
   const AN_EVERY = 15000;
   let anShared = null, anBusy = false;
+  function anPoolSig(){
+    return poolRows().map(function(r){ return r.id + ':' + (r.locked !== false ? 1 : 0) + ':' + (r.updated || 0); }).join('|') + '|' + (weekLocked ? 1 : 0);
+  }
   // The shared result for whoever's being viewed, recalculated if older than 15 s.
   function anCompute(q, force){
     const key = q.V.id + ':' + currentWeek;
@@ -5564,7 +5592,8 @@
   function anSoon(){
     if(anBusy || !isTab('live') || document.hidden) return;
     anBusy = true;
-    setTimeout(function(){ anTick(); anBusy = false; }, 60);
+    // 4.1.10: never do the math before the screen is drawn and the pool is in.
+    setTimeout(function(){ anTick(); anBusy = false; }, boardWeek === currentWeek ? 400 : 1500);
   }
   function anTick(){
     if(!isTab('live') || document.hidden) return;
@@ -5575,7 +5604,12 @@
     const early = anLeft(q) > AN_MAX_LEFT;
     if(early){ if(open && anW){ try{ anFillEarly(q, anW); }catch(e){} } return; }
     let M = null;
-    try{ M = anCompute(q, true); }catch(e){ return; }
+    // 4.1.10: once every game is final, the answer can't change unless a sheet
+    // in the pool does, so reuse it instead of recalculating every 15 s.
+    const sig = anLeft(q) === 0 ? anPoolSig() : '';
+    const key = q.V.id + ':' + currentWeek;
+    if(sig && anShared && anShared.key === key && anShared.sig === sig) M = anShared.M;
+    else{ try{ M = anCompute(q, true); }catch(e){ return; } if(sig) anShared.sig = sig; }
     const pill = document.getElementById('anPill');
     if(pill){ pill.textContent = 'Analysis (' + anPctText(M.chance) + ')'; pill.classList.add('pulse'); }
     if(open && anW){ try{ anFill(q, anW, true, M); }catch(e){} }
@@ -5597,6 +5631,10 @@
       anFinalTimer = null;
       const s2 = getLocal(ANFINAL_KEY) || {};
       if(s2['w' + currentWeek] || !isTab('live') || document.hidden || overlayStack.length) return;
+      // 4.1.10: wait for a fully drawn screen: pool loaded, score and leaderboard filled.
+      const ready = boardWeek === currentWeek && document.getElementById('scoreBig').textContent !== '' &&
+                    document.querySelectorAll('#lbList .lbrow').length > 0;
+      if(!ready){ return; }
       s2['w' + currentWeek] = Date.now(); put(ANFINAL_KEY, s2);
       openAnalysis();
     }, 5000);
@@ -5684,6 +5722,16 @@
     setTimeout(function(){
       try{
         if(anLeft(q) > AN_MAX_LEFT) anFillEarly(q, W);
+        else if(anLeft(q) === 0){
+          /* 4.2.0: every game is final. Reuse the saved answer only if it was
+             worked out after the final (it carries the pool's signature);
+             one saved while the last game was live gets redone now. */
+          const sig = anPoolSig(), key = q.V.id + ':' + currentWeek;
+          let M = null;
+          if(anShared && anShared.key === key && anShared.sig === sig) M = anShared.M;
+          else{ M = anCompute(q, true); anShared.sig = sig; }
+          anFill(q, W, false, M);
+        }
         else anFill(q, W, false, anCompute(q, false));
       }catch(e){ anSet('anHead', 'Couldn\u2019t work this out right now.'); }
     }, 40);
@@ -5720,10 +5768,10 @@
       notwon:    ['PROBABLY NOT', W.Pos + ' ' + q.you + ' is below where winners usually land.', 'Better luck next week.'],
       won:  ['LIKELY WON', W.Pos + ' total is very likely a winning score.', 'A winner usually lands around ' + M.win + '. ' + W.You + ' finished above that range.'],
       fav:  ['FAVORITE TO WIN', W.Are + ' the favorite to win this week.', W.Are + ' more likely to win than anyone else, but it\u2019s not locked up yet.'],
-      run:  ['IN THE RUNNING', W.Are + ' right in the race.', W.Are + ' one of the favorites. ' + W.Pos + ' games decide it.'],
-      hunt: ['IN THE HUNT', W.You + ' can still win, with some help.', W.You + ' would need ' + W.pos + ' games to win, plus some other results to go ' + (V.root ? 'their' : 'your') + ' way.'],
-      long: ['LONG SHOT', 'It\u2019ll take a lot to go right.', W.Pos + ' games would all need to win, and others would need to lose.'],
-      out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even if ' + W.pos + ' games all win, ' + W.would + ' finish below where a winner usually lands.']
+      run:  ['IN THE RUNNING', W.Are + ' right in the race.', W.Are + ' one of the favorites. ' + (path.length === 1 ? 'It comes down to ' + path[0].t + '.' : 'The games left decide it.')],
+      hunt: ['IN THE HUNT', W.You + ' can still win, with some help.', W.You + ' would need ' + anNeedText(path, V) + ', plus some other results to go ' + (V.root ? nm_(V) + '\u2019s' : 'your') + ' way.'],
+      long: ['LONG SHOT', 'It\u2019ll take a lot to go right.', 'Everything left would need to go ' + (V.root ? nm_(V) + '\u2019s' : 'your') + ' way, and others would need to lose.'],
+      out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even with every game left going ' + (V.root ? nm_(V) + '\u2019s' : 'your') + ' way, ' + W.would + ' finish below where a winner usually lands.']
     }[st];
     const dim = st === 'out' || st === 'long' || st === 'outside' || st === 'notwon';
     document.getElementById('anWk').className = 'anwk' + (dim ? ' out' : '') + (done ? ' final' : '');
@@ -5785,6 +5833,12 @@
       'The likely winning total is the median winning score across all simulations, and the range shown covers the middle 80%. Precision tightens as games go final.';
   }
   function nm_(V){ return V.name; }
+  // "Chicago to win" / "Chicago and Denver to win" / "your games to win"
+  function anNeedText(path, V){
+    if(path.length === 1) return path[0].t + ' to win';
+    if(path.length === 2) return path[0].t + ' and ' + path[1].t + ' to win';
+    return (V.root ? nm_(V) + '\u2019s' : 'your') + ' games to win';
+  }
   // Before 3 or fewer games are left: no simulation, just the plain numbers.
   function anFillEarly(q, W){
     let left = 0, n = 0;
@@ -5792,7 +5846,7 @@
     const best = q.you + left;
     document.getElementById('anWk').className = 'anwk early';
     const chip = document.getElementById('anChip'); chip.className = 'anchip early'; chip.textContent = 'TOO EARLY TO TELL';
-    anSet('anHead', 'Everyone\u2019s still in it.');
+    anSet('anHead', 'It\u2019s too early to tell.');
     anSet('anText', 'Chances show up once ' + AN_MAX_LEFT + ' or fewer games are left.');
     anSet('anBestL', 'Now'); anSet('anBest', q.you); anSet('anBestSub', W.Pos + ' points so far');
     anSet('anWinL', 'Best case'); anSet('anWinT', best); anSet('anRange', 'if ' + W.pos + ' games win');
@@ -6105,6 +6159,27 @@
   const DB_URL = 'https://pick-em-pool-app-default-rtdb.firebaseio.com';
   const PLAYER_KEY = 'pickem-player';
   let board = [];
+  let boardWeek = 0;
+  /* 4.2.0: each week's board is saved on this phone so the leaderboard can
+     draw the moment the app opens (or a week is picked), then slide into the
+     fresh order when Firebase answers. Display only: nothing else reads it,
+     so Win %, Analysis, sheets and Root for still wait for the real pool. */
+  function boardKey(week){ return 'pickem-w' + week + '-board'; }
+  const boardSavedTxt = {};
+  function saveBoard(week, rows){
+    try{
+      const slim = rows.map(function(r){ return { id: r.id, name: r.name, points: r.points,
+        share: !!r.share, locked: r.locked !== false, updated: r.updated || 0 }; });
+      const txt = JSON.stringify(slim);
+      if(boardSavedTxt[week] === txt) return;          // unchanged: skip the write
+      boardSavedTxt[week] = txt;
+      put(boardKey(week), slim);
+    }catch(e){}
+  }
+  function savedBoard(week){
+    const v = getLocal(boardKey(week));
+    return Array.isArray(v) ? v.filter(function(r){ return r && r.id && r.name && typeof r.points === 'number'; }) : null;
+  }
   let boardNote = '';
   // Who has checked in recently: { playerId: { name, t } }, from /presence.
   let presence = {};
@@ -6235,8 +6310,9 @@
   }
 
   let lastHeal = 0;
-  function fetchBoard(week, done){
-    if(typeof fetch !== 'function'){ done && done(); return; }
+  function fetchBoard(week, done0){
+    const done = function(){ if(seasonWait) seasonGo(); done0 && done0(); };
+    if(typeof fetch !== 'function'){ done(); return; }
     fetch(boardUrl(week))
       .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
       .then(function(data){
@@ -6259,6 +6335,8 @@
         // Hidden test sheets never reach the board. The self-heal below still
         // checks the full list, so a test phone doesn't keep re-posting itself.
         board = rows.filter(function(r){ return !isHiddenSheet(week, r.name); });
+        boardWeek = week;                  // 4.1.10: the pool for this week has arrived
+        saveBoard(week, board);            // 4.2.0: for an instant board next time
         boardNote = '';
 
         /* The board must agree with this phone in both directions. Locked and
@@ -6657,9 +6735,11 @@
     }
     return at;
   }
-  function lbSlide(el, from){
+  let lbSlideEnd = 0;
+  function lbSlide(el, from, ms){
+    ms = ms || LB_SLIDE_MS;
     el.dataset.wk = String(currentWeek);
-    if(!from) return;
+    if(!from) return 0;
     const moving = [];
     for(let i = 0; i < el.children.length; i++){
       const r = el.children[i], was = from[r.dataset.pid];
@@ -6671,15 +6751,49 @@
       r.classList.add('moving');
       moving.push(r);
     }
-    if(!moving.length) return;
+    if(!moving.length) return 0;
     void el.offsetHeight;                       // lock in the start positions
     moving.forEach(function(r){
-      r.style.transition = 'transform ' + LB_SLIDE_MS + 'ms cubic-bezier(0.25, 0.8, 0.25, 1)';
+      r.style.transition = 'transform ' + ms + 'ms cubic-bezier(0.25, 0.8, 0.25, 1)';
       r.style.transform = '';
     });
+    lbSlideEnd = Date.now() + ms;
     setTimeout(function(){
       moving.forEach(function(r){ r.classList.remove('moving'); r.style.transition = ''; });
-    }, LB_SLIDE_MS + 60);
+    }, ms + 60);
+    return ms;
+  }
+  /* 4.2.0: a new leader breathes gold twice once the rows have landed. Only
+     when first place changes hands (a tie on top is nobody), never on the
+     first draw of a week, never when switching between previews and the real
+     board, never with reduced motion. Survives the board redrawing mid-pulse
+     (the row is rebuilt, so the animation is picked up where it was). */
+  const LB_CATCHUP_MS = 900, LB_PULSE_MS = 2400;
+  let lbLeadWas = { wk: 0, src: '', id: null };
+  let lbPulse = { wk: 0, id: null, t0: 0 };
+  function lbNewLead(el, leadId, src, slid){
+    const was = lbLeadWas;
+    lbLeadWas = { wk: currentWeek, src: src, id: leadId };
+    if(!(was.wk === currentWeek && was.src === src && leadId && leadId !== was.id && lbMotionOK())){
+      lbPaintPulse(el);
+      return;
+    }
+    lbPulse = { wk: currentWeek, id: leadId, t0: Date.now() + (slid ? slid + 60 : 0) };
+    setTimeout(function(){ lbPaintPulse(document.getElementById('lbList')); }, slid ? slid + 60 : 0);
+    setTimeout(function(){ lbPaintPulse(document.getElementById('lbList')); }, (slid ? slid + 60 : 0) + LB_PULSE_MS + 50);
+  }
+  function lbPaintPulse(el){
+    if(!el) return;
+    const age = Date.now() - lbPulse.t0;
+    const live = lbPulse.id && lbPulse.wk === currentWeek && age >= 0 && age < LB_PULSE_MS;
+    for(let i = 0; i < el.children.length; i++){
+      const r = el.children[i];
+      if(live && r.dataset.pid === lbPulse.id){
+        if(!r.classList.contains('newlead')){ r.style.animationDelay = ''; r.classList.add('newlead');
+          if(age > 30) r.style.setProperty('--nlDelay', (-age) + 'ms'); }
+      }else if(r.classList.contains('newlead')){ r.classList.remove('newlead'); r.style.removeProperty('--nlDelay'); }
+    }
+    if(lbPulse.id && (lbPulse.wk !== currentWeek || age >= LB_PULSE_MS)) lbPulse.id = null;
   }
   // Your row: which edge (if any) it's stuck to right now, for the shadow.
   function syncLbPin(){
@@ -6709,7 +6823,12 @@
       note.textContent = 'Add your name to join the pool.';
       return;
     }
-    const pool = poolRows();
+    let pool = poolRows();
+    let stale = false;
+    if(!pool.length && pool === board && boardWeek !== currentWeek){
+      const sv = savedBoard(currentWeek);
+      if(sv && sv.length){ pool = sv; stale = true; }
+    }
     if(!pool.length){
       el.innerHTML = '';
       note.textContent = boardNote || 'Lock in your sheet to appear here.';
@@ -6738,9 +6857,13 @@
     // Advanced view only: chance to win. Anything going wrong here just
     // leaves the % off — it can never stop the board from drawing.
     let odds = null;
-    if(lbAdv()){ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } }
+    if(lbAdv()){ if(stale) odds = {}; else{ try{ odds = winChances(shown) || {}; }catch(e){ odds = {}; } } }
 
     const slideFrom = lbPositions(el);
+    // 4.2.0: saved board -> fresh board is a catch-up swap: slower slide.
+    const catchUp = !stale && el.dataset.stale === '1';
+    el.dataset.stale = stale ? '1' : '';
+    const leadId = outright ? shown[0].id : null;
     const hiId = rootedId() || me.id;
     el.innerHTML = shown.map(function(r, i){
       const isMe = r.id === me.id;
@@ -6762,10 +6885,15 @@
         '<span class="lbpts">' + r.points + '</span>' +
       '</div>';
     }).join('');
-    try{ lbSlide(el, slideFrom); syncLbPin(); }catch(e){}
+    let slid = 0;
+    // A redraw while rows are still sliding finishes on the same clock instead of speeding up.
+    const slideMs = catchUp ? LB_CATCHUP_MS : Math.max(LB_SLIDE_MS, lbSlideEnd - Date.now());
+    try{ slid = lbSlide(el, slideFrom, slideMs) || 0; syncLbPin(); }catch(e){}
+    try{ lbNewLead(el, leadId, pool === board || stale ? 'real' : 'demo', slid); }catch(e){}
     /* 4.0.1: reopening the app draws Live before the pool has loaded, so a
-       saved Root for can't apply yet. Once the pool arrives, redraw as them. */
-    if(isTab('live') && rootedId() !== rootPaintedId) setTimeout(function(){ openResults(true); }, 0);
+       saved Root for can't apply yet. Once the pool arrives, redraw as them.
+       (4.2.0: not while the saved copy is showing — the pool isn't here yet.) */
+    if(!stale && isTab('live') && rootedId() !== rootPaintedId) setTimeout(function(){ openResults(true); }, 0);
     const cnt = document.getElementById('lbCount');
     const on = shown.filter(function(r){ return isOnline(r.id); }).length;
     if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's') +
@@ -8236,7 +8364,7 @@
     readPresence();
     try{ streamsOn(); }catch(e){}
     // Opened an old copy? Check right away and update quietly if nothing's open.
-    setTimeout(function(){ checkUpdate('wake'); }, 600);
+    setTimeout(function(){ checkUpdate('wake'); }, UPD_START_DELAY);
 
     // Quick Tips, once, for everyone.
     maybeAutoTips();
