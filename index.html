@@ -242,7 +242,11 @@
   .edgebtn.flash{ animation: edgeflash .55s ease-out; }
   @keyframes edgerow{ 0%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } 40%{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.8), 0 0 18px rgba(53,208,255,0.35); } 100%{ box-shadow:0 0 0 0 rgba(53,208,255,0); } }
   #list li.edgeflash{ animation: edgerow .55s ease-out; }
-  #list li.edged{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.75), 0 0 16px rgba(53,208,255,0.25); transition: box-shadow 1.2s ease; }
+  /* 4.3.1: underdog picks stand out in silver */
+  #list li.game:has(.swx.dog), .tipstage .game:has(.swx.dog){ box-shadow: inset 0 0 0 1.5px rgba(214,224,236,0.9), 0 0 14px rgba(214,224,236,0.3); }
+  #list .swx.dog, .tipstage .swx.dog{ background: linear-gradient(180deg, #e6ecf3, #aeb9c7); border-color: #e6ecf3; }
+  #list .swx.dog .swx-label, #list .swx.dog .pctval, .tipstage .swx.dog .swx-label, .tipstage .swx.dog .pctval{ color:#0b1321; }
+  #list li.edged{ box-shadow:0 0 0 1.5px rgba(53,208,255,0.75), 0 0 16px rgba(53,208,255,0.25) !important; transition: box-shadow 1.2s ease; }
   #list li.edgefade{ transition: box-shadow 1.2s ease; }
   @media (prefers-reduced-motion: reduce){ .edgebtn.flash, #list li.edgeflash{ animation:none; } }
   .tipbtn{
@@ -560,7 +564,7 @@
   }
   .sheetcols span:nth-child(1){ width:28px; text-align:center; }
   .sheetcols span:nth-child(2){ flex:1; padding-left:30px; }
-  .sheetcols span:nth-child(3){ width:52px; text-align:right; }
+  .sheetcols span:nth-child(3){ width:52px; text-align:right; margin-right:6px; }
   .sheetrow{
     display:flex; align-items:center; gap:10px; height:28px;
     border-bottom:1px solid rgba(147,174,200,0.07);
@@ -582,7 +586,13 @@
     flex:none; padding:2px 5px; border-radius:4px; background: rgba(147,174,200,0.16);
     font-size:9px; font-weight:800; letter-spacing:1px; color: var(--text);
   }
-  .sheetspread{ flex:none; width:52px; text-align:right; font-size:14px; font-weight:700; color: var(--text); white-space:nowrap; }
+  .sheetspread{ flex:none; width:52px; text-align:right; font-size:14px; font-weight:700; color: var(--text); white-space:nowrap; margin-right:6px; }
+  /* 4.3.1: underdog picks on the Sheet match the Picks tab: silver outline + silver DOG badge.
+     The outline sits a few px outside the row so it never touches the points box or spread. */
+  .sheetrow.isdog{ position:relative; border-bottom-color:transparent; }
+  .sheetrow.isdog::before{ content:''; position:absolute; top:1px; bottom:1px; left:-5px; right:-3px; border-radius:8px; pointer-events:none;
+    box-shadow: inset 0 0 0 1.5px rgba(214,224,236,0.9), 0 0 12px rgba(214,224,236,0.28); }
+  .sheetrow.isdog .dogtag{ background: linear-gradient(180deg, #e6ecf3, #aeb9c7); color:#0b1321; }
 
 
   /* ---------- Live ---------- */
@@ -2029,6 +2039,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks.</div>
       <div class="cl"><b>4.3.0</b> The FAV and DOG win chances on the Picks tab now come from sportsbook moneylines (the spread is the backup when no moneyline is posted). Analysis now plays out a 28-entry pool to match the real pool. Quote marks in What's new display properly.</div>
       <div class="cl"><b>4.2.0</b> The leaderboard shows up the moment you open the app (or pick a week), then players slide into their new places as fresh scores come in. When someone takes over first place, their row glows gold twice. The end-of-week Analysis always uses the final scores.</div>
       <div class="cl"><b>4.1.10</b> Analysis waits until the score and leaderboard are on screen before doing its math or showing the end-of-week card, stops recalculating once every game is final, and reads more naturally while rooting (“Mom would need Chicago to win”). Early in the week it says It’s too early to tell.</div>
@@ -2423,7 +2434,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.3.0';
+  const APP_VERSION = '4.3.1';
   const APP_BUILT = 'Sep 30, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -2460,15 +2471,47 @@
     }
     return 0.95;
   }
-  // 4.3.0: the sportsbook moneyline (margin removed) when ESPN posts one.
-  function mlFavProb(g){
+  /* 4.3.1: moneylines from every ESPN scoreboard read (Picks lines and Live
+     scores), keyed by matchup, so the Picks tab, Analysis and the Edge Engine
+     all use them without a Live visit. Memory only. */
+  var lineML = {};
+  function mlKey(a, b){ return [a, b].sort().join('|'); }
+  function noteLineML(events){
+    (events || []).forEach(function(ev){
+      try{
+        const comp = (ev.competitions || [])[0] || {};
+        const odds = (comp.odds || [])[0], raw = odds && odds.moneyline;
+        if(!raw) return;
+        const one = function(s){ const x = s && ((s.close && s.close.odds) || (s.open && s.open.odds)); const n = parseFloat(x); return isNaN(n) ? 0 : n; };
+        const home = (comp.competitors || []).filter(function(c){ return c.homeAway === 'home'; })[0];
+        const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
+        const hA = home && home.team && home.team.abbreviation, aA = away && away.team && away.team.abbreviation;
+        const mh = one(raw.home), ma = one(raw.away);
+        if(!hA || !aA || !mh || !ma) return;
+        lineML[mlKey(hA, aA)] = { home: hA, mh: mh, ma: ma };
+      }catch(e){}
+    });
+  }
+  // Chance city A wins from the moneyline (margin removed), or null.
+  function mlChanceA(g){
+    const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
+    let home = null, mh = 0, ma = 0;
     let lg = null;
-    try{ lg = liveFor(g); }catch(e){ return null; }
-    if(!lg || !lg.ml || !lg.ml.home || !lg.ml.away) return null;
-    const ph = anImplied(lg.ml.home), pa = anImplied(lg.ml.away);
+    try{ lg = liveFor(g); }catch(e){ lg = null; }
+    if(lg && lg.ml && lg.ml.home && lg.ml.away){ home = lg.home; mh = lg.ml.home; ma = lg.ml.away; }
+    else{
+      const s = (typeof lineML === 'object' && lineML) ? lineML[mlKey(abA, abB)] : null;
+      if(s){ home = s.home; mh = s.mh; ma = s.ma; }
+    }
+    if(!home) return null;
+    const ph = anImplied(mh), pa = anImplied(ma);
     if(!ph || !pa) return null;
-    const abA = g.abbrA || ABBR[g.cityA];
-    const pA = lg.home === abA ? ph / (ph + pa) : pa / (ph + pa);
+    const pHome = ph / (ph + pa);
+    return home === abA ? pHome : 1 - pHome;
+  }
+  function mlFavProb(g){
+    const pA = mlChanceA(g);
+    if(pA === null) return null;
     return g.fav === 'B' ? 1 - pA : pA;
   }
   function pickWinProb(g){
@@ -2792,6 +2835,7 @@
       .then(function(data){
         if(w !== currentWeek) return;
         noteFinals(w, data.events);
+        try{ noteLineML(data.events); }catch(e){}
         const fresh = gamesFromEvents(data.events);
         if(!fresh.length) throw new Error('no games');
         put(linesKey(w), fresh);
@@ -3758,7 +3802,7 @@
       const isDog = g.pick === 'dog';
       const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('\u2212' + g.spread));
       const city = pickedCityOf(g);
-      return '<div class="sheetrow">' +
+      return '<div class="sheetrow' + (isDog ? ' isdog' : '') + '">' +
         '<span class="sheetnum">' + (i+1) + '</span>' +
         logoTag(logoForCity(g, city), 'slogo') +
         '<span class="sheetcity">' + city + '</span>' +
@@ -4175,6 +4219,7 @@
         applyFinals();
 
         // Same payload carries the odds, so keep spreads current everywhere.
+        try{ noteLineML(data.events); }catch(e){}
         const freshLines = gamesFromEvents(data.events);
         if(freshLines.length){
           put(linesKey(week), freshLines);
@@ -5560,10 +5605,8 @@
     if(lg && lg.state === 'in' && lg.wp && typeof lg.wp.home === 'number'){
       return lg.home === abA ? lg.wp.home : lg.wp.away;
     }
-    if(lg && lg.ml && lg.ml.home && lg.ml.away){
-      const ph = anImplied(lg.ml.home), pa = anImplied(lg.ml.away);
-      if(ph && pa){ const home = ph / (ph + pa); return lg.home === abA ? home : 1 - home; }
-    }
+    const mA = mlChanceA(g);
+    if(mA !== null) return mA;
     const pf = anPhi((typeof g.spread === 'number' ? g.spread : 0) / 13.5);
     return g.fav === 'A' ? pf : 1 - pf;
   }
@@ -5621,13 +5664,15 @@
        the open card, so they always show the same number. */
     if(anEarly(q)){ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); return; }
     try{ anMaybeFinal(q); }catch(e){}
-    const S = anShared, key = q.V.id + ':' + currentWeek;
+    const S = anShared, key = anKey(q);
     if(S && S.key === key){ pill.textContent = 'Analysis (' + anPctText(S.M.chance) + ')'; pill.classList.add('pulse'); }
     else{ pill.textContent = 'Analysis'; pill.classList.remove('pulse'); anSoon(); }
   }
   const AN_MAX_LEFT = 3;   // chances (and the simulation) start at 3 or fewer games left
   // 4.3.0: with the Edge Engine on (this phone only), Analysis runs all week.
   function anEarly(q){ return !edgeOn() && anLeft(q) > AN_MAX_LEFT; }
+  // 4.3.1: the saved answer belongs to this exact sheet; changing your picks redoes it.
+  function anKey(q){ let s = ''; if(!q.V.root){ try{ s = edgeSig(); }catch(e){ s = ''; } } return q.V.id + ':' + currentWeek + ':' + s; }
   function anLeft(q){ return q.active.filter(function(g){ return !anFinal(g); }).length; }
   const AN_EVERY = 15000;
   let anShared = null, anBusy = false;
@@ -5636,7 +5681,7 @@
   }
   // The shared result for whoever's being viewed, recalculated if older than 15 s.
   function anCompute(q, force){
-    const key = q.V.id + ':' + currentWeek;
+    const key = anKey(q);
     if(!force && anShared && anShared.key === key && Date.now() - anShared.t < AN_EVERY) return anShared.M;
     const M = anSimulate(q);
     anShared = { key: key, M: M, t: Date.now() };
@@ -5661,7 +5706,7 @@
     // 4.1.10: once every game is final, the answer can't change unless a sheet
     // in the pool does, so reuse it instead of recalculating every 15 s.
     const sig = anLeft(q) === 0 ? anPoolSig() : '';
-    const key = q.V.id + ':' + currentWeek;
+    const key = anKey(q);
     if(sig && anShared && anShared.key === key && anShared.sig === sig) M = anShared.M;
     else{ try{ M = anCompute(q, true); }catch(e){ return; } if(sig) anShared.sig = sig; }
     const pill = document.getElementById('anPill');
@@ -5780,7 +5825,7 @@
           /* 4.2.0: every game is final. Reuse the saved answer only if it was
              worked out after the final (it carries the pool's signature);
              one saved while the last game was live gets redone now. */
-          const sig = anPoolSig(), key = q.V.id + ':' + currentWeek;
+          const sig = anPoolSig(), key = anKey(q);
           let M = null;
           if(anShared && anShared.key === key && anShared.sig === sig) M = anShared.M;
           else{ M = anCompute(q, true); anShared.sig = sig; }
