@@ -87,8 +87,9 @@
   .simgroup[hidden]{ display:none; }
   .changelog{ margin-top:6px; }
   /* Admin (this phone only) */
-  .confirmyes.danger{ background: var(--red); color:#ffffff; box-shadow:none; }
-  .confirmyes.danger:active{ background:#ff6573; }
+  .confirmyes.danger{ border-color: rgba(255,59,78,0.65); background: linear-gradient(180deg, #4a1820 0%, #2c0e14 100%); color:#ffffff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(255,59,78,0.16); }
+  .confirmyes.danger:active{ background: linear-gradient(180deg, #5a1d27 0%, #361118 100%); border-color: #ff3b4e; }
   .confirmsub{ margin:-8px 0 16px; color: var(--muted); font-size:13px; font-weight:700; }
   .codeinput{ letter-spacing:10px; text-align:center; font-size:22px; }
   .chatline{ display:flex; align-items:center; gap:8px; max-width:100%; }
@@ -210,21 +211,261 @@
     border:1px solid var(--hair2); background: transparent;
     color: var(--cyan); font-size:14px; font-weight:800;
   }
-  .lockbtn{
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%; height:48px; margin-top:12px; padding:0; border-radius:14px;
-    border:none; background: var(--cyan); color:#03131f;
-    font-size:15px; font-weight:800;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
-  }
-  .lockbtn svg{ width:15px; height:15px; display:block; flex:none; }
-  .lockbtn.on{
-    background: rgba(255,255,255,0.04); color:#ffffff; font-weight:700;
-    border:1px solid var(--hair2); box-shadow:none;
-  }
-  .lockbtn.on svg{ color: var(--cyan); }
+  /* 4.5.0 Lock In (Picks + Sheet): dark navy glass, cyan edge, slow breathing glow
+     and a light sheen. The only button in the app that moves. */
+  .lkbtn{ position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; gap:11px;
+    width:100%; height:56px; margin:0; padding:0; border-radius:16px; cursor:pointer;
+    border:1px solid rgba(53,208,255,0.6);
+    background: linear-gradient(180deg, #13354f 0%, #0b2135 100%);
+    color:#ffffff; font:800 16px var(--font); letter-spacing:0.3px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 26px rgba(0,0,0,0.4), 0 0 18px rgba(53,208,255,0.16);
+    animation: lkbreath 2.6s ease-in-out infinite; -webkit-tap-highlight-color:transparent; transition: transform .12s ease; }
+  .lkbtn:active{ transform: scale(0.98); }
+  .lkbtn .lkico{ flex:none; width:26px; height:26px; border-radius:50%; background: var(--cyan); color:#03131f;
+    display:flex; align-items:center; justify-content:center; box-shadow: 0 0 12px rgba(53,208,255,0.55); }
+  .lkbtn .lkico svg{ width:14px; height:14px; display:block; }
+  .lkbtn::before{ content:''; position:absolute; top:0; bottom:0; left:-40%; width:30%; pointer-events:none;
+    background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(140,230,255,0.14) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-18deg); animation: lksheen 3.6s ease-in-out infinite; }
+  @keyframes lkbreath{ 0%,100%{ border-color: rgba(53,208,255,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 26px rgba(0,0,0,0.4), 0 0 14px rgba(53,208,255,0.12); }
+                       50%{ border-color: rgba(53,208,255,0.95); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 26px rgba(0,0,0,0.4), 0 0 30px rgba(53,208,255,0.42); } }
+  @keyframes lksheen{ 0%, 55%{ left:-40%; } 100%{ left:120%; } }
+  @media (prefers-reduced-motion: reduce){ .lkbtn, .lkbtn::before{ animation:none; } .lkbtn::before{ display:none; } }
+  #tabPicks .lkbtn{ margin:0 0 16px; }
+  .lkun[hidden]{ display:none; }
+  .lknote{ display:flex; align-items:center; justify-content:center; gap:7px; margin:14px 0 10px; color: var(--muted); font-size:13px; font-weight:700; }
+  .lknote svg{ width:13px; height:13px; color: var(--faint); flex:none; }
+  /* Sheet, locked: Request to Unlock */
+  .lkreq{ display:flex; align-items:center; gap:12px; width:100%; height:62px; margin:14px 0 0; padding:0 14px 0 12px; box-sizing:border-box;
+    border-radius:16px; border:1px solid rgba(53,208,255,0.3); cursor:pointer; text-align:left;
+    background: linear-gradient(180deg, rgba(53,208,255,0.07), rgba(53,208,255,0.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    font-family: var(--font); -webkit-tap-highlight-color:transparent; transition: background .15s ease; }
+  .lkreq[hidden]{ display:none; }
+  .lkreq:active{ background: rgba(53,208,255,0.12); }
+  .lkreq .lkico{ flex:none; width:36px; height:36px; border-radius:11px; background: rgba(53,208,255,0.12); border:1px solid rgba(53,208,255,0.3);
+    display:flex; align-items:center; justify-content:center; color: var(--cyan); }
+  .lkreq .lkico svg{ width:17px; height:17px; }
+  .lkreq .lktxt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .lkreq .lktxt small{ font-size:12px; font-weight:700; color: var(--muted); }
+  .lkreq .lktxt small.pend{ color: var(--gold); }
+  .lkreq .lktxt b{ font-size:16px; font-weight:800; color:#ffffff; }
+  .lkreq .lkchev{ flex:none; color: var(--cyan); font-size:22px; font-weight:700; line-height:1; }
+  /* unlock request: sent */
+  .reqdone{ text-align:center; }
+  .reqdone[hidden], #reqAsk[hidden]{ display:none; }
+  .reqok{ width:58px; height:58px; margin:2px auto 14px; border-radius:50%; background: rgba(61,220,132,0.14); border:1px solid rgba(61,220,132,0.55);
+    display:flex; align-items:center; justify-content:center; color: var(--green); box-shadow: 0 0 18px rgba(61,220,132,0.25); }
+  .reqok svg{ width:28px; height:28px; }
+  .reqdone h2{ margin:0 0 8px; }
+  .reqdone p{ margin:0 0 18px; }
+
+
+  /* ================= 4.5.0 Live repolish (body.glass = the 4.5.0 look) ================= */
+  /* Your Score: same size and place. Green light from the top, glowing green number.
+     Rooting: the accent turns royal blue and the number white. No dot before "Your Score". */
+  .scorecard{ --sc: 61,220,132; }
+  body.rooting .scorecard{ --sc: 110,145,255; }
+  body.glass .scorecard{ position:relative; overflow:hidden; border-radius:18px; padding:16px 10px 14px;
+    background: radial-gradient(130% 60% at 50% 0%, rgba(var(--sc),0.17), transparent 68%), linear-gradient(180deg, rgba(19,32,53,0.96), rgba(8,14,25,0.98));
+    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 34px rgba(0,0,0,0.42); }
+  body.glass .scorecard::before{ content:''; position:absolute; top:0; left:14px; right:14px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--sc),0.85), transparent); }
+  body.glass .scorecard .cardbanner{ align-items:center; gap:5px; white-space:nowrap; font-size:9.5px; letter-spacing:1.5px; color:#8fa3b9; margin-bottom:8px; }
+  body.glass .scorebig{ font-size:56px; letter-spacing:-2.5px; font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, #a6f7cb 0%, #3ddc84 70%); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 0 12px rgba(61,220,132,0.45)); }
+  body.glass.rooting .scorebig{ background: linear-gradient(180deg, #ffffff 0%, #d6e2ff 80%); -webkit-background-clip:text; background-clip:text; filter: drop-shadow(0 0 10px rgba(110,145,255,0.4)); }
+  body.glass .scorelabel{ font-size:11px; color:#8fa3b9; margin-top:5px; }
+  body.glass .scorerule{ height:1px; margin:12px 0 10px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent); }
+  body.glass .scoreleft{ font-size:22px; letter-spacing:-0.5px; font-variant-numeric: tabular-nums; }
+  body.glass .scoreleftlbl{ font-size:10.5px; color:#8fa3b9; margin-top:4px; }
+  body.glass .scorecompare{ font-size:10.5px; color:#71859c; margin-top:8px; }
+  .scoreprog{ width:78%; height:4px; margin:7px auto 0; border-radius:2px; background: rgba(255,255,255,0.07); overflow:hidden; }
+  .scoreprog[hidden]{ display:none; }
+  .scoreprog i{ display:block; width:0; height:100%; border-radius:2px; background: linear-gradient(90deg, rgba(var(--sc),0.6), rgb(var(--sc))); box-shadow:0 0 8px rgba(var(--sc),0.6); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+  body.glass .anpill{ margin-top:12px; height:28px; padding:0 10px; font-size:11.5px; max-width:100%; border-radius:14px; border:1px solid rgba(53,208,255,0.55);
+    background: linear-gradient(180deg, #13354f 0%, #0b2135 100%); color:#e6f7ff; letter-spacing:0.2px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 12px rgba(53,208,255,0.16); }
+
+  /* Open Sheets + Pool Chat: dark glass tiles, icon in a small cyan tile */
+  body.glass .liveactions{ gap:10px; }
+  body.glass .sharebtn, body.glass .chatbtn{ position:relative; height:48px; gap:10px; border-radius:15px;
+    border:1px solid rgba(255,255,255,0.09); color:#e9f2fb; font-size:14px; letter-spacing:0.2px;
+    background: linear-gradient(180deg, rgba(22,38,62,0.96), rgba(10,18,31,0.98));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 10px 22px rgba(0,0,0,0.35);
+    transition: transform .12s ease, border-color .3s ease, box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
+  body.glass .sharebtn:active, body.glass .chatbtn:active{ transform: scale(0.97); }
+  body.glass .sharebtn svg, body.glass .chatbtn svg{ box-sizing:content-box; width:14px; height:14px; padding:6px; border-radius:9px;
+    color: var(--cyan); background: rgba(53,208,255,0.12); border:1px solid rgba(53,208,255,0.3); }
+  body.glass .sharebtn.on{ border-color: rgba(53,208,255,0.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 10px 22px rgba(0,0,0,0.35), 0 0 16px rgba(53,208,255,0.16); }
+  body.glass .sharebtn.on svg{ background: var(--cyan); color:#03131f; border-color: var(--cyan); box-shadow: 0 0 10px rgba(53,208,255,0.55); }
+  body.glass .sharebtn.on::before, body.glass .chatbtn.unread::before{ content:''; position:absolute; top:0; left:16px; right:16px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(53,208,255,0.85), transparent); }
+  body.glass .chatbtn.unread{ border-color: rgba(53,208,255,0.42); }
+  body.glass .chatbadge{ min-width:20px; height:20px; padding:0 6px; border-radius:10px; font-size:11px; letter-spacing:0;
+    background: linear-gradient(180deg, #7ae6ff, #35d0ff); color:#03131f; box-shadow: 0 0 10px rgba(53,208,255,0.6); animation: chatbadge 2.2s ease-out infinite; }
+  @keyframes chatbadge{ 0%{ box-shadow: 0 0 10px rgba(53,208,255,0.6), 0 0 0 0 rgba(53,208,255,0.55); } 70%,100%{ box-shadow: 0 0 10px rgba(53,208,255,0.6), 0 0 0 6px rgba(53,208,255,0); } }
+  @media (prefers-reduced-motion: reduce){ body.glass .chatbadge{ animation:none; } }
+
+  /* Leaderboard: same size, rows and behavior. No left-edge marks (they clash with the online dot). */
+  body.glass .lbcard{ position:relative; border-radius:18px; padding:13px 10px 9px 7px;
+    background: radial-gradient(110% 55% at 100% 0%, rgba(53,208,255,0.10), transparent 62%), linear-gradient(180deg, rgba(19,32,53,0.96), rgba(8,14,25,0.98));
+    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 34px rgba(0,0,0,0.42); }
+  body.glass .lbcard::before{ content:''; position:absolute; top:0; left:18px; right:18px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(53,208,255,0.7), transparent); }
+  body.glass .lbtop{ margin-bottom:8px; }
+  body.glass .lbmode{ height:20px; padding:0 9px; border-radius:10px; font-size:9.5px; letter-spacing:0.4px;
+    border:1px solid rgba(53,208,255,0.45); background: linear-gradient(180deg, #13354f, #0b2135); color:#dff6ff; box-shadow: 0 0 8px rgba(53,208,255,0.15); }
+  body.glass .lbcard.adv .lbmode{ border-color: rgba(53,208,255,0.8); box-shadow: 0 0 10px rgba(53,208,255,0.3); }
+  body.glass .lbcount{ font-size:9.5px; color:#6f8399; }
+  body.glass .lbtitle{ font-size:9.5px; letter-spacing:1.9px; color:#8fa3b9; }
+  body.glass .lbwinh, body.glass .lbptsh{ font-size:8.5px; letter-spacing:1px; color:#6f8399; }
+  body.glass .lbrow{ border-radius:9px; font-size:13px; }
+  body.glass .lbrow:not(:last-child)::after{ left:18px; right:6px; background: linear-gradient(90deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)); }
+  body.glass .lbrank{ font-variant-numeric: tabular-nums; color:#6f8399; }
+  body.glass .lbname{ color:#d7e3ef; }
+  body.glass .lbpts{ font-variant-numeric: tabular-nums; letter-spacing:-0.2px; }
+  body.glass .lbwin{ font-variant-numeric: tabular-nums; color:#8fa3b9; }
+  body.glass .sheeticon{ filter: drop-shadow(0 0 3px rgba(53,208,255,0.45)); }
+  body.glass .sheeticon.own{ filter:none; }
+  body.glass .lbrow.lead{ background: linear-gradient(90deg, rgba(244,196,61,0.2), rgba(244,196,61,0.05) 70%, rgba(244,196,61,0.02)); }
+  body.glass .lbrow.lead .lbpts{ text-shadow: 0 0 10px rgba(244,196,61,0.55); }
+  body.glass .lblist .lbrow.me{ background: linear-gradient(90deg, rgba(61,220,132,0.2), rgba(61,220,132,0.05) 70%, rgba(61,220,132,0.02)), #0b1525; }
+  body.glass .lblist .lbrow.me .lbpts{ text-shadow: 0 0 10px rgba(61,220,132,0.5); }
+  body.glass .lblist .lbrow.me.lead{ background: linear-gradient(90deg, rgba(244,196,61,0.2), rgba(244,196,61,0.05) 70%, rgba(244,196,61,0.02)), #0b1525; }
+  body.glass .lblist .lbrow.me.pinb{ box-shadow: -6px 0 0 #0b1525, 0 -8px 12px -4px rgba(0,0,0,0.8); }
+  body.glass .lblist .lbrow.me.pint{ box-shadow: -6px 0 0 #0b1525, 0 8px 12px -4px rgba(0,0,0,0.8); }
+  body.glass .lbnote{ color:#6f8399; }
+
+  /* Analysis: same layout and data. Each result has its own accent (set in code as data-ac). */
+  #anOverlay{ --ac: 53,208,255; }
+  #anOverlay[data-ac="gold"]{ --ac: 244,196,61; }
+  #anOverlay[data-ac="green"]{ --ac: 61,220,132; }
+  #anOverlay[data-ac="slate"]{ --ac: 160,180,204; }
+  #anOverlay[data-ac="red"]{ --ac: 255,96,112; }
+  body.glass #anOverlay .sheet{
+    background: radial-gradient(130% 50% at 50% -6%, rgba(var(--ac),0.14), transparent 62%), linear-gradient(180deg, #0d182a 0%, #070d18 78%);
+    border-top:1px solid rgba(255,255,255,0.08); }
+  body.glass #anOverlay .tipshead h2{ font-size:27px; letter-spacing:-0.7px; }
+  body.glass #anOverlay .tipshead .kicker{ color: rgb(var(--ac)); transition: color .4s ease; }
+  body.glass .anback{ height:34px; padding:0 13px; border-radius:17px; border:1px solid rgba(255,255,255,0.12) !important;
+    background: rgba(255,255,255,0.04) !important; color:#dce8f5 !important; font-size:13px !important; }
+  body.glass .ansect{ border-radius:999px; border:1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.035);
+    padding:7px 13px 7px 11px; margin:4px 0 12px; font-size:10.5px; letter-spacing:1.8px; color:#dce8f5; }
+  body.glass .ansect::before{ background: rgb(var(--ac)); box-shadow:0 0 0 0 rgba(var(--ac),0.6); animation: anlive 2.4s ease-out infinite; }
+  @keyframes anlive{ 0%{ box-shadow:0 0 0 0 rgba(var(--ac),0.55); } 70%,100%{ box-shadow:0 0 0 7px rgba(var(--ac),0); } }
+  @media (prefers-reduced-motion: reduce){ body.glass .ansect::before{ animation:none; } }
+  body.glass .anasof{ color:#7f93aa; font-size:10.5px; }
+  body.glass .anwk{ border-radius:24px; padding:22px 18px 18px; border:1px solid rgba(255,255,255,0.08);
+    background: radial-gradient(85% 65% at 100% 0%, rgba(var(--ac),0.17), transparent 62%), linear-gradient(180deg, rgba(19,32,53,0.92), rgba(8,14,25,0.96)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 26px 50px rgba(0,0,0,0.5); }
+  body.glass .anwk::before{ content:''; position:absolute; top:0; left:22px; right:22px; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(var(--ac),0.75), transparent); }
+  body.glass .anwktop{ margin-bottom:20px; gap:16px; }
+  body.glass .anchip{ border-radius:999px; padding:5px 10px; margin-bottom:10px; font-size:9.5px; letter-spacing:1.8px;
+    color: rgb(var(--ac)) !important; background: rgba(var(--ac),0.1) !important; border:1px solid rgba(var(--ac),0.38); animation:none; }
+  body.glass .anwkhead b{ font-size:23px; letter-spacing:-0.5px; line-height:1.15; }
+  body.glass .anwkhead p{ margin-top:8px; font-size:14px; color:#94a8be; line-height:1.5; }
+  body.glass .anring{ width:100px; height:100px; }
+  body.glass .anring::before{ content:''; position:absolute; inset:8px; border-radius:50%; background: radial-gradient(circle, rgba(var(--ac),0.16), transparent 70%); }
+  body.glass .anring svg{ width:100px; height:100px; overflow:visible; }
+  body.glass .anring circle{ stroke-width:5.5; }
+  body.glass .anring .rbg{ stroke: rgba(255,255,255,0.07); }
+  body.glass .anring .rfg{ stroke: rgb(var(--ac)) !important; filter: drop-shadow(0 0 5px rgba(var(--ac),0.7)); }
+  body.glass .anring .rin b{ font-size:27px; letter-spacing:-0.8px; font-variant-numeric: tabular-nums; }
+  body.glass .anring .rin span{ font-size:9px; letter-spacing:1.6px; color:#7f93aa; margin-top:4px; }
+  body.glass .anvs{ gap:10px; margin-bottom:12px; }
+  body.glass .anvs .side{ position:relative; overflow:hidden; border-radius:18px; padding:14px 10px 13px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.012)) !important; border:1px solid rgba(255,255,255,0.08) !important; }
+  body.glass .anvs .side::before{ content:''; position:absolute; top:0; left:16px; right:16px; height:2px; border-radius:0 0 2px 2px; background: var(--green); box-shadow:0 0 10px rgba(61,220,132,0.6); }
+  body.glass .anvs .side.w::before{ background: var(--gold); box-shadow:0 0 10px rgba(244,196,61,0.6); }
+  body.glass .anvs .side > span{ font-size:9.5px; letter-spacing:1.5px; color:#8396ac; min-height:26px; }
+  body.glass .anvs .side > b{ font-size:40px; letter-spacing:-1.5px; margin:4px 0 4px; font-variant-numeric: tabular-nums; }
+  body.glass .anvs .side small{ font-size:11.5px; color:#7f93aa; }
+  body.glass .anvs .vs{ width:26px; height:26px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03);
+    display:flex; align-items:center; justify-content:center; font-size:8.5px; color:#7f93aa; }
+  body.glass .anwk.early .vs{ display:none; }
+  body.glass .anconf{ background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:999px; padding:4px 10px; font-size:11px; }
+  body.glass .anres{ border-radius:999px; font-size:13.5px; padding:8px 14px; margin:6px auto 20px; width:fit-content; border:1px solid currentColor; background: transparent !important; }
+  body.glass .anres.good{ color:#6be9a3; border-color: rgba(61,220,132,0.35); } body.glass .anres.bad{ color:#ff8b96; border-color: rgba(255,90,106,0.35); }
+  body.glass .antrackwrap{ padding-top:24px; }
+  body.glass .antrack{ height:8px; border-radius:4px; background: rgba(255,255,255,0.06); }
+  body.glass .antrack .tnow{ border-radius:4px; background: linear-gradient(90deg, #1f9d5b, #46e38f); box-shadow: 0 0 14px rgba(61,220,132,0.45); }
+  body.glass .antrack .tmax{ border-radius:0 4px 4px 0; background: repeating-linear-gradient(135deg, rgba(61,220,132,0.4) 0 4px, rgba(61,220,132,0.08) 4px 8px); }
+  body.glass .antrack .tband{ top:-6px; bottom:-6px; background: linear-gradient(90deg, rgba(244,196,61,0), rgba(244,196,61,0.16), rgba(244,196,61,0)); }
+  body.glass .antrack .tflag::before{ width:2px; left:-1px; }
+  body.glass .antrack .tflag::after{ content:''; position:absolute; left:-4px; top:-4px; width:8px; height:8px; border-radius:50%; background: var(--gold); box-shadow:0 0 8px rgba(244,196,61,0.8); }
+  body.glass .antrack .tflag em{ font-size:11px; letter-spacing:0.2px; margin-bottom:8px; }
+  body.glass .antrackwrap .tl{ font-size:11px; }
+  body.glass .anpath{ border-top:1px solid rgba(255,255,255,0.06); padding-top:18px; }
+  body.glass .anpathhead{ font-size:15px; letter-spacing:-0.2px; }
+  body.glass .anpathhead::before{ height:16px; width:3px; background: rgb(var(--ac)); box-shadow:0 0 8px rgba(var(--ac),0.6); }
+  body.glass .anstep i{ border-color: rgb(var(--ac)); background:#0a1322; }
+  body.glass .anstep .sg b{ font-size:16px; } body.glass .anstep .sg span{ font-size:13px; color:#8396ac; }
+  body.glass .anstep .sp{ font-size:17px; color: rgb(var(--ac)); }
+  body.glass .anstep .st{ font-size:18px; font-variant-numeric: tabular-nums; }
+  body.glass .anleft{ font-size:15px; font-weight:700; color:#b7c6d6; padding-top:8px; }
+  body.glass .anmeth{ color:#7fb9cf; font-size:13px; }
+  body.glass .anwk.out .anwkhead b{ color:#d3dce6; }
+
+  /* 4.5.0 first-open gate: Add to Home Screen, then the name on your paper sheet */
+  .gate{ position:fixed; inset:0; z-index:900; overflow-y:auto;
+    background: linear-gradient(180deg, #0a1426 0px, var(--bg) 320px) no-repeat, var(--bg);
+    display:flex; flex-direction:column; padding:calc(56px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom)); }
+  .gate[hidden]{ display:none; }
+  .gatein{ width:100%; max-width:420px; margin:0 auto; display:flex; flex-direction:column; flex:1; }
+  .gate h1{ white-space:normal; overflow:visible; text-overflow:clip; background:none; -webkit-text-fill-color:#fff; animation:none;
+    margin:8px 0 0; font-size:30px; font-weight:800; letter-spacing:-0.8px; color:#fff; line-height:1.1; }
+  .gate .lead{ margin:12px 0 26px; color: var(--muted); font-size:15px; font-weight:600; line-height:1.5; }
+  .gatedots{ display:flex; gap:6px; margin-bottom:26px; }
+  .gatedots i{ width:22px; height:4px; border-radius:2px; background: var(--hair2); }
+  .gatedots i.on{ background: var(--cyan); }
+  .gatesteps{ display:flex; flex-direction:column; gap:10px; margin-bottom:auto; }
+  .gatestep{ display:flex; align-items:center; gap:14px; padding:14px; border-radius:16px; background: var(--card); border:1px solid var(--hair); }
+  .gatestep .n{ flex:none; width:30px; height:30px; border-radius:50%; background: rgba(53,208,255,0.12); border:1px solid rgba(53,208,255,0.35);
+    color: var(--cyan); font-weight:800; font-size:14px; display:flex; align-items:center; justify-content:center; }
+  .gatestep span{ color: var(--text); font-size:15px; font-weight:700; line-height:1.35; }
+  .gatestep svg{ width:17px; height:17px; vertical-align:-3px; color: var(--cyan); }
+  .gate .confirmrow{ margin-top:26px; }
+  .gatelink{ margin-top:10px; background:none; border:none; color: var(--muted); font:700 14px var(--font); padding:10px; text-decoration:underline; text-underline-offset:3px; }
+  .gateopen{ text-align:center; padding:30px 0 0; }
+  .gateopen .ico{ width:64px; height:64px; margin:0 auto 14px; border-radius:16px; background: var(--card); border:1px solid rgba(53,208,255,0.4);
+    display:flex; align-items:center; justify-content:center; color: var(--cyan); box-shadow:0 0 24px rgba(53,208,255,0.18); }
+  .gatenote{ min-height:18px; margin:8px 0 0; color: var(--red); font-size:13px; font-weight:700; }
   /* Quick Tips: a small pill under the 1-to-N scale, above the first game. */
   .tiprow{ display:flex; align-items:center; margin: 0 0 12px; }
+  /* 4.5.0 Smart Shuffle: left of the row, Quick Tips on the right */
+  .tiprow.hasshuf{ justify-content:space-between; }
+  .shufwrap{ display:flex; align-items:center; gap:7px; }
+  .shufwrap[hidden]{ display:none; }
+  .shufbtn{ position:relative; display:inline-flex; align-items:center; gap:7px; height:30px; padding:0 13px 0 10px; border-radius:15px;
+    border:1px solid rgba(53,208,255,0.55); background: linear-gradient(180deg, rgba(53,208,255,0.16), rgba(53,208,255,0.05));
+    color:#fff; font:800 13px var(--font); white-space:nowrap; -webkit-tap-highlight-color:transparent;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(53,208,255,0.18); }
+  .shufbtn::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
+  .shufbtn svg{ width:15px; height:15px; color: var(--cyan); }
+  .shufbtn:active{ background: rgba(53,208,255,0.24); }
+  .shufbtn.done{ border-color: var(--cyan); box-shadow: 0 0 18px rgba(53,208,255,0.45); }
+  .shufinfo{ position:relative; flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid rgba(147,174,200,0.55); background:transparent;
+    color: var(--muted); font:800 12px Georgia, serif; font-style:italic; display:flex; align-items:center; justify-content:center; padding:0; }
+  .shufinfo::before{ content:''; position:absolute; inset:-10px; }
+  @keyframes shufglow{ 0%{ box-shadow:0 0 0 1px rgba(53,208,255,0.7), 0 0 16px rgba(53,208,255,0.35); } 100%{ box-shadow:0 0 0 1px rgba(53,208,255,0), 0 0 0 rgba(53,208,255,0); } }
+  #list li.shufmoved{ animation: shufglow 1.1s ease-out both; }
+  @media (prefers-reduced-motion: reduce){ #list li.shufmoved{ animation:none; } }
+  .shufblocks{ display:flex; flex-direction:column; gap:8px; margin:4px 0 16px; }
+  .shufblock{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:14px; background: var(--card); border:1px solid var(--hair2); }
+  .shufblock b{ flex:none; width:74px; color:#fff; font-size:14px; font-weight:800; }
+  .shufchips{ display:flex; gap:5px; flex:1; min-width:0; }
+  .shufchips i{ flex:1; height:22px; border-radius:6px; background: rgba(53,208,255,0.1); border:1px solid rgba(53,208,255,0.3); font-style:normal;
+    display:flex; align-items:center; justify-content:center; color: var(--cyan); font-size:11px; font-weight:800; transition: transform .5s cubic-bezier(.2,.85,.25,1); }
+  .shufblock span{ flex:none; color: var(--muted); font-size:12px; font-weight:700; width:52px; text-align:right; }
+  .shufpts{ margin:0 0 14px; display:flex; flex-direction:column; gap:8px; }
+  .shufpts div{ display:flex; gap:10px; color: var(--text); font-size:14px; font-weight:700; line-height:1.4; }
+  .shufpts div::before{ content:''; flex:none; width:6px; height:6px; border-radius:50%; background: var(--cyan); margin-top:8px; }
+  .confirmrow[hidden]{ display:none; }
+  /* 4.5.0: the number box is a drag handle (press and move); a tap still opens Jump to a spot */
+  #tabPicks:not(.islocked) .game:not(.removed) .points{ touch-action:none; }
   /* 4.3.0: Edge Engine pill (this phone only) */
   .edgebtn{ margin-left:auto; position:relative; overflow:hidden; display:inline-flex; align-items:center;
     height:30px; min-width:156px; padding:0 13px 0 5px; border-radius:15px;
@@ -606,6 +847,30 @@
   .sheetrow.isdog::before{ content:''; position:absolute; top:1px; bottom:1px; left:-5px; right:-3px; border-radius:8px; pointer-events:none;
     box-shadow: inset 0 0 0 1.5px rgba(214,224,236,0.9), 0 0 12px rgba(214,224,236,0.28); }
   .sheetrow.isdog .dogtag{ background: linear-gradient(180deg, #e6ecf3, #aeb9c7); color:#0b1321; }
+  /* 4.5.0 Sheet results: tinted glass, not solid paint */
+  .sheetmeta b{ color:#6ee8a4; font-weight:800; }
+  .sheetrow{ transition: background .6s ease; }
+  .sheetrow .sheetnum{ transition: background .5s ease, border-color .5s ease, color .5s ease, box-shadow .5s ease; }
+  .sheetrow.won, .sheetrow.tied{ position:relative;
+    background: linear-gradient(90deg, rgba(61,220,132,0.11), rgba(61,220,132,0.025) 70%, rgba(61,220,132,0));
+    box-shadow: inset 0 0 0 1px rgba(61,220,132,0.14);
+    border-radius:8px; margin:0 -6px; padding:0 6px; border-bottom-color:transparent; }
+  .sheetrow.won .sheetnum, .sheetrow.tied .sheetnum{
+    background: linear-gradient(180deg, rgba(61,220,132,0.28), rgba(61,220,132,0.12));
+    border-color: rgba(61,220,132,0.65); color:#8af5b9; box-shadow: 0 0 10px rgba(61,220,132,0.22); }
+  .sheetrow.won .sheetcity, .sheetrow.tied .sheetcity{ color:#6ee8a4; }
+  .sheetrow.lost .sheetnum{
+    background: linear-gradient(180deg, rgba(255,59,78,0.24), rgba(255,59,78,0.10));
+    border-color: rgba(255,59,78,0.6); color:#ff8590; }
+  .sheetrow.lost .sheetcity{ color: var(--faint); text-decoration: line-through; text-decoration-color: rgba(255,59,78,0.85); text-decoration-thickness: 1px; }
+  .sheetrow.lost .slogo, .sheetrow.lost .sheetspread, .sheetrow.lost .dogtag{ opacity:0.4; }
+  .sheetrow.lost.isdog::before{ opacity:0.3; }
+  .sheetrow.isdog.won::before, .sheetrow.isdog.tied::before{ left:-1px; right:1px; }
+  .sheettie{ flex:none; padding:2px 6px; border-radius:5px; border:1px solid rgba(61,220,132,0.45); background: rgba(61,220,132,0.1);
+    font-size:9px; font-weight:800; letter-spacing:1.2px; color:#8af5b9; }
+  @keyframes sheetsettle{ 0%{ filter:brightness(1.6); } 100%{ filter:brightness(1); } }
+  .sheetrow.fresh{ animation: sheetsettle 1.4s ease-out; }
+  @media (prefers-reduced-motion: reduce){ .sheetrow.fresh{ animation:none; } }
 
 
   /* ---------- Live ---------- */
@@ -617,15 +882,6 @@
   }
   .demobar{ border-radius:12px; }
 
-  /* Name gate: Live, the leaderboard and chat need a name first */
-  #liveBody[hidden]{ display:none; }
-  .namegate{
-    display:flex; flex-direction:column; gap:10px; padding:20px; margin-top:8px;
-    border-radius:16px; background: var(--card); border:1px solid rgba(53,208,255,0.3);
-  }
-  .namegate[hidden]{ display:none; }
-  .namegate b{ font-size:19px; font-weight:800; color:#ffffff; }
-  .namegate p{ margin:0 0 6px; font-size:15px; font-weight:500; line-height:1.5; color:#b9cadb; }
 
   .liveactions{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:16px; }
   .chatbtn{
@@ -678,12 +934,6 @@
   .chattitle{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
   .chattitle b{ font-size:21px; font-weight:800; letter-spacing:-0.4px; color:#ffffff; }
   .chattitle span{ font-size:12px; font-weight:600; color: var(--muted); }
-  .chatclose{
-    flex:none; width:40px; height:40px; padding:0; border-radius:50%;
-    border:1px solid var(--hair2); background: rgba(255,255,255,0.04); color: var(--muted);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .chatclose svg{ width:12px; height:12px; display:block; }
   .chatpeople{ flex:none; display:flex; flex-direction:column; gap:8px; padding:0 0 12px; border-bottom:1px solid var(--hair); }
   .chatonline{ display:flex; align-items:center; gap:6px; padding:0 20px; font-size:12px; font-weight:700; color: var(--muted); }
   .chatpills{ display:flex; gap:8px; padding:0 20px; overflow-x:auto; scrollbar-width:none; }
@@ -1443,7 +1693,9 @@
   .rootkick{ color:#4f7cff; }
   .rootasktext{ color: var(--muted); font-size:15px; line-height:1.5; margin:0 0 18px; }
   .rootasktext b{ color:#fff; }
-  .confirmyes.rootgo{ background:#4f7cff; color:#fff; }
+  .confirmyes.rootgo{ border-color: rgba(120,155,255,0.75); background: linear-gradient(180deg, #23377a 0%, #172552 100%); color:#fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px rgba(79,124,255,0.25); }
+  .confirmyes.rootgo:active{ background: linear-gradient(180deg, #2a4290 0%, #1b2c60 100%); border-color:#8aa6ff; }
   @keyframes rootglow{ 0%,100%{ box-shadow:0 0 0 0 rgba(79,124,255,0); border-color: rgba(79,124,255,0.6); }
     50%{ box-shadow:0 0 16px 2px rgba(79,124,255,0.45); border-color: rgba(79,124,255,1); } }
   @keyframes rootbarglow{ 0%,100%{ box-shadow:0 6px 16px rgba(0,0,0,0.45), 0 0 0 0 rgba(79,124,255,0); border-color: rgba(79,124,255,0.7); }
@@ -1538,9 +1790,10 @@
 
   .closebtn{
     width:100%; height:48px; margin-top:8px; padding:0; border-radius:14px;
-    border:none; background: transparent; color: var(--muted); font-size:15px; font-weight:700;
+    border:1px solid rgba(147,174,200,0.24); background: rgba(255,255,255,0.03); color:#c9d6e3; font-size:15px; font-weight:700;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   }
-  .closebtn:active{ background: rgba(255,255,255,0.05); }
+  .closebtn:active{ background: rgba(255,255,255,0.08); }
 
   .confirmcard{ padding:10px 20px calc(24px + env(safe-area-inset-bottom)); }
   .chead{ display:flex; align-items:center; gap:14px; margin-bottom:14px; }
@@ -1560,44 +1813,22 @@
     font-size:17px; font-weight:700; outline:none;
   }
   .nameinput:focus{ border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(53,208,255,0.18); }
-  .confirmrow{ display:flex; flex-direction:column; gap:6px; }
+  .confirmrow{ display:flex; flex-direction:column; gap:8px; }
   .confirmrow button{ width:100%; }
   .confirmyes{
-    height:52px; border:none; border-radius:14px; background: var(--cyan); color:#03131f;
-    font-size:16px; font-weight:800; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+    position:relative; height:52px; border:1px solid rgba(53,208,255,0.6); border-radius:14px;
+    background: linear-gradient(180deg, #13354f 0%, #0b2135 100%); color:#ffffff;
+    font-size:16px; font-weight:800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(0,0,0,0.35), 0 0 14px rgba(53,208,255,0.14);
   }
-  .confirmyes:active{ background:#7fe0ff; }
+  .confirmyes:active{ background: linear-gradient(180deg, #184463 0%, #0f2a42 100%); border-color: var(--cyan); }
+  .confirmyes[disabled]{ opacity:0.5; }
   .confirmcancel{
-    height:48px; border:none; border-radius:14px; background: transparent;
-    color: var(--muted); font-size:15px; font-weight:700;
+    height:48px; border:1px solid rgba(147,174,200,0.24); border-radius:14px; background: rgba(255,255,255,0.03);
+    color:#c9d6e3; font-size:15px; font-weight:700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   }
-  .confirmcancel:active{ background: rgba(255,255,255,0.05); }
+  .confirmcancel:active{ background: rgba(255,255,255,0.08); }
 
-  /* Locked in */
-  .lockedcard{ text-align:center; }
-  .lockpop{
-    width:64px; height:64px; margin: 4px auto 16px; border-radius:50%; background: var(--cyan);
-    display:flex; align-items:center; justify-content:center; color:#03131f;
-    box-shadow: 0 0 0 8px rgba(53,208,255,0.12), 0 0 32px rgba(53,208,255,0.45);
-  }
-  .lockpop svg{ width:28px; height:28px; display:block; }
-  .overlay.show .lockpop{ animation: lockpop 0.48s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.12s both; }
-  @keyframes lockpop{ 0%{ transform:scale(0.4); opacity:0; } 60%{ transform:scale(1.12); opacity:1; } 100%{ transform:scale(1); } }
-  @media (prefers-reduced-motion: reduce){ .overlay.show .lockpop{ animation:none; } }
-  .lockedcard h2{ margin:0 0 6px; font-size:23px; letter-spacing:-0.5px; }
-  .lockedcard .lockedsub{ margin:0 0 16px; color: var(--muted); font-size:14px; font-weight:600; }
-  .lockstats{
-    display:flex; flex-direction:column; padding:4px 14px; margin-bottom:16px; text-align:left;
-    border-radius:16px; background: rgba(6,11,22,0.5); border:1px solid rgba(147,174,200,0.08);
-  }
-  .lockstat{
-    display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:42px;
-    border-top:1px solid rgba(147,174,200,0.08);
-  }
-  .lockstat:first-child{ border-top:none; }
-  .lockstat span{ flex:none; font-size:13px; font-weight:700; color: var(--muted); }
-  .lockstat b{ min-width:0; font-size:14px; font-weight:800; color: var(--gold); text-align:right; }
-  .lockstat b.plain{ color:#ffffff; }
 
 
   /* ===== Quick Tips sheet =====
@@ -1664,9 +1895,10 @@
   .tipnav .confirmyes{ flex:1; }
   .tipback{
     flex:none; width:96px; height:52px; border-radius:14px;
-    border:1px solid var(--hair2); background: transparent; color: var(--text);
-    font-size:15px; font-weight:700;
+    border:1px solid rgba(147,174,200,0.24); background: rgba(255,255,255,0.03); color:#c9d6e3;
+    font-size:15px; font-weight:700; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   }
+  .tipback:active{ background: rgba(255,255,255,0.08); }
   .tipback[hidden]{ display:none; }
 
   @keyframes tqFade{ 0%{ opacity:0; } 5%{ opacity:1; } 88%{ opacity:1; } 95%{ opacity:0; } 100%{ opacity:0; } }
@@ -1852,7 +2084,7 @@
   .toast.show{ opacity:1; }
 </style>
 </head>
-<body>
+<body class="glass">
 
 <div class="topline">
   <div class="brand">
@@ -1873,11 +2105,11 @@
     <div class="linestamp" id="lineStamp"></div>
     <button class="unlinkbtn" id="unlockInline" style="display:none;">Unlock</button>
   </div>
-  <button class="lockinline" id="lockInline" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Lock In Picks</button>
+  <button class="lkbtn" id="lockInline" type="button" style="display:none;"><span class="lkico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Lock In Picks</button>
 
   <div class="rankhead"><b>Your Ranking</b><span id="rankCount"></span></div>
   <div class="scale"><span>1 = least confident</span><i></i><span id="scaleTop">highest = safest lock</span></div>
-  <div class="tiprow"><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button><button class="winpill" id="winPill" type="button" hidden aria-label="Chance to win"></button><button class="edgebtn" id="edgeBtn" type="button" hidden></button></div>
+  <div class="tiprow"><div class="shufwrap" id="shufWrap" hidden><button class="shufbtn" id="shufBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>Smart Shuffle</button><button class="shufinfo" id="shufInfo" type="button" aria-label="What Smart Shuffle does">i</button></div><button class="tipbtn" id="tipsBtn" type="button"><span class="tipplay"><svg viewBox="0 0 8 9" aria-hidden="true"><path d="M1 0.8v7.4L7.2 4.5z" fill="#03131f"/></svg></span>Quick Tips</button><button class="winpill" id="winPill" type="button" hidden aria-label="Chance to win"></button><button class="edgebtn" id="edgeBtn" type="button" hidden></button></div>
 
   <ul id="list"></ul>
   <div class="emptyweek" id="emptyWeek" style="display:none;">
@@ -1898,16 +2130,15 @@
     <div class="sheetcols" aria-hidden="true"><span>Pts</span><span>Pick</span><span>Spread</span></div>
     <div id="sheetList"></div>
   </div>
-  <button class="lockbtn" id="lockBtn">Lock In Picks</button>
+  <div class="lkun" id="lockUn">
+    <p class="lknote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Once you lock in, only the admin can unlock you.</p>
+    <button class="lkbtn" id="lockBtn" type="button"><span class="lkico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Lock In Picks</button>
+  </div>
+  <button class="lkreq" id="unlockReq" type="button" hidden><span class="lkico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><span class="lktxt"><small id="unlockReqSmall">Picks locked for the week</small><b id="unlockReqBig">Request to Unlock</b></span><span class="lkchev" aria-hidden="true">›</span></button>
 </section>
 
 <!-- ===== LIVE ===== -->
 <section class="tabpanel" id="tabLive" hidden>
-    <div class="namegate" id="nameGate" hidden>
-      <b>Add your name to see Live</b>
-      <p>Your name is how the pool sees you on the leaderboard and in chat.</p>
-      <button class="confirmyes" id="nameGateBtn">Add My Name</button>
-    </div>
     <div id="liveBody">
     <div class="livehead">
       <h2 class="panelhead" id="resultsTitle">Score Tracker</h2>
@@ -1927,6 +2158,7 @@
         <div class="scoreleft" id="scoreLeft">0</div>
         <div class="scoreleftlbl">still in play</div>
         <div class="scorecompare" id="scoreCompare"></div>
+        <div class="scoreprog" id="scoreProg" hidden><i></i></div>
         <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
       <div class="lbcard">
@@ -1974,11 +2206,26 @@
 <div class="overlay" id="confirmOverlay">
   <div class="confirmcard" role="dialog" aria-label="Reset to spread order">
     <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v5h5"/></svg></span><h2>Reset to spread order?</h2></div>
-    <p>Every game goes back in spread order, underdog picks return to the favorite, and removed games come back. Your results and the recorded line movement are not affected.</p>
+    <p>Every game goes back in spread order and underdog picks return to the favorite. Removed games stay off your sheet. Your results and the recorded line movement are not affected.</p>
     <div class="confirmrow">
       <button class="confirmyes" id="confirmYes">Reset</button>
       <button class="confirmcancel" id="confirmCancel">Cancel</button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="shufOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Smart Shuffle">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></span><h2>Smart Shuffle</h2></div>
+    <div class="shufblocks" id="shufBlocks"></div>
+    <div class="shufpts">
+      <div>Each tap mixes up your points a little.</div>
+      <div>Games only move inside their block, so your safest picks stay near the top.</div>
+      <div>Your teams don’t change. Only the points do.</div>
+      <div>Reset to Spread Order puts everything back.</div>
+    </div>
+    <div class="confirmrow" id="shufAsk"><button class="confirmyes" id="shufGo">Shuffle</button><button class="confirmcancel" id="shufCancel">Cancel</button></div>
+    <div class="confirmrow" id="shufOkRow" hidden><button class="confirmyes" id="shufOk">Got it</button></div>
   </div>
 </div>
 
@@ -2083,6 +2330,7 @@
     <div class="devmeta" id="devMeta"></div>
     <div class="changelog">
       <h3>What's new</h3>
+      <div class="cl"><b>4.5.0</b> New players add the app to their home screen and enter the name from their paper sheet. Lock In asks once, then takes you to Live. Once you’re locked in, only the admin can unlock you: tap Request to Unlock and it goes to Pool Chat. Smart Shuffle mixes up your points inside blocks. Thursday games start removed each week, and Reset keeps removed games off. Line history starts with the opening line. The Sheet shows wins and losses as games finish. A sleeker Live tab, and the Advanced leaderboard is the default.</div>
       <div class="cl"><b>4.4.1</b> The Advanced leaderboard's win chances now wait until the first game on your sheet kicks off (they show a dash before that).</div>
       <div class="cl"><b>4.4.0</b> Pin a game: tap the pin on any Live now or Up next card to keep it at the top of that section, and tap it again to put it back (pins are just on your phone and reset each week). Your Underdog now shows before kickoff too, in silver; how many others took them still waits until the game starts. Live Quick Tips has a new Pin card and just a Got it button. Analysis plays out a 25-entry pool again.</div>
       <div class="cl"><b>4.3.1</b> Win chances on the Picks tab use sportsbook moneylines as soon as the week loads (before, only after visiting Live). Underdog picks now stand out with a silver outline and a silver DOG badge. Analysis updates right away when you change your picks. Games with the same spread are now ordered by the moneyline, so the stronger favorite gets more points.</div>
@@ -2298,14 +2546,35 @@
   </div>
 </div>
 
-<div class="overlay" id="lockedOverlay">
-  <div class="confirmcard lockedcard" role="dialog" aria-label="Locked in">
-    <div class="lockpop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>
-    <h2>You're locked in</h2>
-    <p class="lockedsub" id="lockedSub"></p>
-    <div class="lockstats" id="lockedStats"></div>
+<div class="overlay" id="lockAskOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Lock in your picks">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Lock in your picks?</h2></div>
+    <p id="lockAskText"></p>
     <div class="confirmrow">
-      <button class="confirmyes" id="lockedDone">Done</button>
+      <button class="confirmyes" id="lockAskGo">Lock In Picks</button>
+      <button class="confirmcancel" id="lockAskCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="lockedAskOverlay">
+  <div class="confirmcard" role="dialog" aria-label="You're locked in">
+    <div id="reqAsk">
+      <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>You’re locked in</h2></div>
+      <p>Your picks are set for the week. Need a change? Send an unlock request and the admin will see it in Pool Chat.</p>
+      <div class="confirmrow">
+        <button class="confirmyes" id="reqSend">Request to Unlock</button>
+        <button class="confirmcancel" id="reqCancel">Cancel</button>
+      </div>
+    </div>
+    <div class="reqdone" id="reqDone" hidden>
+      <div class="reqok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>
+      <h2>Request sent</h2>
+      <p>The admin will unlock you. You’ll get your picks back once they do.</p>
+      <div class="confirmrow">
+        <button class="confirmyes" id="reqOk">Got it</button>
+        <button class="confirmcancel" id="reqChat">View in Pool Chat</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2326,7 +2595,7 @@
   <div class="chatsheet" role="dialog" aria-label="Pool Chat">
     <div class="chathead">
       <div class="chattitle"><b>Pool Chat</b><span id="chatSub">Everyone in the pool</span></div>
-      <button class="chatclose" id="chatClose" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <button class="backbtn anback" id="chatClose" type="button">‹ Back</button>
     </div>
     <div class="chatpeople">
       <span class="chatonline" id="chatOnline"></span>
@@ -2390,15 +2659,6 @@
   </div>
 </div>
 
-<div class="overlay" id="closedOverlay">
-  <div class="confirmcard" role="dialog" aria-label="Picks are final">
-    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>Picks are final</h2></div>
-    <p id="closedText"></p>
-    <div class="confirmrow">
-      <button class="confirmyes" id="closedOk">Got it</button>
-    </div>
-  </div>
-</div>
 
 <div class="overlay" id="edgeCodeOverlay">
   <div class="confirmcard" role="dialog" aria-label="Edge Engine code">
@@ -2459,6 +2719,8 @@
   </div>
 </div>
 
+<div class="gate" id="gate" hidden><div class="gatein" id="gateIn"></div></div>
+
 <div class="toast" id="toast">Copied</div>
 <button type="button" class="updbar" id="updBar" hidden aria-label="New version ready. Tap to update.">
   <span class="updicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cyan)" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><i class="updspin"></i></span>
@@ -2491,8 +2753,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.4.1';
-  const APP_BUILT = 'Oct 1, 2026';
+  const APP_VERSION = '4.5.0';
+  const APP_BUILT = 'Oct 3, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -2584,12 +2846,17 @@
   })();
   const hasArt = !!(window.storage && typeof window.storage.set === 'function');
 
+  const memStore = {};   // 4.5.0: used when the phone won't save, so this visit still remembers
   function put(key, val){
     const s = JSON.stringify(val);
-    if(hasLocal){ try{ localStorage.setItem(key, s); return; }catch(e){} }
+    if(hasLocal){ try{ localStorage.setItem(key, s); delete memStore[key]; return; }catch(e){} }
+    memStore[key] = s;
     if(hasArt){ try{ window.storage.set(key, s, false); }catch(e){} }
   }
   function getLocal(key){
+    if(Object.prototype.hasOwnProperty.call(memStore, key)){
+      try{ return JSON.parse(memStore[key]); }catch(e){ return null; }
+    }
     if(!hasLocal) return null;
     try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
     catch(e){ return null; }
@@ -2627,6 +2894,27 @@
   }
 
   // Pull "DET -7.0" style odds off a competition. Returns null if none posted.
+  /* 4.5.0: ESPN's opening spread, from the same scoreboard feed:
+     odds[0].pointSpread.home.open.line, e.g. "-3" = home favored by 3
+     (checked against a live response Oct 3, 2026). Missing -> nothing. */
+  function parseOpen(comp){
+    try{
+      const o = (comp.odds || [])[0];
+      const ps = o && o.pointSpread;
+      const read = function(side){
+        const v = ps && ps[side] && ps[side].open && ps[side].open.line;
+        if(v === undefined || v === null || v === '') return null;
+        const s = String(v).trim();
+        if(/^(pk|pick|even|ev)$/i.test(s)) return 0;
+        const n = parseFloat(s);
+        return isFinite(n) ? n : null;
+      };
+      let h = read('home');
+      if(h === null){ const a = read('away'); if(a === null) return null; h = -a; }
+      if(Math.abs(h) > 40) return null;
+      return { sp: Math.abs(h), fav: h > 0 ? 'A' : 'B' };   // home is side B
+    }catch(e){ return null; }
+  }
   function parseOdds(comp, awayAb, homeAb){
     const o = (comp.odds || [])[0];
     if(!o) return null;
@@ -2676,7 +2964,9 @@
       if(!awayAb || !homeAb) return;
 
       const odds = parseOdds(comp, awayAb, homeAb);
+      const open = parseOpen(comp);
       out.push({
+        open: open || undefined,
         logoA: pickLogo(away.team),
         logoB: pickLogo(home.team),
         id: 'e' + ev.id,
@@ -2733,36 +3023,6 @@
     return [a, b].sort().join('|');
   }
 
-  /* ---------- finished weeks stay locked ----------
-     Once any game still on a locked sheet has gone final, that sheet can't be
-     unlocked again. Removed games don't count. Worked out fresh every time
-     from real ESPN results only — the simulator and the Monday night preview
-     never count — and nothing new is saved anywhere. An unlocked sheet is
-     left alone. */
-  let finalWeek = 0;
-  let finalKeys = {};
-  function noteFinals(week, events){
-    if(week !== currentWeek) return;
-    if(finalWeek !== week){ finalWeek = week; finalKeys = {}; }
-    (events || []).forEach(function(ev){
-      const st = ev && ev.status && ev.status.type;
-      if(!st || !st.completed) return;
-      const comp = (ev.competitions || [])[0];
-      if(!comp) return;
-      const abs = (comp.competitors || []).map(function(c){ return c.team && c.team.abbreviation; })
-                                          .filter(Boolean);
-      if(abs.length === 2) finalKeys[abs.slice().sort().join('|')] = true;
-    });
-  }
-  function finalOnSheet(){
-    return games.some(function(g){
-      if(g.removed) return false;
-      const r = results[g.id];
-      if(r === 'win' || r === 'loss' || r === 'tie') return true;
-      return finalWeek === currentWeek && !!finalKeys[matchKey(g)];
-    });
-  }
-  function weekClosed(){ return weekLocked && finalOnSheet(); }
 
   function mergeLines(newLines, frozen){
     // A locked sheet never reorders, whatever state the frozen flag is in.
@@ -2781,7 +3041,8 @@
       if(!old){
         const seed = (typeof n.spread === 'number')
           ? [{ sp:n.spread, fav:n.fav, t:now }] : [];
-        return {...n, pick:'fav', removed:false, history: seed};
+        // 4.5.0: a game new to the sheet that's on a Thursday starts removed.
+        return {...n, pick:'fav', removed: isThursday(n), history: seed};
       }
       // History is a log of every distinct line, oldest first.
       let hist = Array.isArray(old.history) ? old.history.slice() : [];
@@ -2802,7 +3063,7 @@
               logoA:n.logoA, logoB:n.logoB, home:n.home,
               fav: hasLine ? n.fav : old.fav,
               spread: hasLine ? n.spread : old.spread,
-              date:n.date, history: hist};
+              date:n.date, history: hist, open: n.open || old.open};
     });
 
     /* Anything already on the sheet that this response didn't mention stays.
@@ -2884,7 +3145,7 @@
     if(ub) ub.style.display = weekLocked ? 'block' : 'none';
     // Nothing to lock in until there are games on the sheet.
     const lb = document.getElementById('lockInline');
-    if(lb) lb.style.display = (!weekLocked && activeGames().length) ? 'block' : 'none';
+    if(lb) lb.style.display = (!weekLocked && activeGames().length) ? 'flex' : 'none';
   }
 
   function fetchLines(week){
@@ -2896,7 +3157,6 @@
       .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
       .then(function(data){
         if(w !== currentWeek) return;
-        noteFinals(w, data.events);
         try{ noteLineML(data.events); }catch(e){}
         const fresh = gamesFromEvents(data.events);
         if(!fresh.length) throw new Error('no games');
@@ -2941,6 +3201,10 @@
     const restored = fromSaved(getLocal(picksKey(week)), week);
     const savedRes = getLocal(resKey(week));
     if(restored) games = restored;
+    else{
+      games.forEach(function(g){ if(isThursday(g)) g.removed = true; });
+      games = parkRemoved(games);
+    }
     if(savedRes) results = savedRes;
     stampLine(week);
     syncLockBtn();
@@ -3037,7 +3301,8 @@
   function favCityFor(g, favSide){ return favSide === 'A' ? g.cityA : g.cityB; }
 
   function showHistory(g){
-    const hist = Array.isArray(g.history) ? g.history : [];
+    const rec = Array.isArray(g.history) ? g.history : [];
+    const hist = (g.open && typeof g.open.sp === 'number' && rec.length) ? [{ sp: g.open.sp, fav: g.open.fav, opened: true }].concat(rec) : rec;
     document.getElementById('histTitle').textContent = g.cityA + ' at ' + g.cityB;
     if(hist.length < 2){
       document.getElementById('histBody').innerHTML =
@@ -3048,8 +3313,8 @@
          identical and the open could appear to come after the current line. */
       document.getElementById('histBody').innerHTML = hist.map(function(e, i){
         const d = new Date(e.t);
-        const ok = !isNaN(d);
-        const day = ok ? d.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'}) : '';
+        const ok = !e.opened && !isNaN(d);
+        const day = e.opened ? 'Opened' : ok ? d.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'}) : '';
         const time = ok ? d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '';
         let delta = '';
         if(i > 0){
@@ -3062,7 +3327,7 @@
           }
         }
         const current = (i === hist.length - 1);
-        return '<div class="histrow' + (current ? ' now' : '') + '">' +
+        return '<div class="histrow' + (current ? ' now' : '') + (e.opened ? ' opened' : '') + '">' +
           '<span class="histwhen">' + esc(day) + '</span>' +
           '<span class="histline">' + favCityFor(g, e.fav) + ' -' + e.sp + delta + '</span>' +
           '<span class="histtime">' + esc(time) + '</span>' +
@@ -3078,6 +3343,14 @@
     if(!g || !g.date) return true;
     const d = new Date(g.date);
     return isNaN(d) ? true : d.getDay() === 0;
+  }
+  // 4.5.0: Thursday, judged in Eastern time like the night games.
+  function isThursday(g){
+    if(!g || !g.date) return false;
+    const d = new Date(g.date);
+    if(isNaN(d)) return false;
+    try{ return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(d) === 'Thu'; }
+    catch(e){ return d.getDay() === 4; }
   }
   // Night games kick off 7 PM Eastern or later — judged in Eastern time so
   // Sunday night reads the same for everyone, wherever their phone is.
@@ -3219,6 +3492,7 @@
       if(rankBtn){
         rankBtn.addEventListener('click', function(e){
           e.stopPropagation();
+          if(Date.now() - rankTapBlock < 450) return;
           const cur = gameById(gid);
           if(cur) openSlotPicker(cur);
         });
@@ -3441,28 +3715,38 @@
   }
   listEl.addEventListener('touchmove', blockScroll, {passive:false});
 
+  const HOLD_MS = 300;
+  let rankTapBlock = 0;              // a drag that started on the number box isn't also a tap
+  function pressActivate(){
+    if(!press || press.active) return;
+    clearTimeout(press.timer);
+    press.active = true;
+    // From the number box the card follows from the first touch; after a hold, from where it is.
+    press.baseY = press.handle ? press.startY + press.startScroll : press.lastClientY + window.scrollY;
+    press.li.classList.remove('pressing');
+    press.li.classList.add('dragging');
+    document.body.classList.add('dragmode');
+    if(navigator.vibrate) navigator.vibrate(15);
+    startAutoScroll();
+  }
   listEl.addEventListener('pointerdown', function(e){
     const li = e.target.closest('.game');
-    if(!li || e.target.closest('button')) return;
+    if(!li) return;
+    const handle = e.target.closest('.points');
+    if(e.target.closest('button') && !handle) return;
+    if(handle && (weekLocked || li.classList.contains('removed'))) return;
     if(weekLocked){
       // Don't interrupt scrolling — only prompt if they actually hold to drag.
       press = {
         li: li, id: li.dataset.id, startY: e.clientY, lockedProbe: true,
-        timer: setTimeout(function(){ if(press && press.lockedProbe){ press = null; askUnlock(); } }, 450)
+        timer: setTimeout(function(){ if(press && press.lockedProbe){ press = null; askUnlock(); } }, HOLD_MS)
       };
       return;
     }
     press = {
       li: li, id: li.dataset.id, startY: e.clientY, baseY: e.clientY, active:false,
-      timer: setTimeout(function(){
-        press.active = true;
-        press.baseY = press.lastClientY + window.scrollY;
-        li.classList.remove('pressing');
-        li.classList.add('dragging');
-        document.body.classList.add('dragmode');
-        if(navigator.vibrate) navigator.vibrate(15);
-        startAutoScroll();
-      }, 450)
+      handle: !!handle, startScroll: window.scrollY,
+      timer: handle ? null : setTimeout(pressActivate, HOLD_MS)
     };
     press.lastClientY = e.clientY;
     li.classList.add('pressing');
@@ -3563,8 +3847,12 @@
     }
     press.lastClientY = e.clientY;
     if(!press.active){
-      if(Math.abs(e.clientY - press.startY) > 10) cancelPress();
-      return;
+      const moved = Math.abs(e.clientY - press.startY);
+      if(press.handle && moved > 4) pressActivate();
+      else{
+        if(moved > 10) cancelPress();
+        return;
+      }
     }
     e.preventDefault();
     dragTick();
@@ -3598,6 +3886,7 @@
     if(press.raf) cancelAnimationFrame(press.raf);
     press.li.classList.remove('pressing');
     if(press.active){
+      if(press.handle) rankTapBlock = Date.now();
       press.li.style.transform = '';
       press.li.classList.remove('dragging');
       document.body.classList.remove('dragmode');
@@ -3623,6 +3912,9 @@
       startLiveTimer();
       syncPool();
       startBoardTimer();
+    }else if(isTab('sheet')){
+      sheetRefresh();
+      startSheetTimer();
     }else{
       fetchLines(currentWeek);
     }
@@ -3647,6 +3939,7 @@
     weekTouched = true;
     saveAll();
     loadWeek(parseInt(weekPick.value, 10));
+    if(isTab('picks') && picksBlocked()) showTab('live');
     saveView(currentTab);
   });
 
@@ -3857,104 +4150,196 @@
     document.getElementById('sheetTitle').textContent = 'Week ' + currentWeek + ' Sheet';
     const act = activeGames();
     const meta = document.getElementById('sheetMeta');
-    if(meta) meta.textContent = act.length ? act.length + ' picks \u00B7 ' + sheetTotal(act.length) + ' pts' : '';
+    const res = activeResults();
+    if(meta){
+      // 4.5.0: once anything is final, the header shows what's banked.
+      const sc = weekScore(act, res);
+      meta.innerHTML = sc.decided
+        ? '<b>' + sc.earned + '</b> banked \u00B7 ' + sc.decided + ' of ' + sc.total + ' final'
+        : (act.length ? act.length + ' picks \u00B7 ' + sheetTotal(act.length) + ' pts' : '');
+    }
+    /* 4.5.0: results paint on the Sheet. Win and tie (a tie pays both sides)
+       are green, a loss is red with the team struck through. A row glows once
+       when its game goes final while the Sheet is open. No live dots. */
+    const was = sheetSeen.week === currentWeek ? sheetSeen.st : null;
+    const now = {};
     /* Spreads stay neutral: green and red mean won and lost everywhere else,
        so an underdog pick is marked with a DOG tag instead of a colour. */
     sheetList.innerHTML = act.map(function(g,i){
       const isDog = g.pick === 'dog';
       const s = (typeof g.spread !== 'number') ? '' : (isDog ? ('+' + g.spread) : ('\u2212' + g.spread));
       const city = pickedCityOf(g);
-      return '<div class="sheetrow' + (isDog ? ' isdog' : '') + '">' +
+      const r = res[g.id];
+      const st = r === 'win' ? 'won' : r === 'loss' ? 'lost' : r === 'tie' ? 'tied' : '';
+      now[g.id] = st;
+      const fresh = st && was && was[g.id] !== undefined && was[g.id] !== st;
+      return '<div class="sheetrow' + (isDog ? ' isdog' : '') + (st ? ' ' + st : '') + (fresh ? ' fresh' : '') + '">' +
         '<span class="sheetnum">' + (i+1) + '</span>' +
         logoTag(logoForCity(g, city), 'slogo') +
         '<span class="sheetcity">' + city + '</span>' +
+        (st === 'tied' ? '<span class="sheettie">TIE</span>' : '') +
         (isDog ? '<span class="dogtag">DOG</span>' : '') +
         '<span class="sheetspread">' + s + '</span>' +
       '</div>';
     }).join('');
+    sheetSeen = { week: currentWeek, st: now };
+  }
+  let sheetSeen = { week: 0, st: null };
+
+  /* 4.5.0: the Sheet updates on its own while it's open, the same way Live does. */
+  let sheetTimer = null, sheetTimerRate = 0;
+  function sheetRefresh(){
+    if(!isTab('sheet') || document.hidden) return;
+    fetchScores(currentWeek, function(){
+      if(!isTab('sheet')) return;
+      renderSheet();
+      const want = liveRate();
+      if(sheetTimer && want !== sheetTimerRate) startSheetTimer();
+    });
+  }
+  function startSheetTimer(){
+    stopSheetTimer();
+    sheetTimerRate = liveRate();
+    sheetTimer = setInterval(sheetRefresh, sheetTimerRate);
+  }
+  function stopSheetTimer(){
+    if(sheetTimer){ clearInterval(sheetTimer); sheetTimer = null; sheetTimerRate = 0; }
   }
   const unlockOverlay = document.getElementById('unlockOverlay');
-  let askedFrom = null;
+  const lockedAskOverlay = document.getElementById('lockedAskOverlay');
+  const lockAskOverlay = document.getElementById('lockAskOverlay');
 
+  /* 4.5.0: locked is locked for the week. Players can't unlock themselves;
+     they send the admin a request through Pool Chat. With the Edge Engine on
+     (Wes's phone) none of this applies: Picks stays open and Unlock works. */
+  function lockExempt(){ try{ return edgeOn(); }catch(e){ return false; } }
+  function picksBlocked(){ return weekLocked && !lockExempt(); }
+
+  /* One request per lock: the request remembers which lock it was for, so a
+     new one is allowed only after the admin unlocks and the player locks again. */
+  const UNLOCKREQ_KEY = 'pickem-unlockreq';
+  function unlockRequested(week){
+    const v = getLocal(UNLOCKREQ_KEY);
+    return !!(v && v['w' + week] === (lockTime(week) || 1));
+  }
+  function noteUnlockRequest(week, on){
+    const v = getLocal(UNLOCKREQ_KEY) || {};
+    if(on) v['w' + week] = lockTime(week) || 1; else delete v['w' + week];
+    put(UNLOCKREQ_KEY, v);
+  }
+  function showReqState(sent){
+    document.getElementById('reqAsk').hidden = sent;
+    document.getElementById('reqDone').hidden = !sent;
+  }
   function askUnlock(){
-    askedFrom = null;
-    if(weekClosed()){ showClosed(); return; }
-    openOverlay(unlockOverlay);
+    if(lockExempt()){ openOverlay(unlockOverlay); return; }
+    showReqState(unlockRequested(currentWeek));
+    openOverlay(lockedAskOverlay);
   }
-  const closedOverlay = document.getElementById('closedOverlay');
-  function showClosed(){
-    document.getElementById('closedText').textContent =
-      'A game on your Week ' + currentWeek + ' sheet is final, so this sheet is locked for good. ' +
-      'Once results are in, nobody\u2019s picks can change.';
-    openOverlay(closedOverlay);
-  }
-  document.getElementById('closedOk').addEventListener('click', function(){ closeOverlay(closedOverlay); });
-  closedOverlay.addEventListener('click', function(e){ if(e.target === closedOverlay) closeOverlay(closedOverlay); });
+  document.getElementById('reqSend').addEventListener('click', function(){
+    const week = currentWeek, me = player();
+    if(!weekLocked || unlockRequested(week) || !me.name) return;
+    noteUnlockRequest(week, true);
+    showReqState(true);
+    syncLockBtn();
+    postChat(me.id, me.name, '\uD83D\uDD13 Unlock request: ' + me.name + ' needs Week ' + week + ' unlocked, please.')
+      .catch(function(){
+        noteUnlockRequest(week, false);
+        syncLockBtn();
+        if(lockedAskOverlay.classList.contains('show')) showReqState(false);
+        toast('Couldn\u2019t send. Check your connection.');
+      });
+  });
+  document.getElementById('reqCancel').addEventListener('click', function(){ closeOverlay(lockedAskOverlay); });
+  document.getElementById('reqOk').addEventListener('click', function(){ closeOverlay(lockedAskOverlay); });
+  document.getElementById('reqChat').addEventListener('click', function(){
+    closeOverlay(lockedAskOverlay);
+    setTimeout(function(){ if(!isTab('live')) showTab('live'); openChat(); }, 320);
+  });
+  lockedAskOverlay.addEventListener('click', function(e){ if(e.target === lockedAskOverlay) closeOverlay(lockedAskOverlay); });
+
   const histOverlay = document.getElementById('histOverlay');
   document.getElementById('histBack').addEventListener('click', function(){ closeOverlay(histOverlay); });
   document.getElementById('histClose').addEventListener('click', function(){ closeOverlay(histOverlay); });
   histOverlay.addEventListener('click', function(e){ if(e.target === histOverlay) closeOverlay(histOverlay); });
 
+  // Self-unlock: Edge Engine phone only (see lockExempt).
   document.getElementById('unlockCancel').addEventListener('click', function(){ closeOverlay(unlockOverlay); });
   document.getElementById('unlockYes').addEventListener('click', function(){
-    // A game can go final while this sheet is open. Check again at the tap.
-    if(weekClosed()){
-      closeOverlay(unlockOverlay);
-      setTimeout(showClosed, 300);
-      return;
-    }
+    closeOverlay(unlockOverlay);
+    if(!lockExempt()) return;
     weekLocked = false;
     saveAll();
     markUnlocked(currentWeek);
-    closeOverlay(unlockOverlay);
     syncLockBtn();
     stampLine(currentWeek);
     render();
   });
   unlockOverlay.addEventListener('click', function(e){ if(e.target === unlockOverlay) closeOverlay(unlockOverlay); });
 
+  /* Sheet tab bottom: Lock In while unlocked; once locked, the Request to
+     Unlock card (or "Unlock requested / Waiting on the admin"). */
   function syncLockBtn(){
-    const b = document.getElementById('lockBtn');
-    if(!b) return;
-    b.innerHTML = ICON_LOCK + (weekLocked ? 'Picks locked \u00B7 Tap to unlock' : 'Lock In Picks');
-    b.classList.toggle('on', weekLocked);
+    const un = document.getElementById('lockUn'), req = document.getElementById('unlockReq');
+    if(!un || !req) return;
+    un.hidden = weekLocked;
+    req.hidden = !weekLocked;
+    if(!weekLocked) return;
+    const ex = lockExempt();
+    const sent = !ex && unlockRequested(currentWeek);
+    const small = document.getElementById('unlockReqSmall');
+    small.textContent = sent ? 'Unlock requested' : 'Picks locked for the week';
+    small.classList.toggle('pend', sent);
+    document.getElementById('unlockReqBig').textContent = ex ? 'Unlock' : sent ? 'Waiting on the admin' : 'Request to Unlock';
   }
 
   document.getElementById('unlockInline').addEventListener('click', askUnlock);
+  document.getElementById('unlockReq').addEventListener('click', askUnlock);
+
+  /* Lock In (Picks or Sheet) asks once, then locks and jumps to Live. */
+  function askLockIn(){
+    if(weekLocked){ askUnlock(); return; }
+    const n = activeGames().length;
+    if(!n) return;
+    document.getElementById('lockAskText').textContent = 'Week ' + currentWeek + ', ' + n + ' games. ' +
+      'Once you lock in, your picks are set for the week. Only the admin can unlock them.';
+    openOverlay(lockAskOverlay);
+  }
+  document.getElementById('lockAskCancel').addEventListener('click', function(){ closeOverlay(lockAskOverlay); });
+  lockAskOverlay.addEventListener('click', function(e){ if(e.target === lockAskOverlay) closeOverlay(lockAskOverlay); });
+  document.getElementById('lockAskGo').addEventListener('click', function(){
+    closeOverlay(lockAskOverlay);
+    doLock();
+  });
 
   function doLock(){
-    if(weekLocked){ askUnlock(); return; }
+    if(weekLocked) return;
+    if(!player().name){ showGate('name'); return; }   // safety net; the first-open gate always gets a name
     weekLocked = true;
     noteLockTime(currentWeek);
     freezeOrder();
     saveAll();
     syncLockBtn();
     stampLine(currentWeek);
-    if(!player().name){ askName(true); return; }
     publishNow();
-    showLocked();
+    maybeWelcome();
+    setTimeout(function(){ if(!isTab('live')) showTab('live'); }, 300);
   }
 
-  /* The moment of locking in gets its own sheet: what you're standing on. */
-  const lockedOverlay = document.getElementById('lockedOverlay');
-  function showLocked(){
-    const act = activeGames();
-    const n = act.length;
-    if(!n) return;
-    document.getElementById('lockedSub').textContent =
-      'Week ' + currentWeek + ' \u00B7 ' + n + ' games \u00B7 ' + sheetTotal(n) + ' points';
-    const dogs = act.filter(function(g){ return g.pick === 'dog'; }).map(pickedCityOf);
-    document.getElementById('lockedStats').innerHTML =
-      '<div class="lockstat"><span>Safest lock</span><b>' + esc(pickedCityOf(act[n - 1])) + ' (' + n + ')</b></div>' +
-      '<div class="lockstat"><span>Riskiest</span><b>' + esc(pickedCityOf(act[0])) + ' (1)</b></div>' +
-      '<div class="lockstat"><span>Underdogs</span><b class="plain">' + (dogs.length ? esc(dogs.join(', ')) : 'None') + '</b></div>';
-    openOverlay(lockedOverlay);
+  /* A brand-new player (came through the first-open name screen) gets one
+     "Welcome to the pool" line in Pool Chat the first time they lock in. */
+  const WELCOME_KEY = 'pickem-welcome';
+  function maybeWelcome(){
+    const w = getLocal(WELCOME_KEY);
+    const me = player();
+    if(!w || !w.pending || !me.name) return;
+    put(WELCOME_KEY, { pending: false });
+    postChat('pool', 'Pool', 'Welcome to the pool, ' + me.name + '!')
+      .catch(function(){ put(WELCOME_KEY, { pending: true }); });
   }
-  document.getElementById('lockedDone').addEventListener('click', function(){ closeOverlay(lockedOverlay); });
-  lockedOverlay.addEventListener('click', function(e){ if(e.target === lockedOverlay) closeOverlay(lockedOverlay); });
 
-  document.getElementById('lockBtn').addEventListener('click', doLock);
-  document.getElementById('lockInline').addEventListener('click', doLock);
+  document.getElementById('lockBtn').addEventListener('click', askLockIn);
+  document.getElementById('lockInline').addEventListener('click', askLockIn);
 
   /* results */
   /* ---------- tabs ----------
@@ -3968,6 +4353,10 @@
 
   function showTab(name, fromPop){
     if(TABS.indexOf(name) < 0) name = 'picks';
+    if(name === 'picks' && picksBlocked()){
+      if(!fromPop){ askUnlock(); return; }
+      name = 'live';
+    }
     const prev = currentTab;
     if(prev === name && !fromPop) return;
     currentTab = name;
@@ -3982,7 +4371,8 @@
     });
 
     if(prev === 'live' && name !== 'live') stopLiveTimers();
-    if(name === 'sheet') renderSheet();
+    if(prev === 'sheet' && name !== 'sheet') stopSheetTimer();
+    if(name === 'sheet'){ renderSheet(); sheetRefresh(); startSheetTimer(); }
     if(name === 'live') enterLive();
     if(name === 'picks' && prev !== 'picks') maybeAutoTips();
     if(name === 'live' && prev !== 'live') maybeLiveTips();
@@ -4274,7 +4664,6 @@
         });
         liveGames = out;
         if(week === currentWeek) notePlays(out);
-        noteFinals(week, data.events);
         liveStatus = weekComplete()
           ? ('Week ' + week + ' final')
           : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
@@ -4588,14 +4977,14 @@
     });
     void resultsList.offsetHeight;
     if(pinning) card.classList.add('pinmove');
-    cards.forEach(function(c){ if(c.style.transform){ c.style.transition = 'transform .7s cubic-bezier(.22,.8,.25,1)'; c.style.transform = ''; } });
+    cards.forEach(function(c){ if(c.style.transform){ c.style.transition = 'transform 1s cubic-bezier(.22,.8,.25,1)'; c.style.transform = ''; } });
     setTimeout(function(){
       cards.forEach(function(c){ c.style.transition = ''; });
       if(pinning){
         card.classList.remove('pinmove', 'pinpulse'); void card.offsetWidth; card.classList.add('pinpulse');
         setTimeout(function(){ card.classList.remove('pinpulse'); }, 750);
       }
-    }, 720);
+    }, 1020);     // 4.5.0: matches the 1.0 s slide, so the card never snaps
   }
   // "Q2 - 6:31" -> ["Q2", "6:31"]; "Halftime" stays whole.
   function splitClock(txt){
@@ -4930,6 +5319,12 @@
     const cmp = document.getElementById('scoreCompare');
     cmp.textContent = (sc.decided === 0) ? 'Results fill in as games go final.'
       : sc.decided + ' of ' + sc.total + ' scored';
+    // 4.5.0: a thin bar under "8 of 15 scored"
+    const prog = document.getElementById('scoreProg');
+    if(prog){
+      prog.hidden = !sc.decided;
+      prog.firstChild.style.width = (sc.total ? Math.round(100 * sc.decided / sc.total) : 0) + '%';
+    }
 
     // Open first. The leaderboard and the season table are extras — if either
     // one hits something unexpected, you still get your scores.
@@ -5281,7 +5676,7 @@
     if(boardTimer){ clearInterval(boardTimer); boardTimer = null; }
     if(seasonTimer){ clearInterval(seasonTimer); seasonTimer = null; }
   }
-  function enterLive(){ openResults(); requireNameForLive(); }
+  function enterLive(){ openResults(); }
 
   /* Season Standings sits collapsed at the bottom of Live. Whether it's open
      is remembered per device; nothing else about it is stateful. */
@@ -5669,6 +6064,7 @@
     document.getElementById('rootFrame').hidden = !row;
     document.getElementById('rootName').textContent = row ? row.name : '';
     document.getElementById('scoreBanner').textContent = row ? row.name + '\u2019s Score' : 'Your Score';
+    document.body.classList.toggle('rooting', !!row);
   }
   function rootRefresh(){
     resultsList.dataset.ids = '';
@@ -6010,6 +6406,7 @@
       out:  ['OUT OF REACH', 'Winning this week is out of reach.', 'Even with every game left going ' + (V.root ? nm_(V) + '\u2019s' : 'your') + ' way, ' + W.would + ' finish below where a winner usually lands.']
     }[st];
     const dim = st === 'out' || st === 'long' || st === 'outside' || st === 'notwon';
+    document.getElementById('anOverlay').dataset.ac = AN_ACCENT[st] || 'cyan';
     document.getElementById('anWk').className = 'anwk' + (dim ? ' out' : '') + (done ? ' final' : '');
     anSet('anWinL', 'Likely winning total'); anSet('anBestL', W.Pos + (done ? ' final' : ' best case'));
     const ringLbl = document.querySelector('#anOverlay .anring .rin span');
@@ -6076,11 +6473,15 @@
     return (V.root ? nm_(V) + '\u2019s' : 'your') + ' games to win';
   }
   // Before 3 or fewer games are left: no simulation, just the plain numbers.
+  // 4.5.0: each result's accent on the Analysis card.
+  const AN_ACCENT = { fav:'gold', won:'gold', likelywon:'gold', likelywin:'gold',
+    run:'green', hunt:'green', mix:'green', long:'slate', outside:'slate', out:'red', notwon:'red' };
   function anFillEarly(q, W){
     let left = 0, n = 0;
     q.active.forEach(function(g){ if(!anFinal(g)){ left += q.V.sheet[g.id].pts; n++; } });
     const best = q.you + left;
     document.getElementById('anWk').className = 'anwk early';
+    document.getElementById('anOverlay').dataset.ac = 'cyan';
     const chip = document.getElementById('anChip'); chip.className = 'anchip early'; chip.textContent = 'TOO EARLY TO TELL';
     anSet('anHead', 'It\u2019s too early to tell.');
     anSet('anText', 'Chances show up once ' + AN_MAX_LEFT + ' or fewer games are left.');
@@ -6346,7 +6747,8 @@
     if(pid === player().id) return;
     if(adminOn()){ openAdminPlayer(pid); return; }
     const them = board.filter(function(r){ return r.id === pid; })[0];
-    if(!them || !them.share) return;
+    if(!them) return;
+    if(!them.share){ toast(shownName(them.id, them.name) + ' hasn\u2019t opened their sheet yet.'); return; }
     if(!sharingOn(currentWeek)){ askShare(pid); return; }
     showPlayerSheet(pid);
     if(!liveGames.length){
@@ -6385,18 +6787,24 @@
     /* Reset rebuilds the sheet from the cached lines, which carry no history —
        so the recorded line movement has to be carried across by hand. Resetting
        your order is not a reason to lose a week of line movement. */
-    const keep = {};
+    const keep = {}, opens = {}, gone = {};
     games.forEach(function(g){
       if(Array.isArray(g.history) && g.history.length){
         keep[g.id] = g.history;
         keep[matchKey(g)] = g.history;
       }
+      if(g.open){ opens[g.id] = g.open; opens[matchKey(g)] = g.open; }
+      // 4.5.0: Reset no longer brings removed games back.
+      if(g.removed){ gone[g.id] = true; gone[matchKey(g)] = true; }
     });
     weekFrozen = false;
-    games = freshGames(currentWeek).map(function(g){
+    games = parkRemoved(freshGames(currentWeek).map(function(g){
       const h = keep[g.id] || keep[matchKey(g)];
-      return (Array.isArray(h) && h.length) ? Object.assign({}, g, { history: h }) : g;
-    });
+      const x = (Array.isArray(h) && h.length) ? Object.assign({}, g, { history: h }) : g;
+      if(!x.open && (opens[g.id] || opens[matchKey(g)])) x.open = opens[g.id] || opens[matchKey(g)];
+      if(gone[g.id] || gone[matchKey(g)]) x.removed = true;
+      return x;
+    }));
     closeOverlay(confirmOverlay);
     render(); saveAll();
     stampLine(currentWeek);
@@ -6783,7 +7191,7 @@
   function lbAdv(){
     if(lbAdvMem !== null) return lbAdvMem;
     const v = getLocal(LBMODE_KEY);
-    return !!(v && v.adv);
+    return v ? !!v.adv : true;     // 4.5.0: Advanced unless you chose Basic
   }
   function syncLbMode(){
     const btn = document.getElementById('lbMode');
@@ -7360,6 +7768,8 @@
     const n = unreadCount();
     b.hidden = !n;
     b.textContent = n > 9 ? '9+' : String(n);
+    const cb = document.getElementById('chatBtn');
+    if(cb) cb.classList.toggle('unread', !!n);
   }
 
   function chatTime(t){
@@ -7418,7 +7828,7 @@
     let prev = null;
     const admin = adminOn();
     chatList.innerHTML = items.map(function(m){
-      if(m.sys){ prev = null; return '<div class="chatsys">' + esc(m.text) + '</div>'; }
+      if(m.sys || m.pid === 'pool'){ prev = null; return '<div class="chatsys">' + esc(m.text) + '</div>'; }
       const mine = m.pid === me.id;
       const first = !(prev && prev.pid === m.pid);
       prev = m;
@@ -7436,7 +7846,7 @@
   }
 
   function openChat(){
-    if(!player().name){ askName(true, 'live'); return; }
+    if(!player().name){ showGate('name'); return; }
     renderChatPeople();
     renderChat(false);
     openOverlay(chatOverlay);
@@ -7619,7 +8029,7 @@
     const text = String(input.value || '').replace(/\s*\n\s*/g, ' ').trim().slice(0, 200);
     const me = player();
     if(!text || chatSending) return;
-    if(!me.name){ askName(true, 'live'); return; }
+    if(!me.name){ showGate('name'); return; }
     if(typeof fetch !== 'function') return;
     chatSending = true;
     const btn = document.getElementById('chatSend');
@@ -7638,6 +8048,21 @@
       })
       .catch(function(){ toast('Couldn\u2019t send. Check your connection.'); })
       .then(function(){ chatSending = false; btn.disabled = false; });
+  }
+
+  /* Scripted posts (welcome, unlock request). Same fields the rules allow. */
+  function postChat(pid, name, text){
+    if(typeof fetch !== 'function') return Promise.reject(new Error('offline'));
+    return fetch(chatUrl(chatWeek()), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pid: pid, name: name, text: text, t: { '.sv': 'timestamp' } })
+    }).then(function(r){
+      if(!r.ok) throw new Error('bad');
+      chatBusy = false;
+      pollChat();
+      return r;
+    });
   }
 
   document.getElementById('chatBtn').addEventListener('click', openChat);
@@ -7717,6 +8142,7 @@
   }
   // Keeps the pill honest: any change to the sheet or its lines ends "Edge Applied".
   function edgeSync(){
+    try{ syncShuffle(); }catch(e){}
     const b = document.getElementById('edgeBtn');
     if(!b) return;
     const act = games.filter(function(g){ return !g.removed; });
@@ -7851,19 +8277,41 @@
     return { act: act, pts: pts, fav: fav, step: step, chance: function(){ return cur / S; } };
   }
   function edgeRects(){ const m = {}; Array.prototype.forEach.call(listEl.children, function(li){ m[li.dataset.id] = li.getBoundingClientRect().top; }); return m; }
-  function edgeSlide(first, changedIds){
+  /* Rows slide into their new places: 0.9 s each, moved rows starting 45 ms
+     apart (4.5.0, Smart Shuffle and Edge Engine alike). glow = the shuffle's
+     one-time cyan glow as each row lands. Returns how long it all takes. */
+  const SLIDE_MS = 900, SLIDE_STAGGER = 45;
+  function edgeSlide(first, changedIds, glow){
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let k = 0;
+    const moved = [];
     Array.prototype.forEach.call(listEl.children, function(li){
       const top = first[li.dataset.id];
-      if(!reduce && typeof top === 'number'){ const dy = top - li.getBoundingClientRect().top; if(dy){ li.style.transition = 'none'; li.style.transform = 'translateY(' + dy + 'px)'; } }
+      if(typeof top !== 'number') return;
+      const dy = top - li.getBoundingClientRect().top;
+      if(Math.abs(dy) < 1) return;
+      const delay = (k++) * SLIDE_STAGGER;
+      moved.push(li);
+      if(glow){
+        li.style.animationDelay = (delay + 600) + 'ms';
+        li.classList.remove('shufmoved'); void li.offsetWidth; li.classList.add('shufmoved');
+        setTimeout(function(){ li.classList.remove('shufmoved'); li.style.animationDelay = ''; }, delay + 600 + 1150);
+      }
+      if(reduce) return;
+      li.style.transition = 'none';
+      li.style.transform = 'translateY(' + dy + 'px)';
+      li.dataset.slideDelay = String(delay);
     });
     void listEl.offsetHeight;
-    Array.prototype.forEach.call(listEl.children, function(li){
-      if(li.style.transform){ li.style.transition = 'transform .6s cubic-bezier(.2,.8,.2,1)'; li.style.transform = ''; }
+    moved.forEach(function(li){
+      if(!li.style.transform) return;
+      li.style.transition = 'transform ' + SLIDE_MS + 'ms cubic-bezier(.25,.8,.25,1) ' + (li.dataset.slideDelay || 0) + 'ms';
+      li.style.transform = '';
     });
+    const total = reduce ? 0 : SLIDE_MS + Math.max(0, k - 1) * SLIDE_STAGGER;
     setTimeout(function(){
       Array.prototype.forEach.call(listEl.children, function(li){
-        li.style.transition = ''; li.style.transform = '';
+        li.style.transition = ''; li.style.transform = ''; delete li.dataset.slideDelay;
         if(changedIds && changedIds[li.dataset.id]) li.classList.add('edged');
       });
       setTimeout(function(){
@@ -7871,8 +8319,113 @@
           if(li.classList.contains('edged')){ li.classList.add('edgefade'); li.classList.remove('edged'); setTimeout(function(){ li.classList.remove('edgefade'); }, 1300); }
         });
       }, 3000);
-    }, reduce ? 0 : 620);
+    }, total + 20);
+    return total;
   }
+
+  /* ---------- 4.5.0 Smart Shuffle ----------
+     For everyone except the Edge Engine phone. Moves points only, never
+     flips a pick, and only inside fixed blocks: points 1-5, 6-10 and 11 up.
+     Truly random on every tap and every phone (never the same order twice in
+     a row inside a block). Never runs on its own; spread order stays the default. */
+  const SHUF_KEY = 'pickem-shuffle';
+  function shuffleBlocks(n){
+    const out = [[0, Math.min(5, n)]];
+    if(n > 5) out.push([5, Math.min(10, n)]);
+    if(n > 10) out.push([10, n]);
+    return out;
+  }
+  function shuffleOnce(a){
+    let b = a.slice(), tries = 0;
+    const same = function(x){ return x.every(function(g, i){ return g === a[i]; }); };
+    do{
+      for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; }
+    }while(b.length > 1 && same(b) && ++tries < 8);
+    if(b.length > 1 && same(b)) b = a.slice(1).concat(a[0]);
+    return b;
+  }
+  function syncShuffle(){
+    const w = document.getElementById('shufWrap');
+    if(!w) return;
+    let edge = false;
+    try{ edge = edgeOn(); }catch(e){}
+    const show = !edge && !weekLocked && activeGames().length >= 2;
+    w.hidden = !show;
+    if(w.parentNode) w.parentNode.classList.toggle('hasshuf', show);
+  }
+  function smartShuffle(){
+    if(weekLocked) return;
+    const act = activeGames();
+    if(act.length < 2) return;
+    const first = edgeRects();
+    let order = [];
+    shuffleBlocks(act.length).forEach(function(r){ order = order.concat(shuffleOnce(act.slice(r[0], r[1]))); });
+    let k = 0;
+    games = games.map(function(g){ return g.removed ? g : order[k++]; });
+    weekFrozen = true;            // a shuffle is your order now; the spread stops reordering it
+    saveAll();
+    stampLine(currentWeek);
+    render();
+    edgeSlide(first, null, true);
+    const p = document.getElementById('shufBtn');
+    p.classList.add('done'); clearTimeout(p._t);
+    p._t = setTimeout(function(){ p.classList.remove('done'); }, 900);
+  }
+  const shufOverlay = document.getElementById('shufOverlay');
+  let shufDemo = null;
+  function openShufInfo(ask){
+    const n = activeGames().length || 15;
+    const bl = shuffleBlocks(n);
+    const names = bl.length === 3 ? ['Riskiest', 'Middle', 'Safest'] : bl.length === 2 ? ['Riskiest', 'Safest'] : [''];
+    document.getElementById('shufBlocks').innerHTML = bl.map(function(r, i){
+      let chips = '';
+      for(let p = r[0]; p < r[1]; p++) chips += '<i>' + (p + 1) + '</i>';
+      return '<div class="shufblock"><b>' + (r[0] + 1) + '\u2013' + r[1] + ' pts</b><div class="shufchips">' + chips + '</div><span>' + names[i] + '</span></div>';
+    }).reverse().join('');
+    document.getElementById('shufAsk').hidden = !ask;
+    document.getElementById('shufOkRow').hidden = !!ask;
+    openOverlay(shufOverlay);
+    clearTimeout(shufDemo);
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce) return;
+    const rows = Array.prototype.slice.call(document.querySelectorAll('#shufBlocks .shufchips'));
+    shufDemo = setTimeout(function demo(){
+      if(!shufOverlay.classList.contains('show')) return;
+      rows.forEach(function(r){
+        const c = Array.prototype.slice.call(r.children);
+        if(c.length < 2) return;
+        const a = Math.floor(Math.random() * c.length), b = (a + 1 + Math.floor(Math.random() * (c.length - 1))) % c.length;
+        const w = c[0].getBoundingClientRect().width + 5;
+        c[a].style.transform = 'translateX(' + ((b - a) * w) + 'px)';
+        c[b].style.transform = 'translateX(' + ((a - b) * w) + 'px)';
+        setTimeout(function(){
+          c[a].style.transition = c[b].style.transition = 'none';
+          c[a].style.transform = c[b].style.transform = '';
+          const t = c[a].textContent; c[a].textContent = c[b].textContent; c[b].textContent = t;
+          void c[a].offsetWidth;
+          c[a].style.transition = c[b].style.transition = '';
+        }, 560);
+      });
+      shufDemo = setTimeout(demo, 1500);
+    }, 700);
+  }
+  function closeShufInfo(){ clearTimeout(shufDemo); closeOverlay(shufOverlay); }
+  document.getElementById('shufBtn').addEventListener('click', function(){
+    if(weekLocked) return;
+    const s = getLocal(SHUF_KEY);
+    if(!s || !s.seen){ openShufInfo(true); return; }
+    smartShuffle();
+  });
+  document.getElementById('shufInfo').addEventListener('click', function(){ openShufInfo(false); });
+  document.getElementById('shufGo').addEventListener('click', function(){
+    put(SHUF_KEY, { seen: true });
+    closeShufInfo();
+    setTimeout(smartShuffle, 320);
+  });
+  document.getElementById('shufCancel').addEventListener('click', closeShufInfo);
+  document.getElementById('shufOk').addEventListener('click', closeShufInfo);
+  shufOverlay.addEventListener('click', function(e){ if(e.target === shufOverlay) closeShufInfo(); });
+
   function edgeRun(){
     const b = document.getElementById('edgeBtn');
     if(edgeBusy || weekLocked) return;
@@ -7925,8 +8478,8 @@
         stampLine(currentWeek);
         render();
         edgeApplied = { week: currentWeek, sig: edgeSig(), snap: snap };
-        edgeSlide(first, changed);
-        setTimeout(function(){ b.classList.remove('flash'); b.dataset.state = ''; edgeSync(); }, 620);
+        const dur = edgeSlide(first, changed);
+        setTimeout(function(){ b.classList.remove('flash'); b.dataset.state = ''; edgeSync(); }, dur + 20);
       }, 450);
     }
   }
@@ -8168,18 +8721,10 @@
 
   /* name prompt */
   const nameOverlay = document.getElementById('nameOverlay');
-  let nameRequired = false;
-  let nameWhy = '';                  // 'lock' | 'live' | '' (changing it from Settings)
-  function askName(required, why){
-    const me = player();
-    nameRequired = !!required;
-    nameWhy = required ? (why || 'lock') : '';
-    document.getElementById('nameInput').value = me.name || '';
-    document.getElementById('nameSkip').style.display = nameRequired ? 'none' : '';
-    document.getElementById('nameNote').textContent =
-      nameWhy === 'live' ? 'Live, the leaderboard and chat need a name first.'
-      : nameWhy === 'lock' ? 'Your sheet is locked. Add a name and you\u2019re on the board.'
-      : '';
+  // Settings -> Change name. (New players give their name on the first-open gate.)
+  function askName(){
+    document.getElementById('nameInput').value = player().name || '';
+    document.getElementById('nameNote').textContent = '';
     openOverlay(nameOverlay);
   }
   document.getElementById('nameSave').addEventListener('click', function(){
@@ -8191,18 +8736,11 @@
     const me = player();
     me.name = v;
     put(PLAYER_KEY, me);
-    const wasLockIn = nameRequired && nameWhy === 'lock';
-    nameRequired = false;
-    nameWhy = '';
     closeOverlay(nameOverlay);
-    if(wasLockIn) publishNow(); else syncPool();
-    syncNameGate();
-    if(isTab('live')) maybeLiveTips();
+    syncPool();
     beat();
     const sv = document.getElementById('setNameVal');
     if(sv) sv.textContent = v;
-    // Locking in asked for the name first; now show what got locked.
-    if(wasLockIn && weekLocked) setTimeout(showLocked, 380);
   });
   document.getElementById('nameSkip').addEventListener('click', function(){
     closeOverlay(nameOverlay);
@@ -8845,7 +9383,7 @@
   function maybeLiveTips(){
     if(!hasLocal || liveTipsSeen()) return;
     setTimeout(function(){
-      if(liveTipsSeen() || !isTab('live') || !player().name || overlayStack.length || document.hidden) return;
+      if(liveTipsSeen() || !isTab('live') || !player().name || overlayStack.length || document.hidden || gateOpen()) return;
       const v = getLocal(LIVETIPS_KEY);
       const sawOld = !!(v && typeof v.seen === 'number' && v.seen >= 1);
       openLiveTips(sawOld ? ['pin'] : ['basic', 'pin']);
@@ -8877,7 +9415,7 @@
   function maybeAutoTips(){
     if(!hasLocal || tipsSeen()) return;
     setTimeout(function(){
-      if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden) return;
+      if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden || gateOpen()) return;
       openTips();
     }, 900);
   }
@@ -8926,7 +9464,7 @@
     setTimeout(next, 300);
   }
   document.getElementById('setName').addEventListener('click', function(){
-    fromSettings(function(){ askName(false); });
+    fromSettings(askName);
   });
   document.getElementById('settingsClose').addEventListener('click', function(){ closeOverlay(settingsOverlay); });
   settingsOverlay.addEventListener('click', function(e){ if(e.target === settingsOverlay) closeOverlay(settingsOverlay); });
@@ -8984,24 +9522,108 @@
 
   syncDemoUI();
 
-  /* A name is asked for at the two moments it matters: locking a sheet in,
-     and opening Live. On Live it's required — no Skip — because Live holds the
-     leaderboard and Pool Chat. Until there's a name, Live shows only a prompt. */
-  function syncNameGate(){
-    const need = !player().name;
-    const body = document.getElementById('liveBody');
-    if(body) body.hidden = need;
-    const gate = document.getElementById('nameGate');
-    if(gate) gate.hidden = !need;
+  /* ---------- 4.5.0 first open ----------
+     Add to Home Screen first, then "What name is on your paper sheet?".
+     Home screen first because an iPhone home-screen app doesn't share storage
+     with Safari, so a name typed in Safari would be lost. Can't be skipped
+     (only "Continue in the browser" passes the first step). Anyone who already
+     has a name never sees any of it. */
+  const gate = document.getElementById('gate');
+  const gateIn = document.getElementById('gateIn');
+  const ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+  const ICON_DOTS = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
+  function gateOpen(){ return !!(gate && !gate.hidden); }
+  function gateDots(two){ return '<div class="gatedots"><i class="on"></i><i' + (two ? ' class="on"' : '') + '></i></div>'; }
+  function gateSteps(list){
+    return '<div class="gatesteps">' + list.map(function(s, i){
+      return '<div class="gatestep"><span class="n">' + (i + 1) + '</span><span>' + s + '</span></div>';
+    }).join('') + '</div>';
   }
-  function requireNameForLive(){
-    syncNameGate();
-    if(player().name) return;
-    setTimeout(function(){
-      if(isTab('live') && !player().name && !nameOverlay.classList.contains('show')) askName(true, 'live');
-    }, 350);
+  function gateHead(){
+    return gateDots(false) + '<span class="kicker">NFL PICK\u2019EM</span><h1>Put the pool on your home screen</h1>' +
+      '<p class="lead">It opens like an app, stays signed in, and keeps your picks saved.</p>';
   }
-  document.getElementById('nameGateBtn').addEventListener('click', function(){ askName(true, 'live'); });
+  const gateSkip = '<button class="gatelink" type="button" data-g="browser">Continue in the browser</button>';
+  function showGate(step){
+    gate.hidden = false;
+    if(step === 'name' || isInstalled()) gateName(); else gateHome();
+  }
+  function gateHome(manual){
+    const p = devicePlatform();
+    if(p === 'ios'){
+      gateIn.innerHTML = gateHead() + gateSteps([
+        'Tap the Share button ' + ICON_SHARE + ' at the bottom of Safari',
+        'Scroll down and tap <b>Add to Home Screen</b>',
+        'Open the pool from your home screen'
+      ]) + '<div class="confirmrow"><button class="confirmyes" type="button" data-g="added">I Added It</button></div>' + gateSkip;
+    }else if(!manual){
+      // Android: one button that fires Chrome's own install box.
+      gateIn.innerHTML = gateHead() + gateSteps([
+        'Tap <b>Click to Add</b>, then <b>Add</b> on the box that pops up',
+        'Open the pool from your home screen'
+      ]) + '<div class="confirmrow"><button class="confirmyes" type="button" data-g="add">Click to Add</button></div>' + gateSkip;
+    }else{
+      // No install box from Chrome: the menu steps instead.
+      gateIn.innerHTML = gateHead() + gateSteps([
+        'Tap the menu ' + ICON_DOTS + ' at the top right of Chrome',
+        'Tap <b>Add to Home screen</b> and confirm',
+        'Open the pool from your home screen'
+      ]) + '<div class="confirmrow"><button class="confirmyes" type="button" data-g="added">I Added It</button></div>' + gateSkip;
+    }
+  }
+  function gateOpenIcon(){
+    gateIn.innerHTML = gateDots(false) +
+      '<div class="gateopen"><div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg></div>' +
+      '<h1>Now open it from your home screen</h1><p class="lead">Close this tab and tap the Confidence Pool icon. You\u2019ll pick up right where you left off.</p></div>' +
+      '<div style="margin-top:auto; text-align:center">' + gateSkip + '</div>';
+  }
+  function gateName(){
+    gateIn.innerHTML = gateDots(true) +
+      '<span class="kicker">WELCOME TO THE POOL</span><h1>What name is on your paper sheet?</h1>' +
+      '<p class="lead">Type it exactly as it\u2019s written so the Commish can match you.</p>' +
+      '<input id="gateName" class="nameinput" type="text" maxlength="14" placeholder="Name on your sheet" autocomplete="off" enterkeyhint="done">' +
+      '<p class="gatenote" id="gateNote"></p>' +
+      '<div class="confirmrow" style="margin-top:auto"><button class="confirmyes" type="button" data-g="submit">Submit</button></div>';
+    setTimeout(function(){ try{ document.getElementById('gateName').focus(); }catch(e){} }, 60);
+  }
+  function gateSubmit(){
+    const input = document.getElementById('gateName');
+    const v = String((input && input.value) || '').trim().slice(0, 14);
+    if(!v){ document.getElementById('gateNote').textContent = 'Enter the name on your paper sheet.'; return; }
+    const me = player();
+    me.name = v;
+    put(PLAYER_KEY, me);
+    put(WELCOME_KEY, { pending: true });
+    gate.hidden = true;
+    gateIn.innerHTML = '';
+    const sv = document.getElementById('setNameVal');
+    if(sv) sv.textContent = v;
+    beat();
+    if(weekLocked) syncPool();
+    if(isTab('picks')) maybeAutoTips();
+  }
+  gate.addEventListener('click', function(e){
+    const b = e.target.closest ? e.target.closest('[data-g]') : null;
+    if(!b) return;
+    const g = b.dataset.g;
+    if(g === 'browser') gateName();
+    else if(g === 'added') gateOpenIcon();
+    else if(g === 'submit') gateSubmit();
+    else if(g === 'add'){
+      // Chrome's install box has to open inside the tap.
+      if(!installEvent){ gateHome(true); return; }
+      const ev = installEvent;
+      installEvent = null;
+      try{
+        ev.prompt();
+        Promise.resolve(ev.userChoice).then(function(c){ if(c && c.outcome === 'accepted') gateOpenIcon(); }).catch(function(){});
+      }catch(err){ gateHome(true); }
+    }
+  });
+  gate.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && e.target && e.target.id === 'gateName'){ e.preventDefault(); gateSubmit(); }
+  });
+  window.addEventListener('appinstalled', function(){ if(gateOpen() && !document.getElementById('gateName')) gateOpenIcon(); });
 
   (function start(){
     const last = readView();
@@ -9018,6 +9640,7 @@
 
     weekPick.value = startWeek;
     loadWeek(startWeek);
+    if(!player().name) showGate();
 
     // Come back to the tab you were on, but only if it was recent — otherwise
     // a new visit should start on your picks.
@@ -9048,6 +9671,7 @@
       if(w === currentWeek) return;
       weekPick.value = w;
       loadWeek(w);
+      if(isTab('picks') && picksBlocked()) showTab('live');
       toast('Week ' + w + ' is up');
     });
   })();
