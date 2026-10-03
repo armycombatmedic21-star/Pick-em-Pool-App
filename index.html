@@ -198,15 +198,6 @@
   }
   .unlinkbtn:active{ background: rgba(53,208,255,0.14); }
 
-  .lockinline{
-    display:block; width:100%; height:54px; margin:0 0 4px; padding:0;
-    border:none; border-radius:14px; background: var(--cyan); color:#03131f;
-    font-size:16px; font-weight:800;
-    box-shadow: 0 8px 24px rgba(53,208,255,0.18), inset 0 1px 0 rgba(255,255,255,0.35);
-  }
-  .lockinline svg{ width:16px; height:16px; vertical-align:-2px; margin-right:9px; }
-  .lockinline:active{ background:#7fe0ff; }
-
   .sheettop{ display:flex; align-items:center; gap:12px; margin-bottom:14px; }
   .sheettop h2{ margin:0; }
   .backbtn{
@@ -267,7 +258,7 @@
   /* Your Score: same size and place. Green light from the top, glowing green number.
      Rooting: the accent turns royal blue and the number white. No dot before "Your Score". */
   .scorecard{ --sc: 61,220,132; }
-  body.rooting .scorecard{ --sc: 110,145,255; }
+  body.rooting .scorecard, .lxscr.rooting .scorecard{ --sc: 110,145,255; }
   body.glass .scorecard{ position:relative; overflow:hidden; border-radius:18px; padding:16px 10px 14px;
     background: radial-gradient(130% 60% at 50% 0%, rgba(var(--sc),0.17), transparent 68%), linear-gradient(180deg, rgba(19,32,53,0.96), rgba(8,14,25,0.98));
     border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 34px rgba(0,0,0,0.42); }
@@ -342,16 +333,16 @@
   body.glass .lbnote{ color:#6f8399; }
 
   /* Analysis: same layout and data. Each result has its own accent (set in code as data-ac). */
-  #anOverlay{ --ac: 53,208,255; }
+  #anOverlay, .lxan{ --ac: 53,208,255; }
   #anOverlay[data-ac="gold"]{ --ac: 244,196,61; }
   #anOverlay[data-ac="green"]{ --ac: 61,220,132; }
   #anOverlay[data-ac="slate"]{ --ac: 160,180,204; }
   #anOverlay[data-ac="red"]{ --ac: 255,96,112; }
-  body.glass #anOverlay .sheet{
+  body.glass #anOverlay .sheet, body.glass .lxan .sheet{
     background: radial-gradient(130% 50% at 50% -6%, rgba(var(--ac),0.14), transparent 62%), linear-gradient(180deg, #0d182a 0%, #070d18 78%);
     border-top:1px solid rgba(255,255,255,0.08); }
-  body.glass #anOverlay .tipshead h2{ font-size:27px; letter-spacing:-0.7px; }
-  body.glass #anOverlay .tipshead .kicker{ color: rgb(var(--ac)); transition: color .4s ease; }
+  body.glass #anOverlay .tipshead h2, body.glass .lxan .tipshead h2{ font-size:27px; letter-spacing:-0.7px; }
+  body.glass #anOverlay .tipshead .kicker, body.glass .lxan .tipshead .kicker{ color: rgb(var(--ac)); transition: color .4s ease; }
   body.glass .anback{ height:34px; padding:0 13px; border-radius:17px; border:1px solid rgba(255,255,255,0.12) !important;
     background: rgba(255,255,255,0.04) !important; color:#dce8f5 !important; font-size:13px !important; }
   body.glass .ansect{ border-radius:999px; border:1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.035);
@@ -992,7 +983,7 @@
     background: rgba(6,11,22,0.85); font-size:11px; font-weight:700; color: var(--faint); }
   .chatcount[hidden]{ display:none; }
   .chatcount.full{ color: var(--gold); }
-  #chatInput{
+  #chatInput, .lxchatin{
     display:block; resize:none; overflow-y:hidden; font-family:inherit;
     line-height:20px; min-height:44px; max-height:124px; padding:11px 16px;
     flex:1; min-width:0; height:44px; border-radius:22px;
@@ -1265,7 +1256,7 @@
   .scorecompare:empty{ display:none; }
 
   /* ---------- game groups: Live now / Up next / Final ---------- */
-  #resultsList{ display:flex; flex-direction:column; gap:8px; }
+  #resultsList, .lxres{ display:flex; flex-direction:column; gap:8px; }
   .ggroup{ display:flex; flex-direction:column; gap:8px; padding:6px 2px 0; }
   .ggroup[hidden]{ display:none; }
   .ggroup .gghead{ display:flex; align-items:center; gap:9px; }
@@ -1578,9 +1569,9 @@
   @keyframes anpulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(53,208,255,0); border-color: rgba(53,208,255,0.55); }
     50%{ box-shadow:0 0 12px 1px rgba(53,208,255,0.45); border-color: rgba(53,208,255,0.95); } }
   @media (prefers-reduced-motion: reduce){ .anpill.pulse{ animation:none; } }
-  #anOverlay .tipshead{ align-items:center; }
+  #anOverlay .tipshead, .lxan .tipshead{ align-items:center; }
   .anback{ flex:none; }
-  #anOverlay .sheet{ padding-bottom:26px; }
+  #anOverlay .sheet, .lxan .sheet{ padding-bottom:26px; }
   .ansect{ display:inline-flex; align-items:center; gap:8px; margin:6px 0 0; padding:9px 14px 9px 12px;
     font-size:13px; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; color:#fff;
     background: rgba(147,174,200,0.10); border:1px solid rgba(147,174,200,0.28); border-bottom:none; border-radius:12px 12px 0 0; }
@@ -1710,10 +1701,6 @@
      gap above it, so the page is no taller. */
   .weekhead{ position:relative; }
   .weekhead .livetipbtn{ position:absolute; right:0; top:50%; margin-top:-17px; }
-  .lvstage .lbcard{ position:absolute; left:10px; right:10px; top:14px; }
-  .lvstage .lblist{ max-height:none; overflow:visible; }
-  /* 4.4.0: the demo pill is a span, so center its text like the real button */
-  .lvstage .lbmode{ display:inline-flex; align-items:center; justify-content:center; }
   /* 4.4.0: Pin a game card */
   .pnstage .pncol{ position:absolute; left:10px; right:10px; top:15px; }
   .pnstage .gcard{ position:absolute; left:0; right:0; height:70px; margin:0; overflow:visible; transition: top .7s cubic-bezier(.22,.8,.25,1); }
@@ -1722,12 +1709,6 @@
   .pnstage .tipptr.press{ transform:scale(0.82); }
   .pnstage .tipring.go{ animation: lvring 0.6s ease-out; }
   .lbcard:not(.adv) .lbwin{ display:none; }
-  .lvstage .tipptr{ left:44px; top:36px; transition: left 0.9s cubic-bezier(0.4,0,0.2,1), top 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, transform 0.12s ease; }
-  .lvstage .tipptr.away{ left:78%; top:88%; }
-  .lvstage .tipptr.on{ opacity:1; }
-  .lvstage .tipptr.press{ transform:scale(0.82); }
-  .lvstage .tipring{ left:52px; top:44px; }
-  .lvstage .tipring.go{ animation: lvring 0.6s ease-out; }
   @keyframes lvring{ 0%{ opacity:0.9; transform:scale(0.5); } 100%{ opacity:0; transform:scale(1.6); } }
 
   /* Season Standings disclosure at the foot of Live */
@@ -1861,7 +1842,6 @@
   .tipstage .slotgrid{ gap:6px; margin:8px 0 0; }
   .tipstage .slotbtn{ height:34px; border-radius:9px; font-size:15px; }
   .tipstage .statuswrap{ position:absolute; top:30px; left:10px; right:10px; margin:0; }
-  .tipstage .lockinline{ position:absolute; top:40px; left:10px; right:10px; width:auto; margin:0; }
   .tipstage .resetbtn{ position:absolute; top:194px; left:0; right:0; width:220px; margin:0 auto; }
   .tipptr{
     position:absolute; left:50%; top:50%; width:22px; height:30px; margin:-2px 0 0 -2px;
@@ -1909,7 +1889,6 @@
   .ts2{ animation: tqFade 4s linear infinite; }
   .ts3{ animation: tqFade 4.8s linear infinite; }
   .ts4{ animation: tqFade 5.2s linear infinite; }
-  .ts5{ animation: tqFade 4.2s linear infinite; }
   .ts6{ animation: tqFade 5s linear infinite; }
 
   /* 1: click, hold, drag */
@@ -1995,22 +1974,6 @@
   .tq4b{ animation: tq4b 5.2s linear infinite; }
   .tq4flash{ animation: tq4flash 5.2s ease infinite; }
 
-  /* 5: lock in */
-  @keyframes tq5btn{
-    0%, 18%{ opacity:1; transform:scale(1); } 22%{ opacity:1; transform:scale(0.96); }
-    28%{ opacity:1; transform:scale(1); } 34%, 100%{ opacity:0; transform:scale(1); }
-  }
-  @keyframes tq5ban{ 0%, 30%{ opacity:0; transform:translateY(6px); } 38%, 100%{ opacity:1; transform:translateY(0); } }
-  @keyframes tq5quiet{ 0%, 34%{ opacity:1; } 42%, 100%{ opacity:0.5; } }
-  @keyframes tq5ptr{
-    0%, 6%{ opacity:0; transform:scale(1.3); } 12%{ opacity:1; transform:scale(1); }
-    22%{ opacity:1; transform:scale(0.85); } 28%{ opacity:1; transform:scale(1); } 36%, 100%{ opacity:0; transform:scale(1); }
-  }
-  .tq5btn{ animation: tq5btn 4.2s ease infinite; }
-  .tq5ban{ animation: tq5ban 4.2s ease infinite; }
-  .tq5quiet{ animation: tq5quiet 4.2s ease infinite; }
-  .tq5ptr{ animation: tq5ptr 4.2s ease infinite; }
-
   /* 6: reset to spread order */
   @keyframes tq6down{ 0%, 30%{ transform:translateY(0); } 46%, 100%{ transform:translateY(80px); } }
   @keyframes tq6up{ 0%, 30%{ transform:translateY(0); } 46%, 100%{ transform:translateY(-80px); } }
@@ -2025,6 +1988,109 @@
   .tq6press{ animation: tq6press 5s ease infinite; }
   .tq6ptr{ animation: tq6ptr 5s ease infinite; }
 
+  /* 4.5.2: titles only, no paragraph text. Short captions live inside the screen. */
+  .tiptext{ min-height:0; padding:14px 2px 0; }
+  .tiptext h3{ margin:0; }
+  .tipstage .tipnote.low{ top:auto; bottom:12px; }
+  .ts7{ animation: tqFade 5s linear infinite; }
+  .ts8{ animation: tqFade 5.6s linear infinite; }
+  .ts9{ animation: tqFade 7s linear infinite; }
+
+  /* 7: Smart Shuffle (real button) */
+  .tq7row{ position:absolute; top:14px; left:12px; display:flex; align-items:center; gap:7px; }
+  @keyframes tq7press{ 0%, 20%{ transform:scale(1); } 24%{ transform:scale(0.93); } 28%, 100%{ transform:scale(1); } }
+  @keyframes tq7ptr{ 0%, 6%{ opacity:0; transform:scale(1.3); } 12%{ opacity:1; transform:scale(1); } 22%{ opacity:1; transform:scale(0.85); } 28%{ opacity:1; transform:scale(1); } 34%, 100%{ opacity:0; } }
+  @keyframes tq7ring{ 0%, 22%{ opacity:0; transform:scale(0.6); } 24%{ opacity:0.9; transform:scale(0.8); } 38%, 100%{ opacity:0; transform:scale(2.2); } }
+  @keyframes tq7down{ 0%, 32%{ transform:translateY(0); } 46%, 100%{ transform:translateY(80px); } }
+  @keyframes tq7up{ 0%, 32%{ transform:translateY(0); } 46%, 100%{ transform:translateY(-80px); } }
+  @keyframes tq7flash{ 0%, 46%{ box-shadow:none; } 52%{ box-shadow: 0 0 0 1px rgba(53,208,255,0.9), 0 0 22px rgba(53,208,255,0.4); } 70%, 100%{ box-shadow:none; } }
+  @keyframes tq7glow{ 0%, 26%{ border-color: rgba(53,208,255,0.55); box-shadow:none; } 32%, 80%{ border-color: var(--cyan); box-shadow: 0 0 18px rgba(53,208,255,0.45); } 90%, 100%{ border-color: rgba(53,208,255,0.55); box-shadow:none; } }
+  @keyframes tq7a{ 0%, 40%{ opacity:1; } 44%, 100%{ opacity:0; } }
+  @keyframes tq7b{ 0%, 40%{ opacity:0; } 44%, 100%{ opacity:1; } }
+  @keyframes tq7note{ 0%, 50%{ opacity:0; transform:translateY(4px); } 56%, 100%{ opacity:1; transform:translateY(0); } }
+  .tq7press{ animation: tq7press 5s ease infinite, tq7glow 5s ease infinite; }
+  .tq7ptr{ animation: tq7ptr 5s ease infinite; }
+  .tq7ring{ animation: tq7ring 5s ease-out infinite; }
+  .tq7down{ animation: tq7down 5s ease infinite, tq7flash 5s ease infinite; }
+  .tq7up{ animation: tq7up 5s ease infinite, tq7flash 5s ease infinite; }
+  .tq7a{ animation: tq7a 5s linear infinite; }
+  .tq7b{ animation: tq7b 5s linear infinite; }
+  .tq7note{ animation: tq7note 5s ease infinite; }
+
+  /* 8: Line history (tap the spread) */
+  .tipstage .pspread{ position:relative; }
+  .tq8panel{ top:52px; padding:8px 12px 2px; }
+  .tq8panel .histrow{ padding:4px 0; }
+  .tq8panel .histwhen{ width:96px; }
+  @keyframes tq8ptr{ 0%, 6%{ opacity:0; transform:scale(1.3); } 12%{ opacity:1; transform:scale(1); } 18%{ opacity:1; transform:scale(0.85); } 22%{ opacity:1; transform:scale(1); } 28%, 100%{ opacity:0; } }
+  @keyframes tq8chip{ 0%, 16%{ box-shadow:none; } 20%{ box-shadow: 0 0 0 2px rgba(53,208,255,0.9); } 30%, 100%{ box-shadow:none; } }
+  @keyframes tq8panel{ 0%, 22%{ opacity:0; transform:translateY(16px); } 30%, 84%{ opacity:1; transform:translateY(0); } 92%, 100%{ opacity:0; transform:translateY(16px); } }
+  @keyframes tq8r1{ 0%, 30%{ opacity:0; } 36%, 100%{ opacity:1; } }
+  @keyframes tq8r2{ 0%, 38%{ opacity:0; } 44%, 100%{ opacity:1; } }
+  @keyframes tq8r3{ 0%, 46%{ opacity:0; } 52%, 100%{ opacity:1; } }
+  @keyframes tq8r4{ 0%, 54%{ opacity:0; } 60%, 100%{ opacity:1; } }
+  .tq8ptr{ animation: tq8ptr 5.6s ease infinite; }
+  .tq8chip{ animation: tq8chip 5.6s ease infinite; }
+  .tq8panel{ animation: tq8panel 5.6s ease infinite; }
+  .tq8r1{ animation: tq8r1 5.6s ease infinite; }
+  .tq8r2{ animation: tq8r2 5.6s ease infinite; }
+  .tq8r3{ animation: tq8r3 5.6s ease infinite; }
+  .tq8r4{ animation: tq8r4 5.6s ease infinite; }
+
+  /* 9: Lock in (glass button, confirm, Locked in, Request to Unlock) */
+  .tipstage .lkbtn{ position:absolute; top:16px; left:10px; right:10px; width:auto; margin:0; }
+  .tipstage .lkbtn::before{ display:none; }
+  .tipstage .confirmcard.tq9card{ position:absolute; left:10px; right:10px; bottom:0; width:auto; max-width:none; margin:0; padding:10px 16px 12px; border-radius:18px 18px 0 0; }
+  .tq9card .chead{ margin-bottom:6px; } .tq9card .cicon{ width:36px; height:36px; border-radius:11px; }
+  .tq9card h2{ font-size:18px; }
+  .tq9card p{ margin:0 0 10px; font-size:13px; line-height:1.3; }
+  .tq9card .confirmrow{ gap:6px; }
+  .tq9card .confirmyes, .tq9card .confirmcancel{ position:relative; flex:none; height:38px; font-size:14px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; }
+  .tipstage .statuswrap.tq9ban{ top:16px; }
+  .tipstage .lkreq{ position:absolute; top:92px; left:10px; right:10px; width:auto; margin:0; }
+  @keyframes tq9btn{ 0%, 12%{ opacity:1; transform:scale(1); } 15%{ transform:scale(0.96); } 18%{ transform:scale(1); } 46%{ opacity:1; } 50%, 100%{ opacity:0; } }
+  @keyframes tq9ptrA{ 0%, 3%{ opacity:0; transform:scale(1.3); } 8%{ opacity:1; transform:scale(1); } 14%{ opacity:1; transform:scale(0.85); } 18%{ opacity:1; transform:scale(1); } 22%, 100%{ opacity:0; } }
+  @keyframes tq9card{ 0%, 18%{ opacity:0; transform:translateY(24px); } 25%, 44%{ opacity:1; transform:translateY(0); } 50%, 100%{ opacity:0; transform:translateY(24px); } }
+  @keyframes tq9ptrB{ 0%, 27%{ opacity:0; transform:scale(1.3); } 32%{ opacity:1; transform:scale(1); } 39%{ opacity:1; transform:scale(0.85); } 42%{ opacity:1; transform:scale(1); } 46%, 100%{ opacity:0; } }
+  @keyframes tq9ban{ 0%, 50%{ opacity:0; transform:translateY(6px); } 56%, 100%{ opacity:1; transform:translateY(0); } }
+  @keyframes tq9req{ 0%, 60%{ opacity:0; transform:translateY(8px); } 66%, 100%{ opacity:1; transform:translateY(0); } }
+  .tq9btn{ animation: tq9btn 7s ease infinite; }
+  .tq9ptrA{ animation: tq9ptrA 7s ease infinite; }
+  .tq9card{ animation: tq9card 7s ease infinite; }
+  .tq9ptrB{ animation: tq9ptrB 7s ease infinite; }
+  .tq9ban{ animation: tq9ban 7s ease infinite; }
+  .tq9req{ animation: tq9req 7s ease infinite; }
+
+  /* ===== 4.5.2 Live Quick Tips: real Live markup with sample data, scaled
+     down, with a camera that pans to the action. Built only while open. ===== */
+  #liveTipsOverlay .tipstage{ height:330px; }
+  .pnstage .pncol{ top:40px; }
+  .lxstage{ position:relative; height:330px; overflow:hidden; border-radius:18px; background:#080f1c;
+    border:1px solid rgba(147,174,200,0.12); pointer-events:none; }
+  .lxscr{ position:absolute; top:0; width:393px; height:852px; overflow:hidden; transform-origin:0 0; padding:12px 14px 0; box-sizing:border-box;
+    transition: transform .9s cubic-bezier(.4,0,.2,1); background: linear-gradient(180deg, #0a1426 0px, var(--bg) 260px) no-repeat, var(--bg); }
+  .lxscr .overlay{ position:absolute !important; inset:0; z-index:5; }
+  .lxscr .overlay .sheet{ max-height:750px !important; overflow:hidden !important; }
+  .lxscr .overlay .chatsheet{ max-height:780px !important; height:780px !important; }
+  .lxscr .rootbar{ position:relative !important; top:0 !important; }
+  .lxscr.rooting{ box-shadow: inset 0 0 0 4px #4f7cff; }
+  .lxstage .tipptr{ transition: left .8s cubic-bezier(.3,.7,.3,1), top .8s cubic-bezier(.3,.7,.3,1), opacity .3s ease, transform .12s ease; }
+  .lxstage .tipptr.on{ opacity:1; }
+  .lxstage .tipptr.press{ transform:scale(0.82); }
+  .lxstage .tipring.go{ animation: lvring 0.6s ease-out; }
+  .lxcap{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); z-index:8; white-space:nowrap; padding:6px 12px; border-radius:14px;
+    background:rgba(8,15,28,0.92); border:1px solid rgba(53,208,255,0.35); color:var(--cyan); font:800 12px var(--font); opacity:0; transition:opacity .4s ease; }
+  .lxcap.on{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){
+    .lxscr, .lxcap{ transition:none; }
+    .lxstage .tipptr, .lxstage .tipring{ display:none; }
+  }
+
+  /* 4.5.2: a small cyan dot on a Quick Tips pill until that deck is opened once */
+  .tipbtn{ overflow:visible; }
+  .tipbtn.unseen::after{ content:''; position:absolute; top:-3px; right:-3px; width:10px; height:10px; border-radius:50%;
+    background: var(--cyan); border:2px solid var(--bg); box-shadow: 0 0 8px rgba(53,208,255,0.75); }
+
   /* Nothing moves while the sheet is closed. */
   .overlay:not(.show) .tipstage, .overlay:not(.show) .tipstage *{ animation-play-state: paused; }
   /* Reduced motion: every card holds still on its key moment and shows its label. */
@@ -2034,7 +2100,9 @@
     .ts2, .ts2 *{ animation-delay: -2.2s !important; }
     .ts3, .ts3 *{ animation-delay: -0.96s !important; }
     .ts4, .ts4 *{ animation-delay: -2.76s !important; }
-    .ts5, .ts5 *{ animation-delay: -0.84s !important; }
+    .ts7, .ts7 *{ animation-delay: -3s !important; }
+    .ts8, .ts8 *{ animation-delay: -3.6s !important; }
+    .ts9, .ts9 *{ animation-delay: -5.4s !important; }
     .ts6, .ts6 *{ animation-delay: -1.2s !important; }
     .tipco{ display:flex; }
     .tipdot{ transition:none; }
@@ -2338,6 +2406,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.5.2</b> New Quick Tips. Picks has eight short animated cards: drag by the number box, switch your pick, Smart Shuffle, line history, remove a game, jump to a spot, start over and lock in. Live has seven, showing the real Live tab: live games, pin a game, open and compare sheets, chance to win, Analysis, Root for and Pool Chat. A small blue dot on a Quick Tips button means you haven’t opened it yet.</div>
       <div class="cl"><b>4.5.1</b> Settings is simpler: Change name, Add to Home Screen, What’s new and the Admin Panel. Add to Home Screen now shows on Android for anyone not using the home-screen app. Team logos on the night banner and the Sheet no longer blink when scores refresh. Thanksgiving week keeps its Thursday games on the sheet. On iPhone, sheets fit inside Safari’s bars, and you can swipe one down from the top to close it. The Sunday and Monday night banners have a sleeker look.</div>
       <div class="cl"><b>4.5.0</b> New players add the app to their home screen and enter the name from their paper sheet. Lock In asks once, then takes you to Live. Once you’re locked in, only the admin can unlock you: tap Request to Unlock and it goes to Pool Chat. Smart Shuffle mixes up your points inside blocks. Thursday games start removed each week, and Reset keeps removed games off. Line history starts with the opening line. The Sheet shows wins and losses as games finish. A sleeker Live tab, and the Advanced leaderboard is the default.</div>
       <div class="cl"><b>4.4.1</b> The Advanced leaderboard's win chances now wait until the first game on your sheet kicks off (they show a dash before that).</div>
@@ -2639,26 +2708,15 @@
   <div class="sheet" role="dialog" aria-label="Quick Tips">
     <div class="tipshead">
       <div class="tipstitle"><span class="kicker">CONFIDENCE POOL</span><h2>Quick Tips</h2></div>
-      <span class="tipcount" id="liveTipCount">1 of 2</span>
+      <span class="tipcount" id="liveTipCount"></span>
     </div>
     <div id="liveTipCards">
-    <div class="tipcard" data-ltip="basic">
-      <div class="tipstage lvstage" aria-hidden="true">
-        <div class="lbcard" id="lvDemo">
-          <div class="lbtop"><span class="lbmode" id="lvPill">Basic</span><span class="lbcount">5 players · 3 online</span></div>
-          <div class="lbhead"><span class="lbtitle">Leaderboard</span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
-          <div class="lblist"><div class="lbrow lead"><i class="beacon lbdot"></i><span class="lbrank">1</span><span class="lbname">Player 1</span><span class="lbwin">48%</span><span class="lbpts">71</span></div><div class="lbrow me"><i class="beacon lbdot"></i><span class="lbrank">2</span><span class="lbname">Player 2</span><span class="lbwin">31%</span><span class="lbpts">62</span></div><div class="lbrow"><span class="lbrank">3</span><span class="lbname">Player 3</span><span class="lbwin">15%</span><span class="lbpts">58</span></div><div class="lbrow"><i class="beacon lbdot"></i><span class="lbrank">4</span><span class="lbname">Player 4</span><span class="lbwin">6%</span><span class="lbpts">51</span></div><div class="lbrow"><span class="lbrank">5</span><span class="lbname">Player 5</span><span class="lbwin">&lt;1%</span><span class="lbpts">44</span></div></div>
-        </div>
-        <span class="tipring" id="lvRing"></span><span class="tipptr" id="lvPtr"></span>
-      </div>
-      <div class="tiptext"><h3>Basic or Advanced</h3><p>Tap the small <b>Basic</b> button on the leaderboard to switch to <b>Advanced</b>. It adds each player’s chance to win the week. Tap it again for Basic.</p></div>
-    </div>
     <div class="tipcard" data-ltip="pin" hidden>
       <div class="tipstage pnstage" aria-hidden="true">
         <div class="pncol" id="pnCol"></div>
         <span class="tipring" id="pnRing"></span><span class="tipptr" id="pnPtr"></span>
       </div>
-      <div class="tiptext"><h3>Pin a game</h3><p>Tap the <b>pin</b> on any game to keep it at the top of <b>Live now</b> or <b>Up next</b>. Tap it again to put it back. Pins are just for you.</p></div>
+      <div class="tiptext"><h3>Pin a game</h3></div>
     </div>
     </div>
     <div class="tipdots" id="liveTipDots"></div>
@@ -2750,7 +2808,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.5.1';
+  const APP_VERSION = '4.5.2';
   const APP_BUILT = 'Oct 3, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9141,23 +9199,28 @@
     }
   }
 
-  /* ---------- Quick Tips ----------
-     Six short cards that slide up from the Picks tab. The demo rows are built
-     from the app's own classes (.game, .points, .swx, .rmx, .slotbtn,
-     .lockinline, .linestamp, .resetbtn), so a restyle of the real rows shows
-     up here too. If a layout changes enough to confuse a card, fix the card
-     and raise TIPS_VERSION — everyone then gets the new set once, on its own.
-     With reduced motion on, each card holds still on its key moment. */
+  /* ---------- Quick Tips (Picks) ----------
+     4.5.2: eight animated mini-screens, titles only (no paragraph text). The
+     demo rows are built from the app's own classes (.game, .points, .swx, .rmx,
+     .slotbtn, .shufbtn, .histrow, .lkbtn, .confirmcard, .linestamp, .lkreq,
+     .resetbtn), so a restyle of the real rows shows up here too.
+     Brand-new players get a 3-card starter once. Players who saw the older deck
+     get just what's new, once. The Quick Tips pill always opens the full deck.
+     To show a new card once to everyone: add it, raise TIPS_VERSION and set
+     TIPS_NEW. With reduced motion on, each card holds still on its key moment. */
   const TIPS_KEY = 'pickem-tips';
-  const TIPS_VERSION = 1;
-  const TIP_COUNT = 6;
+  const TIPS_VERSION = 2;
+  const TIPS_FULL = ['drag', 'swap', 'shuffle', 'history', 'remove', 'jump', 'reset', 'lock'];
+  const TIPS_START = ['drag', 'swap', 'lock'];
+  const TIPS_NEW = ['shuffle', 'history', 'lock'];
   const tipsOverlay = document.getElementById('tipsOverlay');
-  let tipIndex = 0;
+  let tipDeck = TIPS_FULL.slice(), tipIndex = 0;
 
-  function tipsSeen(){
+  function tipsSeenVer(){
     const v = getLocal(TIPS_KEY);
-    return !!(v && typeof v.seen === 'number' && v.seen >= TIPS_VERSION);
+    return (v && typeof v.seen === 'number') ? v.seen : 0;
   }
+  function tipsSeen(){ return tipsSeenVer() >= TIPS_VERSION; }
 
   const TIP_CITY = { KC:'Kansas City', LAC:'LA Chargers', DET:'Detroit', CHI:'Chicago',
                      BUF:'Buffalo', MIA:'Miami', PHI:'Philadelphia', NYG:'NY Giants' };
@@ -9166,10 +9229,10 @@
     return logoTag('https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/' + ab.toLowerCase() + '.png',
                    small ? 'plogo small' : 'plogo');
   }
-  function tipMatchup(me, sp, venue, opp){
+  function tipMatchup(me, sp, venue, opp, spCls, spExtra){
     return '<div class="matchup">' +
       '<div class="line1">' + tipLogo(me) + '<span class="goldcity">' + TIP_CITY[me] + '</span>' +
-        '<span class="pspread">' + sp + '</span></div>' +
+        '<span class="pspread' + (spCls ? ' ' + spCls : '') + '">' + sp + (spExtra || '') + '</span></div>' +
       '<div class="line2"><span class="vsword">' + venue + '</span>' + tipLogo(opp, true) +
         '<span class="mutedcity">' + TIP_CITY[opp] + '</span></div>' +
     '</div>';
@@ -9191,14 +9254,22 @@
   function tipNums(a, b, ca, cb){
     return '<span class="tipnum ' + ca + '">' + a + '</span><span class="tipnum ' + cb + '">' + b + '</span>';
   }
-  function tipPtr(cls){ return '<span class="tipptr ' + cls + '"></span>'; }
+  function tipPtr(cls, style){ return '<span class="tipptr ' + cls + '"' + (style ? ' style="' + style + '"' : '') + '></span>'; }
   function tipLabel(html, pos, arrow, mid){
     return '<span class="tipco' + (mid ? ' mid' : '') + '" style="' + pos + '">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' +
       TIP_ARROW[arrow] + '"/></svg>' + html + '</span>';
   }
+  const TIP_SHUF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
+  function tipHist(cls, when, line, delta, time, now){
+    return '<div class="histrow ' + cls + (now ? ' now' : '') + (when === 'Opened' ? ' opened' : '') + '">' +
+      '<span class="histwhen">' + when + '</span><span class="histline">' + line +
+      (delta ? '<span class="histdelta up">\u2191' + delta + '</span>' : '') + '</span>' +
+      '<span class="histtime">' + time + '</span></div>';
+  }
 
-  function tipStages(){
+  /* Each card: n = its animation number (tsN), h = title, s = the mini-screen. */
+  function tipCards(){
     const KC = tipMatchup('KC', '\u22123', '@', 'LAC');
     const DET = tipMatchup('DET', '\u22124.5', '@', 'CHI');
     const BUF = tipMatchup('BUF', '\u22126.5', 'vs', 'MIA');
@@ -9209,146 +9280,380 @@
       const cls = n === 3 ? ' tq4was' : (n === 12 ? ' tq4pick' : '');
       slots += '<button class="slotbtn' + cls + '" tabindex="-1">' + n + (n === 12 ? tipPtr('tq4ptrB') : '') + '</button>';
     }
-    return [
-      // 1: click, hold, drag
-      tipRow('', 10, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
-      tipRow('tq1push', 90, tipRank(tipNums('2', '3', 'tq1a', 'tq1b')), DET, tipChip(true, 66) + tipX()) +
-      tipRow('tq1drag', 170, tipRank(tipNums('3', '2', 'tq1a', 'tq1b')), BUF, tipChip(true, 72) + tipX(), 3,
-        '<span class="tipring tq1ring" style="left:45%"></span><span class="tipptr tq1ptr" style="left:45%"></span>') +
-      tipLabel('<i>Click,&nbsp;</i>HOLD<i>, drag</i>', 'top:104px;right:12px', 'up'),
+    const lockIco = '<span class="lkico">' + ICON_LOCK + '</span>';
+    return {
+      // Drag: press the number box and move
+      drag: { n: 1, h: 'Drag<i> by the number box</i>', s:
+        tipRow('', 10, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
+        tipRow('tq1push', 90, tipRank(tipNums('2', '3', 'tq1a', 'tq1b')), DET, tipChip(true, 66) + tipX()) +
+        tipRow('tq1drag', 170, tipRank(tipNums('3', '2', 'tq1a', 'tq1b'),
+          '<span class="tipring tq1ring"></span>' + tipPtr('tq1ptr')), BUF, tipChip(true, 72) + tipX(), 3) +
+        tipLabel('Hold the number, drag', 'top:104px;right:12px', 'up') },
 
-      // 2: switch FAV / DOG
-      '<div class="game" style="top:56px">' + tipRank('9') +
-        '<div class="tipflip"><div class="tq2a">' + BUF + '</div><div class="tq2b">' + MIA + '</div></div>' +
-        '<div class="actions"><span class="tipswap tq2press">' + tipChip(true, 72, '', 'tq2a') +
-          tipChip(false, 28, '', 'tq2b') + tipPtr('tq2ptr') + '</span>' + tipX() + '</div></div>' +
-      '<div class="tipnote tq2note">Now picking Miami, the underdog</div>' +
-      tipLabel('Tap to switch', 'top:176px;right:12px', 'up'),
+      // Switch FAV / DOG
+      swap: { n: 2, h: 'Switch your pick', s:
+        '<div class="game" style="top:56px">' + tipRank('9') +
+          '<div class="tipflip"><div class="tq2a">' + BUF + '</div><div class="tq2b">' + MIA + '</div></div>' +
+          '<div class="actions"><span class="tipswap tq2press">' + tipChip(true, 72, '', 'tq2a') +
+            tipChip(false, 28, '', 'tq2b') + tipPtr('tq2ptr') + '</span>' + tipX() + '</div></div>' +
+        '<div class="tipnote tq2note">Now picking Miami, the underdog</div>' +
+        tipLabel('Tap to switch', 'top:176px;right:12px', 'up') },
 
-      // 3: remove a game
-      tipRow('tq3gone', 44, tipRank('4'), DET, tipChip(true, 66) + tipX(tipPtr('tq3ptr'))) +
-      tipRow('tq3up', 124, tipRank('5'), PHI, tipChip(true, 76) + tipX()) +
-      '<div class="game removed tq3dash" style="top:124px">' + tipRank('\u2013') + DET +
-        '<div class="actions">' + tipChip(true, 66) +
-        '<button class="restorebtn tq3pulse" tabindex="-1">Restore</button></div></div>' +
-      tipLabel('Tap \u00D7 to remove', 'top:10px;right:12px', 'down'),
+      // Smart Shuffle: the real pill and info button
+      shuffle: { n: 7, h: 'Smart Shuffle', s:
+        '<div class="tq7row"><span class="shufbtn tq7press">' + TIP_SHUF_SVG + 'Smart Shuffle' +
+          '<span class="tipring tq7ring"></span>' + tipPtr('tq7ptr') + '</span><span class="shufinfo">i</span></div>' +
+        tipRow('tq7down', 56, tipRank(tipNums('1', '2', 'tq7a', 'tq7b')), KC, tipChip(true, 61) + tipX()) +
+        tipRow('tq7up', 136, tipRank(tipNums('2', '1', 'tq7a', 'tq7b')), DET, tipChip(true, 66) + tipX()) +
+        '<div class="tipnote tq7note low">Points move. Your teams stay.</div>' +
+        tipLabel('Mixes up your points', 'top:56px;right:12px', 'up') },
 
-      // 4: tap the number, pick a spot
-      tipRow('tq4flash', 10, tipRank(tipNums('3', '12', 'tq4a', 'tq4b'), tipPtr('tq4ptrA')), PHI, tipChip(true, 76) + tipX()) +
-      '<div class="tippanel tq4panel"><b>Set Confidence</b><div class="slotgrid">' + slots + '</div></div>' +
-      tipLabel('Pick a spot', 'top:96px;right:18px', 'down'),
+      // Line history: tap the spread
+      history: { n: 8, h: 'Line history', s:
+        '<div class="game" style="top:10px">' + tipRank('11') +
+          tipMatchup('BUF', '\u22126.5', 'vs', 'MIA', 'tq8chip', tipPtr('tq8ptr')) +
+          '<div class="actions">' + tipChip(true, 72) + tipX() + '</div></div>' +
+        '<div class="tippanel tq8panel"><b>Miami at Buffalo</b>' +
+          tipHist('tq8r1', 'Opened', 'Buffalo -3.5', '', '') +
+          tipHist('tq8r2', 'Mon, Sep 28', 'Buffalo -4.5', 1, '9:02 AM') +
+          tipHist('tq8r3', 'Wed, Sep 30', 'Buffalo -5.5', 1, '2:15 PM') +
+          tipHist('tq8r4', 'Sat, Oct 3', 'Buffalo -6.5', 1, '11:40 AM', true) +
+        '</div>' },
 
-      // 5: lock in
-      '<button class="lockinline tq5btn" tabindex="-1">' + ICON_LOCK + 'Lock In Picks' + tipPtr('tq5ptr') + '</button>' +
-      '<div class="statuswrap tq5ban"><div class="linestamp locked"><span class="sticon">' + ICON_LOCK + '</span>' +
-        '<span class="sttext"><b>Locked in</b><span>Week ' + currentWeek + ' \u00B7 15 games \u00B7 120 pts</span></span></div>' +
-        '<button class="unlinkbtn" tabindex="-1">Unlock</button></div>' +
-      tipRow('tq5quiet', 140, tipRank('15'), PHI, tipChip(true, 76) + tipX()) +
-      tipLabel('Tap when you\u2019re done', 'top:104px', 'up', true),
+      // Remove a game
+      remove: { n: 3, h: 'Remove a game', s:
+        tipRow('tq3gone', 44, tipRank('4'), DET, tipChip(true, 66) + tipX(tipPtr('tq3ptr'))) +
+        tipRow('tq3up', 124, tipRank('5'), PHI, tipChip(true, 76) + tipX()) +
+        '<div class="game removed tq3dash" style="top:124px">' + tipRank('\u2013') + DET +
+          '<div class="actions">' + tipChip(true, 66) +
+          '<button class="restorebtn tq3pulse" tabindex="-1">Restore</button></div></div>' +
+        '<div class="tipnote low">Thursday games start removed.</div>' +
+        tipLabel('Tap \u00D7 to remove', 'top:10px;right:12px', 'down') },
 
-      // 6: reset to spread order
-      tipRow('tq6down', 8, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
-      tipRow('tq6up', 88, tipRank('2'), DET, tipChip(true, 66) + tipX()) +
-      '<button class="resetbtn tq6press" tabindex="-1">Reset to Spread Order' + tipPtr('tq6ptr') + '</button>' +
-      tipLabel('Back to spread order', 'top:164px', 'down', true)
-    ];
+      // Jump to a spot
+      jump: { n: 4, h: 'Jump to a spot', s:
+        tipRow('tq4flash', 10, tipRank(tipNums('3', '12', 'tq4a', 'tq4b'), tipPtr('tq4ptrA')), PHI, tipChip(true, 76) + tipX()) +
+        '<div class="tippanel tq4panel"><b>Set Confidence</b><div class="slotgrid">' + slots + '</div></div>' +
+        tipLabel('Pick a spot', 'top:96px;right:18px', 'down') },
+
+      // Start over: back to spread order (removed games stay removed)
+      reset: { n: 6, h: 'Start over', s:
+        tipRow('tq6down', 8, tipRank('1'), KC, tipChip(true, 61) + tipX()) +
+        tipRow('tq6up', 88, tipRank('2'), DET, tipChip(true, 66) + tipX()) +
+        '<button class="resetbtn tq6press" style="top:170px" tabindex="-1">Reset to Spread Order' + tipPtr('tq6ptr') + '</button>' +
+        '<div class="tipnote low">Removed games stay removed.</div>' },
+
+      // Lock in: glass button, confirm, Locked in, Request to Unlock
+      lock: { n: 9, h: 'Lock in', s:
+        '<button class="lkbtn tq9btn" tabindex="-1">' + lockIco + 'Lock In Picks</button>' +
+        tipPtr('tq9ptrA', 'left:50%;top:44px') +
+        '<div class="statuswrap tq9ban"><div class="linestamp locked"><span class="sticon">' + ICON_LOCK + '</span>' +
+          '<span class="sttext"><b>Locked in</b><span>Week ' + currentWeek + ' \u00B7 15 games \u00B7 120 pts</span></span></div></div>' +
+        '<button class="lkreq tq9req" tabindex="-1">' + lockIco +
+          '<span class="lktxt"><small>Picks locked for the week</small><b>Request to Unlock</b></span><span class="lkchev">\u203A</span></button>' +
+        '<div class="confirmcard tq9card"><div class="chead"><span class="cicon">' + ICON_LOCK + '</span><h2>Lock in your picks?</h2></div>' +
+          '<p>Only the admin can unlock them.</p>' +
+          '<div class="confirmrow"><span class="confirmyes">Lock In Picks' + tipPtr('tq9ptrB') + '</span>' +
+          '<span class="confirmcancel">Cancel</span></div></div>' +
+        '<div class="tipnote tq9req low">Need a change? Ask the admin.</div>' }
+    };
   }
 
-  const TIP_TEXT = [
-    ['<i>Click, </i>HOLD<i>, drag</i>',
-     'Click a game and <b>HOLD</b> it until it lifts, then drag it to a new spot. Top is worth 1 point, bottom is your safest.'],
-    ['Switch your pick', 'Tap FAV or DOG to take the other team. The % is their chance to win.'],
-    ['Remove a game', 'Game not on your sheet this week? Tap \u00D7. Tap Restore to bring it back.'],
-    ['Jump to a spot', 'Tap the number on the left, then pick where that game should go.'],
-    ['Lock in', 'All set? Tap Lock In Picks. The first time, it asks for your name.'],
-    ['Start over', 'Reset to Spread Order puts every game back in spread order and brings back removed games.']
-  ];
-
   function buildTips(){
-    const stages = tipStages();
-    let html = '';
-    for(let i = 0; i < TIP_COUNT; i++){
-      html += '<div class="tipcard" data-tip="' + i + '" hidden>' +
-        '<div class="tipstage ts' + (i + 1) + '" aria-hidden="true">' + stages[i] + '</div>' +
-        '<div class="tiptext"><h3>' + TIP_TEXT[i][0] + '</h3><p>' + TIP_TEXT[i][1] + '</p></div></div>';
-    }
-    document.getElementById('tipCards').innerHTML = html;
-    let dots = '';
-    for(let i = 0; i < TIP_COUNT; i++){
-      dots += '<button class="tipdot" data-i="' + i + '" aria-label="Tip ' + (i + 1) + '"></button>';
-    }
-    document.getElementById('tipDots').innerHTML = dots;
+    const cards = tipCards();
+    document.getElementById('tipCards').innerHTML = tipDeck.map(function(k, i){
+      const c = cards[k];
+      return '<div class="tipcard" data-tip="' + i + '" data-key="' + k + '" hidden>' +
+        '<div class="tipstage ts' + c.n + '" aria-hidden="true">' + c.s + '</div>' +
+        '<div class="tiptext"><h3>' + c.h + '</h3></div></div>';
+    }).join('');
+    document.getElementById('tipDots').innerHTML = tipDeck.map(function(k, i){
+      return '<button class="tipdot" data-i="' + i + '" aria-label="Tip ' + (i + 1) + '"></button>';
+    }).join('');
   }
 
   function showTip(i){
-    tipIndex = Math.max(0, Math.min(TIP_COUNT - 1, i));
+    const last = tipDeck.length - 1;
+    tipIndex = Math.max(0, Math.min(last, i));
     document.querySelectorAll('#tipCards .tipcard').forEach(function(c){
       c.hidden = Number(c.dataset.tip) !== tipIndex;     // re-showing restarts its animation
     });
     document.querySelectorAll('#tipDots .tipdot').forEach(function(d){
       d.classList.toggle('on', Number(d.dataset.i) === tipIndex);
     });
-    document.getElementById('tipCount').textContent = (tipIndex + 1) + ' of ' + TIP_COUNT;
+    document.getElementById('tipCount').textContent = (tipIndex + 1) + ' of ' + tipDeck.length;
     document.getElementById('tipBack').hidden = tipIndex === 0;
-    document.getElementById('tipNext').textContent = tipIndex === TIP_COUNT - 1 ? 'Got it' : 'Next';
+    document.getElementById('tipNext').textContent = tipIndex === last ? 'Got it' : 'Next';
   }
 
-  function openTips(){
+  function openTips(deck){
+    tipDeck = Array.isArray(deck) && deck.length ? deck.slice() : TIPS_FULL.slice();
     buildTips();
     showTip(0);
     put(TIPS_KEY, { seen: TIPS_VERSION, t: Date.now() });
     openOverlay(tipsOverlay);
   }
 
-  /* Everyone gets the tips once, on their own — new players and old alike.
-     Only on Picks, only when nothing else is open, and only where the phone
-     can remember it was shown. */
-  /* ---------- Live Quick Tips (3.9.0) ----------
-     Pops up by itself the first time Live opens on this phone; the Quick Tips
-     pill on the Week row brings it back any time. One card for now: Basic vs
-     Advanced, drawn with the real leaderboard classes. The pointer taps the
-     pill, Advanced adds the WIN column, then it taps back to Basic. The loop
-     only runs while the sheet is open. Reduced motion: holds on Advanced. */
-  /* 4.4.0: a second card, "Pin a game". Players who already saw the Live tips
-     (version 1) get a one-time slide-up with just the Pin card; brand-new
-     players get the whole deck. The Quick Tips pill always opens the whole
-     deck. Only a Got it button (Next on earlier cards); tap outside to close. */
+  /* Picks tips pop up once on their own: the 3-card starter for brand-new
+     players, or just the new cards for players who saw the older deck. Only on
+     Picks, only when nothing else is open, and only where the phone can
+     remember it was shown. */
+  /* ---------- Live Quick Tips ----------
+     4.5.2: seven cards. Six are a real piece of the Live tab (the app's own
+     markup, filled with sample data), scaled down, with a camera that pans to
+     the action and a pointer that taps like a finger. Pin a game keeps its own
+     demo. The mini-screens are built only while the sheet is open and emptied
+     when it closes (they contain copies of sheets, which must not linger).
+     Live never pops up for brand-new players. Players who saw the older deck
+     get the four new cards once. The Quick Tips pill opens the full deck.
+     Reduced motion: each card holds still on its key moment, no pointer. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 2;
-  let ltDeck = ['basic', 'pin'], ltIndex = 0, pnTimers = [];
+  const LIVETIPS_VERSION = 3;
+  const LT_FULL = ['live', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
+  const LT_NEW = ['sheets', 'win', 'analysis', 'root'];
+  const LT_TITLE = { live: 'Live games update themselves', pin: 'Pin a game', sheets: 'Open &amp; compare sheets',
+    win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
+  let ltDeck = LT_FULL.slice(), ltIndex = 0, pnTimers = [], lxR = null;
   const liveTipsOverlay = document.getElementById('liveTipsOverlay');
-  let lvTimers = [];
-  function liveTipsSeen(){
+  function liveTipsSeenVer(){
     const v = getLocal(LIVETIPS_KEY);
-    return !!(v && typeof v.seen === 'number' && v.seen >= LIVETIPS_VERSION);
+    return (v && typeof v.seen === 'number') ? v.seen : 0;
   }
-  function lvSet(adv){
-    const card = document.getElementById('lvDemo');
-    card.classList.toggle('adv', adv);
-    document.getElementById('lvPill').textContent = adv ? 'Advanced' : 'Basic';
+  function liveTipsSeen(){ return liveTipsSeenVer() >= LIVETIPS_VERSION; }
+
+  /* Sample screens, copied from the real Live tab (IDs removed). \u0001 = this
+     player's name, \u0002n\u0003 = a shared icon from T. */
+  const LX_DATA = {"S":{"live":"<div class=\"weekhead\"><span>Week 3 of 18</span><button class=\"tipbtn livetipbtn\" type=\"button\"><span class=\"tipplay\"><svg viewBox=\"0 0 8 9\" aria-hidden=\"true\"><path d=\"M1 0.8v7.4L7.2 4.5z\" fill=\"#03131f\"></path></svg></span>Quick Tips</button></div><div class=\"lxres\"><div class=\"ggroup\" data-group=\"live\" style=\"order:-50\"><div class=\"gghead\"><i class=\"gdot\"></i><b>Live now</b><span data-role=\"count\">3 games</span></div><div class=\"gsweep\"><i></i></div></div><div class=\"ggroup\" data-group=\"next\" style=\"order:950\"><div class=\"gghead\"><b>Up next</b><span data-role=\"count\">3 games</span></div></div><div class=\"gcard islive\" data-id=\"e401900014\" data-grp=\"live\" data-pts=\"3\" style=\"order: 3;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">3<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"CAR\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Carolina</span><span class=\"tscore\" data-role=\"score\">0</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine leading\" data-ab=\"NE\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>New England<b class=\"tspread\" data-role=\"hist\">\u22121.5</b></span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">14:00</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">2nd &amp; 6 at CAR 14</span><span class=\"rzchip\" data-role=\"rz\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard pregame\" data-id=\"e401900013\" data-grp=\"next\" data-pts=\"4\" style=\"order:1004\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">4<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"WSH\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/wsh.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Washington</span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"DAL\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Dallas<b class=\"tspread\" data-role=\"hist\">\u22122</b></span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus pre offgame\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Mon</span><span class=\"s2\" data-role=\"s2\">12:20 AM</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900008\" data-grp=\"live\" data-pts=\"7\" style=\"order: 7;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">7<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"IND\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Indianapolis</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"HOU\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Houston<b class=\"tspread\" data-role=\"hist\">\u22123.5</b></span><span class=\"tscore\" data-role=\"score\">3</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live solo\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">End Q1</span><span class=\"s2\" data-role=\"s2\" hidden=\"\"></span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900002\" data-grp=\"live\" data-pts=\"11\" style=\"order: 11;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">11<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"CHI\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Chicago</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div><div class=\"trow mine\" data-ab=\"DET\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Detroit<b class=\"tspread\" data-role=\"hist\">\u22127</b></span><span class=\"tscore\" data-role=\"score\">3</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">1:15</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">3rd &amp; 7 at DET 38</span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div></div>","top":"<div class=\"livehead\"><h2 class=\"panelhead\">Score Tracker</h2><span class=\"livestatus\">Simulated 8:15 PM</span></div><div class=\"liveactions\"><button class=\"sharebtn on\">\u00020\u0003Sheets Open</button><button class=\"chatbtn unread\">\u00025\u0003Pool Chat<span class=\"chatbadge\">2</span></button></div><div class=\"rootbar\" hidden=\"\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\"></b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Your Score</div><div class=\"scorebig\">34</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">45</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 14 scored</div><div class=\"scoreprog\"><i style=\"width: 57%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><span class=\"lbcount\">5 players \u00b7 1 online</span></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">41</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">46%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow me\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>","share":"<div class=\"confirmcard\" role=\"dialog\" aria-label=\"Open Sheets\"><div class=\"chead\"><span class=\"cicon\">\u00020\u0003</span><h2>Open Sheets</h2></div><p>Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.</p><div class=\"sharerules\"><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg></i><span>Anyone who has opened theirs can see yours.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"11\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"></path></svg></i><span>It can't be closed again this week.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 10h18M8 3v4M16 3v4\"></path></svg></i><span>Every sheet closes when next week starts.</span></div></div><div class=\"confirmrow\"><button class=\"confirmyes\">Open My Sheet</button><button class=\"confirmcancel\">Not this week</button></div></div>","cmp":"<div class=\"sheet\"><div class=\"sheettop\"><button class=\"backbtn\">\u2039 Back</button><h2>\u0001 vs Dale</h2></div><button type=\"button\" class=\"rootbtn\">Root for Dale</button><div class=\"viewtabs\"><button class=\"viewtab on\" data-view=\"ladder\">Ladder</button><button class=\"viewtab\" data-view=\"h2h\">Head-to-Head</button></div><div><div class=\"vhead\"><span class=\"vwho mine\"><i></i>\u0001</span><span class=\"vwho them\"><i></i>Dale</span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">1</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">1</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span></div><div class=\"vrow differ\"><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">2</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">2</b><span class=\"vname\">Buffalo</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">@ Miami</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">3</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">3</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">5</b><span class=\"vname\">Cincinnati</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">vs Pittsburgh</span></span><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">5</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Green Bay</span><b class=\"vsp\">\u22123</b></span><span class=\"vopp\">vs Minnesota</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Jacksonville</span><b class=\"vsp\">\u22125.5</b></span><span class=\"vopp\">vs Tennessee</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Houston</span><b class=\"vsp\">\u22123.5</b></span><span class=\"vopp\">vs Indianapolis</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Indianapolis</span><b class=\"vsp\">+3.5</b></span><span class=\"vopp\">@ Houston</span></span></div><div class=\"vtotals\"><span class=\"vtot\"><b>34</b><span class=\"vtotlbl\">pts</span></span><span class=\"vtot lead\"><b>41</b><span class=\"vtotlbl\">pts</span></span></div></div></div>","ask":"<div class=\"sheet\" role=\"dialog\" aria-label=\"Root for\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker rootkick\">ROOT FOR</span><h2>Root for Dale?</h2></div></div><p class=\"rootasktext\">Your Live tab turns into <b>Dale\u2019s</b>: their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> on it any time to switch back to your own view. It ends on its own when the week does.</p><div class=\"tipnav\"><button class=\"confirmyes rootgo\">Root for Dale</button></div><button class=\"closebtn\">Cancel</button></div>","rooted":"<div class=\"livehead\"><h2 class=\"panelhead\">Dale\u2019s Live</h2><span class=\"livestatus\">Simulated 8:15 PM</span></div><div class=\"liveactions\"><button class=\"sharebtn on\">\u00020\u0003Sheets Open</button><button class=\"chatbtn unread\">\u00025\u0003Pool Chat<span class=\"chatbadge\">2</span></button></div><div class=\"rootbar\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\">Dale</b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Dale\u2019s Score</div><div class=\"scorebig\">40</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">49</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 15 scored</div><div class=\"scoreprog\"><i style=\"width: 53%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><span class=\"lbcount\">5 players \u00b7 1 online</span></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow me lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">40</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">46%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>","chat":"<div class=\"chatsheet\" role=\"dialog\" aria-label=\"Pool Chat\"><div class=\"chathead\"><div class=\"chattitle\"><b>Pool Chat</b><span>Week 3 \u00b7 everyone in the pool</span></div><button class=\"backbtn anback\" type=\"button\">\u2039 Back</button></div><div class=\"chatpeople\"><span class=\"chatonline\"><i class=\"beacon\"></i>1 online now</span><div class=\"chatpills\"><span class=\"chatpill me\" style=\"color: var(--green)\">You<i class=\"beacon\"></i></span></div></div><div class=\"chatlist\"><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#e59cff\">Dale <i>\u00b7 8:00 PM</i></span><div class=\"chatbubble\">Lions are cooking today</div></div><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#ff9ecf\">Kermit <i>\u00b7 8:05 PM</i></span><div class=\"chatbubble\">Bills better cover for me</div></div></div><div class=\"chatcompose\"><textarea rows=\"1\" maxlength=\"200\" placeholder=\"Message the pool\" autocomplete=\"off\" enterkeyhint=\"send\" class=\"lxchatin\"></textarea><span class=\"chatcount\" hidden=\"\">0 / 200</span><button class=\"chatsend\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg></button></div></div>","an":"<div class=\"sheet\" role=\"dialog\" aria-label=\"Analysis\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker\">ANALYSIS</span><h2>How you\u2019re doing</h2></div><button type=\"button\" class=\"backbtn anback\">\u2039 Back</button></div><div class=\"ansect\">Current outlook<span class=\"anasof\">\u00b7 as of 3:42 PM</span></div><div class=\"anwk\"><div class=\"anwktop\"><div class=\"anwkhead\"><span class=\"anchip run\">IN THE RUNNING</span><b>You\u2019re right in the race.</b><p>You\u2019re one of the favorites. The games left decide it.</p></div><div class=\"anring\"><svg viewBox=\"0 0 88 88\" aria-hidden=\"true\"><circle class=\"rbg\" cx=\"44\" cy=\"44\" r=\"37\"></circle><circle class=\"rfg\" cx=\"44\" cy=\"44\" r=\"37\" style=\"stroke-dasharray: 232.478; stroke-dashoffset: 144.136;\"></circle></svg><div class=\"rin\"><b>38%</b><span>to win</span></div></div></div><div class=\"anvs\"><div class=\"side\"><span>Your best case</span><b>94</b><small>if your games win</small></div><div class=\"vs\">VS</div><div class=\"side w\"><span>Likely winning total</span><b>86</b><small>82\u201390 range</small><button type=\"button\" class=\"anconf\"></button></div></div><div class=\"anconfwhy\" hidden=\"\"></div><div class=\"anres\"></div><div class=\"antrackwrap\"><div class=\"antrack\"><span class=\"tband\"></span><span class=\"tnow\" style=\"width: 39.0805%;\"></span><span class=\"tmax\" style=\"left: 39.0805%; width: 51.7241%;\"></span><span class=\"tflag\"><em></em></span></div><div class=\"tlabels\"><span class=\"tl now\" style=\"left: 39.0805%; transform: translateX(-50%);\">Now 34</span><span class=\"tl\" style=\"left: 90.8046%; transform: translateX(-50%);\">Best 94</span></div></div><div class=\"anpath\"><div class=\"anleft\">6 games left \u00b7 worth 45 points</div></div></div><div class=\"tipnav\"><button class=\"confirmyes\">Got it</button></div><button type=\"button\" class=\"anmeth\" aria-expanded=\"false\"><span class=\"anmi\" aria-hidden=\"true\">i</span>How is this calculated? <span class=\"anchev\" aria-hidden=\"true\">\u25be</span></button><div class=\"anwhat\" hidden=\"\">Once 3 or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.</div></div>"},"T":["<svg viewBox=\"0 0 16 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 1h8l4 4v14H2z\"></path><path d=\"M10 1v4h4M5 10h6M5 14h6\"></path></svg>","<svg viewBox=\"0 0 10 10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 6.5 5 3.5 8 6.5\"></path></svg>","<svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z\"></path></svg>","<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3.2\" fill=\"currentColor\"></circle></svg>","<svg viewBox=\"0 0 26 16\" aria-label=\"Has the ball\"><ellipse cx=\"13\" cy=\"8\" rx=\"12\" ry=\"7\" fill=\"#b98552\"></ellipse><path d=\"M8 8h10M11 6v4M13 6v4M15 6v4\" stroke=\"#ffffff\" stroke-width=\"1.4\" stroke-linecap=\"round\"></path></svg>","<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5h16v11H9l-5 4z\"></path></svg>"]};
+  function lxHTML(k){
+    return (LX_DATA.S[k] || '')
+      .replace(/\u0002(\d+)\u0003/g, function(m, i){ return LX_DATA.T[+i] || ''; })
+      .replace(/\u0001/g, esc(player().name || 'You'))
+      .replace(/Week 3\b/g, 'Week ' + currentWeek)
+      .replace(/Simulated [^<]*/g, 'Updated 3:42 PM');
   }
-  function lvStop(){
-    lvTimers.forEach(clearTimeout); lvTimers = [];
-    const p = document.getElementById('lvPtr');
-    p.classList.remove('on', 'press'); p.classList.add('away');
-    lvSet(false);
+  function lxScreen(st, inner, scale){
+    st.innerHTML = '<div class="lxscr">' + inner + '</div><span class="tipring"></span><span class="tipptr"></span><span class="lxcap"></span>';
+    const scr = st.querySelector('.lxscr'), s = scale || 0.72;
+    scr._s = s; scr._y = 0;
+    scr.style.left = Math.round((st.clientWidth - 393 * s) / 2) + 'px';
+    scr.style.transition = 'none'; scr.style.transform = 'translateY(0) scale(' + s + ')'; void scr.offsetWidth; scr.style.transition = '';
+    return scr;
   }
-  function lvLater(fn, ms){ lvTimers.push(setTimeout(fn, ms)); }
-  function lvLoop(){
-    if(!liveTipsOverlay.classList.contains('show') || ltDeck[ltIndex] !== 'basic') return;
-    const p = document.getElementById('lvPtr'), r = document.getElementById('lvRing');
-    const tap = function(adv){
-      p.classList.add('press');
-      r.classList.remove('go'); void r.offsetWidth; r.classList.add('go');
-      lvLater(function(){ p.classList.remove('press'); lvSet(adv); }, 140);
+  function lxPan(scr, y){
+    const vis = scr.parentNode.clientHeight / scr._s;
+    y = Math.max(0, Math.min(852 - vis, y)); scr._y = y;
+    scr.style.transform = 'translateY(' + (-y * scr._s) + 'px) scale(' + scr._s + ')';
+  }
+  function lxPanTo(scr, el, margin){
+    if(!el) return;
+    lxPan(scr, (el.getBoundingClientRect().top - scr.getBoundingClientRect().top) / scr._s - (margin || 0));
+  }
+  function lxOverlay(scr, html, cls){
+    const o = document.createElement('div');
+    o.className = 'overlay' + (cls ? ' ' + cls : ''); o.innerHTML = html; scr.appendChild(o);
+    return o;
+  }
+  /* One runner per visible card: timers, the pointer, the caption. With
+     reduced motion every step up to the card's key moment runs at once, in
+     order, and nothing moves after that. */
+  function lxRunner(st, stillAt){
+    let timers = [], ivals = [], queue = null, cur = 0;
+    const P = function(){ return st.querySelector('.tipptr'); }, G = function(){ return st.querySelector('.tipring'); };
+    const R = {
+      still: stillAt != null,
+      later: function(fn, ms){
+        if(R.still){ if(cur + ms <= stillAt) queue.push({ at: cur + ms, fn: fn }); return; }
+        timers.push(setTimeout(fn, ms));
+      },
+      every: function(fn, ms){ if(!R.still) ivals.push(setInterval(fn, ms)); },
+      stop: function(){ timers.forEach(clearTimeout); timers = []; ivals.forEach(clearInterval); ivals = []; if(queue) queue.length = 0; },
+      go: function(el){
+        if(!el || R.still) return;
+        const b = el.getBoundingClientRect(), s = st.getBoundingClientRect();
+        const x = b.left - s.left + b.width / 2, y = b.top - s.top + b.height / 2;
+        P().style.left = x + 'px'; P().style.top = y + 'px'; G().style.left = x + 'px'; G().style.top = y + 'px';
+      },
+      start: function(){
+        if(R.still) return;
+        const p = P(); p.style.transition = 'none';
+        p.style.left = (st.clientWidth - 30) + 'px'; p.style.top = (st.clientHeight - 20) + 'px';
+        void p.offsetWidth; p.style.transition = ''; p.classList.add('on');
+      },
+      hide: function(){ const p = P(); if(p) p.classList.remove('on'); },
+      tap: function(fn){
+        if(R.still){ if(fn) fn(); return; }
+        const p = P(), g = G(); p.classList.add('press');
+        g.classList.remove('go'); void g.offsetWidth; g.classList.add('go');
+        R.later(function(){ p.classList.remove('press'); if(fn) fn(); }, 140);
+      },
+      cap: function(t){ const c = st.querySelector('.lxcap'); if(!c) return; if(t){ c.textContent = t; c.classList.add('on'); } else c.classList.remove('on'); },
+      run: function(play){
+        if(!R.still){ play(); return; }
+        queue = []; cur = 0; play();
+        while(queue.length){
+          queue.sort(function(a, b){ return a.at - b.at; });
+          const q = queue.shift(); cur = q.at;
+          try{ q.fn(); }catch(e){}
+        }
+      }
     };
-    p.classList.add('away', 'on');
-    lvLater(function(){ p.classList.remove('away'); }, 250);
-    lvLater(function(){ tap(true); }, 1300);
-    lvLater(function(){ tap(false); }, 3200);
-    lvLater(function(){ p.classList.remove('on'); }, 4700);
-    lvLater(lvLoop, 5400);
+    return R;
   }
+  function lxTeam(card, i){
+    const n = card.querySelectorAll('.trow .tname')[i || 0];
+    if(!n) return '';
+    const c = n.cloneNode(true); c.querySelectorAll('i, b').forEach(function(x){ x.remove(); });
+    return c.textContent.trim();
+  }
+  function lxPlay(card, label, to){
+    const tag = card.querySelector('[data-role="play"]');
+    if(!tag) return;
+    const dd = tag.parentNode; dd.hidden = false;
+    const tx = dd.querySelector('[data-role="ddtext"]'); if(tx) tx.textContent = '';
+    const rz = dd.querySelector('[data-role="rz"]'); if(rz) rz.hidden = true;
+    tag.textContent = label; tag.hidden = false; tag.classList.toggle('to', !!to);
+    card.classList.remove('flash', 'flashto'); void card.offsetWidth;
+    card.classList.add(to ? 'turned' : 'scored', to ? 'flashto' : 'flash');
+  }
+  function lxBump(card, i, d){ const s = card.querySelectorAll('.trow .tscore')[i || 0]; if(s) s.textContent = String((+s.textContent || 0) + d); }
+  function lxTick(scr){
+    scr.querySelectorAll('.gcard.islive .gstatus .s2').forEach(function(c){
+      const m = /^(\d+):(\d\d)$/.exec(c.textContent.trim());
+      if(!m) return;
+      const sec = Math.max(0, (+m[1]) * 60 + (+m[2]) - 1);
+      c.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+    });
+  }
+  const LX_STILL = { live: 5300, sheets: 6400, win: 2500, analysis: 4300, root: 6700, chat: 3700 };
+  const LX_PLAY = {
+    live: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('live'), 0.74), g = scr.querySelectorAll('.gcard.islive');
+      R.every(function(){ lxTick(scr); }, 1000);
+      R.later(function(){ if(g[0]){ lxBump(g[0], 0, 3); lxPlay(g[0], 'FG ' + lxTeam(g[0], 0)); } }, 1600);
+      R.later(function(){ if(g[1]) lxPlay(g[1], 'INT \u00B7 ' + lxTeam(g[1], 1) + ' ball', true); }, 2300);
+      R.later(function(){ lxPanTo(scr, g[2] || g[1], 120); }, 4200);
+      R.later(function(){ if(g[2]){ lxBump(g[2], 1, 7); lxPlay(g[2], 'TD + XP ' + lxTeam(g[2], 1)); } }, 5200);
+      R.later(function(){ LX_PLAY.live(st, R); }, 8400);
+    },
+    sheets: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('top'), 0.72), sb = scr.querySelector('.sharebtn');
+      if(sb){ sb.classList.remove('on'); sb.lastChild.textContent = 'Open Sheets'; }
+      const dale = [].filter.call(scr.querySelectorAll('.lbrow'), function(r){ return /Dale/.test(r.textContent); })[0];
+      const o1 = lxOverlay(scr, lxHTML('share')), o2 = lxOverlay(scr, lxHTML('cmp'));
+      const yes = o1.querySelector('.confirmyes');
+      R.start();
+      R.later(function(){ R.go(sb); }, 300);
+      R.later(function(){ R.tap(function(){ o1.classList.add('show'); R.later(function(){ lxPanTo(scr, o1.querySelector('.confirmcard'), 20); }, 250); }); }, 1200);
+      R.later(function(){ R.go(yes); }, 2400);
+      R.later(function(){ R.tap(function(){ o1.classList.remove('show'); if(sb){ sb.classList.add('on'); sb.lastChild.textContent = 'Sheets Open'; } lxPan(scr, 0); }); }, 3400);
+      R.later(function(){ R.go(dale); }, 4400);
+      R.later(function(){ R.tap(function(){ if(dale) dale.style.boxShadow = '0 0 0 1px rgba(53,208,255,0.9)'; }); }, 5300);
+      R.later(function(){ R.hide(); o2.classList.add('show'); }, 5600);
+      R.later(function(){ lxPanTo(scr, o2.querySelector('.viewtabs'), 30); }, 6300);
+      R.later(function(){ lxPanTo(scr, o2.querySelector('.viewtabs'), -120); }, 8000);
+      R.later(function(){ LX_PLAY.sheets(st, R); }, 11000);
+    },
+    win: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('top'), 0.86), src = scr.querySelector('.lbcard');
+      scr.innerHTML = src ? src.outerHTML : '';
+      const lb = scr.querySelector('.lbcard'), pill = scr.querySelector('.lbmode');
+      if(!lb) return;
+      const cells = scr.querySelectorAll('.lbwin'), orig = [].map.call(cells, function(c){ return c.innerHTML; });
+      lb.classList.add('adv'); if(pill) pill.textContent = 'Advanced';
+      cells.forEach(function(c){ c.textContent = '\u2013'; });
+      R.cap('Dashes until your first game kicks off');
+      R.later(function(){ cells.forEach(function(c, i){ c.innerHTML = orig[i]; }); R.cap('Then everyone\u2019s chance to win'); }, 2400);
+      R.later(function(){ R.cap(''); R.start(); }, 4400);
+      R.later(function(){ R.go(pill); }, 4700);
+      R.later(function(){ R.tap(function(){ lb.classList.remove('adv'); if(pill) pill.textContent = 'Basic'; }); }, 5700);
+      R.later(function(){ R.hide(); }, 6600);
+      R.later(function(){ LX_PLAY.win(st, R); }, 8000);
+    },
+    analysis: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('top'), 0.72), pill = scr.querySelector('.anpill');
+      const o = lxOverlay(scr, lxHTML('an'), 'lxan');
+      if(pill){ pill.hidden = false; pill.textContent = 'Analysis (38%)'; pill.classList.add('pulse'); }
+      const W = { Dale: '31%', Kermit: '21%', 'Laura Welsh': '6%', Jakeyallsuck: '4%' };
+      scr.querySelectorAll('.lbrow').forEach(function(r){
+        const n = r.querySelector('.lbname'), w = r.querySelector('.lbwin');
+        if(n && w) w.textContent = r.classList.contains('me') ? '38%' : (W[n.textContent.trim()] || w.textContent);
+      });
+      R.start();
+      R.later(function(){ R.go(pill); }, 300);
+      R.later(function(){ R.tap(function(){ o.classList.add('show'); }); }, 1300);
+      R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.sheet'), 10); }, 1800);
+      R.later(function(){ lxPanTo(scr, o.querySelector('.anvs'), 60); }, 4200);
+      R.later(function(){ lxPanTo(scr, o.querySelector('.antrackwrap') || o.querySelector('.anvs'), 40); }, 6400);
+      R.later(function(){ LX_PLAY.analysis(st, R); }, 9600);
+    },
+    root: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('top'), 0.72);
+      const o1 = lxOverlay(scr, lxHTML('cmp')), o2 = lxOverlay(scr, lxHTML('ask'));
+      o1.classList.add('show');
+      const rb = o1.querySelector('.rootbtn'), go = o2.querySelector('.rootgo');
+      R.later(function(){ lxPanTo(scr, o1.querySelector('.sheet'), 10); }, 50);
+      R.later(function(){ R.start(); R.go(rb); }, 900);
+      R.later(function(){ R.tap(function(){ o2.classList.add('show'); R.later(function(){ lxPanTo(scr, o2.querySelector('.sheet'), 10); }, 250); }); }, 2000);
+      R.later(function(){ R.go(go); }, 3600);
+      R.later(function(){ R.tap(function(){
+        o2.classList.remove('show'); o1.classList.remove('show');
+        R.later(function(){
+          R.hide(); scr.innerHTML = lxHTML('rooted'); scr.classList.add('rooting'); lxPan(scr, 0);
+        }, 300);
+      }); }, 4600);
+      R.later(function(){ lxPanTo(scr, scr.querySelector('.rootbar'), 60); }, 6600);
+      R.later(function(){ lxPanTo(scr, scr.querySelector('.rootbar'), -60); }, 8200);
+      R.later(function(){ scr.classList.remove('rooting'); LX_PLAY.root(st, R); }, 10600);
+    },
+    chat: function(st, R){
+      R.stop();
+      const scr = lxScreen(st, lxHTML('top'), 0.72), btn = scr.querySelector('.chatbtn');
+      const o = lxOverlay(scr, lxHTML('chat')), list = o.querySelector('.chatlist');
+      R.start();
+      R.later(function(){ R.go(btn); }, 300);
+      R.later(function(){ R.tap(function(){ o.classList.add('show'); }); }, 1300);
+      R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.chatsheet'), 10); }, 1800);
+      R.later(function(){
+        if(!list) return;
+        const m = document.createElement('div'); m.className = 'chatmsg mine first';
+        m.innerHTML = '<span class="chatwho" style="color: var(--green)">' + esc(player().name || 'You') + ' <i>\u00B7 3:42 PM</i></span><div class="chatbubble">Don\u2019t jinx it</div>';
+        if(!R.still){ m.style.opacity = 0; m.style.transform = 'translateY(8px)'; m.style.transition = 'opacity .35s ease, transform .35s ease'; }
+        list.appendChild(m); void m.offsetWidth; m.style.opacity = 1; m.style.transform = 'none';
+      }, 3600);
+      R.later(function(){ LX_PLAY.chat(st, R); }, 7800);
+    }
+  };
+  function lxStop(){
+    if(lxR){ lxR.stop(); lxR = null; }
+    document.querySelectorAll('#liveTipCards .lxstage').forEach(function(st){ st.innerHTML = ''; });
+  }
+  function lxStart(key){
+    const card = document.querySelector('#liveTipCards .tipcard[data-ltip="' + key + '"]');
+    const st = card && card.querySelector('.lxstage');
+    if(!st || !LX_PLAY[key]) return;
+    const R = lxRunner(st, lbMotionOK() ? null : LX_STILL[key]);
+    lxR = R;
+    try{ R.run(function(){ LX_PLAY[key](st, R); }); }catch(e){}
+  }
+  /* Cards for this deck; Pin keeps its own card in the page. */
+  function ltBuild(){
+    const host = document.getElementById('liveTipCards');
+    host.querySelectorAll('.tipcard[data-lx]').forEach(function(c){ c.remove(); });
+    const pin = host.querySelector('.tipcard[data-ltip="pin"]');
+    ltDeck.forEach(function(k){
+      if(k === 'pin'){ host.appendChild(pin); return; }
+      const c = document.createElement('div');
+      c.className = 'tipcard'; c.dataset.ltip = k; c.dataset.lx = '1'; c.hidden = true;
+      c.innerHTML = '<div class="lxstage" aria-hidden="true"></div><div class="tiptext"><h3>' + LT_TITLE[k] + '</h3></div>';
+      host.appendChild(c);
+    });
+  }
+
   /* Pin a game demo: three live cards drawn with the real card classes. The
      pointer taps the bottom card's pin, it glows and slides to the top and
      pulses, then gets tapped again and slides back. Reduced motion: holds pinned. */
@@ -9424,37 +9729,51 @@
   function ltShow(i){
     ltIndex = Math.max(0, Math.min(ltDeck.length - 1, i));
     const want = ltDeck[ltIndex];
-    lvStop(); pnStop();
+    lxStop(); pnStop();
     Array.prototype.forEach.call(document.querySelectorAll('#liveTipCards .tipcard'), function(c){ c.hidden = c.dataset.ltip !== want; });
     document.getElementById('liveTipCount').textContent = (ltIndex + 1) + ' of ' + ltDeck.length;
-    const dots = document.getElementById('liveTipDots');
-    dots.innerHTML = ltDeck.length > 1 ? ltDeck.map(function(k, j){ return '<span class="tipdot' + (j === ltIndex ? ' on' : '') + '" data-i="' + j + '"></span>'; }).join('') : '<span class="tipdot on"></span>';
+    document.getElementById('liveTipDots').innerHTML = ltDeck.map(function(k, j){
+      return '<span class="tipdot' + (j === ltIndex ? ' on' : '') + '" data-i="' + j + '"></span>';
+    }).join('');
     document.getElementById('liveTipBack').hidden = ltIndex === 0;
     document.getElementById('liveTipsOk').textContent = ltIndex === ltDeck.length - 1 ? 'Got it' : 'Next';
     if(want === 'pin'){
       pnBuild(); pnPlace();
       if(lbMotionOK()) pnLater(pnLoop, 500); else pnSet(true);
     }else{
-      if(lbMotionOK()) lvLater(lvLoop, 500); else lvSet(true);
+      lxStart(want);
     }
   }
   function openLiveTips(deck){
     put(LIVETIPS_KEY, { seen: LIVETIPS_VERSION, t: Date.now() });
-    ltDeck = Array.isArray(deck) && deck.length ? deck : ['basic', 'pin'];
+    ltDeck = Array.isArray(deck) && deck.length ? deck.slice() : LT_FULL.slice();
+    ltBuild();
     openOverlay(liveTipsOverlay);
     ltShow(0);
   }
-  function closeLiveTips(){ closeOverlay(liveTipsOverlay); lvStop(); pnStop(); }
+  function closeLiveTips(){ closeOverlay(liveTipsOverlay); lxStop(); pnStop(); }
+  /* Only players who saw the older Live deck get a pop-up (the new cards, once). */
   function maybeLiveTips(){
-    if(!hasLocal || liveTipsSeen()) return;
+    const v = liveTipsSeenVer();
+    if(!hasLocal || v < 1 || v >= LIVETIPS_VERSION) return;
     setTimeout(function(){
       if(liveTipsSeen() || !isTab('live') || !player().name || overlayStack.length || document.hidden || gateOpen()) return;
-      const v = getLocal(LIVETIPS_KEY);
-      const sawOld = !!(v && typeof v.seen === 'number' && v.seen >= 1);
-      openLiveTips(sawOld ? ['pin'] : ['basic', 'pin']);
+      openLiveTips(LT_NEW);
     }, 900);
   }
-  document.getElementById('liveTipsBtn').addEventListener('click', function(){ openLiveTips(['basic', 'pin']); });
+  /* The cyan dot on each Quick Tips pill, until that pill is tapped once. */
+  const TIPDOT_KEY = 'pickem-tipdot';
+  function tipDotSync(){
+    const v = getLocal(TIPDOT_KEY) || {};
+    document.getElementById('tipsBtn').classList.toggle('unseen', hasLocal && !v.picks);
+    document.getElementById('liveTipsBtn').classList.toggle('unseen', hasLocal && !v.live);
+  }
+  function tipDotClear(which){
+    const v = Object.assign({}, getLocal(TIPDOT_KEY) || {});
+    v[which] = 1; put(TIPDOT_KEY, v); tipDotSync();
+  }
+  tipDotSync();
+  document.getElementById('liveTipsBtn').addEventListener('click', function(){ tipDotClear('live'); openLiveTips(LT_FULL); });
   document.getElementById('liveTipsOk').addEventListener('click', function(){
     if(ltIndex >= ltDeck.length - 1) closeLiveTips(); else ltShow(ltIndex + 1);
   });
@@ -9481,13 +9800,13 @@
     if(!hasLocal || tipsSeen()) return;
     setTimeout(function(){
       if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden || gateOpen()) return;
-      openTips();
+      openTips(tipsSeenVer() >= 1 ? TIPS_NEW : TIPS_START);
     }, 900);
   }
 
-  document.getElementById('tipsBtn').addEventListener('click', openTips);
+  document.getElementById('tipsBtn').addEventListener('click', function(){ tipDotClear('picks'); openTips(TIPS_FULL); });
   document.getElementById('tipNext').addEventListener('click', function(){
-    if(tipIndex >= TIP_COUNT - 1) closeOverlay(tipsOverlay);
+    if(tipIndex >= tipDeck.length - 1) closeOverlay(tipsOverlay);
     else showTip(tipIndex + 1);
   });
   document.getElementById('tipBack').addEventListener('click', function(){ showTip(tipIndex - 1); });
