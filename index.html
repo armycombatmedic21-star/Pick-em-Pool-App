@@ -2245,6 +2245,17 @@
   /* A score or turnover keeps its own cyan/amber edge for 30 s, on the glass fill */
   #tabLive .gcard.islive.scored, #tabLive .gcard.islive.turned,
   .lxscr .gcard.islive.scored, .lxscr .gcard.islive.turned{ background: linear-gradient(180deg, #111f36, #0a1322); }
+  /* 4.5.4: the leaderboard list fills its card to the bottom. The card is
+     sized by Your Score (taller while the Analysis button shows); the list
+     used to stop at 168px and leave an empty strip. Card size is unchanged
+     (174px min = the old 168px plus the 6px it borrows from the bottom
+     padding), and longer pools still scroll.
+     An empty list keeps its old look (no box, note right under the header). */
+  .lbcard{ display:flex; flex-direction:column; }
+  .lbcard > .lblist{ flex:1 1 0; height:0; min-height:174px; max-height:none; margin-bottom:-6px; }
+  .lbcard > .lblist:empty{ flex:none; height:auto; min-height:0; margin-bottom:0; }
+  /* A note under the list ("Lock in to post your score."): no borrowing, old spacing */
+  .lbcard > .lblist:not(:empty):has(+ .lbnote:not(:empty)){ min-height:168px; margin-bottom:0; }
 </style>
 </head>
 <body class="glass">
@@ -2499,6 +2510,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.5.4</b> The leaderboard list now fills its card to the bottom, so no names get cut off.</div>
       <div class="cl"><b>4.5.3</b> Sleeker Picks cards with a glowing edge and deeper number boxes (they glow brighter the more points). Lock In Picks is now below your games, and you can also tap the UNLOCKED pill to lock in. Live games get the same glass look.</div>
       <div class="cl"><b>4.5.2</b> New Quick Tips. Picks has eight short animated cards: drag by the number box, switch your pick, Smart Shuffle, line history, remove a game, jump to a spot, start over and lock in. Live has seven, showing the real Live tab: live games, pin a game, open and compare sheets, chance to win, Analysis, Root for and Pool Chat. A small blue dot on a Quick Tips button means you haven’t opened it yet.</div>
       <div class="cl"><b>4.5.1</b> Settings is simpler: Change name, Add to Home Screen, What’s new and the Admin Panel. Add to Home Screen now shows on Android for anyone not using the home-screen app. Team logos on the night banner and the Sheet no longer blink when scores refresh. Thanksgiving week keeps its Thursday games on the sheet. On iPhone, sheets fit inside Safari’s bars, and you can swipe one down from the top to close it. The Sunday and Monday night banners have a sleeker look.</div>
@@ -2902,8 +2914,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.5.3';
-  const APP_BUILT = 'Oct 3, 2026';
+  const APP_VERSION = '4.5.4';
+  const APP_BUILT = 'Oct 4, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
