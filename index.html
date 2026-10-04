@@ -2488,6 +2488,7 @@
     </div>
     <div class="devmeta" id="devMeta"></div>
     <button class="closebtn" id="adminPanelClose">Done</button>
+    <button class="resetbtn" id="adminRelock" type="button">Relock Admin Panel</button>
   </div>
 </div>
 
@@ -8791,10 +8792,10 @@
   setInterval(function(){ if(isTab('picks') && !document.hidden && winShow()) winSoon(0); }, 15000);
   edgeSync();
   const ADMIN_KEY = 'pickem-admin';
-  /* 4.5.1 Admin Panel (Settings): code 1987 once, then this phone remembers.
+  /* 4.5.1 Admin Panel (Settings): the code once, then this phone remembers.
      Phones that already turned on Admin or the Edge Engine count as unlocked. */
   const PANEL_KEY = 'pickem-panel';
-  const PANEL_CODE = '1987';
+  const PANEL_CODE = '17771987';
   const adminCodeOverlay = document.getElementById('adminCodeOverlay');
   const adminPlayerOverlay = document.getElementById('adminPlayerOverlay');
   const adminConfirmOverlay = document.getElementById('adminConfirmOverlay');
@@ -8805,6 +8806,7 @@
 
   function panelUnlocked(){
     const v = getLocal(PANEL_KEY);
+    if(v && v.locked === true) return false;   // 4.5.3: relocked, needs the code again
     if(v && v.ok === true) return true;
     const a = getLocal(ADMIN_KEY), e = getLocal(EDGE_KEY);
     return !!((a && a.ok === true) || (e && e.ok === true));
@@ -8854,6 +8856,13 @@
   adminCodeOverlay.addEventListener('click', function(e){ if(e.target === adminCodeOverlay) closeOverlay(adminCodeOverlay); });
   document.getElementById('adminPanelBack').addEventListener('click', function(){ closeOverlay(adminPanel); });
   document.getElementById('adminPanelClose').addEventListener('click', function(){ closeOverlay(adminPanel); });
+  /* 4.5.3: Relock: closes the panel; the code is needed again to open it.
+     Admin and Edge Engine stay as they were. */
+  document.getElementById('adminRelock').addEventListener('click', function(){
+    put(PANEL_KEY, { ok: false, locked: true });
+    closeOverlay(adminPanel);
+    toast('Admin Panel locked');
+  });
   adminPanel.addEventListener('click', function(e){ if(e.target === adminPanel) closeOverlay(adminPanel); });
 
   // Tapping a name on the leaderboard with admin on.
