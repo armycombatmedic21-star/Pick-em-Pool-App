@@ -151,6 +151,30 @@
     background-repeat:no-repeat; background-position: right 13px center; background-size: 11px 7px;
   }
   .weekpick option{ background:#0d1626; color:#ffffff; }
+  /* 4.5.5: the week pill is a button that opens the app's own week sheet (the
+     same on iPhone and Android). The <select> stays, hidden, as the one place
+     the chosen week lives. Cyan while you're on the current NFL week. */
+  #weekPick{ display:none; }
+  button.weekpick{ text-align:left; font-family:var(--font); line-height:38px; white-space:nowrap;
+    transition: border-color .25s, color .25s, box-shadow .25s, background-color .25s; }
+  .weekpick.now{ color: var(--cyan); border-color: rgba(53,208,255,0.6); background-color: rgba(53,208,255,0.08);
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%2335d0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    box-shadow: 0 0 14px rgba(53,208,255,0.18); }
+  .wkhead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 2px 14px; }
+  .wkhead span{ font-size:12px; font-weight:700; color: var(--muted); }
+  .wkgrid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .wk{ position:relative; height:54px; padding:0; border-radius:14px; border:1px solid var(--hair2);
+    background: rgba(255,255,255,0.035); color:#ffffff; font:800 15px var(--font);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; }
+  .wk small{ font-size:9px; font-weight:800; letter-spacing:1.3px; color: var(--faint); }
+  .wk.past{ color: var(--muted); }
+  .wk.viewing{ border-color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.08); }
+  .wk.cur{ color:#04121f; border-color: var(--cyan); background: linear-gradient(180deg, #5cdcff, #22b9ea); box-shadow: 0 0 18px rgba(53,208,255,0.35); }
+  .wk.cur small{ color: rgba(4,18,31,0.75); }
+  .wk.cur.viewing{ box-shadow: 0 0 0 2px #ffffff, 0 0 20px rgba(53,208,255,0.45); }
+  .wkjump{ display:block; width:100%; height:46px; margin-top:14px; border-radius:23px; border:1px solid rgba(53,208,255,0.6);
+    background: rgba(53,208,255,0.1); color: var(--cyan); font:800 14px var(--font); }
+  .wkjump[hidden]{ display:none; }
 
   .rankhead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin: 20px 0 10px; }
   .rankhead b{ font-size:19px; font-weight:800; letter-spacing:-0.3px; color:#ffffff; }
@@ -1995,6 +2019,42 @@
   .ts7{ animation: tqFade 5s linear infinite; }
   .ts8{ animation: tqFade 5.6s linear infinite; }
   .ts9{ animation: tqFade 13s linear infinite; }
+  /* 4.5.5 Pick a week (6 s): tap the pill, the week sheet rises, tap the cyan
+     week, the sheet drops and the pill turns cyan. */
+  .ts10{ animation: tqFade 6s linear infinite; }
+  .tq10top{ position:absolute; top:14px; left:12px; right:12px; display:flex; align-items:flex-end; gap:8px; }
+  .tq10top .brand-text{ flex:1; min-width:0; overflow:hidden; }
+  .tq10top h1{ font-size:16px; animation:none; }
+  .tq10top .gearbtn{ width:40px; height:40px; }
+  .tipstage .tq10pill{ position:relative; display:block; flex:none; width:108px; height:40px; line-height:38px; animation: tq10pill 6s linear infinite; }
+  .tq10pill .tq10a, .tq10pill .tq10b{ position:absolute; left:14px; top:0; }
+  .tipstage .tq10sheet{ position:absolute; left:0; right:0; top:62px; bottom:0; padding:12px 12px 0; z-index:5;
+    border-radius:20px 20px 0 0; border-top:1px solid rgba(147,174,200,0.16);
+    background: linear-gradient(180deg, #111e33, #0b1321 60%); box-shadow: 0 -14px 34px rgba(0,0,0,0.55);
+    animation: tq10sheet 6s cubic-bezier(.2,.85,.25,1) infinite; }
+  .tq10sheet .wkhead{ margin-bottom:10px; }
+  .tq10sheet h2{ margin:0; color:#ffffff; font-size:16px; font-weight:800; }
+  .tq10sheet .wkgrid{ gap:6px; }
+  .tq10sheet .wk{ height:42px; border-radius:12px; font-size:13px; }
+  .tq10sheet .wk small{ font-size:8px; }
+  .tq10was{ animation: tq10was 6s linear infinite; }
+  .tq10a{ animation: tq10a 6s linear infinite; }
+  .tq10b{ animation: tq10b 6s linear infinite; }
+  .tq10ptrA{ animation: tq10ptrA 6s ease infinite; }
+  .tq10ptrB{ animation: tq10ptrB 6s ease infinite; }
+  @keyframes tq10sheet{ 0%, 20%{ transform:translateY(105%); } 30%, 54%{ transform:none; } 64%, 100%{ transform:translateY(105%); } }
+  @keyframes tq10ptrA{ 0%, 6%{ opacity:0; transform:scale(1.3); } 12%{ opacity:1; transform:scale(1); }
+    17%{ opacity:1; transform:scale(0.85); } 21%{ opacity:1; transform:scale(1); } 26%, 100%{ opacity:0; transform:scale(1); } }
+  @keyframes tq10ptrB{ 0%, 32%{ opacity:0; transform:scale(1.3); } 40%{ opacity:1; transform:scale(1); }
+    46%{ opacity:1; transform:scale(0.85); } 50%{ opacity:1; transform:scale(1); } 56%, 100%{ opacity:0; transform:scale(1); } }
+  @keyframes tq10was{ 0%, 47%{ border-color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.08); }
+    48%, 100%{ border-color: var(--hair2); background: rgba(255,255,255,0.035); } }
+  @keyframes tq10a{ 0%, 59%{ opacity:1; } 60%, 100%{ opacity:0; } }
+  @keyframes tq10b{ 0%, 59%{ opacity:0; } 60%, 100%{ opacity:1; } }
+  @keyframes tq10pill{
+    0%, 59%{ color:#ffffff; border-color: var(--hair2); background-color: rgba(255,255,255,0.04); box-shadow:none; }
+    60%, 100%{ color: var(--cyan); border-color: rgba(53,208,255,0.6); background-color: rgba(53,208,255,0.08); box-shadow: 0 0 14px rgba(53,208,255,0.18); background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.6 6 6.4l5-4.8' fill='none' stroke='%2335d0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+  }
 
   /* 7: Smart Shuffle (real button) */
   .tq7row{ position:absolute; top:14px; left:12px; display:flex; align-items:center; gap:7px; }
@@ -2115,6 +2175,7 @@
     .ts8, .ts8 *{ animation-delay: -3.6s !important; }
     .ts9, .ts9 *{ animation-delay: -4.9s !important; }
     .ts6, .ts6 *{ animation-delay: -1.2s !important; }
+    .ts10, .ts10 *{ animation-delay: -2.6s !important; }
     .tipco{ display:flex; }
     .tipdot{ transition:none; }
   }
@@ -2268,7 +2329,8 @@
     </div>
   </div>
   <div class="topright">
-    <select class="weekpick" id="weekPick" aria-label="Week"></select>
+    <select class="weekpick" id="weekPick" aria-label="Week" hidden></select>
+    <button type="button" class="weekpick" id="weekBtn" aria-haspopup="dialog">Week 1</button>
     <button class="gearbtn" id="gearBtn" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
 </div>
@@ -2427,6 +2489,14 @@
   </div>
 </div>
 
+<div class="overlay" id="weekOverlay">
+  <div class="sheet" role="dialog" aria-label="Choose week">
+    <div class="wkhead"><h2>Choose week</h2><span id="wkSeason"></span></div>
+    <div class="wkgrid" id="wkGrid"></div>
+    <button type="button" class="wkjump" id="wkJump" hidden></button>
+  </div>
+</div>
+
 <div class="overlay" id="slotOverlay">
   <div class="sheet">
     <div class="sheettop">
@@ -2510,6 +2580,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.5.5</b> New week picker: tap the week to choose from a sheet, with the current week in cyan. If you leave the app on another week for 10 minutes, it comes back to the current week. The Thursday game now starts off every sheet, including ones already saved; tap Restore to put it back and it stays. Week 12 (Thanksgiving) keeps it.</div>
       <div class="cl"><b>4.5.4</b> The leaderboard list now fills its card to the bottom, so no names get cut off.</div>
       <div class="cl"><b>4.5.3</b> Sleeker Picks cards with a glowing edge and deeper number boxes (they glow brighter the more points). Lock In Picks is now below your games, and you can also tap the UNLOCKED pill to lock in. Live games get the same glass look.</div>
       <div class="cl"><b>4.5.2</b> New Quick Tips. Picks has eight short animated cards: drag by the number box, switch your pick, Smart Shuffle, line history, remove a game, jump to a spot, start over and lock in. Live has seven, showing the real Live tab: live games, pin a game, open and compare sheets, chance to win, Analysis, Root for and Pool Chat. A small blue dot on a Quick Tips button means you haven’t opened it yet.</div>
@@ -2914,8 +2985,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.5.4';
-  const APP_BUILT = 'Oct 4, 2026';
+  const APP_VERSION = '4.5.5';
+  const APP_BUILT = 'Oct 6, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3341,6 +3412,7 @@
      recently. The sheet never auto-opens — it's a glance-and-leave view. */
   const VIEW_KEY = 'pickem-lastview';
   const VIEW_MAX_AGE = 4 * 60 * 60 * 1000;   // 4 hours
+  const OFFWEEK_MAX = 10 * 60 * 1000;         // 4.5.5: any other week than the current one is kept 10 min
 
   function saveView(view){
     put(VIEW_KEY, { view: view, week: currentWeek, t: Date.now() });
@@ -3369,7 +3441,12 @@
       games = parkRemoved(games);
     }
     if(savedRes) results = savedRes;
+    if(thursdayOnce(week)){
+      games = parkRemoved(games);
+      put(picksKey(week), { frozen: weekFrozen, locked: weekLocked, games: games });
+    }
     stampLine(week);
+    syncWeekBtn();
     syncLockBtn();
     reflowRemoved();
     render();
@@ -3519,6 +3596,27 @@
      when the Thursday games are on the sheet. */
   const THANKSGIVING_WEEK = 12;
   function startsRemoved(g, week){ return week !== THANKSGIVING_WEEK && isThursday(g); }
+  /* 4.5.5: Thursday comes off every sheet once per week, saved sheets too.
+     The first time a week opens on this phone it gets a "checked" stamp; an
+     unlocked sheet for a week that isn't over yet has its Thursday game
+     parked as a removed row. After the stamp, the sheet is left alone, so a
+     Restore (or a later remove) sticks. Locked sheets, finished weeks and
+     Week 12 are only stamped, never changed. Returns true if it removed one. */
+  const thuKey = w => 'pickem-w' + w + '-thu';
+  function thursdayOnce(week){
+    if(getLocal(thuKey(week))) return false;
+    put(thuKey(week), 1);
+    if(weekLocked || week === THANKSGIVING_WEEK) return false;
+    const now = Date.now();
+    const notOver = games.some(function(g){
+      const t = g && g.date ? new Date(g.date).getTime() : NaN;
+      return t > now;
+    });
+    if(!notOver) return false;
+    let hit = false;
+    games.forEach(function(g){ if(!g.removed && isThursday(g)){ g.removed = true; hit = true; } });
+    return hit;
+  }
   // Night games kick off 7 PM Eastern or later — judged in Eastern time so
   // Sunday night reads the same for everyone, wherever their phone is.
   function isNightGame(g){
@@ -4117,6 +4215,82 @@
     weekPick.appendChild(o);
   }
   weekPick.value = currentWeek;
+
+  /* 4.5.5: week pill + week sheet. The current NFL week is ESPN's answer
+     (cached up to 6 h); unknown means no cyan anywhere. Picking a week sets the
+     hidden <select> and fires its change, so everything downstream is as before.
+     The change waits for the sheet's Back entry to unwind first. */
+  const weekBtn = document.getElementById('weekBtn');
+  const weekOverlay = document.getElementById('weekOverlay');
+  function nflWeekNow(){ try{ return cachedCurrentWeek(); }catch(e){ return null; } }
+  function syncWeekBtn(){
+    const cur = nflWeekNow();
+    weekBtn.textContent = 'Week ' + currentWeek;
+    weekBtn.classList.toggle('now', cur === currentWeek);
+    weekBtn.setAttribute('aria-label', 'Week ' + currentWeek + (cur === currentWeek ? ', current week' : '') + '. Choose week');
+    if(weekOverlay.classList.contains('show')) drawWeekSheet();
+  }
+  function drawWeekSheet(){
+    const cur = nflWeekNow();
+    const now = new Date();
+    document.getElementById('wkSeason').textContent = (now.getMonth() < 2 ? now.getFullYear() - 1 : now.getFullYear()) + ' season';
+    let h = '';
+    for(let w = 1; w <= MAX_WEEK; w++){
+      const c = 'wk' + (cur && w < cur ? ' past' : '') + (w === cur ? ' cur' : '') + (w === currentWeek ? ' viewing' : '');
+      const tag = w === cur ? '<small>CURRENT WEEK</small>' : (w === THANKSGIVING_WEEK ? '<small>THANKSGIVING</small>' : '');
+      h += '<button type="button" class="' + c + '" data-w="' + w + '">Week ' + w + tag + '</button>';
+    }
+    document.getElementById('wkGrid').innerHTML = h;
+    const j = document.getElementById('wkJump');
+    j.hidden = !cur || cur === currentWeek;
+    if(cur) j.textContent = 'Back to Current Week \u00B7 Week ' + cur;
+  }
+  function chooseWeek(w){
+    closeOverlay(weekOverlay);
+    if(!w || w === currentWeek) return;
+    setTimeout(function(){
+      weekPick.value = w;
+      weekPick.dispatchEvent(new Event('change'));
+    }, 150);
+  }
+  weekBtn.addEventListener('click', function(){
+    drawWeekSheet();
+    openOverlay(weekOverlay);
+    if(!nflWeekNow()) detectCurrentWeek(function(){});
+  });
+  document.getElementById('wkGrid').addEventListener('click', function(e){
+    const b = e.target.closest('[data-w]');
+    if(b) chooseWeek(parseInt(b.dataset.w, 10));
+  });
+  document.getElementById('wkJump').addEventListener('click', function(){ chooseWeek(nflWeekNow()); });
+  weekOverlay.addEventListener('click', function(e){ if(e.target === weekOverlay) closeOverlay(weekOverlay); });
+  /* Back from the background. The home-screen app often sleeps rather than
+     reopening, so the 10-minute rule is checked here too: away 10+ min on a
+     week that isn't the current one -> back to the current week. Never while
+     a sheet is open or a card is being dragged. Also refreshes ESPN's week
+     when the cached answer has gone stale, so cyan stays right. */
+  let hiddenAt = 0;
+  function snapToCurrentWeek(){
+    const cur = nflWeekNow();
+    if(!cur || cur === currentWeek || overlayStack.length || press) return;
+    saveAll();
+    weekTouched = false;
+    weekPick.value = cur;
+    loadWeek(cur);
+    if(isTab('picks') && picksBlocked()) showTab('live');
+    saveView(currentTab);
+    toast('Back to Current Week \u00B7 Week ' + cur);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden){ hiddenAt = Date.now(); return; }
+    const gone = hiddenAt ? Date.now() - hiddenAt : 0;
+    hiddenAt = 0;
+    const stale = !nflWeekNow();
+    if(gone < OFFWEEK_MAX){ if(stale) detectCurrentWeek(function(){}); return; }
+    if(stale) detectCurrentWeek(function(){ snapToCurrentWeek(); });
+    else snapToCurrentWeek();
+  });
+
   weekPick.addEventListener('change', function(){
     weekTouched = true;
     saveAll();
@@ -4715,6 +4889,7 @@
         if(typeof w !== 'number' || w < 1 || w > MAX_WEEK) throw new Error('no week');
         if(typeof st === 'number' && st !== 2) throw new Error('not regular season');
         put(CURWEEK_KEY, { week: w, t: Date.now() });
+        try{ syncWeekBtn(); }catch(e){}
         done(w);
       })
       .catch(function(){ done(null); });
@@ -9349,10 +9524,11 @@
      To show a new card once to everyone: add it, raise TIPS_VERSION and set
      TIPS_NEW. With reduced motion on, each card holds still on its key moment. */
   const TIPS_KEY = 'pickem-tips';
-  const TIPS_VERSION = 2;
-  const TIPS_FULL = ['drag', 'swap', 'shuffle', 'history', 'remove', 'jump', 'reset', 'lock'];
+  const TIPS_VERSION = 3;
+  const TIPS_FULL = ['drag', 'swap', 'shuffle', 'history', 'remove', 'jump', 'reset', 'week', 'lock'];
   const TIPS_START = ['drag', 'swap', 'lock'];
-  const TIPS_NEW = ['shuffle', 'history', 'lock'];
+  const TIPS_NEW = ['week'];                                  // 4.5.5: saw the v2 deck -> just the new card
+  const TIPS_NEW_V1 = ['shuffle', 'history', 'week', 'lock'];  // still on the v1 deck -> everything since
   const tipsOverlay = document.getElementById('tipsOverlay');
   let tipDeck = TIPS_FULL.slice(), tipIndex = 0;
 
@@ -9498,7 +9674,20 @@
         '<div class="confirmcard tq9card"><div class="chead"><span class="cicon">' + ICON_LOCK + '</span><h2>Lock in your picks?</h2></div>' +
           '<p>Only the admin can unlock them.</p>' +
           '<div class="confirmrow"><span class="confirmyes">Lock In Picks' + tipPtr('tq9ptrB') + '</span>' +
-          '<span class="confirmcancel">Cancel' + tipPtr('tq9ptrC') + '</span></div></div>' }
+          '<span class="confirmcancel">Cancel' + tipPtr('tq9ptrC') + '</span></div></div>' },
+
+      // 4.5.5 Pick a week: pill opens the week sheet, cyan is the current week
+      week: { n: 10, h: 'Pick a week', s:
+        '<div class="tq10top"><div class="brand-text"><span class="kicker">NFL PICK\u2019EM</span><h1>Confidence Pool</h1></div>' +
+          '<span class="weekpick tq10pill"><span class="tq10a">Week 3</span><span class="tq10b">Week 5</span>' + tipPtr('tq10ptrA', 'left:44px;top:22px') + '</span>' +
+          '<span class="gearbtn">' + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>' + '</span></div>' +
+        '<div class="tipnote" style="top:104px">Cyan is the current week.</div>' +
+        '<div class="tq10sheet"><div class="wkhead"><h2>Choose week</h2><span>2026 season</span></div><div class="wkgrid">' +
+          [1,2,3,4,5,6,7,8,9].map(function(w){
+            return '<span class="wk' + (w < 5 ? ' past' : '') + (w === 5 ? ' cur' : '') + (w === 3 ? ' viewing tq10was' : '') + '">Week ' + w +
+              (w === 5 ? '<small>CURRENT WEEK</small>' + tipPtr('tq10ptrB', 'left:90%;top:18%') : '') + '</span>';
+          }).join('') + '</div></div>' +
+        tipLabel('Cyan = current week', 'top:204px;left:50%;transform:translateX(-50%);z-index:11', 'up') }
     };
   }
 
@@ -9953,7 +10142,7 @@
     if(!hasLocal || tipsSeen()) return;
     setTimeout(function(){
       if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden || gateOpen()) return;
-      openTips(tipsSeenVer() >= 1 ? TIPS_NEW : TIPS_START);
+      openTips(tipsSeenVer() >= 2 ? TIPS_NEW : (tipsSeenVer() >= 1 ? TIPS_NEW_V1 : TIPS_START));
     }, 900);
   }
 
@@ -10161,16 +10350,21 @@
     const recentView = !!(last && (Date.now() - last.t) < VIEW_MAX_AGE);
     const savedWeek = (last && last.week >= 1 && last.week <= MAX_WEEK) ? last.week : null;
     const cached = cachedCurrentWeek();
+    const away = last ? Date.now() - last.t : Infinity;
 
     // Where you just were wins for four hours. After that, it's whatever week
     // the league is actually on — nobody should open this and see a stale sheet.
-    let startWeek = 1;
-    if(recentView && savedWeek) startWeek = savedWeek;
-    else if(cached) startWeek = cached;
+    // 4.5.5: a week other than the current one only holds for 10 minutes, so
+    // nobody scopes ahead, comes back later and finds an empty leaderboard.
+    const keepWeek = recentView && savedWeek && (!cached || savedWeek === cached || away < OFFWEEK_MAX);
+    let startWeek = 1, snapped = false;
+    if(keepWeek) startWeek = savedWeek;
+    else if(cached){ startWeek = cached; snapped = !!(recentView && savedWeek && savedWeek !== cached); }
     else if(savedWeek) startWeek = savedWeek;
 
     weekPick.value = startWeek;
     loadWeek(startWeek);
+    if(snapped) toast('Back to Current Week \u00B7 Week ' + startWeek);
     if(!player().name) showGate();
 
     // Come back to the tab you were on, but only if it was recent — otherwise
@@ -10198,12 +10392,13 @@
     // Confirm against ESPN in the background and move if we guessed wrong.
     detectCurrentWeek(function(w){
       if(!w || weekTouched) return;
-      if(recentView && savedWeek) return;
+      if(recentView && savedWeek && (savedWeek === w || away < OFFWEEK_MAX)) return;
       if(w === currentWeek) return;
+      const back = !!(recentView && savedWeek && savedWeek !== w);
       weekPick.value = w;
       loadWeek(w);
       if(isTab('picks') && picksBlocked()) showTab('live');
-      toast('Week ' + w + ' is up');
+      toast(back ? 'Back to Current Week \u00B7 Week ' + w : 'Week ' + w + ' is up');
     });
   })();
 })();
