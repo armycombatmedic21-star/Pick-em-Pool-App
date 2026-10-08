@@ -34,6 +34,7 @@
   button{ height:50px; border-radius:25px; border:1px solid rgba(53,208,255,0.6); background:rgba(53,208,255,0.14);
     color:var(--cyan); font:800 17px var(--font); cursor:pointer; }
   button[disabled]{ opacity:0.5; }
+  .skips{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   button.skip{ border-color:rgba(147,174,200,0.4); background:transparent; color:var(--muted); }
   .err{ color:var(--bad); font-weight:700; line-height:1.5; white-space:pre-line; }
   .err:empty{ display:none; }
@@ -48,7 +49,7 @@
 
   <div class="card">
     <h2>Instructions</h2>
-    <p>Stay on this page, or reload it every 15 seconds. When a photo of a paper football pool sheet appears below, the sheet has numbered lines with a team name handwritten on each line. Read the lines in order and type them in the box in exactly this format: <b>1 Team, 2 Team, 3 Team … 15 Team</b>. Write each team as it appears on the sheet, and use the list of this week's games to work out messy handwriting. Every team must come from a different game. Then tap Send. If the page says something is wrong, fix that line and tap Send again. If the photo isn’t a pool sheet or you can’t read it, tap Can’t Read This. Do not add anything else.</p>
+    <p>Stay on this page, or reload it every 15 seconds. When a photo of a paper football pool sheet appears below, the sheet has numbered lines with a team name handwritten on each line. Read the lines in order and type them in the box in exactly this format: <b>1 Team, 2 Team, 3 Team … 15 Team</b>. Write each team as it appears on the sheet, and use the list of this week's games to work out messy handwriting. Every team must come from a different game. Then tap Send. If the page says something is wrong, fix that line and tap Send again. If the photo isn’t a pool sheet or you can’t read it, tap Can’t Read This. <b>Never change a team to make the list pass.</b> If the page says two teams are in the same game, or a team isn’t playing this week, re-read those lines; if the sheet really says those teams, it’s from a different week: tap Wrong Week. Do not add anything else.</p>
   </div>
 
   <div class="card">
@@ -70,7 +71,7 @@
         <textarea id="ans" placeholder="1 Team, 2 Team, 3 Team … 15 Team"></textarea>
         <div class="err" id="err"></div>
         <button type="submit" id="send">Send</button>
-        <button type="button" id="skip" class="skip">Can’t Read This</button>
+        <div class="skips"><button type="button" id="skip" class="skip">Can’t Read This</button><button type="button" id="wrongwk" class="skip">Wrong Week</button></div>
       </form>
     </div>
   </div>
@@ -156,6 +157,7 @@
     for(var i = 1; i <= N; i++) if(!seenN[i] && !errs.length) errs.push('Line ' + i + ' is missing.');
     if(N > games.length) errs.unshift('There are ' + N + ' lines but only ' + games.length + ' games this week.');
     out.sort(function(a, b){ return a.n - b.n; });
+    if(errs.some(function(e){ return /same game|not playing/.test(e); })) errs.push('If the sheet really says these teams, it\u2019s from a different week: tap Wrong Week. Never change a team just to make the list pass.');
     return errs.length ? { errs: errs } : { picks: out };
   }
   window.__snapCheck = check;   // for testing
@@ -262,24 +264,27 @@
   });
 
   // Not a pool sheet, or unreadable: the player hears right away instead of waiting.
-  document.getElementById('skip').addEventListener('click', function(){
+  function giveUp(btn, code, label){
     if(!job) return;
-    var pid = job.pid, btn = this;
+    var pid = job.pid;
     btn.disabled = true;
-    var body = { week: job.week, t: Date.now(), picks: '[]' };
+    var body = { week: job.week, t: Date.now(), picks: code };
     fetch(DB + '/ans/' + pid + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function(r){
       if(!r.ok) throw new Error('HTTP ' + r.status);
       del('/req/' + pid); del('/q/' + pid);
       job = null;
       btn.disabled = false;
       document.getElementById('job').hidden = true;
-      setStatus('Skipped · waiting for the next sheet');
+      setStatus(label + ' \u00B7 waiting for the next sheet');
       setTimeout(poll, 1500);
     }).catch(function(){
       btn.disabled = false;
-      document.getElementById('err').textContent = 'Couldn’t send. Tap Can’t Read This again.';
+      document.getElementById('err').textContent = 'Couldn\u2019t send. Tap it again.';
     });
-  });
+  }
+  // Not a pool sheet / unreadable, or a sheet for a different week: the player hears right away.
+  document.getElementById('skip').addEventListener('click', function(){ giveUp(this, '[]', 'Skipped'); });
+  document.getElementById('wrongwk').addEventListener('click', function(){ giveUp(this, 'wrong-week', 'Marked wrong week'); });
 
   poll();
   setInterval(poll, CHECK_MS);

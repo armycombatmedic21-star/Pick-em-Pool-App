@@ -2560,7 +2560,7 @@
         <div class="snapstep" id="snapSt1"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sending photo</div>
         <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Reading your picks</div>
       </div>
-      <p class="snapwait" id="snapWait">Usually under a minute.</p>
+      <p class="snapwait" id="snapWait">Usually takes 1 to 2 minutes.</p>
       <div class="confirmrow"><button class="confirmcancel" type="button" id="snapCancel2">Cancel</button></div>
     </div>
     <div class="snapstage" id="snapCheck" hidden>
@@ -2692,6 +2692,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.1</b> More work on the feature being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.6.0</b> Groundwork for a new feature that’s being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.5.6</b> Fixed a glitch that could double the games on your sheet with last week's games; any sheet that got them is cleaned up automatically. Fixed the tab buttons sometimes not responding on iPhone until you scrolled.</div>
       <div class="cl"><b>4.5.5</b> New week picker: tap the week to choose from a sheet, with the current week in cyan. If you leave the app on another week for 10 minutes, it comes back to the current week. The Thursday game now starts off every sheet, including ones already saved; tap Restore to put it back and it stays. Week 12 (Thanksgiving) keeps it.</div>
@@ -3099,7 +3100,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.0';
+  const APP_VERSION = '4.6.1';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9251,10 +9252,10 @@
      again, the player confirms, and the sheet becomes the paper exactly:
      those games in that order with those teams, every other game removed.
      Snap never locks. Photo, note and answer are deleted as soon as the
-     answer arrives, on Cancel, and on the 90-second timeout. */
+     answer arrives, on Cancel, and on the 3-minute timeout. */
   const SNAP_KEY = 'pickem-snap';
   const SNAP_DB = DB_URL + '/snap';
-  const SNAP_WAIT_MS = 90000;
+  const SNAP_WAIT_MS = 180000;   // 4.6.1: 3 minutes (Muse took about 90 s on a test photo)
   const SNAP_POLL_MS = 2000;
   const snapOverlay = document.getElementById('snapOverlay');
   const snapCard = snapOverlay.querySelector('.snapcard');
@@ -9343,7 +9344,7 @@
     document.getElementById('snapLibIn').value = '';
     document.getElementById('snapWorkTitle').textContent = 'Analyzing Sheet';
     document.getElementById('snapSteps').hidden = false;
-    document.getElementById('snapWait').textContent = 'Usually under a minute.';
+    document.getElementById('snapWait').textContent = 'Usually takes 1 to 2 minutes.';
     document.getElementById('snapCancel2').textContent = 'Cancel';
     document.getElementById('snapScan').classList.remove('stopped');
     const th = document.getElementById('snapThumb');
@@ -9407,13 +9408,13 @@
       img.src = url;
     });
   }
-  function snapFail(job, msg){
+  function snapFail(job, msg, title){
     if(snapJob !== job || job.done) return;
     job.done = true;
     clearTimeout(job.timer);
     snapDel(job.pid);
     snapJob = null;
-    document.getElementById('snapWorkTitle').textContent = 'Couldn’t Read Sheet';
+    document.getElementById('snapWorkTitle').textContent = title || 'Couldn’t Read Sheet';
     document.getElementById('snapSteps').hidden = true;
     document.getElementById('snapWait').textContent = msg;
     document.getElementById('snapCancel2').textContent = 'Close';
@@ -9487,6 +9488,11 @@
   function snapGot(job, raw){
     clearTimeout(job.timer);
     snapDel(job.pid);
+    // 4.6.1: the reader saw a sheet for a different week (its teams don't fit this week's games).
+    if(raw === 'wrong-week'){
+      snapFail(job, 'This sheet doesn\u2019t match Week ' + job.week + '\u2019s games. Make sure you snapped this week\u2019s sheet.', 'Wrong Week');
+      return;
+    }
     const picks = snapPicksOk(job, raw);
     if(!picks){ snapFail(job, 'Couldn’t read your sheet. Try again with a clearer photo.'); return; }
     job.picks = picks;
