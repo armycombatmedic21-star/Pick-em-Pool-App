@@ -2580,6 +2580,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.5.6</b> Fixed a glitch that could double the games on your sheet with last week's games; any sheet that got them is cleaned up automatically. Fixed the tab buttons sometimes not responding on iPhone until you scrolled.</div>
       <div class="cl"><b>4.5.5</b> New week picker: tap the week to choose from a sheet, with the current week in cyan. If you leave the app on another week for 10 minutes, it comes back to the current week. The Thursday game now starts off every sheet, including ones already saved; tap Restore to put it back and it stays. Week 12 (Thanksgiving) keeps it.</div>
       <div class="cl"><b>4.5.4</b> The leaderboard list now fills its card to the bottom, so no names get cut off.</div>
       <div class="cl"><b>4.5.3</b> Sleeker Picks cards with a glowing edge and deeper number boxes (they glow brighter the more points). Lock In Picks is now below your games, and you can also tap the UNLOCKED pill to lock in. Live games get the same glass look.</div>
@@ -2985,8 +2986,8 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.5.5';
-  const APP_BUILT = 'Oct 6, 2026';
+  const APP_VERSION = '4.5.6';
+  const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -3256,6 +3257,39 @@
   }
 
 
+  /* 4.5.6: ESPN says which week an answer is for. One that says a different
+     week than we asked for is never merged. No week in the answer = trust it. */
+  function espnWeekOk(data, w){
+    const n = data && data.week && data.week.number;
+    return typeof n !== 'number' || n === w;
+  }
+
+  /* 4.5.6: a late score answer for last week could slip last week's games into
+     this week's sheet. That's fixed in fetchScores; this repairs any sheet that
+     already got them. A game is dropped only if it's on ANOTHER week's saved
+     ESPN list and NOT on this week's (by id or matchup), so a game ESPN moves
+     between weeks is never lost. No saved list for this week = nothing touched.
+     The order of everything else is kept. Returns true if it removed any. */
+  function dropForeignGames(week){
+    const mine = getLocal(linesKey(week));
+    if(!Array.isArray(mine) || !mine.length) return false;
+    const keepId = {}, keepKey = {};
+    mine.forEach(function(g){ if(g){ keepId[g.id] = 1; keepKey[matchKey(g)] = 1; } });
+    const other = {};
+    for(let w = 1; w <= MAX_WEEK; w++){
+      if(w === week) continue;
+      const l = getLocal(linesKey(w));
+      if(Array.isArray(l)) l.forEach(function(g){ if(g && g.id) other[g.id] = 1; });
+    }
+    const kept = games.filter(function(g){
+      return !(other[g.id] && !keepId[g.id] && !keepKey[matchKey(g)]);
+    });
+    if(kept.length === games.length || !kept.length) return false;
+    kept.slice().sort(bySpread).forEach(function(g, i){ g.baseRank = i + 1; });
+    games = parkRemoved(kept);
+    return true;
+  }
+
   function mergeLines(newLines, frozen){
     // A locked sheet never reorders, whatever state the frozen flag is in.
     if(weekLocked) frozen = true;
@@ -3391,11 +3425,13 @@
       .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
       .then(function(data){
         if(w !== currentWeek) return;
+        if(!espnWeekOk(data, w)) throw new Error('wrong week');
         try{ noteLineML(data.events); }catch(e){}
         const fresh = gamesFromEvents(data.events);
         if(!fresh.length) throw new Error('no games');
         put(linesKey(w), fresh);
         games = mergeLines(fresh, weekFrozen);
+        dropForeignGames(w);
         linesStamp = new Date().toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
         render();
         saveAll();
@@ -3441,6 +3477,9 @@
       games = parkRemoved(games);
     }
     if(savedRes) results = savedRes;
+    if(restored && dropForeignGames(week)){
+      put(picksKey(week), { frozen: weekFrozen, locked: weekLocked, games: games });
+    }
     if(thursdayOnce(week)){
       games = parkRemoved(games);
       put(picksKey(week), { frozen: weekFrozen, locked: weekLocked, games: games });
@@ -3459,6 +3498,7 @@
     boardWeek = 0;
     boardNote = '';
     liveStatus = '';
+    liveLoading = false;      // 4.5.6: any score fetch still out is for the old week and gets dropped
     const dec = document.getElementById('decider');
     if(dec){ dec.hidden = true; dec.innerHTML = ''; }
     syncShareBtn();
@@ -4788,6 +4828,8 @@
     const prev = currentTab;
     if(prev === name && !fromPop) return;
     currentTab = name;
+    // Read before the panels swap: a shorter tab snaps the page up by itself.
+    const wasY = window.scrollY || window.pageYOffset || 0;
 
     TABS.forEach(function(t){
       const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -4805,11 +4847,33 @@
     if(name === 'picks' && prev !== 'picks') maybeAutoTips();
     if(name === 'live' && prev !== 'live') maybeLiveTips();
 
-    window.scrollTo(0, 0);
+    /* 4.5.6: jump to the top only when scrolled. If the page moved at all
+       (our jump, or a shorter tab snapping it up), re-sync the tab bar on iPhone. */
+    if((window.scrollY || window.pageYOffset || 0) > 0) window.scrollTo(0, 0);
+    if(wasY > 0) resyncTabBar();
     saveView(name);
     if(!fromPop){
       try{ history.pushState({ tab: name }, ''); }catch(e){}
     }
+  }
+
+  /* 4.5.6: iPhone Safari can leave a fixed bar looking right but ignoring
+     taps after the page jumps by itself, until you scroll by hand. Taking the
+     tab bar out of the page and putting it straight back (same frame, nothing
+     drawn in between) makes Safari place it again. Once right after the jump,
+     once more after any leftover momentum settles. iPhone only, never mid-drag. */
+  function resyncTabBar(){
+    if(!document.documentElement.classList.contains('ios')) return;
+    const bar = document.getElementById('tabBar');
+    if(!bar) return;
+    const kick = function(){
+      if(document.body.classList.contains('dragmode')) return;
+      bar.style.display = 'none';
+      void bar.offsetHeight;
+      bar.style.display = '';
+    };
+    requestAnimationFrame(kick);
+    setTimeout(kick, 400);
   }
 
   document.getElementById('tabBar').addEventListener('click', function(e){
@@ -5019,9 +5083,15 @@
     }
     if(typeof fetch !== 'function'){ liveStatus = 'Scores unavailable here'; done(); return; }
     liveLoading = true;
+    /* 4.5.6: an answer for a week you've since left is thrown away untouched.
+       It used to be merged into whatever week was on screen by then, which is
+       how last week's games ended up doubled into this week's sheet. */
+    let stale = false;
     fetch(scoreboardUrl(week))
       .then(function(r){ if(!r.ok) throw new Error('bad response'); return r.json(); })
       .then(function(data){
+        if(week !== currentWeek){ stale = true; return; }
+        if(!espnWeekOk(data, week)) throw new Error('wrong week');
         const out = [];
         (data.events || []).forEach(function(ev){
           const comp = (ev.competitions || [])[0];
@@ -5104,6 +5174,7 @@
         if(freshLines.length){
           put(linesKey(week), freshLines);
           games = mergeLines(freshLines, weekFrozen);
+          dropForeignGames(week);
           linesStamp = new Date().toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'});
           stampLine(week);
           render();
@@ -5111,9 +5182,10 @@
         }
       })
       .catch(function(){
+        if(week !== currentWeek){ stale = true; return; }
         liveStatus = 'Could not load scores — check your connection';
       })
-      .then(function(){ liveLoading = false; done(); });
+      .then(function(){ if(stale) return; liveLoading = false; done(); });
   }
 
   function liveFor(g){
