@@ -34,6 +34,7 @@
   button{ height:50px; border-radius:25px; border:1px solid rgba(53,208,255,0.6); background:rgba(53,208,255,0.14);
     color:var(--cyan); font:800 17px var(--font); cursor:pointer; }
   button[disabled]{ opacity:0.5; }
+  button.skip{ border-color:rgba(147,174,200,0.4); background:transparent; color:var(--muted); }
   .err{ color:var(--bad); font-weight:700; line-height:1.5; white-space:pre-line; }
   .err:empty{ display:none; }
 </style>
@@ -47,7 +48,7 @@
 
   <div class="card">
     <h2>Instructions</h2>
-    <p>Stay on this page, or reload it every 15 seconds. When a photo of a paper football pool sheet appears below, the sheet has numbered lines with a team name handwritten on each line. Read the lines in order and type them in the box in exactly this format: <b>1 Team, 2 Team, 3 Team … 15 Team</b>. Write each team as it appears on the sheet, and use the list of this week's games to work out messy handwriting. Every team must come from a different game. Then tap Send. If the page says something is wrong, fix that line and tap Send again. Do not add anything else.</p>
+    <p>Stay on this page, or reload it every 15 seconds. When a photo of a paper football pool sheet appears below, the sheet has numbered lines with a team name handwritten on each line. Read the lines in order and type them in the box in exactly this format: <b>1 Team, 2 Team, 3 Team … 15 Team</b>. Write each team as it appears on the sheet, and use the list of this week's games to work out messy handwriting. Every team must come from a different game. Then tap Send. If the page says something is wrong, fix that line and tap Send again. If the photo isn’t a pool sheet or you can’t read it, tap Can’t Read This. Do not add anything else.</p>
   </div>
 
   <div class="card">
@@ -69,6 +70,7 @@
         <textarea id="ans" placeholder="1 Team, 2 Team, 3 Team … 15 Team"></textarea>
         <div class="err" id="err"></div>
         <button type="submit" id="send">Send</button>
+        <button type="button" id="skip" class="skip">Can’t Read This</button>
       </form>
     </div>
   </div>
@@ -170,8 +172,24 @@
   var busy = false;
   var sentLast = 0;
 
+  // While a sheet is showing: if the player cancelled or timed out, its note is
+  // gone (or replaced by a newer one), so drop it and go back to watching.
+  function watchJob(){
+    if(!job || busy) return;
+    var mine = job;
+    j(DB + '/q/' + mine.pid + '.json').then(function(e){
+      if(job !== mine) return;
+      if(!e || e.t !== mine.t){
+        job = null;
+        document.getElementById('job').hidden = true;
+        setStatus('That sheet was cancelled · waiting for the next one');
+        setTimeout(poll, 500);
+      }
+    }).catch(function(){});
+  }
   function poll(){
-    if(job || busy) return;
+    if(job){ watchJob(); return; }
+    if(busy) return;
     busy = true;
     j(DB + '/q.json').then(function(q){
       q = q || {};
@@ -240,6 +258,26 @@
     }).catch(function(){
       btn.disabled = false;
       errEl.textContent = 'Couldn’t send. Tap Send again.';
+    });
+  });
+
+  // Not a pool sheet, or unreadable: the player hears right away instead of waiting.
+  document.getElementById('skip').addEventListener('click', function(){
+    if(!job) return;
+    var pid = job.pid, btn = this;
+    btn.disabled = true;
+    var body = { week: job.week, t: Date.now(), picks: '[]' };
+    fetch(DB + '/ans/' + pid + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      del('/req/' + pid); del('/q/' + pid);
+      job = null;
+      btn.disabled = false;
+      document.getElementById('job').hidden = true;
+      setStatus('Skipped · waiting for the next sheet');
+      setTimeout(poll, 1500);
+    }).catch(function(){
+      btn.disabled = false;
+      document.getElementById('err').textContent = 'Couldn’t send. Tap Can’t Read This again.';
     });
   });
 
