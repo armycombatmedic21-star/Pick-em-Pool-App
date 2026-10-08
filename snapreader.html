@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sheet Reader</title>
+<style>
+  /* One column: status, sheet photo, this week's games, answer box. Same dark look as the pool app. */
+  :root{
+    --bg:#060b16; --panel:#0d1626; --line:rgba(147,174,200,0.22); --text:#dce8f5; --muted:#93aec8;
+    --cyan:#35d0ff; --good:#3ddc97; --bad:#ff6b6b; --gold:#f4c43d;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color-scheme:dark;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:var(--font); font-size:16px; }
+  .wrap{ max-width:620px; margin:0 auto; padding:20px 16px 48px; display:flex; flex-direction:column; gap:18px; }
+  .kicker{ font-size:11px; font-weight:800; letter-spacing:1.8px; color:var(--cyan); }
+  h1{ margin:4px 0 0; font-size:24px; font-weight:800; color:#fff; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .card h2{ margin:0; font-size:16px; font-weight:800; color:#fff; }
+  .card p{ margin:0; line-height:1.5; color:var(--muted); }
+  .card p b{ color:#fff; }
+  .status{ font-size:17px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .status.wait{ color:var(--gold); }
+  .status.ok{ color:var(--good); }
+  .sheet img{ display:block; width:100%; border-radius:10px; }
+  .games{ margin:0; padding:0; list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:4px 12px; font-size:15px; }
+  .games li{ padding:4px 0; border-bottom:1px solid rgba(147,174,200,0.08); }
+  textarea{ width:100%; min-height:140px; border-radius:12px; border:1px solid var(--line); background:#0a1220;
+    color:#fff; font:600 16px/1.5 var(--font); padding:12px; resize:vertical; }
+  textarea:focus, button:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  button{ height:50px; border-radius:25px; border:1px solid rgba(53,208,255,0.6); background:rgba(53,208,255,0.14);
+    color:var(--cyan); font:800 17px var(--font); cursor:pointer; }
+  button[disabled]{ opacity:0.5; }
+  .err{ color:var(--bad); font-weight:700; line-height:1.5; white-space:pre-line; }
+  .err:empty{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <div class="kicker">NFL PICK'EM</div>
+    <h1>Sheet Reader</h1>
+  </div>
+
+  <div class="card">
+    <h2>Instructions</h2>
+    <p>Stay on this page, or reload it every 15 seconds. When a photo of a paper football pool sheet appears below, the sheet has numbered lines with a team name handwritten on each line. Read the lines in order and type them in the box in exactly this format: <b>1 Team, 2 Team, 3 Team … 15 Team</b>. Write each team as it appears on the sheet, and use the list of this week's games to work out messy handwriting. Every team must come from a different game. Then tap Send. If the page says something is wrong, fix that line and tap Send again. Do not add anything else.</p>
+  </div>
+
+  <div class="card">
+    <div class="status" id="status">Checking for sheets…</div>
+  </div>
+
+  <div id="job" hidden>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card sheet">
+        <h2>The sheet</h2>
+        <img id="sheetImg" alt="Handwritten football pool sheet with numbered picks">
+      </div>
+      <div class="card">
+        <h2>This week's games</h2>
+        <ul class="games" id="games"></ul>
+      </div>
+      <form class="card" id="f">
+        <label for="ans"><h2>Your list</h2></label>
+        <textarea id="ans" placeholder="1 Team, 2 Team, 3 Team … 15 Team"></textarea>
+        <div class="err" id="err"></div>
+        <button type="submit" id="send">Send</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DB = 'https://pick-em-pool-app-default-rtdb.firebaseio.com/snap';
+  var STALE = 15 * 60 * 1000;     // a request older than this is cleaned up, never shown
+  var CHECK_MS = 5000;
+
+  // Team names people write, keyed by ESPN abbreviation (the app sends these).
+  var T = {
+    ARI:['arizona','cardinals','ari','zona','cards'], ATL:['atlanta','falcons','atl'], BAL:['baltimore','ravens','bal'],
+    BUF:['buffalo','bills','buf'], CAR:['carolina','panthers','car'], CHI:['chicago','bears','chi'],
+    CIN:['cincinnati','bengals','cin','cincy','cinci'], CLE:['cleveland','browns','cle'], DAL:['dallas','cowboys','dal'],
+    DEN:['denver','broncos','den'], DET:['detroit','lions','det'], GB:['green bay','packers','gb'],
+    HOU:['houston','texans','hou'], IND:['indy','indianapolis','colts','ind'], JAX:['jacksonville','jaguars','jags','jax'],
+    KC:['kansas city','kansas','chiefs','kc'], LV:['las vegas','vegas','raiders','lv'], LAC:['la chargers','chargers','lac','los angeles chargers'],
+    LAR:['la rams','rams','lar','los angeles rams'], MIA:['miami','dolphins','mia'], MIN:['minnesota','vikings','min','minn'],
+    NE:['new england','patriots','pats','ne'], NO:['new orleans','saints','no','nola'], NYG:['ny giants','giants','nyg','new york giants'],
+    NYJ:['ny jets','jets','nyj','new york jets'], PHI:['philadelphia','eagles','philly','phi'], PIT:['pittsburgh','steelers','pit','pitt'],
+    SF:['san francisco','49ers','niners','sf'], SEA:['seattle','seahawks','sea'], TB:['tampa bay','tampa','buccaneers','bucs','tb'],
+    TEN:['tennessee','titans','ten'], WSH:['washington','commanders','was','wsh']
+  };
+  // Names that fit two teams; settled by which one is playing this week.
+  var SHARED = { 'la':['LAC','LAR'], 'los angeles':['LAC','LAR'], 'ny':['NYG','NYJ'], 'new york':['NYG','NYJ'] };
+  var SAME = { WAS:'WSH', JAC:'JAX', LA:'LAR' };   // other spellings of an abbreviation
+  function ab(x){ x = String(x || '').toUpperCase(); return SAME[x] || x; }
+  function norm(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+  // Every team this week -> { game, city }.
+  function teamsOf(games){
+    var m = {};
+    games.forEach(function(g){
+      m[ab(g.aa)] = { id: g.id, city: g.a };
+      m[ab(g.ab)] = { id: g.id, city: g.b };
+    });
+    return m;
+  }
+  // Which of this week's teams a written name means: one abbreviation, or null + why.
+  function lookup(text, here){
+    var s = norm(text);
+    if(!s) return { why: 'is empty' };
+    var cand = {};
+    if(SHARED[s]) SHARED[s].forEach(function(k){ cand[k] = 1; });
+    Object.keys(T).forEach(function(k){
+      T[k].forEach(function(n){
+        if(n === s) cand[k] = 1;
+        else if(n.length > 2 && (' ' + s + ' ').indexOf(' ' + n + ' ') >= 0) cand[k] = 1;   // "New Orleans Saints"
+      });
+    });
+    var all = Object.keys(cand);
+    var playing = all.filter(function(k){ return here[k]; });
+    if(playing.length === 1) return { k: playing[0] };
+    if(playing.length > 1) return { why: 'could be ' + playing.map(function(k){ return here[k].city; }).join(' or ') + '. Write the full team name' };
+    if(all.length) return { why: 'is not playing in this week’s games' };
+    return { why: 'is not a team name I know. Write the city or nickname' };
+  }
+  function check(raw, games){
+    var here = teamsOf(games), got = [], errs = [], seenN = {}, seenGame = {};
+    raw.split(/[,\n;]+/).forEach(function(part){
+      part = part.trim();
+      if(!part) return;
+      var m = part.match(/^#?(\d{1,2})\s*[\.\):\-]?\s*(.*)$/);
+      if(!m){ errs.push('"' + part + '" has no line number in front.'); return; }
+      got.push({ n: +m[1], text: m[2] });
+    });
+    if(!got.length) return { errs: ['The box is empty.'] };
+    var N = got.length;
+    var out = [];
+    got.forEach(function(x){
+      if(x.n < 1 || x.n > N){ errs.push('Line ' + x.n + ': numbers must go from 1 to ' + N + '.'); return; }
+      if(seenN[x.n]){ errs.push('Line ' + x.n + ' is in the list twice.'); return; }
+      seenN[x.n] = 1;
+      var r = lookup(x.text, here);
+      if(!r.k){ errs.push('Line ' + x.n + ': "' + x.text + '" ' + r.why + '.'); return; }
+      var t = here[r.k];
+      if(seenGame[t.id]){ errs.push('Line ' + x.n + ': ' + t.city + ' is in the same game as line ' + seenGame[t.id] + '. Every team must come from a different game.'); return; }
+      seenGame[t.id] = x.n;
+      out.push({ n: x.n, id: t.id, city: t.city });
+    });
+    for(var i = 1; i <= N; i++) if(!seenN[i] && !errs.length) errs.push('Line ' + i + ' is missing.');
+    if(N > games.length) errs.unshift('There are ' + N + ' lines but only ' + games.length + ' games this week.');
+    out.sort(function(a, b){ return a.n - b.n; });
+    return errs.length ? { errs: errs } : { picks: out };
+  }
+  window.__snapCheck = check;   // for testing
+
+  function j(url, opt){
+    return fetch(url, opt).then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  }
+  function del(path){ return fetch(DB + path + '.json', { method: 'DELETE' }).catch(function(){}); }
+  function time(d){ return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' }); }
+  function setStatus(txt, cls){ var s = document.getElementById('status'); s.textContent = txt; s.className = 'status' + (cls ? ' ' + cls : ''); }
+  function esc(s){ return String(s || '').replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+
+  var job = null;     // { pid, week, t, games }
+  var busy = false;
+  var sentLast = 0;
+
+  function poll(){
+    if(job || busy) return;
+    busy = true;
+    j(DB + '/q.json').then(function(q){
+      q = q || {};
+      var now = Date.now(), list = [];
+      Object.keys(q).forEach(function(pid){
+        var e = q[pid];
+        if(!e || typeof e.t !== 'number') return;
+        if(now - e.t > STALE){ del('/q/' + pid); del('/req/' + pid); del('/ans/' + pid); return; }
+        list.push({ pid: pid, week: e.week, t: e.t });
+      });
+      list.sort(function(a, b){ return a.t - b.t; });
+      if(!list.length){
+        setStatus((sentLast ? 'Sent at ' + time(new Date(sentLast)) + '. ' : '') + 'No sheets waiting · checked ' + time(new Date()));
+        busy = false;
+        return;
+      }
+      var e = list[0];
+      return j(DB + '/req/' + e.pid + '.json').then(function(r){
+        if(!r || !r.img){ del('/q/' + e.pid); busy = false; return; }
+        var games = [];
+        try{ games = JSON.parse(r.games) || []; }catch(err){ games = []; }
+        if(!games.length){ del('/q/' + e.pid); del('/req/' + e.pid); busy = false; return; }
+        job = { pid: e.pid, week: r.week, t: r.t, games: games };
+        fetch(DB + '/q/' + e.pid + '.json', { method: 'PATCH', body: JSON.stringify({ status: 'reading' }) }).catch(function(){});
+        show(r.img, list.length - 1);
+        busy = false;
+      });
+    }).catch(function(){
+      setStatus('Couldn’t check for sheets · trying again', 'wait');
+      busy = false;
+    });
+  }
+
+  function show(img, more){
+    document.getElementById('sheetImg').src = img;
+    document.getElementById('games').innerHTML = job.games.map(function(g){
+      return '<li>' + esc(g.a) + ' @ ' + esc(g.b) + '</li>';
+    }).join('');
+    document.getElementById('ans').value = '';
+    document.getElementById('err').textContent = '';
+    document.getElementById('send').disabled = false;
+    document.getElementById('job').hidden = false;
+    setStatus('Sheet waiting · read it and tap Send' + (more > 0 ? ' · ' + more + ' more after this one' : ''), 'wait');
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById('f').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!job) return;
+    var res = check(document.getElementById('ans').value, job.games);
+    var errEl = document.getElementById('err');
+    if(res.errs){ errEl.textContent = res.errs.join('\n'); return; }
+    errEl.textContent = '';
+    var btn = document.getElementById('send');
+    btn.disabled = true;
+    var pid = job.pid;
+    var body = { week: job.week, t: Date.now(), picks: JSON.stringify(res.picks) };
+    fetch(DB + '/ans/' + pid + '.json', { method: 'PUT', body: JSON.stringify(body) }).then(function(r){
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      del('/req/' + pid); del('/q/' + pid);   // the photo is gone as soon as the answer is
+      sentLast = Date.now();
+      job = null;
+      document.getElementById('job').hidden = true;
+      setStatus('Sent ✓ · waiting for the next sheet', 'ok');
+      setTimeout(poll, 1500);
+    }).catch(function(){
+      btn.disabled = false;
+      errEl.textContent = 'Couldn’t send. Tap Send again.';
+    });
+  });
+
+  poll();
+  setInterval(poll, CHECK_MS);
+})();
+</script>
+</body>
+</html>
