@@ -2856,6 +2856,13 @@
       </span>
       <button class="devtoggle" id="edgeToggle">Off</button>
     </div>
+    <div class="devrow">
+      <span class="devlabel">
+        <b>Snap problems</b>
+        <span id="snapLogSum">None saved.</span>
+      </span>
+      <button class="devtoggle" id="snapLogCopy" type="button">Copy</button>
+    </div>
     <div class="devsect">Simulations<span>One at a time. Nobody’s real picks or scores are touched.</span></div>
     <div class="devrow">
       <span class="devlabel">
@@ -2905,6 +2912,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.8</b> Snap reads more sheets: team nicknames and short forms are understood.</div>
       <div class="cl"><b>4.6.7</b> Snap: three clear steps (Uploading Photo, Preparing Scan, Digitizing Your Sheet), a progress bar, and if someone else’s sheet is being read first, you’ll see how many are ahead of yours.</div>
       <div class="cl"><b>4.6.6</b> Behind the scenes: sharper win chances on the admin phone.</div>
       <div class="cl"><b>4.6.4</b> Snap: the reading screen shows the real wait (1 to 2 minutes), and phones with Reduce Motion now see a still scan line instead of a blank photo.</div>
@@ -3318,7 +3326,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.7';
+  const APP_VERSION = '4.6.8';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9440,6 +9448,7 @@
     syncDemoUI();
     syncAdminUI();
     try{ syncEdgeUI(); }catch(e){}
+    try{ snapLogSync(); }catch(e){}
     openOverlay(adminPanel);
   }
   function askPanelCode(){
@@ -9589,10 +9598,10 @@
     const get = function(part){ return fetch(snapUrl(part, pid), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); };
     Promise.all([get('q'), get('ans')]).then(function(res){
       const q = res[0], a = res[1], now = Date.now();
-      const fresh = function(x){ return !!(x && typeof x.t === 'number' && now - x.t < SNAP_KEEP_MS && now - x.t > -60000 && x.week === currentWeek); };
+      const fresh = function(x){ return !!(x && typeof x.t === 'number' && now - x.t < SNAP_KEEP_MS && now - x.t > -60000 && Number(x.week) === currentWeek); };
       const end = getLocal(SNAP_END_KEY);
       const waiting = fresh(q);
-      const answered = fresh(a) && typeof a.picks === 'string' && (waiting || !(typeof end === 'number' && a.t - end < 150000));
+      const answered = fresh(a) && a.picks != null && (waiting || !(typeof end === 'number' && a.t - end < 150000));
       if(!waiting && !answered){
         if(cleanup || q || a) snapDel(pid);   // half-sent photo or leftovers
         return;
@@ -9608,7 +9617,7 @@
       snapShow('snapWork', true);
       openOverlay(snapOverlay);
       snapSave(job);
-      if(answered){ snapGot(job, a.picks); return; }
+      if(answered && snapGot(job, a.picks, a.t) !== false) return;
       const left = job.sentAt + SNAP_WAIT_MS - now;
       if(left <= 0){ snapTimeout(job); return; }
       job.timer = setTimeout(function(){ snapTimeout(job); }, left);
@@ -9790,9 +9799,11 @@
       img.src = url;
     });
   }
-  function snapFail(job, msg, title){
+  function snapFail(job, msg, title, why){
     if(snapJob !== job || job.done) return;
+    if(why !== false) snapLog(job, title || 'Couldn\u2019t Read Sheet', why || msg);
     job.done = true;
+    clearTimeout(job.badTimer);
     clearTimeout(job.timer);
     snapDel(job.pid);
     snapForget();
@@ -9837,7 +9848,7 @@
       job.timer = setTimeout(function(){ snapTimeout(job); }, SNAP_WAIT_MS);
       setTimeout(function(){ snapPoll(job); }, SNAP_POLL_MS);
     }).catch(function(){
-      snapFail(job, 'Couldn’t send the photo. Check your connection and try again.');
+      snapFail(job, 'Couldn’t send the photo. Check your connection and try again.', null, 'upload failed');
     });
   }
   // 4.6.2: one last look for an answer before giving up (it may have come in while the app was closed).
@@ -9849,8 +9860,8 @@
     const wait = new Promise(function(res){ setTimeout(function(){ res(null); }, 8000); });
     Promise.race([look, wait]).then(function(a){
       if(snapJob !== job || job.done) return;
-      if(a && a.week === job.week && typeof a.picks === 'string'){ snapGot(job, a.picks); return; }
-      snapFail(job, 'Couldn’t read your sheet right now. Try again later.');
+      if(snapAns(job, a) && snapGot(job, a.picks, a.t) !== false) return;
+      snapFail(job, job.bad ? 'Couldn’t read your sheet. Try again with a clearer photo.' : 'Couldn’t read your sheet right now. Try again later.', null, job.bad ? 'rejected answer, nothing better came' : 'no answer in 15 minutes');
     });
   }
   function snapPoll(job){
@@ -9864,7 +9875,7 @@
     Promise.all([get('ans'), getQ]).then(function(res){
       if(snapJob !== job || job.done || job.ending) return;
       const a = res[0], Q = res[1];
-      if(a && a.week === job.week && typeof a.picks === 'string'){ snapGot(job, a.picks); return; }
+      if(snapAns(job, a) && snapGot(job, a.picks, a.t) !== false) return;
       const q = Q.all ? Q.all[job.pid] : Q.mine;
       if(q && q.status === 'reading' && !job.readAt){ job.readAt = Date.now(); job.ahead = 0; snapSave(job); snapPhase('read'); }
       else if(Q.all && q && !job.readAt && typeof q.t === 'number'){
@@ -9880,34 +9891,192 @@
       setTimeout(function(){ snapPoll(job); }, SNAP_POLL_MS);
     });
   }
-  // The reader page already checked the list; check it again against this sheet.
-  function snapPicksOk(job, raw){
-    let list = null;
-    try{ list = JSON.parse(raw); }catch(e){ return null; }
-    if(!Array.isArray(list) || list.length < 2) return null;
-    const byId = {};
-    job.games.forEach(function(g){ byId[g.id] = g; });
-    const seenN = {}, seenG = {};
-    for(let i = 0; i < list.length; i++){
-      const p = list[i];
-      if(!p || typeof p.n !== 'number' || p.n < 1 || p.n > list.length || seenN[p.n]) return null;
-      const g = byId[p.id];
-      if(!g || seenG[p.id] || (p.city !== g.a && p.city !== g.b)) return null;
-      seenN[p.n] = 1; seenG[p.id] = 1;
-    }
-    return list.slice().sort(function(a, b){ return a.n - b.n; });
+  /* 4.6.8: the answer check is forgiving about format, strict about meaning.
+     Accepted: the list as text, as text wrapped twice, or as a real list; ids with
+     or without the leading "e"; team names in any case, nicknames and short forms
+     (Indy, Colts, IND, Jax, Philly, NYJ, Niners...) when only one team on this
+     sheet fits; a wrong id when the team itself points to exactly one game.
+     Still required: every team plays in this sheet's games, no game twice, at
+     least 2 lines. The player checks the list before anything changes. */
+  const SNAP_TEAM_ALIASES = {
+    'Arizona':['cardinals','cards','ari','az'], 'Atlanta':['falcons','atl'], 'Baltimore':['ravens','bal'],
+    'Buffalo':['bills','buf'], 'Carolina':['panthers','car'], 'Chicago':['bears','chi'],
+    'Cincinnati':['bengals','cin','cincy','cinci'], 'Cleveland':['browns','cle'], 'Dallas':['cowboys','dal'],
+    'Denver':['broncos','den'], 'Detroit':['lions','det'], 'Green Bay':['packers','gb','greenbay','pack'],
+    'Houston':['texans','hou'], 'Indianapolis':['colts','ind','indy'], 'Jacksonville':['jaguars','jags','jax','jac'],
+    'Kansas City':['chiefs','kc'], 'LA Chargers':['chargers','lac','los angeles chargers','bolts'],
+    'LA Rams':['rams','lar','los angeles rams'], 'Las Vegas':['raiders','lv','vegas','lvr','oakland'],
+    'Miami':['dolphins','mia','fins'], 'Minnesota':['vikings','min','vikes'], 'New England':['patriots','ne','pats'],
+    'New Orleans':['saints','no','nola'], 'NY Giants':['giants','nyg','new york giants'], 'NY Jets':['jets','nyj','new york jets'],
+    'Philadelphia':['eagles','phi','philly'], 'Pittsburgh':['steelers','pit','pitt'], 'Seattle':['seahawks','sea'],
+    'San Francisco':['49ers','niners','sf','san fran'], 'Tampa Bay':['buccaneers','bucs','tb','tampa'],
+    'Tennessee':['titans','ten'], 'Washington':['commanders','wsh','was','wash']
+  };
+  const SNAP_TEAM_SHARED = { 'la':['LA Chargers','LA Rams'], 'los angeles':['LA Chargers','LA Rams'], 'ny':['NY Giants','NY Jets'], 'new york':['NY Giants','NY Jets'] };
+  function snapNorm(x){ return String(x == null ? '' : x).toLowerCase().replace(/[.'’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/^the /, ''); }
+  // Every name this sheet's teams can go by -> the app's own team labels.
+  function snapNameMap(job){
+    const map = {}, add = function(k, label){ k = snapNorm(k); if(!k) return; (map[k] = map[k] || []).indexOf(label) < 0 && map[k].push(label); };
+    const onSheet = {};
+    job.games.forEach(function(g){ onSheet[g.a] = g.aa || ''; onSheet[g.b] = g.ab || ''; });
+    Object.keys(onSheet).forEach(function(label){
+      add(label, label); if(onSheet[label]) add(onSheet[label], label);
+      (SNAP_TEAM_ALIASES[label] || []).forEach(function(al){ add(al, label); add(label + ' ' + al, label); });
+    });
+    Object.keys(SNAP_TEAM_SHARED).forEach(function(k){ SNAP_TEAM_SHARED[k].forEach(function(label){ if(label in onSheet) add(k, label); }); });
+    return map;
   }
-  function snapGot(job, raw){
+  // Returns { list } (sorted by points) or { err: 'plain words' }; { wrongWeek: true } for "wrong-week".
+  function snapParse(job, raw){
+    let v = raw;
+    for(let k = 0; k < 4 && !Array.isArray(v); k++){
+      if(typeof v === 'string'){
+        const t = v.trim();
+        if(/^"?wrong[- ]?week"?$/i.test(t)) return { wrongWeek: true };
+        try{ v = JSON.parse(t); }catch(e){ return { err: 'The answer isn’t a list the app can read.' }; }
+      }else if(v && typeof v === 'object' && v.picks != null) v = v.picks;
+      else break;
+    }
+    if(!Array.isArray(v)) return { err: 'The answer isn’t a list.' };
+    if(!v.length) return { err: 'Empty answer ([]): the reader said it couldn’t read the sheet.' };
+    if(v.length < 2) return { err: 'Only one line came back.' };
+    const names = snapNameMap(job), byId = {}, byTeam = {};
+    job.games.forEach(function(g){ byId[g.id] = g; byTeam[g.a] = g; byTeam[g.b] = g; });
+    const out = [], seenG = {};
+    for(let i = 0; i < v.length; i++){
+      const p = v[i], o = (p && typeof p === 'object') ? p : { city: p };
+      const said = o.city != null ? o.city : (o.team != null ? o.team : (o.pick != null ? o.pick : o.name));
+      const line = 'Line ' + (i + 1) + ': ';
+      const hits = names[snapNorm(said)] || [];
+      if(!hits.length) return { err: line + '"' + said + '" doesn’t match any team playing this week.' };
+      if(hits.length > 1) return { err: line + '"' + said + '" could be ' + hits.join(' or ') + '.' };
+      const city = hits[0];
+      let id = o.id != null ? String(o.id) : '';
+      if(id && !byId[id] && byId['e' + id]) id = 'e' + id;
+      let g = byId[id];
+      if(!g || (g.a !== city && g.b !== city)) g = byTeam[city];   // the team decides the game
+      if(!g) return { err: line + city + ' isn’t in this sheet’s games.' };
+      if(seenG[g.id]) return { err: line + city + '’s game is on the sheet twice.' };
+      seenG[g.id] = 1;
+      out.push({ n: parseInt(o.n, 10), id: g.id, city: city });
+    }
+    // Use the reader's numbers when they're exactly 1..N; otherwise the list order.
+    const ns = out.map(function(x){ return x.n; }).slice().sort(function(a, b){ return a - b; });
+    const ok = ns.every(function(n, k){ return n === k + 1; });
+    if(!ok) out.forEach(function(x, k){ x.n = k + 1; });
+    return { list: out.sort(function(a, b){ return a.n - b.n; }) };
+  }
+  function snapPicksOk(job, raw){ const r = snapParse(job, raw); return r.list || null; }
+  // An answer for this sheet (week as a number or text; picks in any shape).
+  function snapAnsKey(t, raw){ let r = ''; try{ r = typeof raw === 'string' ? raw : JSON.stringify(raw); }catch(e){} return String(t) + '|' + r; }
+  function snapAns(job, a){ return !!(a && Number(a.week) === Number(job.week) && a.picks != null && !(job.badKey && snapAnsKey(a.t, a.picks) === job.badKey)); }
+
+  /* 4.6.8: Snap problems, saved on this phone (last 5) for the Admin Panel's Copy
+     button: what went wrong, the reader's exact answer, and the games that were sent. */
+  const SNAP_LOG_KEY = 'pickem-snap-log';
+  function snapClock(t){ if(!t) return '-'; try{ return new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' }); }catch(e){ return String(t); } }
+  function snapLog(job, kind, reason, raw){
+    try{
+      let rawTxt = '';
+      if(raw !== undefined){ try{ rawTxt = typeof raw === 'string' ? raw : JSON.stringify(raw); }catch(e){ rawTxt = String(raw); } }
+      const rec = { at: Date.now(), v: APP_VERSION, week: job ? job.week : currentWeek, pid: job ? job.pid : '', kind: kind, reason: reason || '',
+        raw: rawTxt.slice(0, 6000), sentAt: job && job.sentAt || 0, readAt: job && job.readAt || 0,
+        games: job && Array.isArray(job.games) ? job.games.map(function(g){ return g.id + ' ' + g.a + ' @ ' + g.b; }).join('; ') : '' };
+      const list = getLocal(SNAP_LOG_KEY);
+      const arr = Array.isArray(list) ? list : [];
+      arr.unshift(rec);
+      put(SNAP_LOG_KEY, arr.slice(0, 5));
+    }catch(e){}
+  }
+  function snapLogText(){
+    const arr = getLocal(SNAP_LOG_KEY);
+    if(!Array.isArray(arr) || !arr.length) return '';
+    return 'SNAP PROBLEMS (app ' + APP_VERSION + ', copied ' + new Date().toLocaleString() + ')\n\n' + arr.map(function(r, k){
+      return '#' + (k + 1) + ' ' + new Date(r.at).toLocaleString() + ' · week ' + r.week + ' · player ' + r.pid + ' · app ' + r.v + '\n' +
+        'What happened: ' + r.kind + (r.reason ? ' — ' + r.reason : '') + '\n' +
+        'Times: sent ' + snapClock(r.sentAt) + ' · reading ' + snapClock(r.readAt) + ' · logged ' + snapClock(r.at) + '\n' +
+        (r.raw ? 'Exact answer: ' + r.raw + '\n' : '') +
+        (r.games ? 'Games sent: ' + r.games + '\n' : '');
+    }).join('\n');
+  }
+  function snapLogSync(){
+    const el = document.getElementById('snapLogSum');
+    if(!el) return;
+    const arr = getLocal(SNAP_LOG_KEY);
+    el.textContent = Array.isArray(arr) && arr.length
+      ? arr.length + ' saved. Last: ' + snapClock(arr[0].at) + ', ' + arr[0].kind + (arr[0].reason ? ' (' + arr[0].reason + ')' : '') + '. Copy and paste to Claude.'
+      : 'None saved. If Snap fails on this phone, the details land here.';
+  }
+  document.getElementById('snapLogCopy').addEventListener('click', function(){
+    const txt = snapLogText();
+    if(!txt){ toast('No Snap problems saved'); return; }
+    const fallback = function(){
+      try{
+        const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed'; ta.style.top = '-1000px'; document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy'); document.body.removeChild(ta);
+        toast(ok ? 'Copied' : 'Couldn’t copy');
+      }catch(e){ toast('Couldn’t copy'); }
+    };
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){ toast('Copied'); }, fallback);
+      else fallback();
+    }catch(e){ fallback(); }
+  });
+  // After a sheet fails, keep an eye out for a late second answer (logged, never used).
+  function snapWatchLate(job){
+    const until = Date.now() + 90000;
+    const look = function(){
+      if(Date.now() > until || (snapJob && snapJob !== job)) return;
+      fetch(snapUrl('ans', job.pid), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+        .then(function(a){
+          if(snapJob && snapJob !== job) return;
+          const key = a ? snapAnsKey(a.t, a.picks) : '';
+          if(a && a.picks != null && key !== job.badKey && key !== job.lastKey){
+            job.lastKey = key;
+            const r = snapParse(job, a.picks);
+            snapLog(job, 'Late answer after the sheet already failed', r.list ? 'this one was good (' + r.list.length + ' picks)' : (r.err || ''), a.picks);
+            fetch(snapUrl('ans', job.pid), { method: 'DELETE' }).catch(function(){});
+          }
+          setTimeout(look, 5000);
+        });
+    };
+    setTimeout(look, 5000);
+  }
+  /* Returns false when it's still waiting (4.6.8: after an answer it can't use, it
+     logs it and waits up to 60 seconds for a better one before giving up). */
+  const SNAP_GRACE_MS = 60000;
+  function snapGot(job, raw, t){
     if(snapJob !== job || job.done || job.picks) return;
-    clearTimeout(job.timer);
-    snapDel(job.pid);
+    const r = snapParse(job, raw);
     // 4.6.1: the reader saw a sheet for a different week (its teams don't fit this week's games).
-    if(raw === 'wrong-week'){
-      snapFail(job, 'This sheet doesn\u2019t match Week ' + job.week + '\u2019s games. Make sure you snapped this week\u2019s sheet.', 'Wrong Week');
+    if(r.wrongWeek){
+      clearTimeout(job.timer); clearTimeout(job.badTimer);
+      snapDel(job.pid);
+      snapLog(job, 'Wrong Week', '', raw);
+      snapFail(job, 'This sheet doesn\u2019t match Week ' + job.week + '\u2019s games. Make sure you snapped this week\u2019s sheet.', 'Wrong Week', false);
       return;
     }
-    const picks = snapPicksOk(job, raw);
-    if(!picks){ snapFail(job, 'Couldn’t read your sheet. Try again with a clearer photo.'); return; }
+    if(!r.list){
+      snapLog(job, 'Answer rejected', r.err, raw);
+      job.badT = t; job.badKey = snapAnsKey(t, raw);
+      fetch(snapUrl('ans', job.pid), { method: 'DELETE' }).catch(function(){});
+      if(!job.bad){
+        job.bad = true;
+        job.badTimer = setTimeout(function(){
+          if(snapJob !== job || job.done || job.picks) return;
+          clearTimeout(job.timer);
+          snapDel(job.pid);
+          snapFail(job, 'Couldn’t read your sheet. Try again with a clearer photo.', null, false);
+          snapWatchLate(job);
+        }, SNAP_GRACE_MS);
+      }
+      return false;
+    }
+    clearTimeout(job.timer); clearTimeout(job.badTimer);
+    snapDel(job.pid);
+    if(job.bad) snapLog(job, 'A good answer came after a rejected one (used it)', r.list.length + ' picks', raw);
+    const picks = r.list;
     job.picks = picks;
     job.gotAt = Date.now();
     snapSave(job);
