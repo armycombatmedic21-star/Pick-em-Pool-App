@@ -92,20 +92,21 @@
   var shownAt = 0, sentAt = 0, tick = null;
   function t(d){ return d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit', second:'2-digit' }); }
   function mmss(ms){ var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
-  // The sheet appears on its own, 2 to 5 minutes after the page opens.
-  var delay = (120 + Math.floor(Math.random() * 181)) * 1000;
-  setTimeout(function(){
+  // The sheet appears at a set clock time (2:55 AM Detroit, Oct 8), however
+  // often the page is opened or reloaded. Timing counts from that moment.
+  var REVEAL = Date.parse('2026-10-08T06:55:00Z');
+  function reveal(){
+    if(shownAt) return;
     var img = document.getElementById('sheetImg');
     img.src = IMG; img.hidden = false;
-    shownAt = Date.now();
+    shownAt = REVEAL;
     var c = document.getElementById('clock');
     c.className = 'clock wait';
-    tick = setInterval(function(){
-      if(sentAt) return;
-      c.textContent = 'Sheet appeared ' + t(new Date(shownAt)) + ' \u00B7 waiting ' + mmss(Date.now() - shownAt) + ', no answer yet';
-    }, 1000);
-    c.textContent = 'Sheet appeared ' + t(new Date(shownAt)) + ' \u00B7 waiting 0:00, no answer yet';
-  }, delay);
+    function draw(){ if(!sentAt) c.textContent = 'Sheet appeared ' + t(new Date(shownAt)) + ' \u00B7 waiting ' + mmss(Date.now() - shownAt) + ', no answer yet'; }
+    draw(); tick = setInterval(draw, 1000);
+  }
+  if(Date.now() >= REVEAL) reveal();
+  else var poll = setInterval(function(){ if(Date.now() >= REVEAL){ clearInterval(poll); reveal(); } }, 1000);
 
   document.getElementById('f').addEventListener('submit', function(e){
     e.preventDefault();
