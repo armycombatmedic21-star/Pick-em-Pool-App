@@ -2018,6 +2018,86 @@
   .tipstage .tipnote.low{ top:auto; bottom:12px; }
   .ts7{ animation: tqFade 5s linear infinite; }
   .ts8{ animation: tqFade 5.6s linear infinite; }
+
+  /* 4.6.3 Snap your sheet (8 s): tap the camera, the sheet is read, the cards move to match the paper */
+  .ts11{ animation: tqFade 8s linear infinite; }
+  .tq11row{ position:absolute; top:14px; left:12px; display:flex; align-items:center; gap:7px; z-index:2; }
+  .tipstage .tq11row .snapbtn{ position:relative; }
+  .tq11cam{ animation: tq11press 8s ease infinite, tq11glow 8s ease infinite; }
+  .tq11ptr{ animation: tq11ptr 8s ease infinite; }
+  .tq11ring{ animation: tq11ring 8s ease-out infinite; }
+  @keyframes tq11press{ 0%, 12%{ transform:scale(1); } 14%{ transform:scale(0.86); } 17%, 100%{ transform:scale(1); } }
+  @keyframes tq11glow{ 0%, 12%{ box-shadow:none; } 15%, 22%{ box-shadow: 0 0 16px rgba(53,208,255,0.6); } 28%, 100%{ box-shadow:none; } }
+  @keyframes tq11ptr{ 0%, 4%{ opacity:0; transform:scale(1.3); } 9%{ opacity:1; transform:scale(1); } 13%{ opacity:1; transform:scale(0.85); } 16%{ opacity:1; transform:scale(1); } 20%, 100%{ opacity:0; } }
+  @keyframes tq11ring{ 0%, 13%{ opacity:0; transform:scale(0.6); } 14%{ opacity:0.9; transform:scale(0.8); } 24%, 100%{ opacity:0; transform:scale(2.2); } }
+  /* the Analyzing sheet rising over the cards */
+  .tq11sheet{ position:absolute; left:8px; right:8px; bottom:-1px; height:248px; z-index:5; border-radius:18px 18px 0 0;
+    background: linear-gradient(180deg, #0f1a2c, #0b1321); border:1px solid rgba(147,174,200,0.18); border-bottom:0;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.55); display:flex; flex-direction:column; align-items:center; gap:8px; padding-top:8px;
+    transform: translateY(110%); animation: tq11sheet 8s cubic-bezier(.2,.8,.25,1) infinite; }
+  .tq11sheet::before{ content:''; width:30px; height:4px; border-radius:2px; background: rgba(147,174,200,0.35); }
+  .tq11sheet b{ font-size:15px; font-weight:800; color:#fff; margin-top:2px; }
+  /* the two real steps, smaller: Sending photo, then Reading your picks */
+  .tq11sheet .snapsteps{ gap:7px; margin:0; }
+  .tq11sheet .snapstep{ font-size:12px; gap:7px; transition:none; }
+  .tq11sheet .snapstep .sdot{ position:relative; width:16px; height:16px; transition:none; }
+  .tq11sheet .snapstep .sdot svg{ display:block; width:9px; height:9px; opacity:0; }
+  .tq11sheet .snapstep .sdot::before{ content:''; position:absolute; inset:-1.5px; border-radius:50%; border:1.5px solid rgba(53,208,255,0.25); border-top-color: var(--cyan); opacity:0; }
+  .tq11s1{ animation: tq11t1 8s linear infinite; } .tq11s2{ animation: tq11t2 8s linear infinite; }
+  .tq11s1 .sdot{ animation: tq11d1 8s linear infinite; } .tq11s2 .sdot{ animation: tq11d2 8s linear infinite; }
+  .tq11s1 .sdot svg{ animation: tq11c1 8s linear infinite; } .tq11s2 .sdot svg{ animation: tq11c2 8s linear infinite; }
+  .tq11s1 .sdot::before{ animation: snapspin .8s linear infinite, tq11sp1 8s linear infinite; }
+  .tq11s2 .sdot::before{ animation: snapspin .8s linear infinite, tq11sp2 8s linear infinite; }
+  @keyframes tq11t1{ 0%, 26%{ color:#fff; } 27%, 100%{ color:#c9d6e3; } }
+  @keyframes tq11t2{ 0%, 26%{ color: var(--muted); } 27%, 52%{ color:#fff; } 53%, 100%{ color:#c9d6e3; } }
+  @keyframes tq11sp1{ 0%, 26%{ opacity:1; } 27%, 100%{ opacity:0; } }
+  @keyframes tq11sp2{ 0%, 26%{ opacity:0; } 27%, 52%{ opacity:1; } 53%, 100%{ opacity:0; } }
+  @keyframes tq11d1{ 0%, 26%{ background:transparent; border-color:transparent; box-shadow:none; } 27%, 100%{ background:#3ddc84; border-color:#3ddc84; box-shadow:0 0 8px rgba(61,220,132,0.45); } }
+  @keyframes tq11d2{ 0%, 26%{ background:transparent; border-color: rgba(147,174,200,0.4); box-shadow:none; } 27%, 52%{ background:transparent; border-color:transparent; box-shadow:none; } 53%, 100%{ background:#3ddc84; border-color:#3ddc84; box-shadow:0 0 8px rgba(61,220,132,0.45); } }
+  @keyframes tq11c1{ 0%, 26%{ opacity:0; } 27%, 100%{ opacity:1; } }
+  @keyframes tq11c2{ 0%, 52%{ opacity:0; } 53%, 100%{ opacity:1; } }
+  #tipsOverlay .tq11sheet p.snapwait{ margin:0; font-size:11px; font-weight:600; color: var(--muted); text-align:center; }
+  @keyframes tq11sheet{ 0%, 17%{ transform: translateY(110%); } 25%, 60%{ transform: translateY(0); } 68%, 100%{ transform: translateY(110%); } }
+  .tq11frame{ position:relative; width:80px; height:104px; flex:none; }
+  .tq11paper{ position:absolute; inset:0; border-radius:9px; overflow:hidden; border:1px solid rgba(53,208,255,0.3);
+    background: linear-gradient(180deg, #e9ecef, #d9dde2); box-shadow: 0 10px 22px rgba(0,0,0,0.5), 0 0 22px rgba(53,208,255,0.14);
+    animation: tq11paper 8s ease infinite; }
+  .tq11paper i{ position:absolute; left:16px; height:1px; width:46px; background: rgba(60,66,80,0.45); }
+  .tq11paper i::before{ content:''; position:absolute; left:-10px; top:-4px; width:5px; height:4px; border-radius:1px; background: rgba(60,66,80,0.55); }
+  .tq11paper i::after{ content:''; position:absolute; left:3px; bottom:2px; height:3px; border-radius:2px; width:var(--w); background:#2b3f8f; opacity:0.85; transform: skewX(-14deg); }
+  .tq11paper u{ position:absolute; right:7px; height:2px; width:16px; border-radius:1px; background: rgba(60,66,80,0.35); }
+  @keyframes tq11paper{ 0%, 52%{ border-color: rgba(53,208,255,0.3); } 55%, 100%{ border-color: rgba(61,220,132,0.75); box-shadow: 0 10px 22px rgba(0,0,0,0.5), 0 0 22px rgba(61,220,132,0.35); } }
+  .tq11laser{ position:absolute; left:-8px; right:-8px; top:0; height:2px; margin-top:-1px; z-index:3; border-radius:1px;
+    background: linear-gradient(90deg, rgba(53,208,255,0), rgba(53,208,255,0.55) 9%, #f2fdff 50%, rgba(53,208,255,0.55) 91%, rgba(53,208,255,0));
+    box-shadow: 0 0 11px 1.4px rgba(53,208,255,0.85), 0 0 36px 7px rgba(53,208,255,0.28); opacity:0; animation: tq11laser 8s cubic-bezier(.45,.05,.55,.95) infinite; }
+  .tq11laser::before, .tq11laser::after{ content:''; position:absolute; top:50%; width:4px; height:4px; margin-top:-2px; border-radius:50%;
+    background:#f2fdff; box-shadow: 0 0 5px 2px rgba(53,208,255,0.95); }
+  .tq11laser::before{ left:7px; } .tq11laser::after{ right:7px; }
+  @keyframes tq11laser{ 0%, 25%{ opacity:0; transform: translateY(6px); } 27%{ opacity:1; transform: translateY(6px); }
+    38%{ transform: translateY(98px); } 47%{ opacity:1; transform: translateY(6px); } 51%, 100%{ opacity:0; transform: translateY(6px); } }
+  .tq11grid{ position:absolute; inset:0; z-index:2; opacity:0; animation: tq11gridin 8s linear infinite;
+    background-image: linear-gradient(rgba(120,225,255,0.26) 1px, transparent 1px), linear-gradient(90deg, rgba(120,225,255,0.26) 1px, transparent 1px);
+    background-size: 9px 9px; }
+  @keyframes tq11gridin{ 0%, 26%{ opacity:0; } 30%, 46%{ opacity:0.55; } 50%, 100%{ opacity:0; } }
+  .tq11ok{ position:absolute; left:50%; top:50%; width:38px; height:38px; margin:-19px 0 0 -19px; border-radius:50%; z-index:4;
+    display:flex; align-items:center; justify-content:center; background:#3ddc84; box-shadow: 0 0 0 4px rgba(61,220,132,0.18), 0 0 22px rgba(61,220,132,0.6);
+    opacity:0; transform: scale(0.4); animation: tq11ok 8s cubic-bezier(.2,.9,.3,1.35) infinite; }
+  .tq11ok svg{ width:21px; height:21px; }
+  @keyframes tq11ok{ 0%, 51%{ opacity:0; transform: scale(0.4); } 55%, 62%{ opacity:1; transform: scale(1); } 66%, 100%{ opacity:1; transform: scale(1); } }
+  .tq11title{ animation: tq11title 8s linear infinite; }
+  .tq11title span{ display:block; text-align:center; }
+  .tq11title .b{ display:none; }
+  /* the cards move into the paper's order */
+  @keyframes tq11down{ 0%, 68%{ transform:translateY(0); } 78%, 100%{ transform:translateY(80px); } }
+  @keyframes tq11up{ 0%, 68%{ transform:translateY(0); } 78%, 100%{ transform:translateY(-80px); } }
+  @keyframes tq11a{ 0%, 72%{ opacity:1; } 75%, 100%{ opacity:0; } }
+  @keyframes tq11b{ 0%, 72%{ opacity:0; } 75%, 100%{ opacity:1; } }
+  @keyframes tq11note{ 0%, 76%{ opacity:0; transform:translateY(4px); } 81%, 100%{ opacity:1; transform:translateY(0); } }
+  .tq11down{ animation: tq11down 8s cubic-bezier(.3,.7,.3,1) infinite, tq7flash 8s ease infinite; }
+  .tq11up{ animation: tq11up 8s cubic-bezier(.3,.7,.3,1) infinite, tq7flash 8s ease infinite; }
+  .tq11a{ animation: tq11a 8s linear infinite; }
+  .tq11b{ animation: tq11b 8s linear infinite; }
+  .tq11note{ animation: tq11note 8s ease infinite; }
   .ts9{ animation: tqFade 13s linear infinite; }
   /* 4.5.5 Pick a week (6 s): tap the pill, the week sheet rises, tap the cyan
      week, the sheet drops and the pill turns cyan. */
@@ -2176,6 +2256,7 @@
     .ts9, .ts9 *{ animation-delay: -4.9s !important; }
     .ts6, .ts6 *{ animation-delay: -1.2s !important; }
     .ts10, .ts10 *{ animation-delay: -2.6s !important; }
+    .ts11, .ts11 *{ animation-delay: -6.6s !important; }
     .tipco{ display:flex; }
     .tipdot{ transition:none; }
   }
@@ -2317,7 +2398,7 @@
   .lbcard > .lblist:empty{ flex:none; height:auto; min-height:0; margin-bottom:0; }
   /* A note under the list ("Lock in to post your score."): no borrowing, old spacing */
   .lbcard > .lblist:not(:empty):has(+ .lbnote:not(:empty)){ min-height:168px; margin-bottom:0; }
-  /* 4.6.0 Snap (Snap Test, this phone only): camera button on the Picks row,
+  /* 4.6.0 Snap (for everyone since 4.6.3; hidden while the Edge Engine is on): camera button on the Picks row,
      and one slide-up that changes in place: Snap Your Sheet -> Analyzing Sheet
      -> Check Your Picks. Built from the app's own confirm card, buttons and
      Sheet tab rows. */
@@ -2353,15 +2434,59 @@
   .confirmyes.snapgo{ display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .confirmyes.snapgo svg{ width:20px; height:20px; color: var(--cyan); }
   .snapfile{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
-  .snapscan{ position:relative; flex:none; width:132px; height:224px; margin:14px auto 18px; border-radius:12px; overflow:hidden;
-    border:1.5px solid rgba(53,208,255,0.7); box-shadow: 0 0 22px rgba(53,208,255,0.3), inset 0 0 0 1px rgba(255,255,255,0.05); background:#0b1321; }
-  .snapscan img{ width:100%; height:100%; object-fit:cover; display:block; filter: saturate(0.85) brightness(0.92); }
-  .scanbeam{ position:absolute; left:-4px; right:-4px; top:0; height:56px; transform: translateY(-56px); pointer-events:none;
-    background: linear-gradient(180deg, rgba(53,208,255,0) 0%, rgba(53,208,255,0.22) 82%, rgba(53,208,255,0.35) 96%);
-    animation: scanmove 2.2s cubic-bezier(.45,.05,.55,.95) infinite; z-index:1; }
-  .scanbeam::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:2px; background: var(--cyan); box-shadow: 0 0 10px 2px rgba(53,208,255,0.75); }
-  .snapscan.stopped .scanbeam{ display:none; }
-  @keyframes scanmove{ 0%{ transform: translateY(-56px); } 100%{ transform: translateY(224px); } }
+  /* 4.6.3 Analyzing Sheet scan: glass frame with viewfinder corners; a thin laser
+     (white-hot center, glowing ends) glides down and back up, with a soft glow and a
+     holographic grid only where it passes. Settings picked in the Snap Scan Lab:
+     3.2 s per pass, glow 1.4, grid 0.26 at 12 px, photo 0.8, no edge light, still corners. */
+  .snapframe{ --fh:226px; position:relative; flex:none; width:174px; height:var(--fh); margin:22px auto 22px; }
+  .snapscan{ position:relative; width:100%; height:100%; border-radius:14px; overflow:hidden; border:1px solid rgba(53,208,255,0.22);
+    background:#0b1321; box-shadow: 0 22px 44px rgba(0,0,0,0.5), 0 0 34px rgba(53,208,255,0.14), inset 0 0 0 1px rgba(255,255,255,0.05);
+    transition: border-color .35s ease, box-shadow .35s ease; }
+  .snapscan img{ width:100%; height:100%; object-fit:cover; display:block; object-position:50% 0;
+    filter: saturate(0.7) brightness(0.8) contrast(1.06); transition: filter .4s ease; }
+  .snapscan::after{ content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:4;
+    background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 38%), radial-gradient(120% 80% at 50% 50%, rgba(0,0,0,0) 55%, rgba(3,8,18,0.45) 100%); }
+  @keyframes scany{ 0%{ transform: translateY(8px); } 50%{ transform: translateY(calc(var(--fh) - 8px)); } 100%{ transform: translateY(8px); } }
+  @keyframes scangridfix{ 0%{ background-position: 0 calc(70px - 8px); } 50%{ background-position: 0 calc(70px - var(--fh) + 8px); } 100%{ background-position: 0 calc(70px - 8px); } }
+  .scanlaser, .scanhalo, .scangrid{ animation-duration:3.2s; animation-iteration-count:infinite; animation-timing-function: cubic-bezier(.45,.05,.55,.95); }
+  .scanlaser{ position:absolute; left:-16px; right:-16px; top:0; height:2px; margin-top:-1px; z-index:7; pointer-events:none; border-radius:1px;
+    background: linear-gradient(90deg, rgba(53,208,255,0), rgba(53,208,255,0.55) 9%, #f2fdff 50%, rgba(53,208,255,0.55) 91%, rgba(53,208,255,0));
+    box-shadow: 0 0 11px 1.4px rgba(53,208,255,0.85), 0 0 36px 7px rgba(53,208,255,0.28); animation-name: scany; }
+  .scanlaser::before, .scanlaser::after{ content:''; position:absolute; top:50%; width:5px; height:5px; margin-top:-2.5px; border-radius:50%;
+    background:#f2fdff; box-shadow: 0 0 6px 2px rgba(53,208,255,0.95), 0 0 16px 4px rgba(53,208,255,0.4); }
+  .scanlaser::before{ left:15px; } .scanlaser::after{ right:15px; }
+  .scanhalo{ position:absolute; left:0; right:0; top:-60px; height:120px; z-index:3; pointer-events:none; mix-blend-mode: screen;
+    background: linear-gradient(180deg, rgba(53,208,255,0) 0%, rgba(53,208,255,0.10) 30%, rgba(140,232,255,0.30) 50%, rgba(53,208,255,0.10) 70%, rgba(53,208,255,0) 100%);
+    animation-name: scany; }
+  .scangrid{ position:absolute; left:0; right:0; top:-70px; height:140px; z-index:2; pointer-events:none; opacity:0.26;
+    background-image: linear-gradient(rgba(120,225,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(120,225,255,1) 1px, transparent 1px);
+    background-size: 12px 12px;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
+    animation-name: scany, scangridfix; }
+  .sc{ position:absolute; width:22px; height:22px; z-index:6; pointer-events:none; border-color: var(--cyan); border-style:solid; border-width:0; opacity:0.85;
+    filter: drop-shadow(0 0 4px rgba(53,208,255,0.75)); transition: border-color .3s ease, filter .3s ease; }
+  .sc.tl{ left:-10px; top:-10px; border-top-width:2px; border-left-width:2px; border-top-left-radius:9px; --dx:3px; --dy:3px; }
+  .sc.tr{ right:-10px; top:-10px; border-top-width:2px; border-right-width:2px; border-top-right-radius:9px; --dx:-3px; --dy:3px; }
+  .sc.bl{ left:-10px; bottom:-10px; border-bottom-width:2px; border-left-width:2px; border-bottom-left-radius:9px; --dx:3px; --dy:-3px; }
+  .sc.br{ right:-10px; bottom:-10px; border-bottom-width:2px; border-right-width:2px; border-bottom-right-radius:9px; --dx:-3px; --dy:-3px; }
+  .scanok{ position:absolute; left:50%; top:50%; width:56px; height:56px; margin:-28px 0 0 -28px; border-radius:50%; z-index:6;
+    display:flex; align-items:center; justify-content:center; background:#3ddc84; opacity:0; transform: scale(0.4);
+    box-shadow: 0 0 0 6px rgba(61,220,132,0.18), 0 0 30px rgba(61,220,132,0.6); }
+  .scanok svg{ width:30px; height:30px; }
+  .scanok::after{ content:''; position:absolute; inset:-6px; border-radius:50%; border:2px solid rgba(61,220,132,0.8); opacity:0; }
+  .snapframe.got .scanlaser, .snapframe.got .scanhalo, .snapframe.got .scangrid,
+  .snapframe.stopped .scanlaser, .snapframe.stopped .scanhalo, .snapframe.stopped .scangrid{ display:none; }
+  .snapframe.got .snapscan{ border-color: rgba(61,220,132,0.6); box-shadow: 0 22px 44px rgba(0,0,0,0.5), 0 0 36px rgba(61,220,132,0.32); }
+  .snapframe.got .snapscan img{ filter: saturate(0.7) brightness(0.58) contrast(1.06); }
+  .snapframe.got .sc{ border-color:#3ddc84; filter: drop-shadow(0 0 6px rgba(61,220,132,0.85)); animation: scgot .55s cubic-bezier(.2,.9,.3,1.3) both; }
+  @keyframes scgot{ 0%{ transform: translate(0,0); } 60%{ transform: translate(calc(var(--dx) * 1.7), calc(var(--dy) * 1.7)); } 100%{ transform: translate(var(--dx), var(--dy)); opacity:1; } }
+  .snapframe.got .scanok{ animation: scanok .55s cubic-bezier(.2,.9,.3,1.35) .1s both; }
+  .snapframe.got .scanok::after{ animation: scanokring .9s cubic-bezier(.2,.7,.3,1) .25s both; }
+  @keyframes scanok{ 0%{ opacity:0; transform: scale(0.4); } 100%{ opacity:1; transform: scale(1); } }
+  @keyframes scanokring{ 0%{ opacity:0.9; transform: scale(0.9); } 100%{ opacity:0; transform: scale(1.9); } }
+  .snapel{ margin-left:10px; font-size:13px; font-weight:700; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .snapstep:not(.active) .snapel{ display:none; }
   .snapsteps{ display:flex; flex-direction:column; gap:10px; width:max-content; margin:4px auto 14px; }
   .snapsteps[hidden]{ display:none; }
   .snapstep{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; color: var(--muted); transition: color .3s ease; }
@@ -2384,9 +2509,9 @@
   @keyframes snaprowin{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
   #snapCheck .confirmrow{ margin-top:14px; flex:none; }
   @media (prefers-reduced-motion: reduce){
-    .snaphero, .snaphero::before, .snaphero::after, .scanbeam, #snapCheck .sheetrow{ animation:none; }
+    .snaphero, .snaphero::before, .snaphero::after, #snapCheck .sheetrow{ animation:none; }
     .snaphero::before, .snaphero::after{ display:none; }
-    .scanbeam{ transform:translateY(84px); }
+    .scanlaser, .scanhalo, .scangrid{ display:none; }
     .snapstep.active .sdot{ animation:none; border-color: var(--cyan); }
     #snapOverlay .snapcard.morph{ transition:none; }
   }
@@ -2554,13 +2679,13 @@
       <input class="snapfile" type="file" accept="image/*" id="snapLibIn" tabindex="-1" aria-hidden="true">
     </div>
     <div class="snapstage" id="snapWork" hidden>
-      <div class="snapscan" id="snapScan"><img id="snapThumb" alt="Your sheet"><span class="scanbeam"></span></div>
+      <div class="snapframe" id="snapFrame"><i class="sc tl"></i><i class="sc tr"></i><i class="sc bl"></i><i class="sc br"></i><div class="snapscan" id="snapScan"><img id="snapThumb" alt="Your sheet"><span class="scangrid"></span><span class="scanhalo"></span><span class="scanok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9" fill="none" stroke="#03131f" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><span class="scanlaser"></span></div>
       <h2 id="snapWorkTitle">Analyzing Sheet</h2>
       <div class="snapsteps" id="snapSteps">
         <div class="snapstep" id="snapSt1"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sending photo</div>
-        <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Reading your picks</div>
+        <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Reading your picks<span class="snapel" id="snapEl"></span></div>
       </div>
-      <p class="snapwait" id="snapWait">Usually takes 1 to 2 minutes.</p>
+      <p class="snapwait" id="snapWait">Usually takes about a minute.</p>
       <div class="confirmrow"><button class="confirmcancel" type="button" id="snapCancel2">Cancel</button></div>
     </div>
     <div class="snapstage" id="snapCheck" hidden>
@@ -2637,12 +2762,6 @@
       </span>
       <button class="devtoggle" id="edgeToggle">Off</button>
     </div>
-    <div class="devrow">
-      <span class="devlabel">
-        <b>Snap Test</b>
-      </span>
-      <button class="devtoggle" id="snapToggle">Off</button>
-    </div>
     <div class="devsect">Simulations<span>One at a time. Nobody’s real picks or scores are touched.</span></div>
     <div class="devrow">
       <span class="devlabel">
@@ -2692,6 +2811,8 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.3</b> New: Snap. Tap the camera button on Picks, take a photo of your paper sheet, and your picks are set to match it. You check the list before anything changes.</div>
+      <div class="cl"><b>4.6.2</b> More work on the feature being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.6.1</b> More work on the feature being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.6.0</b> Groundwork for a new feature that’s being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.5.6</b> Fixed a glitch that could double the games on your sheet with last week's games; any sheet that got them is cleaned up automatically. Fixed the tab buttons sometimes not responding on iPhone until you scrolled.</div>
@@ -3100,7 +3221,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.1';
+  const APP_VERSION = '4.6.3';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -8793,8 +8914,6 @@
   }
   function setEdge(on){
     put(EDGE_KEY, { ok: true, on: !!on });
-    // 4.6.0: the Edge Engine and Snap Test are never on together.
-    if(on){ try{ if(snapOn()){ put(SNAP_KEY, { ok: true, on: false }); syncSnapUI(); } }catch(e){} }
     syncEdgeUI();
     edgeSync();
     try{ winSoon(0); }catch(e){}
@@ -9207,7 +9326,6 @@
     syncDemoUI();
     syncAdminUI();
     try{ syncEdgeUI(); }catch(e){}
-    try{ syncSnapUI(); }catch(e){}
     openOverlay(adminPanel);
   }
   function askPanelCode(){
@@ -9242,7 +9360,7 @@
   });
   adminPanel.addEventListener('click', function(e){ if(e.target === adminPanel) closeOverlay(adminPanel); });
 
-  /* ---------- 4.6.0 Snap (Snap Test in the Admin Panel, this phone only) ----------
+  /* ---------- 4.6.0 Snap (4.6.3: for everyone; hidden while the Edge Engine is on) ----------
      A photo of the paper pool sheet sets the picks. The photo goes to its own
      spot in Firebase (/snap; the leaderboard, chat and presence code never
      read it): snap/req/<id> holds the photo and this week's games, snap/q/<id>
@@ -9252,47 +9370,149 @@
      again, the player confirms, and the sheet becomes the paper exactly:
      those games in that order with those teams, every other game removed.
      Snap never locks. Photo, note and answer are deleted as soon as the
-     answer arrives, on Cancel, and on the 3-minute timeout. */
-  const SNAP_KEY = 'pickem-snap';
+     answer arrives, on Cancel, and on the 3-minute timeout.
+     4.6.2: a sheet survives the app closing or reloading. The phone keeps a
+     small note (pickem-snap-job: week, id, send time, a tiny copy of the
+     photo, and the list once it's read). Reopening the app goes straight back
+     to Analyzing Sheet (or Check Your Picks). An answer that came in while the
+     app was closed is still shown up to 15 minutes after sending.
+     4.6.3: on for everyone (the Snap Test row is gone), current week only,
+     hidden while the Edge Engine is on. Waits up to 15 minutes (after 2 it says
+     it's slow and that closing the app is fine). The note is saved the moment a
+     photo is picked, and on open the app also asks Firebase once whether a sheet
+     is waiting or answered, in case the phone lost its note. */
   const SNAP_DB = DB_URL + '/snap';
-  const SNAP_WAIT_MS = 180000;   // 4.6.1: 3 minutes (Muse took about 90 s on a test photo)
+  const SNAP_WAIT_MS = 900000;   // 4.6.3: 15 minutes (Muse reads a sheet in about a minute)
+  const SNAP_SLOW_MS = 120000;   // 4.6.3: after 2 minutes, say it's slow and that closing is fine
   const SNAP_POLL_MS = 2000;
+  const SNAP_JOB_KEY = 'pickem-snap-job';   // 4.6.2
+  const SNAP_KEEP_MS = 1800000;             // 4.6.3: 30 minutes (the wait is 15)
+  const SNAP_END_KEY = 'pickem-snap-end';   // 4.6.3: when this phone last closed a sheet
   const snapOverlay = document.getElementById('snapOverlay');
   const snapCard = snapOverlay.querySelector('.snapcard');
   let snapJob = null;     // { week, pid, sentAt, games, picks, done }
-  function snapOn(){ const v = getLocal(SNAP_KEY); return !!(v && v.ok === true && v.on === true); }
-  function syncSnapUI(){
-    const t = document.getElementById('snapToggle');
-    if(t){ const on = snapOn(); t.textContent = on ? 'On' : 'Off'; t.classList.toggle('on', on); }
-  }
+  // Only on the week the NFL is playing now (if that isn't known yet, don't hide it).
+  function snapCurWeek(){ let cur = null; try{ cur = nflWeekNow(); }catch(e){} return !cur || cur === currentWeek; }
   function syncSnapBtn(){
     const b = document.getElementById('snapBtn');
     if(!b) return;
     let prev = false;
     try{ prev = isPreviewWeek(); }catch(e){}
-    b.hidden = !(snapOn() && !weekLocked && games.length >= 2 && !prev);
+    let edge = false;
+    try{ edge = edgeOn(); }catch(e){}
+    b.hidden = !(!edge && !weekLocked && games.length >= 2 && !prev && snapCurWeek());
     if(!b.hidden && b.parentNode) b.parentNode.classList.add('hasshuf');
+    if(!b.hidden) setTimeout(function(){ try{ snapResume(); }catch(e){} }, 0);   // 4.6.2 (4.6.3: also the Firebase check)
   }
-  // Snap Test and the Edge Engine are never on together.
-  function setSnap(on, quiet){
-    put(SNAP_KEY, { ok: true, on: !!on });
-    if(on && edgeOn()){
-      put(EDGE_KEY, { ok: true, on: false });
-      edgeApplied = null;
-      syncEdgeUI();
-      try{ winSoon(0); }catch(e){}
-      try{ syncAnPill(); }catch(e){}
-    }
-    syncSnapUI();
-    edgeSync();
-    syncSnapBtn();
-    if(!quiet) toast(on ? 'Snap Test on' : 'Snap Test off');
-  }
-  document.getElementById('snapToggle').addEventListener('click', function(){
-    if(!panelUnlocked()) return;
-    setSnap(!snapOn());
-  });
 
+  // 4.6.2: the phone's note about the sheet in progress.
+  function snapSave(job){
+    put(SNAP_JOB_KEY, { week: job.week, pid: job.pid, sentAt: job.sentAt || 0, games: job.games,
+      thumb: job.thumb || '', picks: job.picks || null, gotAt: job.gotAt || 0 });
+  }
+  function snapForget(){ put(SNAP_JOB_KEY, null); put(SNAP_END_KEY, Date.now()); }
+  // A tiny copy of the photo (about 10-25 KB) so the scan picture comes back after a reload.
+  function snapTiny(src){
+    return new Promise(function(resolve){
+      const img = new Image();
+      img.onload = function(){
+        try{
+          const s = Math.min(1, 264 / Math.max(img.naturalWidth, img.naturalHeight));
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * s)); c.height = Math.max(1, Math.round(img.naturalHeight * s));
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          const out = c.toDataURL('image/jpeg', 0.6);
+          resolve(out.length <= 60000 ? out : '');
+        }catch(e){ resolve(''); }
+      };
+      img.onerror = function(){ resolve(''); };
+      img.src = src;
+    });
+  }
+  // App opened (or reloaded) with a sheet still in progress: pick up where it left off.
+  function snapResume(){
+    if(snapJob || snapOverlay.classList.contains('show')) return;
+    const s = getLocal(SNAP_JOB_KEY);
+    let pid = null;
+    try{ pid = player().id; }catch(e){}
+    if(!s || typeof s !== 'object'){ snapFbCheck(pid, false); return; }
+    const drop = function(){ snapForget(); if(s.pid) snapDel(s.pid); };
+    const now = Date.now();
+    // 4.6.3: closed while still sending. Firebase says whether it got there.
+    if(!s.sentAt && s.pid && s.pid === pid){ put(SNAP_JOB_KEY, null); if(snapFbDone) snapDel(pid); else snapFbCheck(pid, true); return; }
+    const age = now - (s.picks ? (s.gotAt || s.sentAt) : s.sentAt);
+    // A different player, or too old: clean up quietly.
+    if(!s.sentAt || !s.pid || s.pid !== pid || !Array.isArray(s.games) || age > SNAP_KEEP_MS || age < -60000){ drop(); return; }
+    if(s.week !== currentWeek) return;               // looking at another week; try again later
+    if(document.querySelector('.overlay.show')) return;   // something else is open; try again later
+    const job = { week: s.week, pid: s.pid, sentAt: s.sentAt, games: s.games, picks: null, done: false, timer: null, thumb: s.thumb || '' };
+    snapJob = job;
+    snapReset();
+    if(job.thumb) document.getElementById('snapThumb').src = job.thumb;
+    if(Array.isArray(s.picks) && s.picks.length){
+      job.picks = s.picks; job.gotAt = s.gotAt || now;
+      snapFillList(job);
+      snapShow('snapCheck', true);
+      openOverlay(snapOverlay);
+      return;
+    }
+    snapStep(1, 'done'); snapStep(2, '');
+    snapShow('snapWork', true);
+    openOverlay(snapOverlay);
+    const left = job.sentAt + SNAP_WAIT_MS - now;
+    if(left <= 0){ snapTimeout(job); return; }
+    job.timer = setTimeout(function(){ snapTimeout(job); }, left);
+    snapPoll(job);
+  }
+  /* 4.6.3: once per app open, when there's no note on the phone, ask Firebase
+     whether this player has a sheet waiting (q) or a fresh answer (ans). An
+     answer with no waiting note only counts if it came well after this phone
+     last closed a sheet, so a late answer to a cancelled sheet never pops up. */
+  let snapFbDone = false;
+  function snapFbCheck(pid, cleanup){
+    if(snapFbDone || !pid) return;
+    snapFbDone = true;
+    const get = function(part){ return fetch(snapUrl(part, pid), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); };
+    Promise.all([get('q'), get('ans')]).then(function(res){
+      const q = res[0], a = res[1], now = Date.now();
+      const fresh = function(x){ return !!(x && typeof x.t === 'number' && now - x.t < SNAP_KEEP_MS && now - x.t > -60000 && x.week === currentWeek); };
+      const end = getLocal(SNAP_END_KEY);
+      const waiting = fresh(q);
+      const answered = fresh(a) && typeof a.picks === 'string' && (waiting || !(typeof end === 'number' && a.t - end < 150000));
+      if(!waiting && !answered){
+        if(cleanup || q || a) snapDel(pid);   // half-sent photo or leftovers
+        return;
+      }
+      let ok = false;
+      try{ ok = !document.getElementById('snapBtn').hidden; }catch(e){}
+      if(snapJob || !ok || document.querySelector('.overlay.show')){ snapFbDone = false; return; }   // try again on the next redraw
+      const job = { week: currentWeek, pid: pid, sentAt: waiting ? q.t : a.t, games: snapGames(), picks: null, done: false, timer: null, thumb: '' };
+      snapJob = job;
+      snapReset();
+      snapStep(1, 'done'); snapStep(2, '');
+      snapShow('snapWork', true);
+      openOverlay(snapOverlay);
+      snapSave(job);
+      if(answered){ snapGot(job, a.picks); return; }
+      const left = job.sentAt + SNAP_WAIT_MS - now;
+      if(left <= 0){ snapTimeout(job); return; }
+      job.timer = setTimeout(function(){ snapTimeout(job); }, left);
+      snapPoll(job);
+    });
+  }
+  // 4.6.3: the clock next to "Reading your picks", and the slow message after 2 minutes.
+  function snapTick(){
+    const job = snapJob;
+    if(!job || !job.sentAt || job.picks || job.done) return;
+    const sec = Math.max(0, Math.floor((Date.now() - job.sentAt) / 1000));
+    const el = document.getElementById('snapEl');
+    if(el) el.textContent = Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2);
+    if(sec * 1000 >= SNAP_SLOW_MS && !job.slow){
+      job.slow = true;
+      document.getElementById('snapWait').textContent = 'Taking longer than usual. You can close the app, and your picks will be here when you come back.';
+    }
+  }
+  setInterval(snapTick, 1000);
   function snapUrl(part, pid){ return SNAP_DB + '/' + part + '/' + encodeURIComponent(pid) + '.json'; }
   function snapDel(pid){
     ['q', 'req', 'ans'].forEach(function(p){ fetch(snapUrl(p, pid), { method: 'DELETE' }).catch(function(){}); });
@@ -9344,9 +9564,10 @@
     document.getElementById('snapLibIn').value = '';
     document.getElementById('snapWorkTitle').textContent = 'Analyzing Sheet';
     document.getElementById('snapSteps').hidden = false;
-    document.getElementById('snapWait').textContent = 'Usually takes 1 to 2 minutes.';
+    document.getElementById('snapWait').textContent = 'Usually takes about a minute.';
+    document.getElementById('snapEl').textContent = '';
     document.getElementById('snapCancel2').textContent = 'Cancel';
-    document.getElementById('snapScan').classList.remove('stopped');
+    document.getElementById('snapFrame').classList.remove('stopped', 'got');
     const th = document.getElementById('snapThumb');
     if(th.dataset.url){ try{ URL.revokeObjectURL(th.dataset.url); }catch(e){} delete th.dataset.url; }
     th.removeAttribute('src');
@@ -9364,6 +9585,7 @@
     const job = snapJob;
     snapJob = null;
     if(job && !job.applied){ job.done = true; clearTimeout(job.timer); snapDel(job.pid); }
+    if(job) snapForget();
   }
   new MutationObserver(function(){
     if(!snapOverlay.classList.contains('show')){
@@ -9413,18 +9635,20 @@
     job.done = true;
     clearTimeout(job.timer);
     snapDel(job.pid);
+    snapForget();
     snapJob = null;
     document.getElementById('snapWorkTitle').textContent = title || 'Couldn’t Read Sheet';
     document.getElementById('snapSteps').hidden = true;
     document.getElementById('snapWait').textContent = msg;
     document.getElementById('snapCancel2').textContent = 'Close';
-    document.getElementById('snapScan').classList.add('stopped');
+    document.getElementById('snapFrame').classList.add('stopped');
   }
   function snapGotFile(file){
     if(!file || snapJob || !snapOverlay.classList.contains('show')) return;
     if(weekLocked){ snapClose(); return; }
     const job = { week: currentWeek, pid: player().id, sentAt: 0, games: snapGames(), picks: null, done: false, timer: null };
     snapJob = job;
+    snapSave(job);   // 4.6.3: saved before sending, so a close mid-send gets cleaned up
     const th = document.getElementById('snapThumb');
     try{ const u = URL.createObjectURL(file); th.dataset.url = u; th.src = u; }catch(e){}
     snapStep(1, 'active'); snapStep(2, '');
@@ -9436,6 +9660,7 @@
     snapShrink(file).then(function(img){
       if(snapJob !== job) return null;
       if(!th.getAttribute('src') || th.naturalWidth === 0) th.src = img;
+      snapTiny(img).then(function(t){ job.thumb = t; if(snapJob === job && !job.picks && !job.done) snapSave(job); });
       // An old answer must never be mistaken for this one.
       return fetch(snapUrl('ans', job.pid), { method: 'DELETE' }).catch(function(){}).then(function(){
         const t = Date.now();
@@ -9446,22 +9671,34 @@
     }).then(function(ok){
       if(!ok || snapJob !== job) return;
       job.sentAt = Date.now();
+      snapSave(job);
       snapStep(1, 'done');
+      snapTick();
       job.timer = setTimeout(function(){ snapTimeout(job); }, SNAP_WAIT_MS);
       setTimeout(function(){ snapPoll(job); }, SNAP_POLL_MS);
     }).catch(function(){
       snapFail(job, 'Couldn’t send the photo. Check your connection and try again.');
     });
   }
+  // 4.6.2: one last look for an answer before giving up (it may have come in while the app was closed).
   function snapTimeout(job){
-    snapFail(job, 'Couldn’t read your sheet right now. Try again later.');
+    if(snapJob !== job || job.done || job.ending) return;
+    job.ending = true;
+    const look = fetch(snapUrl('ans', job.pid), { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    const wait = new Promise(function(res){ setTimeout(function(){ res(null); }, 8000); });
+    Promise.race([look, wait]).then(function(a){
+      if(snapJob !== job || job.done) return;
+      if(a && a.week === job.week && typeof a.picks === 'string'){ snapGot(job, a.picks); return; }
+      snapFail(job, 'Couldn’t read your sheet right now. Try again later.');
+    });
   }
   function snapPoll(job){
-    if(snapJob !== job || job.done) return;
+    if(snapJob !== job || job.done || job.ending) return;
     if(Date.now() - job.sentAt > SNAP_WAIT_MS){ snapTimeout(job); return; }
     const get = function(part){ return fetch(snapUrl(part, job.pid), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); };
     Promise.all([get('ans'), get('q')]).then(function(res){
-      if(snapJob !== job || job.done) return;
+      if(snapJob !== job || job.done || job.ending) return;
       const a = res[0], q = res[1];
       if(a && a.week === job.week && typeof a.picks === 'string'){ snapGot(job, a.picks); return; }
       if(q && q.status === 'reading') snapStep(2, 'active');
@@ -9486,6 +9723,7 @@
     return list.slice().sort(function(a, b){ return a.n - b.n; });
   }
   function snapGot(job, raw){
+    if(snapJob !== job || job.done || job.picks) return;
     clearTimeout(job.timer);
     snapDel(job.pid);
     // 4.6.1: the reader saw a sheet for a different week (its teams don't fit this week's games).
@@ -9496,12 +9734,15 @@
     const picks = snapPicksOk(job, raw);
     if(!picks){ snapFail(job, 'Couldn’t read your sheet. Try again with a clearer photo.'); return; }
     job.picks = picks;
+    job.gotAt = Date.now();
+    snapSave(job);
     snapStep(1, 'done'); snapStep(2, 'done');
+    document.getElementById('snapFrame').classList.add('got');   // 4.6.3: green frame + check
     setTimeout(function(){
       if(snapJob !== job || job.done) return;
       snapFillList(job);
       snapShow('snapCheck');
-    }, 550);
+    }, 1150);
   }
   function snapFillList(job){
     const byId = {};
@@ -9529,6 +9770,7 @@
     if(!job || !job.picks || job.done) return;
     job.applied = true; job.done = true;
     snapJob = null;
+    snapForget();
     closeOverlay(snapOverlay);
     setTimeout(function(){
       if(currentWeek !== job.week || weekLocked){ toast('Your sheet changed. Snap it again.'); return; }
@@ -10037,11 +10279,12 @@
      To show a new card once to everyone: add it, raise TIPS_VERSION and set
      TIPS_NEW. With reduced motion on, each card holds still on its key moment. */
   const TIPS_KEY = 'pickem-tips';
-  const TIPS_VERSION = 3;
-  const TIPS_FULL = ['drag', 'swap', 'shuffle', 'history', 'remove', 'jump', 'reset', 'week', 'lock'];
-  const TIPS_START = ['drag', 'swap', 'lock'];
-  const TIPS_NEW = ['week'];                                  // 4.5.5: saw the v2 deck -> just the new card
-  const TIPS_NEW_V1 = ['shuffle', 'history', 'week', 'lock'];  // still on the v1 deck -> everything since
+  const TIPS_VERSION = 4;
+  const TIPS_FULL = ['drag', 'swap', 'shuffle', 'snap', 'history', 'remove', 'jump', 'reset', 'week', 'lock'];
+  const TIPS_START = ['drag', 'swap', 'snap', 'lock'];
+  const TIPS_NEW = ['snap'];                                  // 4.6.3: saw the v3 deck -> just the new card
+  const TIPS_NEW_V2 = ['week', 'snap'];                       // saw the v2 deck -> both cards since
+  const TIPS_NEW_V1 = ['shuffle', 'snap', 'history', 'week', 'lock'];  // still on the v1 deck -> everything since
   const tipsOverlay = document.getElementById('tipsOverlay');
   let tipDeck = TIPS_FULL.slice(), tipIndex = 0;
 
@@ -10090,6 +10333,7 @@
       TIP_ARROW[arrow] + '"/></svg>' + html + '</span>';
   }
   const TIP_SHUF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>';
+  const TIP_CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h2.2l1.6-2.4h6.4L16.8 7H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.8" r="3.4"/></svg>';
   function tipHist(cls, when, line, delta, time, now){
     return '<div class="histrow ' + cls + (now ? ' now' : '') + (when === 'Opened' ? ' opened' : '') + '">' +
       '<span class="histwhen">' + when + '</span><span class="histline">' + line +
@@ -10136,6 +10380,25 @@
         tipRow('tq7up', 136, tipRank(tipNums('2', '1', 'tq7a', 'tq7b')), DET, tipChip(true, 66) + tipX()) +
         '<div class="tipnote tq7note low">Points move. Your teams stay.</div>' +
         tipLabel('Mixes up your points', 'top:56px;right:12px', 'up') },
+
+
+      // 4.6.3 Snap: tap the camera, the paper is read, the cards move to match it
+      snap: { n: 11, h: 'Snap your paper sheet', s:
+        '<div class="tq11row"><span class="shufbtn">' + TIP_SHUF_SVG + 'Smart Shuffle</span><span class="shufinfo">i</span>' +
+          '<span class="snapbtn tq11cam">' + TIP_CAM_SVG + '<span class="tipring tq11ring"></span>' + tipPtr('tq11ptr') + '</span></div>' +
+        tipRow('tq11down', 56, tipRank(tipNums('1', '2', 'tq11a', 'tq11b')), KC, tipChip(true, 61) + tipX()) +
+        tipRow('tq11up', 136, tipRank(tipNums('2', '1', 'tq11a', 'tq11b')), DET, tipChip(true, 66) + tipX()) +
+        '<div class="tq11sheet"><div class="tq11frame"><div class="tq11paper">' +
+          [12, 21, 30, 39, 48, 57, 66].map(function(y, k){ return '<i style="top:' + y + 'px;--w:' + [30, 38, 24, 34, 40, 28, 36][k] + 'px"></i>'; }).join('') +
+          [76, 84, 92].map(function(y){ return '<u style="top:' + y + 'px"></u><u style="top:' + y + 'px;right:30px"></u>'; }).join('') +
+          '<span class="tq11grid"></span></div><span class="tq11laser"></span>' +
+          '<span class="tq11ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9" fill="none" stroke="#03131f" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>' +
+          '<b>Analyzing Sheet</b>' +
+          '<div class="snapsteps"><div class="snapstep tq11s1">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Sending photo</div>' +
+          '<div class="snapstep tq11s2">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Reading your picks</div></div>' +
+          '<p class="snapwait">Usually takes about a minute.</p></div>' +
+        '<div class="tipnote tq11note low">Your picks now match your paper.</div>' +
+        tipLabel('Tap the camera', 'top:52px;left:150px', 'up') },
 
       // Line history: tap the spread
       history: { n: 8, h: 'Line history', s:
@@ -10655,7 +10918,7 @@
     if(!hasLocal || tipsSeen()) return;
     setTimeout(function(){
       if(tipsSeen() || !isTab('picks') || overlayStack.length || press || document.hidden || gateOpen()) return;
-      openTips(tipsSeenVer() >= 2 ? TIPS_NEW : (tipsSeenVer() >= 1 ? TIPS_NEW_V1 : TIPS_START));
+      openTips(tipsSeenVer() >= 3 ? TIPS_NEW : (tipsSeenVer() >= 2 ? TIPS_NEW_V2 : (tipsSeenVer() >= 1 ? TIPS_NEW_V1 : TIPS_START)));
     }, 900);
   }
 
