@@ -2037,12 +2037,12 @@
   /* the Analyzing sheet rising over the cards */
   .tq11sheet{ position:absolute; left:8px; right:8px; bottom:-1px; height:248px; z-index:5; border-radius:18px 18px 0 0;
     background: linear-gradient(180deg, #0f1a2c, #0b1321); border:1px solid rgba(147,174,200,0.18); border-bottom:0;
-    box-shadow: 0 -12px 30px rgba(0,0,0,0.55); display:flex; flex-direction:column; align-items:center; gap:8px; padding-top:8px;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.55); display:flex; flex-direction:column; align-items:center; gap:6px; padding-top:6px;
     transform: translateY(110%); animation: tq11sheet 8s cubic-bezier(.2,.8,.25,1) infinite; }
   .tq11sheet::before{ content:''; width:30px; height:4px; border-radius:2px; background: rgba(147,174,200,0.35); }
   .tq11sheet b{ font-size:15px; font-weight:800; color:#fff; margin-top:2px; }
-  /* the two real steps, smaller: Sending photo, then Reading your picks */
-  .tq11sheet .snapsteps{ gap:7px; margin:0; }
+  /* the three real steps, smaller (4.6.7): Uploading Photo, Preparing Scan (arrow), Digitizing Your Sheet, then the bar */
+  .tq11sheet .snapsteps{ gap:6px; margin:0; }
   .tq11sheet .snapstep{ font-size:12px; gap:7px; transition:none; }
   .tq11sheet .snapstep .sdot{ position:relative; width:16px; height:16px; transition:none; }
   .tq11sheet .snapstep .sdot svg{ display:block; width:9px; height:9px; opacity:0; }
@@ -2053,11 +2053,33 @@
   .tq11s1 .sdot::before{ animation: snapspin .8s linear infinite, tq11sp1 8s linear infinite; }
   .tq11s2 .sdot::before{ animation: snapspin .8s linear infinite, tq11sp2 8s linear infinite; }
   @keyframes tq11t1{ 0%, 26%{ color:#fff; } 27%, 100%{ color:#c9d6e3; } }
-  @keyframes tq11t2{ 0%, 26%{ color: var(--muted); } 27%, 52%{ color:#fff; } 53%, 100%{ color:#c9d6e3; } }
+  @keyframes tq11t2{ 0%, 34%{ color: var(--muted); } 35%, 52%{ color:#fff; } 53%, 100%{ color:#c9d6e3; } }
+  /* 4.6.7: the middle step's arrow flows, then becomes a green check; the bar fills and turns green */
+  .tq11sP{ animation: tq11tp 8s linear infinite; }
+  @keyframes tq11tp{ 0%, 26%{ color: var(--muted); } 27%, 34%{ color:#fff; } 35%, 100%{ color:#c9d6e3; } }
+  .tq11sheet .snapstep .sdot.arw{ border-color:transparent; }
+  .tq11sheet .snapstep .sdot.arw::before{ display:none; }
+  .tq11sheet .snapstep .sdot.arw .arrow{ width:16px; height:22px; margin:-9.5px 0 0 -8px; animation: tq11arw 8s linear infinite; }
+  .tq11sheet .snapstep .sdot.arw .arrow .dsh{ animation: snaparw .8s linear infinite, tq11dsh 8s linear infinite; }
+  .tq11sheet .snapstep .sdot.arw .arrow .hdc{ animation: tq11dsh 8s linear infinite; }
+  .tq11sheet .snapstep .sdot.arw .ck{ animation: tq11ck 8s cubic-bezier(.2,.9,.3,1.5) infinite; }
+  .tq11sheet .snapstep .sdot.arw .ck svg{ width:9px; height:9px; opacity:1; animation:none; }
+  @keyframes tq11arw{ 0%, 34%{ opacity:1; transform:scale(1); } 36%, 100%{ opacity:0; transform:scale(0.6); } }
+  @keyframes tq11dsh{ 0%, 26%{ opacity:0; } 27%, 34%{ opacity:1; } 35%, 100%{ opacity:0; } }
+  @keyframes tq11ck{ 0%, 34%{ opacity:0; transform:scale(0.3); } 37%, 100%{ opacity:1; transform:scale(1); } }
+  .tq11bar{ position:relative; width:150px; height:3px; border-radius:99px; background: rgba(147,174,200,0.16); flex:none; }
+  .tq11bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:99px; width:0;
+    background: linear-gradient(90deg, rgba(53,208,255,0.5), var(--cyan) 75%, #bff1ff); box-shadow: 0 0 8px rgba(53,208,255,0.7);
+    animation: tq11bar 8s linear infinite; }
+  .tq11bar i::after{ content:''; position:absolute; right:-3px; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:50%; background:#fff;
+    box-shadow: 0 0 5px 2px rgba(140,232,255,0.95), 0 0 12px 3px rgba(53,208,255,0.5); animation: tq11barhd 8s linear infinite; }
+  @keyframes tq11bar{ 0%, 20%{ width:0; } 26%{ width:6%; } 34%{ width:14%; } 52%{ width:86%; background: var(--cyan); box-shadow: 0 0 8px rgba(53,208,255,0.7); }
+    54%, 100%{ width:100%; background:#3ddc84; box-shadow: 0 0 9px rgba(61,220,132,0.7); } }
+  @keyframes tq11barhd{ 0%, 52%{ opacity:1; } 53%, 100%{ opacity:0; } }
   @keyframes tq11sp1{ 0%, 26%{ opacity:1; } 27%, 100%{ opacity:0; } }
-  @keyframes tq11sp2{ 0%, 26%{ opacity:0; } 27%, 52%{ opacity:1; } 53%, 100%{ opacity:0; } }
+  @keyframes tq11sp2{ 0%, 34%{ opacity:0; } 35%, 52%{ opacity:1; } 53%, 100%{ opacity:0; } }
   @keyframes tq11d1{ 0%, 26%{ background:transparent; border-color:transparent; box-shadow:none; } 27%, 100%{ background:#3ddc84; border-color:#3ddc84; box-shadow:0 0 8px rgba(61,220,132,0.45); } }
-  @keyframes tq11d2{ 0%, 26%{ background:transparent; border-color: rgba(147,174,200,0.4); box-shadow:none; } 27%, 52%{ background:transparent; border-color:transparent; box-shadow:none; } 53%, 100%{ background:#3ddc84; border-color:#3ddc84; box-shadow:0 0 8px rgba(61,220,132,0.45); } }
+  @keyframes tq11d2{ 0%, 34%{ background:transparent; border-color: rgba(147,174,200,0.4); box-shadow:none; } 35%, 52%{ background:transparent; border-color:transparent; box-shadow:none; } 53%, 100%{ background:#3ddc84; border-color:#3ddc84; box-shadow:0 0 8px rgba(61,220,132,0.45); } }
   @keyframes tq11c1{ 0%, 26%{ opacity:0; } 27%, 100%{ opacity:1; } }
   @keyframes tq11c2{ 0%, 52%{ opacity:0; } 53%, 100%{ opacity:1; } }
   #tipsOverlay .tq11sheet p.snapwait{ margin:0; font-size:11px; font-weight:600; color: var(--muted); text-align:center; }
@@ -2077,12 +2099,12 @@
   .tq11laser::before, .tq11laser::after{ content:''; position:absolute; top:50%; width:4px; height:4px; margin-top:-2px; border-radius:50%;
     background:#f2fdff; box-shadow: 0 0 5px 2px rgba(53,208,255,0.95); }
   .tq11laser::before{ left:7px; } .tq11laser::after{ right:7px; }
-  @keyframes tq11laser{ 0%, 25%{ opacity:0; transform: translateY(6px); } 27%{ opacity:1; transform: translateY(6px); }
-    38%{ transform: translateY(98px); } 47%{ opacity:1; transform: translateY(6px); } 51%, 100%{ opacity:0; transform: translateY(6px); } }
+  @keyframes tq11laser{ 0%, 23%{ opacity:0; transform: translateY(6px); } 25%, 34%{ opacity:0.55; transform: translateY(6px); } 35%{ opacity:1; transform: translateY(6px); }
+    43%{ transform: translateY(98px); } 50%{ opacity:1; transform: translateY(6px); } 51%, 100%{ opacity:0; transform: translateY(6px); } }
   .tq11grid{ position:absolute; inset:0; z-index:2; opacity:0; animation: tq11gridin 8s linear infinite;
     background-image: linear-gradient(rgba(120,225,255,0.26) 1px, transparent 1px), linear-gradient(90deg, rgba(120,225,255,0.26) 1px, transparent 1px);
     background-size: 9px 9px; }
-  @keyframes tq11gridin{ 0%, 26%{ opacity:0; } 30%, 46%{ opacity:0.55; } 50%, 100%{ opacity:0; } }
+  @keyframes tq11gridin{ 0%, 35%{ opacity:0; } 38%, 47%{ opacity:0.6; } 50%, 100%{ opacity:0; } }
   .tq11ok{ position:absolute; left:50%; top:50%; width:38px; height:38px; margin:-19px 0 0 -19px; border-radius:50%; z-index:4;
     display:flex; align-items:center; justify-content:center; background:#3ddc84; box-shadow: 0 0 0 4px rgba(61,220,132,0.18), 0 0 22px rgba(61,220,132,0.6);
     opacity:0; transform: scale(0.4); animation: tq11ok 8s cubic-bezier(.2,.9,.3,1.35) infinite; }
@@ -2441,7 +2463,8 @@
   /* 4.6.3 Analyzing Sheet scan: glass frame with viewfinder corners; a thin laser
      (white-hot center, glowing ends) glides down and back up, with a soft glow and a
      holographic grid only where it passes. Settings picked in the Snap Scan Lab:
-     3.2 s per pass, glow 1.4, grid 0.26 at 12 px, photo 0.8, no edge light, still corners. */
+     3.2 s per pass, glow 1.4, grid 0.26 at 12 px, photo 0.8, no edge light, still corners.
+     4.6.7 (Snap Steps Lab): beam 1.5 px, grid 0.32, corners breathe while scanning. */
   .snapframe{ --fh:226px; position:relative; flex:none; width:174px; height:var(--fh); margin:22px auto 22px; }
   .snapscan{ position:relative; width:100%; height:100%; border-radius:14px; overflow:hidden; border:1px solid rgba(53,208,255,0.22);
     background:#0b1321; box-shadow: 0 22px 44px rgba(0,0,0,0.5), 0 0 34px rgba(53,208,255,0.14), inset 0 0 0 1px rgba(255,255,255,0.05);
@@ -2453,7 +2476,7 @@
   @keyframes scany{ 0%{ transform: translateY(8px); } 50%{ transform: translateY(calc(var(--fh) - 8px)); } 100%{ transform: translateY(8px); } }
   @keyframes scangridfix{ 0%{ background-position: 0 calc(70px - 8px); } 50%{ background-position: 0 calc(70px - var(--fh) + 8px); } 100%{ background-position: 0 calc(70px - 8px); } }
   .scanlaser, .scanhalo, .scangrid{ animation-duration:3.2s; animation-iteration-count:infinite; animation-timing-function: cubic-bezier(.45,.05,.55,.95); }
-  .scanlaser{ position:absolute; left:-16px; right:-16px; top:0; height:2px; margin-top:-1px; z-index:7; pointer-events:none; border-radius:1px;
+  .scanlaser{ position:absolute; left:-16px; right:-16px; top:0; height:1.5px; margin-top:-0.75px; z-index:7; pointer-events:none; border-radius:1px;
     background: linear-gradient(90deg, rgba(53,208,255,0), rgba(53,208,255,0.55) 9%, #f2fdff 50%, rgba(53,208,255,0.55) 91%, rgba(53,208,255,0));
     box-shadow: 0 0 11px 1.4px rgba(53,208,255,0.85), 0 0 36px 7px rgba(53,208,255,0.28); animation-name: scany; }
   .scanlaser::before, .scanlaser::after{ content:''; position:absolute; top:50%; width:5px; height:5px; margin-top:-2.5px; border-radius:50%;
@@ -2462,7 +2485,7 @@
   .scanhalo{ position:absolute; left:0; right:0; top:-60px; height:120px; z-index:3; pointer-events:none; mix-blend-mode: screen;
     background: linear-gradient(180deg, rgba(53,208,255,0) 0%, rgba(53,208,255,0.10) 30%, rgba(140,232,255,0.30) 50%, rgba(53,208,255,0.10) 70%, rgba(53,208,255,0) 100%);
     animation-name: scany; }
-  .scangrid{ position:absolute; left:0; right:0; top:-70px; height:140px; z-index:2; pointer-events:none; opacity:0.26;
+  .scangrid{ position:absolute; left:0; right:0; top:-70px; height:140px; z-index:2; pointer-events:none; opacity:0.32;
     background-image: linear-gradient(rgba(120,225,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(120,225,255,1) 1px, transparent 1px);
     background-size: 12px 12px;
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 45%, #000 55%, transparent 100%);
@@ -2502,6 +2525,66 @@
   .snapstep .sdot svg{ width:12px; height:12px; display:none; }
   .snapstep.done .sdot svg{ display:block; }
   @keyframes snapspin{ to{ transform: rotate(360deg); } }
+  /* 4.6.7 (Snap Steps Lab): three steps. "Preparing Scan" shows a short dashed arrow
+     (dark, with cyan dashes flowing down) until the reader picks the sheet up, then it
+     turns into a green check like the other steps. */
+  .snapstep .sdot.arw{ border-color:transparent; position:relative; }
+  .snapstep .sdot.arw .arrow{ position:absolute; left:50%; top:50%; width:22px; height:30px; margin:-13px 0 0 -11px; overflow:visible; display:block; }
+  .snapstep .sdot.arw .arrow path{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .snapstep .sdot.arw .arrow .trk, .snapstep .sdot.arw .arrow .hd{ stroke:#02060d; stroke-width:3.4; }
+  .snapstep .sdot.arw .arrow .dsh{ stroke:var(--cyan); stroke-width:2; stroke-dasharray:3 3.2; opacity:0; filter: drop-shadow(0 0 3px rgba(53,208,255,0.85)); }
+  .snapstep .sdot.arw .arrow .hdc{ stroke:var(--cyan); stroke-width:2; opacity:0; filter: drop-shadow(0 0 3px rgba(53,208,255,0.85)); }
+  .snapstep .sdot.arw .ck{ position:absolute; inset:-1.5px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:#3ddc84; box-shadow:0 0 10px rgba(61,220,132,0.45); opacity:0; transform:scale(0.3); }
+  .snapstep .sdot.arw .ck svg{ display:block; width:12px; height:12px; }
+  .snapstep.wait{ color:#fff; }
+  .snapstep.wait .sdot.arw .arrow .dsh{ opacity:1; animation: snaparw .8s linear infinite; }
+  .snapstep.wait .sdot.arw .arrow .hdc{ opacity:1; animation: snaparwhd 1.6s ease-in-out infinite; }
+  @keyframes snaparw{ from{ stroke-dashoffset:6.2; } to{ stroke-dashoffset:0; } }
+  @keyframes snaparwhd{ 0%, 100%{ opacity:0.55; } 50%{ opacity:1; } }
+  .snapstep.done .sdot.arw{ background:none; box-shadow:none; border-color:transparent; }
+  .snapstep.done .sdot.arw .arrow{ opacity:0; transform:scale(0.6); transition: opacity .18s ease, transform .18s ease; }
+  .snapstep.done .sdot.arw .ck{ opacity:1; transform:scale(1); transition: opacity .2s ease .08s, transform .35s cubic-bezier(.2,.9,.3,1.5) .08s; }
+  .snapstep.wait .snapel{ display:inline; }
+  /* the laser waits, dim at the top, until the reader starts; then it powers on */
+  .snapframe.parked .scanlaser, .snapframe.parked .scanhalo, .snapframe.parked .scangrid{ animation:none; transform: translateY(8px); }
+  .snapframe.parked .scanlaser{ opacity:0.6; box-shadow: 0 0 4px 0.5px rgba(53,208,255,0.6); }
+  .snapframe.parked .scanlaser::before, .snapframe.parked .scanlaser::after{ opacity:0.4; }
+  .snapframe.parked .scanhalo, .snapframe.parked .scangrid{ opacity:0; }
+  .snapframe.parked .snapscan img{ filter: saturate(0.6) brightness(0.62) contrast(1.06); }
+  .snapframe.parked .sc{ opacity:0.5; }
+  .snapframe.poweron .scanlaser{ animation-name: scany, snappower; animation-duration: 3.2s, .7s; animation-iteration-count: infinite, 1; animation-timing-function: cubic-bezier(.45,.05,.55,.95), ease-out; }
+  @keyframes snappower{ 0%{ filter: brightness(1); } 25%{ filter: brightness(2.4) drop-shadow(0 0 10px rgba(140,232,255,1)); } 100%{ filter: brightness(1); } }
+  /* corners breathe in and out with the scan while it runs */
+  .snapframe:not(.parked):not(.got):not(.stopped) .sc{ animation: snapbreathe2 3.2s cubic-bezier(.45,.05,.55,.95) infinite; }
+  @keyframes snapbreathe2{ 0%, 100%{ transform: translate(0,0); opacity:0.7; } 50%{ transform: translate(var(--dx), var(--dy)); opacity:1; } }
+  /* progress bar with a spark head (5 px, glow 1.1, 260 px wide). Timed from when the
+     reader starts: about 86% at 1:30, then a slow creep; green at 100% when read. */
+  .snapbar{ position:relative; width:260px; max-width:100%; height:5px; margin:2px auto 16px; border-radius:99px;
+    background: rgba(147,174,200,0.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+  .snapbar[hidden]{ display:none; }
+  .snapbar > i{ position:absolute; left:0; top:0; bottom:0; width:0; border-radius:99px;
+    background: linear-gradient(90deg, rgba(53,208,255,0.5), var(--cyan) 75%, #bff1ff);
+    box-shadow: 0 0 11px rgba(53,208,255,0.77); transition: width 1s linear, background .3s ease, box-shadow .3s ease; }
+  .snapbar .head{ position:absolute; left:0; right:0; top:50%; height:0; pointer-events:none; }
+  .snapbar .core{ position:absolute; right:-4px; top:-4px; width:8px; height:8px; border-radius:50%; background:#fff; z-index:2;
+    box-shadow: 0 0 6.6px 2.2px rgba(140,232,255,0.95), 0 0 19.8px 5.5px rgba(53,208,255,0.5); animation: snapcore 1.3s ease-in-out infinite; }
+  @keyframes snapcore{ 0%, 100%{ transform:scale(1); } 50%{ transform:scale(1.15); } }
+  .snapbar .sp{ position:absolute; right:-2px; top:-2px; width:4px; height:4px; border-radius:50%; background:#fff; z-index:1;
+    box-shadow: 0 0 5px 2px rgba(120,225,255,1), 0 0 10px 3px rgba(53,208,255,0.55); opacity:0;
+    animation-duration:1.1s; animation-timing-function:ease-out; animation-iteration-count:infinite; }
+  .snapbar .sp.s1{ animation-name: snapsp1; } .snapbar .sp.s2{ animation-name: snapsp2; animation-delay:.22s; }
+  .snapbar .sp.s3{ animation-name: snapsp3; animation-delay:.44s; } .snapbar .sp.s4{ animation-name: snapsp4; animation-delay:.66s; }
+  .snapbar .sp.s5{ animation-name: snapsp5; animation-delay:.88s; }
+  @keyframes snapsp1{ 0%{ opacity:1; transform:translate(0,0) scale(1); } 100%{ opacity:0; transform:translate(-15px,-10px) scale(0.4); } }
+  @keyframes snapsp2{ 0%{ opacity:1; transform:translate(0,0) scale(1); } 100%{ opacity:0; transform:translate(-19px,7px) scale(0.4); } }
+  @keyframes snapsp3{ 0%{ opacity:1; transform:translate(0,0) scale(1); } 100%{ opacity:0; transform:translate(-10px,12px) scale(0.4); } }
+  @keyframes snapsp4{ 0%{ opacity:1; transform:translate(0,0) scale(1); } 100%{ opacity:0; transform:translate(-12px,-14px) scale(0.4); } }
+  @keyframes snapsp5{ 0%{ opacity:1; transform:translate(0,0) scale(1); } 100%{ opacity:0; transform:translate(-23px,-2px) scale(0.4); } }
+  .snapbar.full > i{ background:#3ddc84; box-shadow: 0 0 12px rgba(61,220,132,0.7); transition: width .35s ease-out, background .2s ease; }
+  .snapbar.full .head{ display:none; }
+  /* 4.6.7: short phones (SE, small Androids): a smaller photo frame so three steps + the bar still fit */
+  @media (max-height:700px){ .snapframe{ --fh:196px; width:151px; margin:16px auto 18px; } }
   #snapOverlay .snapstage > p.snapwait{ color: var(--muted); font-size:13px; font-weight:600; margin:0 auto 18px; }
   #snapCheck{ flex:1 1 auto; }
   #snapCheck .sheethead{ margin:2px 0 10px; }
@@ -2519,6 +2602,10 @@
     .scanlaser, .scanhalo, .scangrid{ animation:none; transform: translateY(calc(var(--fh) / 2)); }
     .snapstep.active .sdot{ animation:none; border-color: var(--cyan); }
     #snapOverlay .snapcard.morph{ transition:none; }
+    /* 4.6.7: still arrow, still corners, no power-on flash, no sparks */
+    .snapstep.wait .sdot.arw .arrow .dsh, .snapstep.wait .sdot.arw .arrow .hdc, .snapframe .sc, .snapbar .core{ animation:none; }
+    .snapframe.parked .scanlaser, .snapframe.poweron .scanlaser{ animation:none; transform: translateY(calc(var(--fh) / 2)); }
+    .snapbar .sp{ display:none; }
   }
 </style>
 </head>
@@ -2687,9 +2774,11 @@
       <div class="snapframe" id="snapFrame"><i class="sc tl"></i><i class="sc tr"></i><i class="sc bl"></i><i class="sc br"></i><div class="snapscan" id="snapScan"><img id="snapThumb" alt="Your sheet"><span class="scangrid"></span><span class="scanhalo"></span><span class="scanok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9" fill="none" stroke="#03131f" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><span class="scanlaser"></span></div>
       <h2 id="snapWorkTitle">Analyzing Sheet</h2>
       <div class="snapsteps" id="snapSteps">
-        <div class="snapstep" id="snapSt1"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sending photo</div>
-        <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Reading your picks<span class="snapel" id="snapEl"></span></div>
+        <div class="snapstep" id="snapSt1"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Uploading Photo</div>
+        <div class="snapstep" id="snapStP"><span class="sdot arw"><svg class="arrow" viewBox="0 0 22 30" aria-hidden="true"><path class="trk" d="M11 3V24"/><path class="dsh" d="M11 3V23"/><path class="hd" d="M6.5 19.5L11 24.5L15.5 19.5"/><path class="hdc" d="M6.5 19.5L11 24.5L15.5 19.5"/></svg><span class="ck"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>Preparing Scan<span class="snapel" id="snapElP"></span></div>
+        <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Digitizing Your Sheet<span class="snapel" id="snapEl"></span></div>
       </div>
+      <div class="snapbar" id="snapBar"><i><span class="head"><span class="core"></span><span class="sp s1"></span><span class="sp s2"></span><span class="sp s3"></span><span class="sp s4"></span><span class="sp s5"></span></span></i></div>
       <p class="snapwait" id="snapWait">Usually takes 1 to 2 minutes.</p>
       <div class="confirmrow"><button class="confirmcancel" type="button" id="snapCancel2">Cancel</button></div>
     </div>
@@ -2816,6 +2905,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.7</b> Snap: three clear steps (Uploading Photo, Preparing Scan, Digitizing Your Sheet), a progress bar, and if someone else’s sheet is being read first, you’ll see how many are ahead of yours.</div>
       <div class="cl"><b>4.6.6</b> Behind the scenes: sharper win chances on the admin phone.</div>
       <div class="cl"><b>4.6.4</b> Snap: the reading screen shows the real wait (1 to 2 minutes), and phones with Reduce Motion now see a still scan line instead of a blank photo.</div>
       <div class="cl"><b>4.6.3</b> New: Snap. Tap the camera button on Picks, take a photo of your paper sheet, and your picks are set to match it. You check the list before anything changes.</div>
@@ -3228,7 +3318,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.6';
+  const APP_VERSION = '4.6.7';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9429,10 +9519,10 @@
     if(!b.hidden) setTimeout(function(){ try{ snapResume(); }catch(e){} }, 0);   // 4.6.2 (4.6.3: also the Firebase check)
   }
 
-  // 4.6.2: the phone's note about the sheet in progress.
+  // 4.6.2: the phone's note about the sheet in progress. (4.6.7: + when the reader started)
   function snapSave(job){
     put(SNAP_JOB_KEY, { week: job.week, pid: job.pid, sentAt: job.sentAt || 0, games: job.games,
-      thumb: job.thumb || '', picks: job.picks || null, gotAt: job.gotAt || 0 });
+      thumb: job.thumb || '', picks: job.picks || null, gotAt: job.gotAt || 0, readAt: job.readAt || 0 });
   }
   function snapForget(){ put(SNAP_JOB_KEY, null); put(SNAP_END_KEY, Date.now()); }
   // A tiny copy of the photo (about 10-25 KB) so the scan picture comes back after a reload.
@@ -9469,7 +9559,7 @@
     if(!s.sentAt || !s.pid || s.pid !== pid || !Array.isArray(s.games) || age > SNAP_KEEP_MS || age < -60000){ drop(); return; }
     if(s.week !== currentWeek) return;               // looking at another week; try again later
     if(document.querySelector('.overlay.show')) return;   // something else is open; try again later
-    const job = { week: s.week, pid: s.pid, sentAt: s.sentAt, games: s.games, picks: null, done: false, timer: null, thumb: s.thumb || '' };
+    const job = { week: s.week, pid: s.pid, sentAt: s.sentAt, games: s.games, picks: null, done: false, timer: null, thumb: s.thumb || '', readAt: s.readAt || 0 };
     snapJob = job;
     snapReset();
     if(job.thumb) document.getElementById('snapThumb').src = job.thumb;
@@ -9480,7 +9570,7 @@
       openOverlay(snapOverlay);
       return;
     }
-    snapStep(1, 'done'); snapStep(2, '');
+    snapPhase(job.readAt ? 'read' : 'wait', true);
     snapShow('snapWork', true);
     openOverlay(snapOverlay);
     const left = job.sentAt + SNAP_WAIT_MS - now;
@@ -9513,7 +9603,8 @@
       const job = { week: currentWeek, pid: pid, sentAt: waiting ? q.t : a.t, games: snapGames(), picks: null, done: false, timer: null, thumb: '' };
       snapJob = job;
       snapReset();
-      snapStep(1, 'done'); snapStep(2, '');
+      if(waiting && q.status === 'reading') job.readAt = now;
+      snapPhase(job.readAt ? 'read' : 'wait', true);
       snapShow('snapWork', true);
       openOverlay(snapOverlay);
       snapSave(job);
@@ -9524,19 +9615,63 @@
       snapPoll(job);
     });
   }
-  // 4.6.3: the clock next to "Reading your picks", and the slow message after 2 minutes.
+  /* 4.6.3: the clock next to the step in progress, and the slow message.
+     4.6.7: also the progress bar, and the line under it says how many sheets are
+     ahead of yours (each adds about 1:30, and pushes the slow message back as much). */
+  const SNAP_EACH_MS = 90000;
+  function snapBarPct(job){
+    const now = Date.now();
+    if(job.picks) return 100;
+    if(job.readAt){
+      const t = Math.max(0, now - job.readAt) / 1000;
+      const f = 1 - Math.exp(-Math.pow(t / 50, 1.4));
+      return Math.min(98, 14 + 80 * f + Math.max(0, t - 150) / 60);
+    }
+    if(job.sentAt) return 8 + 6 * (1 - Math.exp(-Math.max(0, now - job.sentAt) / 5000));
+    return 8 * (1 - Math.exp(-Math.max(0, now - (job.upAt || now)) / 2000));
+  }
+  function snapWaitText(job){
+    const ahead = !job.readAt && job.sentAt ? (job.ahead || 0) : 0;
+    if(ahead){
+      const m = 1.5 * (ahead + 1);
+      const mins = m % 1 ? Math.floor(m) + ' to ' + Math.ceil(m) + ' minutes' : m + ' minutes';
+      return ahead + (ahead === 1 ? ' scan' : ' scans') + ' ahead of yours. About ' + mins + '.';
+    }
+    return 'Usually takes 1 to 2 minutes.';
+  }
   function snapTick(){
     const job = snapJob;
-    if(!job || !job.sentAt || job.picks || job.done) return;
+    if(!job || job.picks || job.done) return;
+    const bar = document.getElementById('snapBar');
+    if(bar){ bar.classList.remove('full'); bar.querySelector('i').style.width = snapBarPct(job).toFixed(1) + '%'; }
+    if(!job.sentAt) return;
     const sec = Math.max(0, Math.floor((Date.now() - job.sentAt) / 1000));
-    const el = document.getElementById('snapEl');
-    if(el) el.textContent = Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2);
-    if(sec * 1000 >= SNAP_SLOW_MS && !job.slow){
-      job.slow = true;
-      document.getElementById('snapWait').textContent = 'Taking longer than usual. You can close the app, and your picks will be here when you come back.';
-    }
+    const txt = Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2);
+    ['snapEl', 'snapElP'].forEach(function(id){ const el = document.getElementById(id); if(el) el.textContent = txt; });
+    if(sec * 1000 >= SNAP_SLOW_MS + (job.aheadMax || 0) * SNAP_EACH_MS) job.slow = true;
+    document.getElementById('snapWait').textContent = job.slow
+      ? 'Taking longer than usual. You can close the app, and your picks will be here when you come back.'
+      : snapWaitText(job);
   }
   setInterval(snapTick, 1000);
+  /* 4.6.7: one place that sets the three steps, the laser and the bar.
+     up = uploading · wait = waiting for the reader (arrow) · read = reader working · got = read */
+  function snapPhase(ph, now){
+    const S = { '': ['', '', ''], up: ['active', '', ''], wait: ['done', 'wait', ''], read: ['done', 'done', 'active'], got: ['done', 'done', 'done'] }[ph || ''];
+    snapStep(1, S[0]); snapStep('P', S[1]); snapStep(2, S[2]);
+    const fr = document.getElementById('snapFrame');
+    const was = fr.classList.contains('parked');
+    fr.classList.toggle('parked', ph === 'up' || ph === 'wait');
+    fr.classList.remove('poweron');
+    if(ph === 'read' && was && !now){ void fr.offsetWidth; fr.classList.add('poweron'); }
+    const bar = document.getElementById('snapBar');
+    bar.hidden = !ph;
+    bar.classList.toggle('full', ph === 'got');
+    const fill = bar.querySelector('i');
+    if(!ph){ fill.style.transition = 'none'; fill.style.width = '0'; void fill.offsetWidth; fill.style.transition = ''; }
+    if(ph === 'got') fill.style.width = '100%';
+    if(snapJob && ph !== 'got'){ if(now){ fill.style.transition = 'none'; fill.style.width = snapBarPct(snapJob).toFixed(1) + '%'; void fill.offsetWidth; fill.style.transition = ''; } snapTick(); }
+  }
   function snapUrl(part, pid){ return SNAP_DB + '/' + part + '/' + encodeURIComponent(pid) + '.json'; }
   function snapDel(pid){
     ['q', 'req', 'ans'].forEach(function(p){ fetch(snapUrl(p, pid), { method: 'DELETE' }).catch(function(){}); });
@@ -9590,12 +9725,13 @@
     document.getElementById('snapSteps').hidden = false;
     document.getElementById('snapWait').textContent = 'Usually takes 1 to 2 minutes.';
     document.getElementById('snapEl').textContent = '';
+    document.getElementById('snapElP').textContent = '';
     document.getElementById('snapCancel2').textContent = 'Cancel';
     document.getElementById('snapFrame').classList.remove('stopped', 'got');
     const th = document.getElementById('snapThumb');
     if(th.dataset.url){ try{ URL.revokeObjectURL(th.dataset.url); }catch(e){} delete th.dataset.url; }
     th.removeAttribute('src');
-    snapStep(1, ''); snapStep(2, '');
+    snapPhase('');
     document.getElementById('snapList').innerHTML = '';
     snapShow('snapPick', true);
   }
@@ -9663,6 +9799,7 @@
     snapJob = null;
     document.getElementById('snapWorkTitle').textContent = title || 'Couldn’t Read Sheet';
     document.getElementById('snapSteps').hidden = true;
+    document.getElementById('snapBar').hidden = true;
     document.getElementById('snapWait').textContent = msg;
     document.getElementById('snapCancel2').textContent = 'Close';
     document.getElementById('snapFrame').classList.add('stopped');
@@ -9670,12 +9807,12 @@
   function snapGotFile(file){
     if(!file || snapJob || !snapOverlay.classList.contains('show')) return;
     if(weekLocked){ snapClose(); return; }
-    const job = { week: currentWeek, pid: player().id, sentAt: 0, games: snapGames(), picks: null, done: false, timer: null };
+    const job = { week: currentWeek, pid: player().id, sentAt: 0, games: snapGames(), picks: null, done: false, timer: null, upAt: Date.now() };
     snapJob = job;
     snapSave(job);   // 4.6.3: saved before sending, so a close mid-send gets cleaned up
     const th = document.getElementById('snapThumb');
     try{ const u = URL.createObjectURL(file); th.dataset.url = u; th.src = u; }catch(e){}
-    snapStep(1, 'active'); snapStep(2, '');
+    snapPhase('up', true);
     snapShow('snapWork');
     const put1 = function(part, body){
       return fetch(snapUrl(part, job.pid), { method: 'PUT', body: JSON.stringify(body) })
@@ -9696,8 +9833,7 @@
       if(!ok || snapJob !== job) return;
       job.sentAt = Date.now();
       snapSave(job);
-      snapStep(1, 'done');
-      snapTick();
+      snapPhase('wait');
       job.timer = setTimeout(function(){ snapTimeout(job); }, SNAP_WAIT_MS);
       setTimeout(function(){ snapPoll(job); }, SNAP_POLL_MS);
     }).catch(function(){
@@ -9721,11 +9857,26 @@
     if(snapJob !== job || job.done || job.ending) return;
     if(Date.now() - job.sentAt > SNAP_WAIT_MS){ snapTimeout(job); return; }
     const get = function(part){ return fetch(snapUrl(part, job.pid), { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); };
-    Promise.all([get('ans'), get('q')]).then(function(res){
+    // 4.6.7: the whole queue (tiny), so we can count sheets ahead; falls back to just ours.
+    const getQ = fetch(SNAP_DB + '/q.json', { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('q'); return r.json(); })
+      .then(function(all){ return { all: all || {} }; })
+      .catch(function(){ return get('q').then(function(mine){ return { all: null, mine: mine }; }); });
+    Promise.all([get('ans'), getQ]).then(function(res){
       if(snapJob !== job || job.done || job.ending) return;
-      const a = res[0], q = res[1];
+      const a = res[0], Q = res[1];
       if(a && a.week === job.week && typeof a.picks === 'string'){ snapGot(job, a.picks); return; }
-      if(q && q.status === 'reading') snapStep(2, 'active');
+      const q = Q.all ? Q.all[job.pid] : Q.mine;
+      if(q && q.status === 'reading' && !job.readAt){ job.readAt = Date.now(); job.ahead = 0; snapSave(job); snapPhase('read'); }
+      else if(Q.all && q && !job.readAt && typeof q.t === 'number'){
+        const now = Date.now();
+        let n = 0;
+        Object.keys(Q.all).forEach(function(k){
+          const x = Q.all[k];
+          if(k !== job.pid && x && typeof x.t === 'number' && x.t < q.t && now - x.t < SNAP_WAIT_MS) n++;
+        });
+        job.ahead = n; job.aheadMax = Math.max(job.aheadMax || 0, n);
+        snapTick();
+      }
       setTimeout(function(){ snapPoll(job); }, SNAP_POLL_MS);
     });
   }
@@ -9760,7 +9911,7 @@
     job.picks = picks;
     job.gotAt = Date.now();
     snapSave(job);
-    snapStep(1, 'done'); snapStep(2, 'done');
+    snapPhase('got');
     document.getElementById('snapFrame').classList.add('got');   // 4.6.3: green frame + check
     setTimeout(function(){
       if(snapJob !== job || job.done) return;
@@ -10418,8 +10569,10 @@
           '<span class="tq11grid"></span></div><span class="tq11laser"></span>' +
           '<span class="tq11ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12.5l4 4 8-9" fill="none" stroke="#03131f" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>' +
           '<b>Analyzing Sheet</b>' +
-          '<div class="snapsteps"><div class="snapstep tq11s1">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Sending photo</div>' +
-          '<div class="snapstep tq11s2">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Reading your picks</div></div>' +
+          '<div class="snapsteps"><div class="snapstep tq11s1">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Uploading Photo</div>' +
+          '<div class="snapstep tq11sP"><span class="sdot arw"><svg class="arrow" viewBox="0 0 22 30" aria-hidden="true"><path class="trk" d="M11 3V24"/><path class="dsh" d="M11 3V23"/><path class="hd" d="M6.5 19.5L11 24.5L15.5 19.5"/><path class="hdc" d="M6.5 19.5L11 24.5L15.5 19.5"/></svg><span class="ck"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>Preparing Scan</div>' +
+          '<div class="snapstep tq11s2">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Digitizing Your Sheet</div></div>' +
+          '<span class="tq11bar"><i></i></span>' +
           '<p class="snapwait">Usually takes 1 to 2 minutes.</p></div>' +
         '<div class="tipnote tq11note low">Your picks now match your paper.</div>' +
         tipLabel('Tap the camera', 'top:52px;left:150px', 'up') },
