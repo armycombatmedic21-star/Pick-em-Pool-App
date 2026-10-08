@@ -2912,6 +2912,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.9</b> Snap reads messier handwriting: short and misspelled team names (Kansas, Minn, Cincinatti) are understood.</div>
       <div class="cl"><b>4.6.8</b> Snap reads more sheets: team nicknames and short forms are understood.</div>
       <div class="cl"><b>4.6.7</b> Snap: three clear steps (Uploading Photo, Preparing Scan, Digitizing Your Sheet), a progress bar, and if someone else’s sheet is being read first, you’ll see how many are ahead of yours.</div>
       <div class="cl"><b>4.6.6</b> Behind the scenes: sharper win chances on the admin phone.</div>
@@ -3326,7 +3327,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.8';
+  const APP_VERSION = '4.6.9';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9896,6 +9897,8 @@
      or without the leading "e"; team names in any case, nicknames and short forms
      (Indy, Colts, IND, Jax, Philly, NYJ, Niners...) when only one team on this
      sheet fits; a wrong id when the team itself points to exactly one game.
+     4.6.9: also short forms (Kansas, Minn), misspellings (Cincinatti) and slang /
+     old names (G-Men, Redskins) when only one team in the league fits.
      Still required: every team plays in this sheet's games, no game twice, at
      least 2 lines. The player checks the list before anything changes. */
   const SNAP_TEAM_ALIASES = {
@@ -9913,18 +9916,108 @@
     'Tennessee':['titans','ten'], 'Washington':['commanders','wsh','was','wash']
   };
   const SNAP_TEAM_SHARED = { 'la':['LA Chargers','LA Rams'], 'los angeles':['LA Chargers','LA Rams'], 'ny':['NY Giants','NY Jets'], 'new york':['NY Giants','NY Jets'] };
+  /* 4.6.9: slang and old names people write on paper. Short forms ("Kansas", "Minn",
+     "Tenn") and misspellings ("Cincinatti", "Pittsburg") are worked out by
+     snapTeamFind, so they don't need listing here. */
+  const SNAP_TEAM_EXTRA = {
+    'Arizona':['zona'], 'Baltimore':['bmore'], 'Chicago':['chitown'], 'Cincinnati':['cinn'], 'Dallas':['boys'],
+    'Houston':['htown'], 'Jacksonville':['jville'], 'LA Chargers':['san diego','sd'], 'LA Rams':['st louis','stl'],
+    'New Orleans':['nawlins'], 'NY Giants':['gmen'], 'San Francisco':['frisco'], 'Seattle':['hawks'],
+    'Washington':['dc','redskins','skins','football team','wft']
+  };
   function snapNorm(x){ return String(x == null ? '' : x).toLowerCase().replace(/[.'’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/^the /, ''); }
+  // 4.6.9: words of a name: a line number in front is dropped ("1 Houston") and
+  // spaced letters join up ("K C" -> "kc").
+  function snapWords(x){ return snapNorm(x).replace(/^\d{1,2} (?=[a-z])/, '').replace(/\b([a-z]) (?=[a-z]\b)/g, '$1').split(' ').filter(Boolean); }
+  // Names are compared with spaces squeezed out: "San Fran" = "sanfran", "B-more" = "bmore".
+  function snapKey(x){ return snapWords(x).join(''); }
+  function snapTeamNames(label){ return [label].concat(SNAP_TEAM_ALIASES[label] || [], SNAP_TEAM_EXTRA[label] || []); }
+  // Every name each NFL team goes by, plus any two of them together ("KC Chiefs",
+  // "Tampa Bay Bucs", "Philly Eagles"). Built once.
+  let snapLeague = null;
+  function snapLeagueMap(){
+    if(snapLeague) return snapLeague;
+    const map = {};
+    Object.keys(SNAP_TEAM_ALIASES).forEach(function(label){
+      const ns = snapTeamNames(label).map(snapKey).filter(Boolean);
+      const add = function(k){ (map[k] = map[k] || []).indexOf(label) < 0 && map[k].push(label); };
+      ns.forEach(function(a){ add(a); ns.forEach(function(b){ if(a !== b) add(a + b); }); });
+    });
+    return (snapLeague = map);
+  }
   // Every name this sheet's teams can go by -> the app's own team labels.
   function snapNameMap(job){
-    const map = {}, add = function(k, label){ k = snapNorm(k); if(!k) return; (map[k] = map[k] || []).indexOf(label) < 0 && map[k].push(label); };
+    const map = {}, add = function(k, label){ k = snapKey(k); if(!k) return; (map[k] = map[k] || []).indexOf(label) < 0 && map[k].push(label); };
     const onSheet = {};
     job.games.forEach(function(g){ onSheet[g.a] = g.aa || ''; onSheet[g.b] = g.ab || ''; });
+    const lg = snapLeagueMap();
+    Object.keys(lg).forEach(function(k){ lg[k].forEach(function(label){ if(label in onSheet) add(k, label); }); });
     Object.keys(onSheet).forEach(function(label){
-      add(label, label); if(onSheet[label]) add(onSheet[label], label);
-      (SNAP_TEAM_ALIASES[label] || []).forEach(function(al){ add(al, label); add(label + ' ' + al, label); });
+      add(label, label);
+      if(onSheet[label]){ add(onSheet[label], label); snapTeamNames(label).forEach(function(n){ add(onSheet[label] + ' ' + n, label); }); }
     });
     Object.keys(SNAP_TEAM_SHARED).forEach(function(k){ SNAP_TEAM_SHARED[k].forEach(function(label){ if(label in onSheet) add(k, label); }); });
     return map;
+  }
+  // Letters apart (swapped neighbours count as one); stops early past max.
+  function snapDist(a, b, max){
+    let pp = null, p = [];
+    for(let j = 0; j <= b.length; j++) p[j] = j;
+    for(let i = 1; i <= a.length; i++){
+      const c = [i]; let lo = i;
+      for(let j = 1; j <= b.length; j++){
+        let v = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if(pp && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) v = Math.min(v, pp[j - 2] + 1);
+        c[j] = v; if(v < lo) lo = v;
+      }
+      if(lo > max) return max + 1;
+      pp = p; p = c;
+    }
+    return p[b.length];
+  }
+  /* Which teams (whole league) a name could be: the start of a name ("Kansas",
+     "Minn", "Pitts"), or else a name 1 letter off (5+ letters) or 2 off (8+). */
+  function snapGuess(k, word){
+    const lg = snapLeagueMap(), keys = Object.keys(lg), found = {};
+    if(word && lg[k]) return lg[k].slice();
+    if(k.length >= (word ? 2 : 3)) keys.forEach(function(n){ if(n.length > k.length && n.indexOf(k) === 0) lg[n].forEach(function(l){ found[l] = 1; }); });
+    if(Object.keys(found).length) return Object.keys(found);
+    const max = k.length >= 8 ? 2 : (k.length >= 5 ? 1 : 0);
+    if(!max) return [];
+    let best = max + 1, labs = {};
+    keys.forEach(function(n){
+      if(Math.abs(n.length - k.length) > max) return;
+      const d = snapDist(k, n, max);
+      if(d < best){ best = d; labs = {}; }
+      if(d === best) lg[n].forEach(function(l){ labs[l] = 1; });
+    });
+    return best <= max ? Object.keys(labs) : [];
+  }
+  /* 4.6.9: the team a written name means. Exact names first. Otherwise a guess is
+     used only when exactly ONE team in the whole league fits: a short form, a
+     misspelling, or every word pointing at the same team ("Kansas Cheifs").
+     The team must still be in this sheet's games, so a wrong-week sheet is still
+     caught. Returns { label, guessed } or { err }. */
+  function snapTeamFind(names, said, onSheet){
+    const k = snapKey(said), q = '"' + said + '"';
+    if(!k) return { err: q + ' isn’t a team name.' };
+    const hits = names[k] || [];
+    if(hits.length === 1) return { label: hits[0] };
+    if(hits.length > 1) return { err: q + ' could be ' + hits.join(' or ') + '.' };
+    if(snapLeagueMap()[k]) return { err: q + ' doesn’t match any team playing this week.' };
+    let c = snapGuess(k, false);
+    const words = snapWords(said);
+    if(!c.length && words.length > 1){
+      for(let w = 0; w < words.length; w++){
+        const s = snapGuess(words[w], true);
+        c = w === 0 ? s : c.filter(function(l){ return s.indexOf(l) >= 0; });
+        if(!c.length) break;
+      }
+    }
+    if(!c.length) return { err: q + ' doesn’t match any team playing this week.' };
+    if(c.length > 1) return { err: q + ' could be ' + c.join(' or ') + '.' };
+    if(!onSheet[c[0]]) return { err: q + ' looks like ' + c[0] + ', who isn’t in this sheet’s games.' };
+    return { label: c[0], guessed: true };
   }
   // Returns { list } (sorted by points) or { err: 'plain words' }; { wrongWeek: true } for "wrong-week".
   function snapParse(job, raw){
@@ -9942,15 +10035,15 @@
     if(v.length < 2) return { err: 'Only one line came back.' };
     const names = snapNameMap(job), byId = {}, byTeam = {};
     job.games.forEach(function(g){ byId[g.id] = g; byTeam[g.a] = g; byTeam[g.b] = g; });
-    const out = [], seenG = {};
+    const out = [], seenG = {}, fixed = [];
     for(let i = 0; i < v.length; i++){
       const p = v[i], o = (p && typeof p === 'object') ? p : { city: p };
       const said = o.city != null ? o.city : (o.team != null ? o.team : (o.pick != null ? o.pick : o.name));
       const line = 'Line ' + (i + 1) + ': ';
-      const hits = names[snapNorm(said)] || [];
-      if(!hits.length) return { err: line + '"' + said + '" doesn’t match any team playing this week.' };
-      if(hits.length > 1) return { err: line + '"' + said + '" could be ' + hits.join(' or ') + '.' };
-      const city = hits[0];
+      const f = snapTeamFind(names, said, byTeam);
+      if(f.err) return { err: line + f.err };
+      const city = f.label;
+      if(f.guessed) fixed.push('"' + said + '" = ' + city);
       let id = o.id != null ? String(o.id) : '';
       if(id && !byId[id] && byId['e' + id]) id = 'e' + id;
       let g = byId[id];
@@ -9964,7 +10057,7 @@
     const ns = out.map(function(x){ return x.n; }).slice().sort(function(a, b){ return a - b; });
     const ok = ns.every(function(n, k){ return n === k + 1; });
     if(!ok) out.forEach(function(x, k){ x.n = k + 1; });
-    return { list: out.sort(function(a, b){ return a.n - b.n; }) };
+    return { list: out.sort(function(a, b){ return a.n - b.n; }), fixed: fixed };
   }
   function snapPicksOk(job, raw){ const r = snapParse(job, raw); return r.list || null; }
   // An answer for this sheet (week as a number or text; picks in any shape).
@@ -10076,6 +10169,7 @@
     clearTimeout(job.timer); clearTimeout(job.badTimer);
     snapDel(job.pid);
     if(job.bad) snapLog(job, 'A good answer came after a rejected one (used it)', r.list.length + ' picks', raw);
+    if(r.fixed && r.fixed.length) snapLog(job, 'Worked, names figured out', r.fixed.join('; '), raw);   // 4.6.9
     const picks = r.list;
     job.picks = picks;
     job.gotAt = Date.now();
