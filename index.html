@@ -2511,7 +2511,8 @@
   @media (prefers-reduced-motion: reduce){
     .snaphero, .snaphero::before, .snaphero::after, #snapCheck .sheetrow{ animation:none; }
     .snaphero::before, .snaphero::after{ display:none; }
-    .scanlaser, .scanhalo, .scangrid{ display:none; }
+    /* 4.6.4: a still scan line across the middle, so the screen doesn't look stuck */
+    .scanlaser, .scanhalo, .scangrid{ animation:none; transform: translateY(calc(var(--fh) / 2)); }
     .snapstep.active .sdot{ animation:none; border-color: var(--cyan); }
     #snapOverlay .snapcard.morph{ transition:none; }
   }
@@ -2685,7 +2686,7 @@
         <div class="snapstep" id="snapSt1"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sending photo</div>
         <div class="snapstep" id="snapSt2"><span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Reading your picks<span class="snapel" id="snapEl"></span></div>
       </div>
-      <p class="snapwait" id="snapWait">Usually takes about a minute.</p>
+      <p class="snapwait" id="snapWait">Usually takes 1 to 2 minutes.</p>
       <div class="confirmrow"><button class="confirmcancel" type="button" id="snapCancel2">Cancel</button></div>
     </div>
     <div class="snapstage" id="snapCheck" hidden>
@@ -2811,6 +2812,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.4</b> Snap: the reading screen shows the real wait (1 to 2 minutes), and phones with Reduce Motion now see a still scan line instead of a blank photo.</div>
       <div class="cl"><b>4.6.3</b> New: Snap. Tap the camera button on Picks, take a photo of your paper sheet, and your picks are set to match it. You check the list before anything changes.</div>
       <div class="cl"><b>4.6.2</b> More work on the feature being tested. Nothing changes for you yet.</div>
       <div class="cl"><b>4.6.1</b> More work on the feature being tested. Nothing changes for you yet.</div>
@@ -3221,7 +3223,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.3';
+  const APP_VERSION = '4.6.4';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9377,13 +9379,13 @@
      to Analyzing Sheet (or Check Your Picks). An answer that came in while the
      app was closed is still shown up to 15 minutes after sending.
      4.6.3: on for everyone (the Snap Test row is gone), current week only,
-     hidden while the Edge Engine is on. Waits up to 15 minutes (after 2 it says
+     hidden while the Edge Engine is on. Waits up to 15 minutes (after 3 it says
      it's slow and that closing the app is fine). The note is saved the moment a
      photo is picked, and on open the app also asks Firebase once whether a sheet
      is waiting or answered, in case the phone lost its note. */
   const SNAP_DB = DB_URL + '/snap';
   const SNAP_WAIT_MS = 900000;   // 4.6.3: 15 minutes (Muse reads a sheet in about a minute)
-  const SNAP_SLOW_MS = 120000;   // 4.6.3: after 2 minutes, say it's slow and that closing is fine
+  const SNAP_SLOW_MS = 180000;   // 4.6.4: after 3 minutes (a normal read is 1 to 2), say it's slow and that closing is fine
   const SNAP_POLL_MS = 2000;
   const SNAP_JOB_KEY = 'pickem-snap-job';   // 4.6.2
   const SNAP_KEEP_MS = 1800000;             // 4.6.3: 30 minutes (the wait is 15)
@@ -9564,7 +9566,7 @@
     document.getElementById('snapLibIn').value = '';
     document.getElementById('snapWorkTitle').textContent = 'Analyzing Sheet';
     document.getElementById('snapSteps').hidden = false;
-    document.getElementById('snapWait').textContent = 'Usually takes about a minute.';
+    document.getElementById('snapWait').textContent = 'Usually takes 1 to 2 minutes.';
     document.getElementById('snapEl').textContent = '';
     document.getElementById('snapCancel2').textContent = 'Cancel';
     document.getElementById('snapFrame').classList.remove('stopped', 'got');
@@ -10396,7 +10398,7 @@
           '<b>Analyzing Sheet</b>' +
           '<div class="snapsteps"><div class="snapstep tq11s1">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Sending photo</div>' +
           '<div class="snapstep tq11s2">' + '<span class="sdot"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5" stroke="#03131f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' + 'Reading your picks</div></div>' +
-          '<p class="snapwait">Usually takes about a minute.</p></div>' +
+          '<p class="snapwait">Usually takes 1 to 2 minutes.</p></div>' +
         '<div class="tipnote tq11note low">Your picks now match your paper.</div>' +
         tipLabel('Tap the camera', 'top:52px;left:150px', 'up') },
 
