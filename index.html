@@ -503,7 +503,11 @@
   .winpill .wv{ transition: color .6s ease, text-shadow .6s ease; }
   .winpill.flash .wv{ color: var(--cyan); text-shadow:0 0 10px rgba(53,208,255,0.6); transition:none; }
   .tiprow:has(.winpill:not([hidden])) .edgebtn{ margin-left:0; min-width:140px; }
-  @media (max-width:370px){ .winpill .wl{ display:none; } .tiprow .edgebtn{ min-width:0 !important; } }
+  /* 4.6.5: the one-decimal number (e.g. 12.3%) is wider, so the WIN label drops below 421 px wide
+     (it used to drop below 371), and the ring too below 381, so the row never runs off the screen. */
+  @media (max-width:420px){ .winpill .wl{ display:none; } }
+  @media (max-width:380px){ .winpill svg{ display:none; } }
+  @media (max-width:370px){ .tiprow .edgebtn{ min-width:0 !important; } }
   .edgebtn::before{ content:''; position:absolute; top:-8px; bottom:-8px; left:-4px; right:-4px; }
   .edgebtn .edgefill{ position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg, rgba(53,208,255,0.28), rgba(53,208,255,0.5)); pointer-events:none; }
   .edgebtn .edgelbl{ position:relative; display:flex; align-items:center; gap:7px; width:100%; }
@@ -2812,6 +2816,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.6</b> Behind the scenes: sharper win chances on the admin phone.</div>
       <div class="cl"><b>4.6.4</b> Snap: the reading screen shows the real wait (1 to 2 minutes), and phones with Reduce Motion now see a still scan line instead of a blank photo.</div>
       <div class="cl"><b>4.6.3</b> New: Snap. Tap the camera button on Picks, take a photo of your paper sheet, and your picks are set to match it. You check the list before anything changes.</div>
       <div class="cl"><b>4.6.2</b> More work on the feature being tested. Nothing changes for you yet.</div>
@@ -3223,7 +3228,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.4';
+  const APP_VERSION = '4.6.6';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -6829,6 +6834,10 @@
      ESPN's live win chance, the rest the moneyline (or the spread). Display
      only: nothing is saved or sent. While rooting, it's their sheet. */
   const POOL_SIZE = 25, SIM_RUNS = 2000;
+  // 4.6.5: with the Edge Engine on (this phone only), Analysis plays the week 20,000 times so the one-decimal Win % holds still.
+  const SIM_RUNS_EDGE = 20000;
+  // 4.6.6: only while this sheet is still open; once locked it's back to 2,000 and whole numbers like everyone else.
+  function anBig(){ return edgeOn() && !weekLocked; }
   function anLockTime(week){
     const v = getLocal(LOCKAT_KEY) || {};
     return typeof v['w' + week] === 'number' ? v['w' + week] : 0;
@@ -6962,8 +6971,16 @@
   function anCompute(q, force){
     const key = anKey(q);
     if(!force && anShared && anShared.key === key && Date.now() - anShared.t < AN_EVERY) return anShared.M;
+    /* 4.6.5: with the Edge Engine on, 20,000 runs take a moment, so redo them only when
+       something that feeds them changed (same inputs always give the same answer). */
+    let inSig = '';
+    if(anBig()){
+      try{ inSig = anPoolSig() + '#' + edgeSig() + '#' + games.map(function(g){ const f = anFinal(g);
+        return g.id + (g.removed ? 'r' : '') + ':' + (f || (Math.round(anChanceA(g) * 10000))); }).join(','); }catch(e){ inSig = ''; }
+      if(inSig && anShared && anShared.key === key && anShared.inSig === inSig){ anShared.t = Date.now(); return anShared.M; }
+    }
     const M = anSimulate(q);
-    anShared = { key: key, M: M, t: Date.now() };
+    anShared = { key: key, M: M, t: Date.now(), inSig: inSig };
     return M;
   }
   // Work it out just after the paint, so it never holds the screen up.
@@ -7018,10 +7035,15 @@
     }, 5000);
   }
   setInterval(anTick, AN_EVERY);
-  function anPctText(ch){ const c = Math.round(ch * 100); return c < 1 ? '<1%' : (c > 99 ? '>99%' : c + '%'); }
+  function anPctText(ch){
+    // 4.6.5: one decimal with the Edge Engine on (20,000 runs back it up); whole numbers for everyone else.
+    if(anBig()){ const d = Math.round(ch * 1000) / 10; return d < 0.1 ? '<0.1%' : (d > 99.9 ? '>99.9%' : d.toFixed(1) + '%'); }
+    const c = Math.round(ch * 100); return c < 1 ? '<1%' : (c > 99 ? '>99%' : c + '%');
+  }
   function anRng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function anSimulate(q){
+    const RUNS = anBig() ? SIM_RUNS_EDGE : SIM_RUNS;
     const G = games.slice(), n = G.length, idx = {};
     G.forEach(function(g, i){ idx[g.id] = i; });
     const fixed = G.map(function(g){ return anFinal(g); });
@@ -7048,7 +7070,7 @@
     let vWins = 0;
     const score = function(a, fin){ let t = 0; for(let i = 0; i < n; i++){ if(!a.pts[i]) continue;
         const w = fin ? (fixed[i] ? res[i] : 0) : res[i]; if(w === 3 || (w && w === a.side[i])) t += a.pts[i]; } return t; };
-    for(let k = 0; k < SIM_RUNS; k++){
+    for(let k = 0; k < RUNS; k++){
       for(let i = 0; i < n; i++){ const f = fixed[i];
         res[i] = f ? (f === 'tie' ? 3 : (f === G[i].cityA ? 1 : 2)) : (r() < pA[i] ? 1 : 2); }
       let best = -1, bestNow = -1, others = -1, mine = 0;
@@ -7069,10 +7091,10 @@
       if(mine > others) vWins += 1; else if(mine === others) vWins += 0.5;
     }
     wins.sort(function(a, b){ return a - b; }); nowTop.sort(function(a, b){ return a - b; });
-    const med = wins[SIM_RUNS >> 1];
-    return { win: med, lo: wins[Math.floor(SIM_RUNS * 0.1)], hi: wins[Math.floor(SIM_RUNS * 0.9)], now: nowTop[SIM_RUNS >> 1],
-      chance: viewedIdx >= 0 ? vWins / SIM_RUNS : 0,
-      w5: wins.filter(function(x){ return Math.abs(x - med) <= 5; }).length / SIM_RUNS };
+    const med = wins[RUNS >> 1];
+    return { win: med, lo: wins[Math.floor(RUNS * 0.1)], hi: wins[Math.floor(RUNS * 0.9)], now: nowTop[RUNS >> 1],
+      chance: viewedIdx >= 0 ? vWins / RUNS : 0,
+      w5: wins.filter(function(x){ return Math.abs(x - med) <= 5; }).length / RUNS };
   }
   const anOverlay = document.getElementById('anOverlay');
   const AN_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
@@ -8873,7 +8895,7 @@
 
   /* ---------- 4.3.0: Edge Engine (this phone only, in the Admin Panel) ----------
      Builds the sheet with the best chance of finishing FIRST in the pool,
-     not the most expected points. Plays the week out 4,000 times against
+     not the most expected points. Plays the week out 20,000 times against
      every locked sheet in the app plus typical players up to POOL_SIZE
      (same typical-player model as Analysis), starting from chalk (every
      favorite, ranked by win chance), then keeps any single change (flip a
@@ -8881,7 +8903,7 @@
      does. Game chances: moneyline, else spread. Display + this phone's
      sheet only; nothing new is sent anywhere. */
   const EDGE_KEY = 'pickem-edge';
-  const EDGE_RUNS = 4000;
+  const EDGE_RUNS = 20000;   // 4.6.5: was 4,000; fewer near-ties decided by luck
   let edgeApplied = null;   // { week, sig, snap: { frozen, games } } while "Edge Applied" shows
   let edgeBusy = false;
   const EDGE_BOLT = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7 .8 2.2 7h3.2l-.8 4.2L9.8 4.8H6.5z" fill="#03131f"/></svg>';
