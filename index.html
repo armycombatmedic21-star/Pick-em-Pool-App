@@ -2912,6 +2912,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.10</b> Snap understands even messier handwriting.</div>
       <div class="cl"><b>4.6.9</b> Snap reads messier handwriting: short and misspelled team names (Kansas, Minn, Cincinatti) are understood.</div>
       <div class="cl"><b>4.6.8</b> Snap reads more sheets: team nicknames and short forms are understood.</div>
       <div class="cl"><b>4.6.7</b> Snap: three clear steps (Uploading Photo, Preparing Scan, Digitizing Your Sheet), a progress bar, and if someone else’s sheet is being read first, you’ll see how many are ahead of yours.</div>
@@ -3327,7 +3328,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.9';
+  const APP_VERSION = '4.6.10';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9976,18 +9977,20 @@
     return p[b.length];
   }
   /* Which teams (whole league) a name could be: the start of a name ("Kansas",
-     "Minn", "Pitts"), or else a name 1 letter off (5+ letters) or 2 off (8+). */
+     "Minn", "Pitts"), or else a name 1 letter off (5 letters) or 2 off (6+;
+     4.6.10, was 8+). A guess equally close to two teams is never used. */
   function snapGuess(k, word){
     const lg = snapLeagueMap(), keys = Object.keys(lg), found = {};
     if(word && lg[k]) return lg[k].slice();
     if(k.length >= (word ? 2 : 3)) keys.forEach(function(n){ if(n.length > k.length && n.indexOf(k) === 0) lg[n].forEach(function(l){ found[l] = 1; }); });
     if(Object.keys(found).length) return Object.keys(found);
-    const max = k.length >= 8 ? 2 : (k.length >= 5 ? 1 : 0);
+    const max = k.length >= 6 ? 2 : (k.length >= 5 ? 1 : 0);
     if(!max) return [];
     let best = max + 1, labs = {};
     keys.forEach(function(n){
       if(Math.abs(n.length - k.length) > max) return;
-      const d = snapDist(k, n, max);
+      let d = snapDist(k, n, max);
+      if(d === 2 && k.length < 8 && n[0] !== k[0]) d = 3;   // 4.6.10: 2 off on a short name only if it starts the same ("Points" isn't Saints)
       if(d < best){ best = d; labs = {}; }
       if(d === best) lg[n].forEach(function(l){ labs[l] = 1; });
     });
@@ -10030,6 +10033,10 @@
       }else if(v && typeof v === 'object' && v.picks != null) v = v.picks;
       else break;
     }
+    // 4.6.10: the reader can say why it couldn't read the sheet: {"cant":"reason"}.
+    // Handled like [] (wait for a better answer, then fail); the reason is logged.
+    if(v && typeof v === 'object' && !Array.isArray(v) && (v.cant != null || v.reason != null))
+      return { err: 'The reader couldn’t read it: ' + String(v.cant != null ? v.cant : v.reason).slice(0, 300) };
     if(!Array.isArray(v)) return { err: 'The answer isn’t a list.' };
     if(!v.length) return { err: 'Empty answer ([]): the reader said it couldn’t read the sheet.' };
     if(v.length < 2) return { err: 'Only one line came back.' };
