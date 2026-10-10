@@ -2457,6 +2457,22 @@
   #snapOverlay h2{ text-align:center; margin:0 0 8px; }
   #snapOverlay .snapstage > p{ text-align:center; margin:0 auto 6px; max-width:320px; }
   #snapOverlay .snapstage > p.snapnote{ color: var(--muted); font-size:13px; font-weight:600; margin-bottom:20px; }
+  /* 4.6.11: Snap offline (Muse's last-seen stamp is old) */
+  .snaphero .offsl{ display:none; }
+  #snapPick.off .snaphero .offsl{ display:inline; }
+  #snapPick.off .snaphero{ color:var(--muted); border-color:rgba(147,174,200,0.45);
+    background: radial-gradient(circle at 50% 38%, rgba(147,174,200,0.16), rgba(147,174,200,0.04) 70%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); animation:none; }
+  #snapPick.off .snaphero::before, #snapPick.off .snaphero::after{ display:none; }
+  #snapPick.off .snaphero svg{ filter:none; }
+  #snapPick.off > p{ display:none; }
+  .snapoff{ margin:2px auto 20px; max-width:300px; padding:12px 16px; border-radius:14px; text-align:center;
+    border:1px solid rgba(255,59,78,0.42); background: rgba(255,59,78,0.07); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+  .snapoff[hidden]{ display:none; }
+  .snapoff b{ display:flex; align-items:center; justify-content:center; gap:8px; color:var(--red); font-size:15px; font-weight:800; }
+  .snapoff b::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 8px rgba(255,59,78,0.7); }
+  .snapoff span{ display:block; margin-top:5px; color:var(--muted); font-size:13px; font-weight:600; line-height:1.35; }
+  #snapPick.off .snapgo{ opacity:0.4; pointer-events:none; filter:grayscale(1); }
   .confirmyes.snapgo{ display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .confirmyes.snapgo svg{ width:20px; height:20px; color: var(--cyan); }
   .snapfile{ position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
@@ -2758,10 +2774,11 @@
 <div class="overlay" id="snapOverlay">
   <div class="confirmcard snapcard" role="dialog" aria-label="Snap your sheet">
     <div class="snapstage" id="snapPick">
-      <div class="snaphero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h2.2l1.6-2.4h6.4L16.8 7H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.8" r="3.4"/></svg></div>
+      <div class="snaphero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h2.2l1.6-2.4h6.4L16.8 7H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.8" r="3.4"/><path class="offsl" d="M3.5 3.5l17 17"/></svg></div>
       <h2>Snap Your Sheet</h2>
       <p>Take a picture of your paper pool sheet, or upload one. Your picks get set to match it.</p>
       <p class="snapnote">You’ll check the list before anything changes.</p>
+      <div class="snapoff" id="snapOff" role="status" hidden><b>Snap is offline right now.</b><span>Set your picks by hand or try again later.</span></div>
       <div class="confirmrow">
         <label class="confirmyes snapgo" for="snapCamIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5A1.5 1.5 0 0 1 5 7h2.2l1.6-2.4h6.4L16.8 7H19a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z"/><circle cx="12" cy="12.8" r="3.4"/></svg>Open Camera</label>
         <label class="confirmyes snapgo" for="snapLibIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5l-4.8-4.8L6 19.5"/></svg>Upload Photo</label>
@@ -2912,6 +2929,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.6.11</b> Snap tells you right away when it’s offline. Everyone tied for first gets the gold bar.</div>
       <div class="cl"><b>4.6.10</b> Snap understands even messier handwriting.</div>
       <div class="cl"><b>4.6.9</b> Snap reads messier handwriting: short and misspelled team names (Kansas, Minn, Cincinatti) are understood.</div>
       <div class="cl"><b>4.6.8</b> Snap reads more sheets: team nicknames and short forms are understood.</div>
@@ -3328,7 +3346,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.10';
+  const APP_VERSION = '4.6.11';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -8413,7 +8431,9 @@
          see at a glance that your sheet is open, but it isn't pressable and
          doesn't get the press styling that would imply it is. */
       const tappable = !!r.share && !isMe;
-      const lead = outright && i === 0 && r.points === top;
+      // 4.6.11: everyone tied at the top gets the gold bar (once there are points).
+      // The new-leader pulse still uses leadId, which is outright-only.
+      const lead = top > 0 && r.points === top;
       return '<div class="lbrow' + (isHi ? ' me' : '') +
              (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
@@ -9744,12 +9764,65 @@
     th.removeAttribute('src');
     snapPhase('');
     document.getElementById('snapList').innerHTML = '';
+    snapHbStop();
     snapShow('snapPick', true);
   }
   function snapOpen(){
     if(weekLocked || snapJob) return;
     snapReset();
     openOverlay(snapOverlay);
+    snapHbCheck();
+  }
+  /* 4.6.11: Muse's watcher stamps snap/hb with Firebase's own clock about once
+     a minute. Stamp more than 3 minutes old = Snap is offline: say so and gray
+     out Open Camera / Upload Photo. Anything unclear (no stamp, no signal, an
+     odd answer) = no warning, so this can never block a working Snap. Checks
+     again every 30 s while the first Snap screen is open, so the buttons come
+     back on their own when Muse does. Snaps already under way are never touched. */
+  var SNAP_HB_STALE_MS = 180000;   // var: safe even if reached before this line runs
+  var SNAP_HB_EVERY_MS = 30000;
+  var snapHbTimer = 0, snapHbSeq = 0;
+  function snapOffline(on){
+    on = !!on;
+    document.getElementById('snapPick').classList.toggle('off', on);
+    document.getElementById('snapOff').hidden = !on;
+    document.getElementById('snapCamIn').disabled = on;
+    document.getElementById('snapLibIn').disabled = on;
+    document.getElementById('snapCancel1').textContent = on ? 'Close' : 'Cancel';
+  }
+  function snapHbStop(){
+    snapHbSeq++;
+    clearTimeout(snapHbTimer); snapHbTimer = 0;
+    snapOffline(false);
+  }
+  function snapHbOpen(){
+    return snapOverlay.classList.contains('show') && !document.getElementById('snapPick').hidden && !snapJob;
+  }
+  function snapHbCheck(){
+    clearTimeout(snapHbTimer); snapHbTimer = 0;
+    if(!snapHbOpen() || typeof fetch !== 'function'){ snapOffline(false); return; }
+    const seq = ++snapHbSeq;
+    const next = function(){
+      if(seq === snapHbSeq && snapHbOpen()) snapHbTimer = setTimeout(snapHbCheck, SNAP_HB_EVERY_MS);
+    };
+    let ctl = null;
+    try{ ctl = new AbortController(); }catch(e){}
+    const kill = ctl ? setTimeout(function(){ try{ ctl.abort(); }catch(e){} }, 8000) : 0;
+    fetch(DB_URL + '/snap/hb.json', ctl ? { cache: 'no-store', signal: ctl.signal } : { cache: 'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(t){
+        clearTimeout(kill);
+        if(seq !== snapHbSeq) return;
+        const old = typeof t === 'number' && isFinite(t) && (Date.now() + serverSkew - t) > SNAP_HB_STALE_MS;
+        snapOffline(old && snapHbOpen());
+        next();
+      })
+      .catch(function(){
+        clearTimeout(kill);
+        if(seq !== snapHbSeq) return;
+        snapOffline(false);
+        next();
+      });
   }
   // Any way the sheet closes (Cancel, tap outside, swipe, Back) ends the job.
   function snapAbort(){
