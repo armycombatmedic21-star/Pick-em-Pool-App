@@ -270,7 +270,23 @@
   .lkreq .lkchev{ flex:none; color: var(--cyan); font-size:22px; font-weight:700; line-height:1; }
   /* unlock request: sent */
   .reqdone{ text-align:center; }
-  .reqdone[hidden], #reqAsk[hidden]{ display:none; }
+  .reqdone[hidden], #reqAsk[hidden], #reqConfirm[hidden]{ display:none; }
+  /* 4.7.0 unlock request: bright Close on top, then a second "Send unlock request?" card.
+     Yes is on top there on purpose: a double tap on Request lands on No. */
+  .btnsafe{ height:54px; border:0; border-radius:14px; background: linear-gradient(180deg, #5fdcff, #2fc4f3); color:#03131f; font-size:16.5px; font-weight:800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 8px 22px rgba(53,208,255,0.28); display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btnsafe svg{ width:18px; height:18px; }
+  .btnout{ height:48px; border:1px solid rgba(147,174,200,0.28); border-radius:14px; background: rgba(255,255,255,0.03); color:#c9d6e3; font-size:15px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:7px; }
+  .btnout svg{ width:15px; height:15px; color:#93aec8; }
+  .btngold{ height:52px; border:1px solid rgba(244,196,61,0.6); border-radius:14px; background: linear-gradient(180deg, #3a2f12, #1e180a); color:#ffe6a3; font-size:16px; font-weight:800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 14px rgba(244,196,61,0.14); }
+  .cicon.gold{ background: rgba(244,196,61,0.12); border-color: rgba(244,196,61,0.35); color:#f4c43d; }
+  .step2note{ display:flex; gap:10px; align-items:flex-start; margin:-4px 0 18px; padding:11px 12px; border-radius:12px; background: rgba(255,255,255,0.03);
+    border:1px solid rgba(147,174,200,0.16); color:#b9cadb; font-size:13.5px; font-weight:600; line-height:1.4; }
+  .step2note svg{ flex:none; width:16px; height:16px; color:#93aec8; margin-top:1px; }
+  /* a card that just appeared ignores taps for a moment (stops double taps) */
+  #lockedAskOverlay .confirmcard.tapwait button{ pointer-events:none; }
   .reqok{ width:58px; height:58px; margin:2px auto 14px; border-radius:50%; background: rgba(61,220,132,0.14); border:1px solid rgba(61,220,132,0.55);
     display:flex; align-items:center; justify-content:center; color: var(--green); box-shadow: 0 0 18px rgba(61,220,132,0.25); }
   .reqok svg{ width:28px; height:28px; }
@@ -305,26 +321,6 @@
     background: linear-gradient(180deg, #13354f 0%, #0b2135 100%); color:#e6f7ff; letter-spacing:0.2px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 12px rgba(53,208,255,0.16); }
 
-  /* Open Sheets + Pool Chat: dark glass tiles, icon in a small cyan tile */
-  body.glass .liveactions{ gap:10px; }
-  body.glass .sharebtn, body.glass .chatbtn{ position:relative; height:48px; gap:10px; border-radius:15px;
-    border:1px solid rgba(255,255,255,0.09); color:#e9f2fb; font-size:14px; letter-spacing:0.2px;
-    background: linear-gradient(180deg, rgba(22,38,62,0.96), rgba(10,18,31,0.98));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 10px 22px rgba(0,0,0,0.35);
-    transition: transform .12s ease, border-color .3s ease, box-shadow .3s ease; -webkit-tap-highlight-color:transparent; }
-  body.glass .sharebtn:active, body.glass .chatbtn:active{ transform: scale(0.97); }
-  body.glass .sharebtn svg, body.glass .chatbtn svg{ box-sizing:content-box; width:14px; height:14px; padding:6px; border-radius:9px;
-    color: var(--cyan); background: rgba(53,208,255,0.12); border:1px solid rgba(53,208,255,0.3); }
-  body.glass .sharebtn.on{ border-color: rgba(53,208,255,0.5);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 10px 22px rgba(0,0,0,0.35), 0 0 16px rgba(53,208,255,0.16); }
-  body.glass .sharebtn.on svg{ background: var(--cyan); color:#03131f; border-color: var(--cyan); box-shadow: 0 0 10px rgba(53,208,255,0.55); }
-  body.glass .sharebtn.on::before, body.glass .chatbtn.unread::before{ content:''; position:absolute; top:0; left:16px; right:16px; height:1px;
-    background: linear-gradient(90deg, transparent, rgba(53,208,255,0.85), transparent); }
-  body.glass .chatbtn.unread{ border-color: rgba(53,208,255,0.42); }
-  body.glass .chatbadge{ min-width:20px; height:20px; padding:0 6px; border-radius:10px; font-size:11px; letter-spacing:0;
-    background: linear-gradient(180deg, #7ae6ff, #35d0ff); color:#03131f; box-shadow: 0 0 10px rgba(53,208,255,0.6); animation: chatbadge 2.2s ease-out infinite; }
-  @keyframes chatbadge{ 0%{ box-shadow: 0 0 10px rgba(53,208,255,0.6), 0 0 0 0 rgba(53,208,255,0.55); } 70%,100%{ box-shadow: 0 0 10px rgba(53,208,255,0.6), 0 0 0 6px rgba(53,208,255,0); } }
-  @media (prefers-reduced-motion: reduce){ body.glass .chatbadge{ animation:none; } }
 
   /* Leaderboard: same size, rows and behavior. No left-edge marks (they clash with the online dot). */
   body.glass .lbcard{ position:relative; border-radius:18px; padding:13px 10px 9px 7px;
@@ -336,7 +332,10 @@
   body.glass .lbmode{ height:20px; padding:0 9px; border-radius:10px; font-size:9.5px; letter-spacing:0.4px;
     border:1px solid rgba(53,208,255,0.45); background: linear-gradient(180deg, #13354f, #0b2135); color:#dff6ff; box-shadow: 0 0 8px rgba(53,208,255,0.15); }
   body.glass .lbcard.adv .lbmode{ border-color: rgba(53,208,255,0.8); box-shadow: 0 0 10px rgba(53,208,255,0.3); }
-  body.glass .lbcount{ font-size:9.5px; color:#6f8399; }
+  /* Sheets pill keeps the look from the approved mockup in Basic and Advanced */
+  body.glass .lbsheets, body.glass .lbcard.adv .lbsheets{ border-color: rgba(53,208,255,0.8); box-shadow: 0 0 10px rgba(53,208,255,0.3); }
+  .lbcard.adv .lbsheets{ background: rgba(53,208,255,0.08); }
+  body.glass .lbcard.adv .lbsheets{ background: linear-gradient(180deg, #13354f, #0b2135); }
   body.glass .lbtitle{ font-size:9.5px; letter-spacing:1.9px; color:#8fa3b9; }
   body.glass .lbwinh, body.glass .lbptsh{ font-size:8.5px; letter-spacing:1px; color:#6f8399; }
   body.glass .lbrow{ border-radius:9px; font-size:13px; }
@@ -735,28 +734,58 @@
   .tabpanel[hidden]{ display:none; }
   .panelhead{ margin:0 0 10px; color:#ffffff; font-size:22px; font-weight:800; letter-spacing:-0.4px; }
 
+  /* 4.7.0 Glass Pill tab bar (measured from Wes's iOS screenshot): floats 21px
+     from the sides and bottom, 62 tall. No background or filter on the bar itself
+     (that would make it a backdrop root); the glass is the .lens layer inside. */
   .tabbar{
-    position:fixed; bottom:0; left:0; right:0; z-index:50;
-    display:flex; align-items:stretch; padding: 6px 12px env(safe-area-inset-bottom);
-    background: rgba(6,11,22,0.88);
-    border-top:1px solid rgba(147,174,200,0.12);
-    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    position:fixed; left:21px; right:21px; bottom:21px; z-index:50;
+    height:62px; box-sizing:border-box; padding:3px; border-radius:31px;
+    display:flex; align-items:stretch;
+    border:1px solid rgba(130,155,205,0.28);
+    transition: transform 0.32s cubic-bezier(0.2,0.9,0.25,1), opacity 0.2s ease;
   }
+  .tabbar .lens{ position:absolute; z-index:0; inset:0; border-radius:inherit; pointer-events:none;
+    background: rgba(104,137,200,0.14);
+    -webkit-backdrop-filter: blur(2.5px) brightness(0.2) saturate(120%); backdrop-filter: blur(2.5px) brightness(0.2) saturate(120%); }
+  /* Chromium only (Android, computers): the edges also bend what's behind them */
+  html.tbbend .tabbar .lens{
+    -webkit-backdrop-filter: url(#lensf) blur(2.5px) brightness(0.2) saturate(120%); backdrop-filter: url(#lensf) blur(2.5px) brightness(0.2) saturate(120%); }
   .tabbtn{
-    flex:1; min-width:0; height:56px; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:4px;
-    padding:0 4px; border:none; background:none; border-radius:12px;
-    color: var(--muted); cursor:pointer;
+    position:relative; z-index:1; flex:1; min-width:0; height:54px; display:flex; flex-direction:column;
+    align-items:center; justify-content:flex-start; gap:3.5px; padding:9px 4px 0;
+    border:none; background:none; border-radius:27px;
+    color:#f5fbff; cursor:pointer; -webkit-tap-highlight-color:transparent;
   }
-  .tabicon{ display:block; width:22px; height:22px; }
-  .tabicon svg{ width:22px; height:22px; display:block; }
+  .tabicon{ position:relative; display:block; width:22px; height:22px; }
+  .tabicon svg{ width:22px; height:22px; display:block; stroke-width:1.45; }
   .tablabel{
-    font-size:11px; font-weight:700;
+    font-size:10px; font-weight:600; line-height:12px; letter-spacing:0.1px;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
   }
-  .tabbtn.on{ color: var(--cyan); }
-  .tabbtn.on .tablabel{ font-weight:800; }
-  .tabbtn:active{ background: rgba(53,208,255,0.07); }
+  .tabbtn.on, .tabbtn.on .tablabel{ color: var(--cyan); font-weight:600; }
+  .tabbtn:active{ background:none; }
+  /* Light rail on the top rim, centered over the lit tab */
+  .tabbar .rail{ position:absolute; z-index:2; left:0; top:-1px; width:40px; height:2px; border-radius:0 0 2px 2px; pointer-events:none;
+    background: var(--cyan); box-shadow: 0 0 6px rgba(53,208,255,0.75); opacity:0; }
+  .tabbar .rail::after{ content:''; position:absolute; left:-16px; right:-16px; top:1px; height:30px; pointer-events:none;
+    background: radial-gradient(60% 100% at 50% 0%, rgba(53,208,255,0.14), transparent 70%); }
+  /* Chat tab: red unread badge on the icon */
+  .tabbadge{ position:absolute; top:-5px; left:13px; min-width:16px; height:16px; padding:0 4px; box-sizing:border-box; border-radius:8px;
+    background: var(--red); color:#ffffff; font-size:10px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums;
+    display:flex; align-items:center; justify-content:center; box-shadow: 0 0 0 2px #0f1521;
+    transition: transform .2s ease, opacity .2s ease; }
+  .tabbadge.gone{ transform:scale(0); opacity:0; }
+  /* Picks after lock-in: faded, with a small lock badge (tap still asks to unlock) */
+  .lkb{ display:none; position:absolute; top:-5px; left:13px; width:15px; height:15px; border-radius:50%;
+    align-items:center; justify-content:center; background:#454c5a; color:#ffffff; box-shadow: 0 0 0 2px #0f1521; }
+  .lkb svg{ width:8.5px !important; height:8.5px !important; }
+  .tabbtn.lockd .tabicon > svg:first-child, .tabbtn.lockd .tablabel{ opacity:.38; }
+  .tabbtn.lockd .lkb{ display:flex; }
+  /* Pool Chat sits under the bar; while typing the bar tucks away */
+  #chatOverlay{ z-index:57; }
+  html.chaton #tabBar{ z-index:58; }
+  html.chattyping #tabBar{ transform:translateY(140px); opacity:0; pointer-events:none; }
+  @media (prefers-reduced-motion: reduce){ .tabbar, .tabbadge, .tabbar .rail{ transition:none !important; } }
 
   .resetbtn{
     display:block; margin:20px auto 0; height:44px; padding:0 18px;
@@ -898,6 +927,11 @@
   /* ---------- Live ---------- */
   .livehead{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
   .livehead .panelhead{ margin:0; }
+  /* 4.7.0: thin cyan underline fading right (sits in the existing 12px gap) */
+  .livehead{ position:relative; }
+  .livehead::after{ content:''; position:absolute; left:0; right:0; bottom:-7px; height:1px; pointer-events:none;
+    background: linear-gradient(90deg, #35d0ff, rgba(53,208,255,0.35) 50%, rgba(53,208,255,0));
+    box-shadow: 0 0 6px rgba(53,208,255,0.45); }
   .livestatus{
     min-width:0; max-width:60%; text-align:right;
     font-size:12px; font-weight:600; color: var(--muted); line-height:1.35;
@@ -905,26 +939,6 @@
   .demobar{ border-radius:12px; }
 
 
-  .liveactions{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:16px; }
-  .chatbtn{
-    display:flex; align-items:center; justify-content:center; gap:8px; height:44px; padding:0;
-    border-radius:12px; border:1px solid rgba(53,208,255,0.35); background: rgba(53,208,255,0.08);
-    color: var(--cyan); font-size:14px; font-weight:800;
-  }
-  .chatbtn svg{ width:16px; height:16px; display:block; flex:none; }
-  .chatbtn:active{ background: rgba(53,208,255,0.22); }
-  .chatbadge{
-    min-width:20px; height:20px; padding:0 6px; border-radius:10px;
-    background: var(--cyan); color:#03131f; font-size:11px; font-weight:800;
-    display:flex; align-items:center; justify-content:center;
-    animation: chatring 1.6s ease-out infinite;
-  }
-  .chatbadge[hidden]{ display:none; }
-  @keyframes chatring{
-    0%{ box-shadow: 0 0 0 0 rgba(53,208,255,0.75); }
-    70%{ box-shadow: 0 0 0 7px rgba(53,208,255,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
-  }
   /* Online: a small cyan beacon (green already means won / you) */
   .beacon{
     flex:none; width:6px; height:6px; border-radius:50%; background: var(--cyan);
@@ -935,7 +949,7 @@
     70%{ box-shadow: 0 0 0 5px rgba(53,208,255,0); }
     100%{ box-shadow: 0 0 0 0 rgba(53,208,255,0); }
   }
-  @media (prefers-reduced-motion: reduce){ .chatbadge, .beacon{ animation:none; } }
+  @media (prefers-reduced-motion: reduce){ .beacon{ animation:none; } }
 
   /* Pool Chat sheet */
   .chatsheet{
@@ -1019,6 +1033,10 @@
     font-size:16px; font-weight:600; outline:none;
   }
   #chatInput:focus{ border-color: var(--cyan); }
+  /* 4.7.0: the chat sheet runs behind the floating tab bar; the message box sits just above it.
+     While typing the bar is gone and the box sits on the keyboard as before. */
+  #chatOverlay .chatcompose{ padding-bottom:102px; }
+  html.chattyping #chatOverlay .chatcompose{ padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
   .chatsend{
     flex:none; width:44px; height:44px; padding:0; border:none; border-radius:50%;
     background: var(--cyan); color:#03131f; display:flex; align-items:center; justify-content:center;
@@ -1026,16 +1044,6 @@
   .chatsend svg{ width:18px; height:18px; display:block; }
   .chatsend:disabled{ opacity:0.5; }
 
-  /* Open Sheets — the one action at the top of Live */
-  .sharebtn{
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; height:44px; margin-bottom:0; padding:0; border-radius:12px;
-    border:1px solid rgba(53,208,255,0.35); background: rgba(53,208,255,0.08);
-    color: var(--cyan); font-size:14px; font-weight:800;
-  }
-  .sharebtn svg{ width:14px; height:16px; display:block; flex:none; }
-  .sharebtn.on{ background: rgba(53,208,255,0.16); border-color: rgba(53,208,255,0.55); }
-  .sharebtn:active{ background: rgba(53,208,255,0.22); }
 
   .scorewrap{ display:flex; gap:10px; margin-bottom:16px; align-items:stretch; }
   .scorecard{
@@ -1063,7 +1071,14 @@
     color: var(--cyan); font-size:9.5px; font-weight:800; letter-spacing:0.5px; line-height:1;
   }
   .lbcard.adv .lbmode{ background: rgba(53,208,255,0.18); border-color: rgba(53,208,255,0.7); }
-  .lbcount{ flex:none; font-size:10px; font-weight:700; color: var(--faint); white-space:nowrap; }
+  /* 4.7.0 Sheets pill (Open Sheets moved here). Its own look in both board
+     modes, so Advanced doesn't light it up like the Basic/Advanced pill. */
+  .lbsheets{ display:inline-flex; align-items:center; gap:4px; padding:0 8px 0 7px; }
+  .lbsheets svg{ width:8px; height:10px; flex:none; display:block; color: var(--cyan); }
+  .lbsheets .ok{ flex:none; width:12px; height:12px; margin:0 -4px 0 1px; border-radius:50%; background: var(--green);
+    display:flex; align-items:center; justify-content:center; box-shadow: 0 0 6px rgba(61,220,132,0.55); }
+  .lbsheets .ok svg{ width:8px; height:8px; color:#03131f; }
+  .lbsheets.dim{ opacity:.45; }
   .lbhead{ display:flex; align-items:flex-end; gap:8px; padding:0 8px 0 4px; margin-bottom:4px; }
   .lbtitle{ flex:1; min-width:0; font-size:10px; font-weight:800; letter-spacing:1.6px; text-transform:uppercase; color: var(--muted); }
   .lbwinh, .lbptsh{ flex:none; text-align:right; font-size:9px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color: var(--faint); }
@@ -2237,6 +2252,17 @@
   .tq9ptrB{ animation: tq9ptrB 13s ease infinite; }
   .tq9ban{ animation: tq9ban 13s ease infinite; }
   .tq9req{ animation: tq9req 13s ease infinite; }
+  /* 4.7.0: once locked in, the game row steps aside, Request to Unlock moves up and
+     the tab bar comes in with Picks faded and locked (Sheet lit: that's where the row lives). */
+  .tipstage .lkreq.tq9req{ top:80px; }
+  .tipstage .tabbar.tq9bar{ position:absolute; left:12px; right:12px; bottom:12px; z-index:3; }
+  .tq9bar .rail{ opacity:1; width:40px; left: calc(3px + (100% - 6px) * 0.375 - 20px); }
+  @keyframes tq9row{ 0%, 61%{ opacity:1; } 64%, 100%{ opacity:0; } }
+  @keyframes tq9bar{ 0%, 64%{ opacity:0; transform:translateY(14px); } 69%, 100%{ opacity:1; transform:none; } }
+  @keyframes tq9lk{ 0%, 71%{ transform:scale(0); } 74.5%{ transform:scale(1.3); } 77%, 100%{ transform:scale(1); } }
+  .tq9row{ animation: tq9row 13s ease infinite; }
+  .tq9bar{ animation: tq9bar 13s ease infinite; }
+  .tq9bar .lkb{ animation: tq9lk 13s ease infinite; }
 
   /* ===== 4.5.2 Live Quick Tips: real Live markup with sample data, scaled
      down, with a camera that pans to the action. Built only while open. ===== */
@@ -2251,6 +2277,10 @@
   .lxscr .overlay .chatsheet{ max-height:780px !important; height:780px !important; }
   .lxscr .rootbar{ position:relative !important; top:0 !important; }
   .lxscr.rooting{ box-shadow: inset 0 0 0 4px #4f7cff; }
+  /* 4.7.0: the real tab bar, drawn at the bottom of a tip's mini screen */
+  .lxbarw{ position:absolute; bottom:0; width:393px; height:104px; transform-origin:0 100%; z-index:6; pointer-events:none; }
+  .lxbarw .tabbar{ position:absolute; z-index:auto; }
+  .lxbarw .rail{ transition: left .3s ease, width .3s ease; }
   .lxstage .tipptr{ transition: left .8s cubic-bezier(.3,.7,.3,1), top .8s cubic-bezier(.3,.7,.3,1), opacity .3s ease, transform .12s ease; }
   .lxstage .tipptr.on{ opacity:1; }
   .lxstage .tipptr.press{ transform:scale(0.82); }
@@ -2687,10 +2717,6 @@
       <span class="livestatus" id="liveStatus"></span>
     </div>
     <div class="demobar" id="demoBar" style="display:none;">SIMULATED GAMES — not real scores</div>
-    <div class="liveactions">
-      <button class="sharebtn" id="shareBtn">Open Sheets</button>
-      <button class="chatbtn" id="chatBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Pool Chat<span class="chatbadge" id="chatBadge" hidden></span></button>
-    </div>
     <div class="scorewrap">
       <div class="scorecard">
         <div class="cardbanner" id="scoreBanner">Your Score</div>
@@ -2704,7 +2730,7 @@
         <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
       <div class="lbcard">
-        <div class="lbtop"><button type="button" class="lbmode" id="lbMode" aria-pressed="false">Basic</button><span class="lbcount" id="lbCount"></span></div>
+        <div class="lbtop"><button type="button" class="lbmode" id="lbMode" aria-pressed="false">Basic</button><button type="button" class="lbmode lbsheets" id="shareBtn">Sheets</button></div>
         <div class="lbhead"><span class="lbtitle">Leaderboard</span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
         <div id="lbList" class="lblist"></div>
         <div class="lbnote" id="lbNote"></div>
@@ -2734,8 +2760,9 @@
 </section>
 
 <nav class="tabbar" id="tabBar">
+  <span class="lens" id="tabLens" aria-hidden="true"></span><span class="rail" id="tabRail" aria-hidden="true"></span>
   <button class="tabbtn" data-tab="picks">
-    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="tablabel">Picks</span>
+    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="lkb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span></span><span class="tablabel">Picks</span>
   </button>
   <button class="tabbtn" data-tab="sheet">
     <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg></span><span class="tablabel">Sheet</span>
@@ -2743,7 +2770,11 @@
   <button class="tabbtn" data-tab="live">
     <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M7.1 7.1a7 7 0 0 0 0 9.8M16.9 7.1a7 7 0 0 1 0 9.8"/></svg></span><span class="tablabel">Live</span>
   </button>
+  <button class="tabbtn" data-tab="chat" id="chatTab">
+    <span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="tabbadge gone" id="chatBadge"></span></span><span class="tablabel">Chat</span>
+  </button>
 </nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="lensf" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feImage id="lensmap" x="0" y="0" width="351" height="62" preserveAspectRatio="none" result="map"/><feDisplacementMap in="SourceGraphic" in2="map" scale="34" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
 
 <div class="overlay" id="confirmOverlay">
   <div class="confirmcard" role="dialog" aria-label="Reset to spread order">
@@ -2929,6 +2960,7 @@
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.7.0</b> New glass tab bar with Pool Chat as its own tab. Open Sheets moved into the leaderboard. Asking for an unlock now double-checks first.</div>
       <div class="cl"><b>4.6.11</b> Snap tells you right away when it’s offline. Everyone tied for first gets the gold bar.</div>
       <div class="cl"><b>4.6.10</b> Snap understands even messier handwriting.</div>
       <div class="cl"><b>4.6.9</b> Snap reads messier handwriting: short and misspelled team names (Kansas, Minn, Cincinatti) are understood.</div>
@@ -3177,10 +3209,19 @@
   <div class="confirmcard" role="dialog" aria-label="You're locked in">
     <div id="reqAsk">
       <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h2>You’re locked in</h2></div>
-      <p>Your picks are set for the week. Need a change? Send an unlock request and the admin will see it in Pool Chat.</p>
+      <p>Your picks are set for the week. Need a change? You can ask the admin to unlock you.</p>
       <div class="confirmrow">
-        <button class="confirmyes" id="reqSend">Request to Unlock</button>
-        <button class="confirmcancel" id="reqCancel">Cancel</button>
+        <button class="btnsafe" id="reqCancel">Close</button>
+        <button class="btnout" id="reqSend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.8"/></svg>Request to Unlock</button>
+      </div>
+    </div>
+    <div id="reqConfirm" hidden>
+      <div class="chead"><span class="cicon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.8"/></svg></span><h2>Send unlock request?</h2></div>
+      <p>The admin will unlock your sheet so you can change your picks.</p>
+      <div class="step2note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span>Your request posts in Pool Chat, so everyone will see it. Your picks stay locked until the admin unlocks you.</span></div>
+      <div class="confirmrow">
+        <button class="btngold" id="reqYes">Yes, Send Request</button>
+        <button class="btnsafe" id="reqNo">No, Keep My Picks</button>
       </div>
     </div>
     <div class="reqdone" id="reqDone" hidden>
@@ -3346,7 +3387,7 @@
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.6.11';
+  const APP_VERSION = '4.7.0';
   const APP_BUILT = 'Oct 8, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -4769,6 +4810,7 @@
     overlayStack.push(el);
     try{ history.pushState({ overlay: overlayStack.length }, ''); }catch(e){}
     el.classList.add('show');
+    if(el.id === 'chatOverlay') chatTabSync();
     const panel = el.querySelector('.sheet') || el.querySelector('.confirmcard');
     if(panel && typeof panel.scrollTop === 'number') panel.scrollTop = 0;
   }
@@ -4776,6 +4818,7 @@
   function closeOverlay(el, fromBack){
     if(!el.classList.contains('show')) return;
     el.classList.remove('show');
+    if(el.id === 'chatOverlay') chatTabSync();
     const at = overlayStack.lastIndexOf(el);
     if(at !== -1) overlayStack.splice(at, 1);
     // Closing by tap must also unwind the history entry we pushed.
@@ -5051,29 +5094,43 @@
     if(on) v['w' + week] = lockTime(week) || 1; else delete v['w' + week];
     put(UNLOCKREQ_KEY, v);
   }
-  function showReqState(sent){
-    document.getElementById('reqAsk').hidden = sent;
-    document.getElementById('reqDone').hidden = !sent;
+  /* 4.7.0: 1 = You're locked in, 2 = Send unlock request?, 3 = Request sent.
+     Each newly shown card ignores taps for ~450ms. */
+  let reqWaitT = 0;
+  function showReqStep(n){
+    document.getElementById('reqAsk').hidden = n !== 1;
+    document.getElementById('reqConfirm').hidden = n !== 2;
+    document.getElementById('reqDone').hidden = n !== 3;
+    const card = lockedAskOverlay.querySelector('.confirmcard');
+    card.classList.add('tapwait');
+    clearTimeout(reqWaitT);
+    reqWaitT = setTimeout(function(){ card.classList.remove('tapwait'); }, 450);
   }
+  function showReqState(sent){ showReqStep(sent ? 3 : 1); }
   function askUnlock(){
     if(lockExempt()){ openOverlay(unlockOverlay); return; }
     showReqState(unlockRequested(currentWeek));
     openOverlay(lockedAskOverlay);
   }
   document.getElementById('reqSend').addEventListener('click', function(){
+    if(!weekLocked || unlockRequested(currentWeek) || !player().name) return;
+    showReqStep(2);
+  });
+  document.getElementById('reqYes').addEventListener('click', function(){
     const week = currentWeek, me = player();
     if(!weekLocked || unlockRequested(week) || !me.name) return;
     noteUnlockRequest(week, true);
-    showReqState(true);
+    showReqStep(3);
     syncLockBtn();
     postChat(me.id, me.name, '\uD83D\uDD13 Unlock request: ' + me.name + ' needs Week ' + week + ' unlocked, please.')
       .catch(function(){
         noteUnlockRequest(week, false);
         syncLockBtn();
-        if(lockedAskOverlay.classList.contains('show')) showReqState(false);
+        if(lockedAskOverlay.classList.contains('show')) showReqStep(1);
         toast('Couldn\u2019t send. Check your connection.');
       });
   });
+  document.getElementById('reqNo').addEventListener('click', function(){ closeOverlay(lockedAskOverlay); });
   document.getElementById('reqCancel').addEventListener('click', function(){ closeOverlay(lockedAskOverlay); });
   document.getElementById('reqOk').addEventListener('click', function(){ closeOverlay(lockedAskOverlay); });
   document.getElementById('reqChat').addEventListener('click', function(){
@@ -5104,6 +5161,8 @@
   /* Sheet tab bottom: Lock In while unlocked; once locked, the Request to
      Unlock card (or "Unlock requested / Waiting on the admin"). */
   function syncLockBtn(){
+    try{ syncPicksTab(); }catch(e){}
+    try{ syncShareBtn(); }catch(e){}
     const un = document.getElementById('lockUn'), req = document.getElementById('unlockReq');
     if(!un || !req) return;
     un.hidden = weekLocked;
@@ -5195,10 +5254,10 @@
       const el = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
       if(el) el.hidden = (t !== name);
     });
-    document.querySelectorAll('.tabbtn').forEach(function(b){
-      b.classList.toggle('on', b.dataset.tab === name);
+    document.querySelectorAll('#tabBar .tabbtn').forEach(function(b){
       b.setAttribute('aria-current', b.dataset.tab === name ? 'page' : 'false');
     });
+    lightTabs(chatIsOpen() ? 'chat' : name);
 
     if(prev === 'live' && name !== 'live') stopLiveTimers();
     if(prev === 'sheet' && name !== 'sheet') stopSheetTimer();
@@ -5236,10 +5295,122 @@
     setTimeout(kick, 400);
   }
 
+  /* 4.7.0: Chat is a "false tab": it opens the Pool Chat slide-up from any tab
+     and lights while open; the tab you were on lights again when it closes.
+     With chat open, Picks/Sheet/Live close it and go there. */
+  function chatIsOpen(){
+    const co = document.getElementById('chatOverlay');
+    return !!(co && co.classList.contains('show'));
+  }
   document.getElementById('tabBar').addEventListener('click', function(e){
     const b = e.target.closest ? e.target.closest('.tabbtn') : null;
-    if(b && b.dataset.tab) showTab(b.dataset.tab);
+    if(!b || !b.dataset.tab) return;
+    const k = b.dataset.tab, co = document.getElementById('chatOverlay');
+    if(k === 'chat'){
+      if(chatIsOpen()) closeOverlay(co); else openChat();
+      return;
+    }
+    if(chatIsOpen()){
+      if(k === currentTab && !(k === 'picks' && picksBlocked())){ closeOverlay(co); return; }
+      // Close without history.back() (it would race the new tab's entry):
+      // chat's history entry becomes this tab's instead, so Back still walks tabs.
+      closeOverlay(co, true);
+      try{ history.replaceState({ tab: currentTab }, ''); }catch(err){}
+    }
+    showTab(k);
   });
+
+  /* Light rail: grows over the old and new tab, then settles on the new one.
+     Reduced motion (or first placement) jumps. */
+  var railKey = null, railT = 0;   // var on purpose: showTab can run before this line
+  function lightTabs(key, jump){
+    document.querySelectorAll('#tabBar .tabbtn').forEach(function(b){
+      b.classList.toggle('on', b.dataset.tab === key);
+    });
+    placeRail(key, jump);
+  }
+  function placeRail(key, jump){
+    const bar = document.getElementById('tabBar'), rail = document.getElementById('tabRail');
+    if(!bar || !rail) return;
+    const b = bar.querySelector('.tabbtn[data-tab="' + key + '"]');
+    if(!b || !b.offsetWidth) return;
+    const w = 40, l = b.offsetLeft + (b.offsetWidth - w) / 2;
+    clearTimeout(railT);
+    const cur = parseFloat(rail.style.left);
+    let still = false;
+    try{ still = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(err){}
+    if(jump || railKey === null || isNaN(cur) || still){
+      rail.style.transition = 'none'; rail.style.left = l + 'px'; rail.style.width = w + 'px'; rail.style.opacity = 1;
+      void rail.offsetWidth; rail.style.transition = ''; railKey = key; return;
+    }
+    if(railKey === key && Math.abs(cur - l) < 1) return;
+    railKey = key;
+    const w0 = parseFloat(rail.style.width) || w, a = Math.min(cur, l), z = Math.max(cur + w0, l + w);
+    rail.style.transition = 'left .18s ease-out, width .18s ease-out';
+    rail.style.left = a + 'px'; rail.style.width = (z - a) + 'px';
+    railT = setTimeout(function(){
+      rail.style.transition = 'left .26s cubic-bezier(.25,1.2,.4,1), width .26s cubic-bezier(.25,1.2,.4,1)';
+      rail.style.left = l + 'px'; rail.style.width = w + 'px';
+    }, 170);
+  }
+  /* Chat opened or closed (any way: tab, Back, tap outside, phone back). */
+  function chatTabSync(){
+    const open = chatIsOpen(), root = document.documentElement;
+    root.classList.toggle('chaton', open);
+    if(!open) root.classList.remove('chattyping');
+    lightTabs(open ? 'chat' : currentTab);
+    try{ syncChatBadge(); }catch(err){}
+  }
+  /* Picks after lock-in (players only; Edge/admin phone stays open). */
+  function syncPicksTab(){
+    const b = document.querySelector('#tabBar .tabbtn[data-tab="picks"]');
+    if(b) b.classList.toggle('lockd', picksBlocked());
+  }
+  (function tabBarSetup(){
+    const ci = document.getElementById('chatInput'), root = document.documentElement;
+    if(ci){
+      ci.addEventListener('focus', function(){ root.classList.add('chattyping'); });
+      ci.addEventListener('blur', function(){ root.classList.remove('chattyping'); });
+    }
+    /* Android / Chromium: the glass bends content at its edges (SVG displacement
+       map). iPhone browsers accept url() but draw nothing, so they get plain glass. */
+    let bend = false;
+    try{ bend = !!(navigator.userAgentData && navigator.userAgentData.brands &&
+      navigator.userAgentData.brands.some(function(x){ return /Chromium/.test(x.brand); })); }catch(err){}
+    function lensMap(W, H){
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d'), im = x.createImageData(W, H), r = H / 2, E = 18;
+      for(let py = 0; py < H; py++) for(let px = 0; px < W; px++){
+        const X = px + 0.5, Y = py + 0.5;
+        let nx = 0, ny = 0;
+        const cx = Math.min(Math.max(X, r), W - r), dx = X - cx, dy = Y - r, dist = Math.hypot(dx, dy);
+        const d = r - dist;
+        if(dist > 0){ nx = dx / dist; ny = dy / dist; }
+        let m = 0; if(d >= 0 && d < E){ const t = 1 - d / E; m = t * t; }
+        const o = (py * W + px) * 4;
+        im.data[o] = 128 + Math.round(nx * m * 127); im.data[o + 1] = 128 + Math.round(ny * m * 127); im.data[o + 2] = 128; im.data[o + 3] = 255;
+      }
+      x.putImageData(im, 0, 0);
+      return c.toDataURL();
+    }
+    let lensW = 0, lensH = 0;
+    function buildLens(){
+      if(!bend) return;
+      try{
+        const l = document.getElementById('tabLens'), fe = document.getElementById('lensmap');
+        const W = Math.round(l.offsetWidth), H = Math.round(l.offsetHeight);
+        if(!W || !H || (W === lensW && H === lensH)) return;
+        fe.setAttribute('width', W); fe.setAttribute('height', H);
+        fe.setAttribute('href', lensMap(W, H));
+        lensW = W; lensH = H;
+        root.classList.add('tbbend');
+      }catch(err){ root.classList.remove('tbbend'); }
+    }
+    function relight(){ placeRail(chatIsOpen() ? 'chat' : currentTab, true); buildLens(); }
+    window.addEventListener('resize', relight);
+    try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(relight); }catch(err){}
+    setTimeout(relight, 0);
+  })();
   const resultsList = document.getElementById('resultsList');
 
   // A preview shows only its own pretend results. Mixing in real ones put a
@@ -7455,12 +7626,17 @@
   }
   function setCompareView(v){ put(CMP_VIEW_KEY, { view: v }); }
 
+  /* 4.7.0: Sheets pill in the leaderboard header. Green check = your sheet is
+     open; grayed until you lock in (a tap still explains "Lock in first"). */
+  const ICON_OKDOT = '<span class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></span>';
   function syncShareBtn(){
     const b = document.getElementById('shareBtn');
     if(!b) return;
     const on = sharingOn(currentWeek);
-    b.innerHTML = ICON_DOC + (on ? 'Sheets Open' : 'Open Sheets');
+    b.innerHTML = ICON_DOC + 'Sheets' + (on ? ICON_OKDOT : '');
     b.classList.toggle('on', on);
+    b.classList.toggle('dim', !weekLocked);
+    b.setAttribute('aria-label', on ? 'Sheets, yours is open' : 'Open Sheets');
   }
 
   const shareOverlay = document.getElementById('shareOverlay');
@@ -8455,10 +8631,6 @@
        saved Root for can't apply yet. Once the pool arrives, redraw as them.
        (4.2.0: not while the saved copy is showing — the pool isn't here yet.) */
     if(!stale && isTab('live') && rootedId() !== rootPaintedId) setTimeout(function(){ openResults(true); }, 0);
-    const cnt = document.getElementById('lbCount');
-    const on = shown.filter(function(r){ return isOnline(r.id); }).length;
-    if(cnt) cnt.textContent = shown.length + ' player' + (shown.length === 1 ? '' : 's') +
-      (on ? ' \u00B7 ' + on + ' online' : '');
     const finalNote = (weekComplete() && !demoOn())
       ? ('Final standings — Week ' + currentWeek) : '';
     note.textContent = boardNote || finalNote || (weekLocked ? '' : 'Lock in to post your score.');
@@ -8666,10 +8838,9 @@
     const b = document.getElementById('chatBadge');
     if(!b) return;
     const n = unreadCount();
-    b.hidden = !n;
-    b.textContent = n > 9 ? '9+' : String(n);
-    const cb = document.getElementById('chatBtn');
-    if(cb) cb.classList.toggle('unread', !!n);
+    if(n) b.textContent = n > 9 ? '9+' : String(n);
+    // 4.7.0: red badge on the Chat tab; scales out while chat is open
+    b.classList.toggle('gone', !n || chatOverlay.classList.contains('show'));
   }
 
   function chatTime(t){
@@ -8965,7 +9136,6 @@
     });
   }
 
-  document.getElementById('chatBtn').addEventListener('click', openChat);
   document.getElementById('chatClose').addEventListener('click', function(){ closeOverlay(chatOverlay); });
   chatOverlay.addEventListener('click', function(e){ if(e.target === chatOverlay) closeOverlay(chatOverlay); });
   document.getElementById('chatSend').addEventListener('click', sendChat);
@@ -9058,6 +9228,7 @@
   }
   function setEdge(on){
     put(EDGE_KEY, { ok: true, on: !!on });
+    try{ syncPicksTab(); }catch(e){}
     syncEdgeUI();
     edgeSync();
     try{ winSoon(0); }catch(e){}
@@ -10837,6 +11008,23 @@
       inner + (extra || '') + '</button></div>';
   }
   function tipX(extra){ return '<button class="rmx" tabindex="-1">\u00D7' + (extra || '') + '</button>'; }
+  /* 4.7.0: a copy of the real tab bar for a tip's mini-screen (Picks shown locked). */
+  function tipBar(cls, lit){
+    const src = document.getElementById('tabBar');
+    if(!src) return '';
+    const d = document.createElement('div');
+    d.innerHTML = src.outerHTML.replace(/\s(id|aria-current)="[^"]*"/g, '');
+    const bar = d.firstElementChild;
+    bar.classList.add(cls);
+    bar.querySelectorAll('.tabbtn').forEach(function(b){
+      b.classList.toggle('on', b.dataset.tab === lit);
+      b.classList.toggle('lockd', b.dataset.tab === 'picks');
+      b.setAttribute('tabindex', '-1');
+    });
+    const bd = bar.querySelector('.tabbadge'); if(bd) bd.classList.add('gone');
+    const r = bar.querySelector('.rail'); if(r) r.removeAttribute('style');
+    return bar.outerHTML;
+  }
   function tipRow(cls, top, rank, mid, actions, z, extra){
     return '<div class="game' + (cls ? ' ' + cls : '') + '" style="top:' + top + 'px' + (z ? ';z-index:' + z : '') + '">' +
       rank + mid + '<div class="actions">' + actions + '</div>' + (extra || '') + '</div>';
@@ -10960,7 +11148,7 @@
         '<div class="statuswrap tq9un"><div class="linestamp"><span class="stdot"></span>' +
           '<span class="sttext"><b>Updated Sat 11:40 AM</b><span>ESPN spreads \u00B7 spread order</span></span>' +
           '<span class="stchip stbtn tq9pill">' + ICON_UNLOCK + 'Unlocked' + tipPtr('tq9ptrP') + '</span></div></div>' +
-        tipRow('', 80, tipRank('15'), PHI, tipChip(true, 76) + tipX()) +
+        tipRow('tq9row', 80, tipRank('15'), PHI, tipChip(true, 76) + tipX()) +
         '<button class="lkbtn tq9btn" tabindex="-1">' + lockIco + 'Lock In Picks</button>' +
         tipPtr('tq9ptrA', 'left:50%;top:198px') +
         '<div class="statuswrap tq9ban"><div class="linestamp locked"><span class="sticon">' + ICON_LOCK + '</span>' +
@@ -10970,7 +11158,8 @@
         '<div class="confirmcard tq9card"><div class="chead"><span class="cicon">' + ICON_LOCK + '</span><h2>Lock in your picks?</h2></div>' +
           '<p>Only the admin can unlock them.</p>' +
           '<div class="confirmrow"><span class="confirmyes">Lock In Picks' + tipPtr('tq9ptrB') + '</span>' +
-          '<span class="confirmcancel">Cancel' + tipPtr('tq9ptrC') + '</span></div></div>' },
+          '<span class="confirmcancel">Cancel' + tipPtr('tq9ptrC') + '</span></div></div>' +
+        tipBar('tq9bar', 'sheet') },
 
       // 4.5.5 Pick a week: pill opens the week sheet, cyan is the current week
       week: { n: 10, h: 'Pick a week', s:
@@ -11057,7 +11246,7 @@
 
   /* Sample screens, copied from the real Live tab (IDs removed). \u0001 = this
      player's name, \u0002n\u0003 = a shared icon from T. */
-  const LX_DATA = {"S":{"live":"<div class=\"weekhead\"><span>Week 3 of 18</span><button class=\"tipbtn livetipbtn\" type=\"button\"><span class=\"tipplay\"><svg viewBox=\"0 0 8 9\" aria-hidden=\"true\"><path d=\"M1 0.8v7.4L7.2 4.5z\" fill=\"#03131f\"></path></svg></span>Quick Tips</button></div><div class=\"lxres\"><div class=\"ggroup\" data-group=\"live\" style=\"order:-50\"><div class=\"gghead\"><i class=\"gdot\"></i><b>Live now</b><span data-role=\"count\">3 games</span></div><div class=\"gsweep\"><i></i></div></div><div class=\"ggroup\" data-group=\"next\" style=\"order:950\"><div class=\"gghead\"><b>Up next</b><span data-role=\"count\">3 games</span></div></div><div class=\"gcard islive\" data-id=\"e401900014\" data-grp=\"live\" data-pts=\"3\" style=\"order: 3;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">3<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"CAR\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Carolina</span><span class=\"tscore\" data-role=\"score\">0</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine leading\" data-ab=\"NE\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>New England<b class=\"tspread\" data-role=\"hist\">\u22121.5</b></span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">14:00</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">2nd &amp; 6 at CAR 14</span><span class=\"rzchip\" data-role=\"rz\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard pregame\" data-id=\"e401900013\" data-grp=\"next\" data-pts=\"4\" style=\"order:1004\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">4<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"WSH\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/wsh.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Washington</span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"DAL\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Dallas<b class=\"tspread\" data-role=\"hist\">\u22122</b></span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus pre offgame\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Mon</span><span class=\"s2\" data-role=\"s2\">12:20 AM</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900008\" data-grp=\"live\" data-pts=\"7\" style=\"order: 7;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">7<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"IND\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Indianapolis</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"HOU\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Houston<b class=\"tspread\" data-role=\"hist\">\u22123.5</b></span><span class=\"tscore\" data-role=\"score\">3</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live solo\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">End Q1</span><span class=\"s2\" data-role=\"s2\" hidden=\"\"></span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900002\" data-grp=\"live\" data-pts=\"11\" style=\"order: 11;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\">11<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"CHI\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Chicago</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div><div class=\"trow mine\" data-ab=\"DET\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Detroit<b class=\"tspread\" data-role=\"hist\">\u22127</b></span><span class=\"tscore\" data-role=\"score\">3</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">1:15</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">3rd &amp; 7 at DET 38</span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div></div>","top":"<div class=\"livehead\"><h2 class=\"panelhead\">Score Tracker</h2><span class=\"livestatus\">Simulated 8:15 PM</span></div><div class=\"liveactions\"><button class=\"sharebtn on\">\u00020\u0003Sheets Open</button><button class=\"chatbtn unread\">\u00025\u0003Pool Chat<span class=\"chatbadge\">2</span></button></div><div class=\"rootbar\" hidden=\"\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\"></b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Your Score</div><div class=\"scorebig\">34</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">45</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 14 scored</div><div class=\"scoreprog\"><i style=\"width: 57%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><span class=\"lbcount\">5 players \u00b7 1 online</span></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">41</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">46%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow me\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>","share":"<div class=\"confirmcard\" role=\"dialog\" aria-label=\"Open Sheets\"><div class=\"chead\"><span class=\"cicon\">\u00020\u0003</span><h2>Open Sheets</h2></div><p>Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.</p><div class=\"sharerules\"><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg></i><span>Anyone who has opened theirs can see yours.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"11\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"></path></svg></i><span>It can't be closed again this week.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 10h18M8 3v4M16 3v4\"></path></svg></i><span>Every sheet closes when next week starts.</span></div></div><div class=\"confirmrow\"><button class=\"confirmyes\">Open My Sheet</button><button class=\"confirmcancel\">Not this week</button></div></div>","cmp":"<div class=\"sheet\"><div class=\"sheettop\"><button class=\"backbtn\">\u2039 Back</button><h2>\u0001 vs Dale</h2></div><button type=\"button\" class=\"rootbtn\">Root for Dale</button><div class=\"viewtabs\"><button class=\"viewtab on\" data-view=\"ladder\">Ladder</button><button class=\"viewtab\" data-view=\"h2h\">Head-to-Head</button></div><div><div class=\"vhead\"><span class=\"vwho mine\"><i></i>\u0001</span><span class=\"vwho them\"><i></i>Dale</span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">1</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">1</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span></div><div class=\"vrow differ\"><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">2</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">2</b><span class=\"vname\">Buffalo</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">@ Miami</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">3</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">3</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">5</b><span class=\"vname\">Cincinnati</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">vs Pittsburgh</span></span><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">5</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Green Bay</span><b class=\"vsp\">\u22123</b></span><span class=\"vopp\">vs Minnesota</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Jacksonville</span><b class=\"vsp\">\u22125.5</b></span><span class=\"vopp\">vs Tennessee</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Houston</span><b class=\"vsp\">\u22123.5</b></span><span class=\"vopp\">vs Indianapolis</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Indianapolis</span><b class=\"vsp\">+3.5</b></span><span class=\"vopp\">@ Houston</span></span></div><div class=\"vtotals\"><span class=\"vtot\"><b>34</b><span class=\"vtotlbl\">pts</span></span><span class=\"vtot lead\"><b>41</b><span class=\"vtotlbl\">pts</span></span></div></div></div>","ask":"<div class=\"sheet\" role=\"dialog\" aria-label=\"Root for\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker rootkick\">ROOT FOR</span><h2>Root for Dale?</h2></div></div><p class=\"rootasktext\">Your Live tab turns into <b>Dale\u2019s</b>: their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> on it any time to switch back to your own view. It ends on its own when the week does.</p><div class=\"tipnav\"><button class=\"confirmyes rootgo\">Root for Dale</button></div><button class=\"closebtn\">Cancel</button></div>","rooted":"<div class=\"livehead\"><h2 class=\"panelhead\">Dale\u2019s Live</h2><span class=\"livestatus\">Simulated 8:15 PM</span></div><div class=\"liveactions\"><button class=\"sharebtn on\">\u00020\u0003Sheets Open</button><button class=\"chatbtn unread\">\u00025\u0003Pool Chat<span class=\"chatbadge\">2</span></button></div><div class=\"rootbar\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\">Dale</b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Dale\u2019s Score</div><div class=\"scorebig\">40</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">49</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 15 scored</div><div class=\"scoreprog\"><i style=\"width: 53%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><span class=\"lbcount\">5 players \u00b7 1 online</span></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow me lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">40</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">46%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>","chat":"<div class=\"chatsheet\" role=\"dialog\" aria-label=\"Pool Chat\"><div class=\"chathead\"><div class=\"chattitle\"><b>Pool Chat</b><span>Week 3 \u00b7 everyone in the pool</span></div><button class=\"backbtn anback\" type=\"button\">\u2039 Back</button></div><div class=\"chatpeople\"><span class=\"chatonline\"><i class=\"beacon\"></i>1 online now</span><div class=\"chatpills\"><span class=\"chatpill me\" style=\"color: var(--green)\">You<i class=\"beacon\"></i></span></div></div><div class=\"chatlist\"><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#e59cff\">Dale <i>\u00b7 8:00 PM</i></span><div class=\"chatbubble\">Lions are cooking today</div></div><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#ff9ecf\">Kermit <i>\u00b7 8:05 PM</i></span><div class=\"chatbubble\">Bills better cover for me</div></div></div><div class=\"chatcompose\"><textarea rows=\"1\" maxlength=\"200\" placeholder=\"Message the pool\" autocomplete=\"off\" enterkeyhint=\"send\" class=\"lxchatin\"></textarea><span class=\"chatcount\" hidden=\"\">0 / 200</span><button class=\"chatsend\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg></button></div></div>","an":"<div class=\"sheet\" role=\"dialog\" aria-label=\"Analysis\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker\">ANALYSIS</span><h2>How you\u2019re doing</h2></div><button type=\"button\" class=\"backbtn anback\">\u2039 Back</button></div><div class=\"ansect\">Current outlook<span class=\"anasof\">\u00b7 as of 3:42 PM</span></div><div class=\"anwk\"><div class=\"anwktop\"><div class=\"anwkhead\"><span class=\"anchip run\">IN THE RUNNING</span><b>You\u2019re right in the race.</b><p>You\u2019re one of the favorites. The games left decide it.</p></div><div class=\"anring\"><svg viewBox=\"0 0 88 88\" aria-hidden=\"true\"><circle class=\"rbg\" cx=\"44\" cy=\"44\" r=\"37\"></circle><circle class=\"rfg\" cx=\"44\" cy=\"44\" r=\"37\" style=\"stroke-dasharray: 232.478; stroke-dashoffset: 144.136;\"></circle></svg><div class=\"rin\"><b>38%</b><span>to win</span></div></div></div><div class=\"anvs\"><div class=\"side\"><span>Your best case</span><b>94</b><small>if your games win</small></div><div class=\"vs\">VS</div><div class=\"side w\"><span>Likely winning total</span><b>86</b><small>82\u201390 range</small><button type=\"button\" class=\"anconf\"></button></div></div><div class=\"anconfwhy\" hidden=\"\"></div><div class=\"anres\"></div><div class=\"antrackwrap\"><div class=\"antrack\"><span class=\"tband\"></span><span class=\"tnow\" style=\"width: 39.0805%;\"></span><span class=\"tmax\" style=\"left: 39.0805%; width: 51.7241%;\"></span><span class=\"tflag\"><em></em></span></div><div class=\"tlabels\"><span class=\"tl now\" style=\"left: 39.0805%; transform: translateX(-50%);\">Now 34</span><span class=\"tl\" style=\"left: 90.8046%; transform: translateX(-50%);\">Best 94</span></div></div><div class=\"anpath\"><div class=\"anleft\">6 games left \u00b7 worth 45 points</div></div></div><div class=\"tipnav\"><button class=\"confirmyes\">Got it</button></div><button type=\"button\" class=\"anmeth\" aria-expanded=\"false\"><span class=\"anmi\" aria-hidden=\"true\">i</span>How is this calculated? <span class=\"anchev\" aria-hidden=\"true\">\u25be</span></button><div class=\"anwhat\" hidden=\"\">Once 3 or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.</div></div>"},"T":["<svg viewBox=\"0 0 16 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 1h8l4 4v14H2z\"></path><path d=\"M10 1v4h4M5 10h6M5 14h6\"></path></svg>","<svg viewBox=\"0 0 10 10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 6.5 5 3.5 8 6.5\"></path></svg>","<svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z\"></path></svg>","<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3.2\" fill=\"currentColor\"></circle></svg>","<svg viewBox=\"0 0 26 16\" aria-label=\"Has the ball\"><ellipse cx=\"13\" cy=\"8\" rx=\"12\" ry=\"7\" fill=\"#b98552\"></ellipse><path d=\"M8 8h10M11 6v4M13 6v4M15 6v4\" stroke=\"#ffffff\" stroke-width=\"1.4\" stroke-linecap=\"round\"></path></svg>","<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 5h16v11H9l-5 4z\"></path></svg>"]};
+  const LX_DATA = {"S": {"live": "<div class=\"weekhead\"><span>Week 3 of 18</span><button class=\"tipbtn livetipbtn unseen\" type=\"button\"><span class=\"tipplay\"><svg viewBox=\"0 0 8 9\" aria-hidden=\"true\"><path d=\"M1 0.8v7.4L7.2 4.5z\" fill=\"#03131f\"></path></svg></span>Quick Tips</button></div><div class=\"lxres\"><div class=\"ggroup\" data-group=\"live\" style=\"order:-50\"><div class=\"gghead\"><i class=\"gdot\"></i><b>Live now</b><span data-role=\"count\">3 games</span></div><div class=\"gsweep\"><i></i></div></div><div class=\"ggroup\" data-group=\"next\" style=\"order:950\"><div class=\"gghead\"><b>Up next</b><span data-role=\"count\">3 games</span></div></div><div class=\"gcard islive\" data-id=\"e401900014\" data-grp=\"live\" data-pts=\"3\" style=\"order: 3;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.154\">3<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"CAR\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Carolina</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine leading\" data-ab=\"NE\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>New England<b class=\"tspread\" data-role=\"hist\">\u22121.5</b></span><span class=\"tscore\" data-role=\"score\">17</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q1</span><span class=\"s2\" data-role=\"s2\">2:00</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">2nd &amp; 6 at CAR 14</span><span class=\"rzchip\" data-role=\"rz\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard pregame\" data-id=\"e401900013\" data-grp=\"next\" data-pts=\"4\" style=\"order:1004\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.231\">4<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"WSH\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/wsh.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Washington</span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"DAL\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Dallas<b class=\"tspread\" data-role=\"hist\">\u22122</b></span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus pre offgame\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Sun</span><span class=\"s2\" data-role=\"s2\">8:20 PM</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900008\" data-grp=\"live\" data-pts=\"7\" style=\"order: 7;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.462\">7<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"IND\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Indianapolis</span><span class=\"tscore\" data-role=\"score\">13</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"HOU\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Houston<b class=\"tspread\" data-role=\"hist\">\u22123.5</b></span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live solo\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Halftime</span><span class=\"s2\" data-role=\"s2\" hidden=\"\"></span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div><div class=\"gcard islive\" data-id=\"e401900002\" data-grp=\"live\" data-pts=\"11\" style=\"order: 11;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.769\">11<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"CHI\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Chicago</span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div><div class=\"trow mine\" data-ab=\"DET\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Detroit<b class=\"tspread\" data-role=\"hist\">\u22127</b></span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">1:12</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">3rd &amp; 7 at DET 38</span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div><div class=\"gfinal\" data-role=\"final\"></div></div></div>", "top": "<div class=\"livehead\"><h2 class=\"panelhead\">Score Tracker</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\" hidden=\"\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\"></b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Your Score</div><div class=\"scorebig\">34</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">45</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 14 scored</div><div class=\"scoreprog\"><i style=\"width: 57%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">41</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow me\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "share": "<div class=\"confirmcard\" role=\"dialog\" aria-label=\"Open Sheets\"><div class=\"chead\"><span class=\"cicon\">\u00020\u0003</span><h2>Open Sheets</h2></div><p>Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.</p><div class=\"sharerules\"><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg></i><span>Anyone who has opened theirs can see yours.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"11\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"></path></svg></i><span>It can't be closed again this week.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 10h18M8 3v4M16 3v4\"></path></svg></i><span>Every sheet closes when next week starts.</span></div></div><div class=\"confirmrow\"><button class=\"confirmyes\">Open My Sheet</button><button class=\"confirmcancel\">Not this week</button></div></div>", "cmp": "<div class=\"sheet\"><div class=\"sheettop\"><button class=\"backbtn\">\u2039 Back</button><h2>\u0001 vs Dale</h2></div><button type=\"button\" class=\"rootbtn\">Root for Dale</button><div class=\"viewtabs\"><button class=\"viewtab on\" data-view=\"ladder\">Ladder</button><button class=\"viewtab\" data-view=\"h2h\">Head-to-Head</button></div><div><div class=\"vhead\"><span class=\"vwho mine\"><i></i>\u0001</span><span class=\"vwho them\"><i></i>Dale</span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">1</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">1</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span></div><div class=\"vrow differ\"><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">2</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">2</b><span class=\"vname\">Buffalo</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">@ Miami</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">3</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">3</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">5</b><span class=\"vname\">Cincinnati</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">vs Pittsburgh</span></span><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">5</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Green Bay</span><b class=\"vsp\">\u22123</b></span><span class=\"vopp\">vs Minnesota</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Jacksonville</span><b class=\"vsp\">\u22125.5</b></span><span class=\"vopp\">vs Tennessee</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Houston</span><b class=\"vsp\">\u22123.5</b></span><span class=\"vopp\">vs Indianapolis</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Indianapolis</span><b class=\"vsp\">+3.5</b></span><span class=\"vopp\">@ Houston</span></span></div><div class=\"vtotals\"><span class=\"vtot\"><b>34</b><span class=\"vtotlbl\">pts</span></span><span class=\"vtot lead\"><b>41</b><span class=\"vtotlbl\">pts</span></span></div></div></div>", "ask": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Root for\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker rootkick\">ROOT FOR</span><h2>Root for Dale?</h2></div></div><p class=\"rootasktext\">Your Live tab turns into <b>Dale\u2019s</b>: their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> on it any time to switch back to your own view. It ends on its own when the week does.</p><div class=\"tipnav\"><button class=\"confirmyes rootgo\">Root for Dale</button></div><button class=\"closebtn\">Cancel</button></div>", "rooted": "<div class=\"livehead\"><h2 class=\"panelhead\">Dale\u2019s Live</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\">Dale</b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Dale\u2019s Score</div><div class=\"scorebig\">40</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">49</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 15 scored</div><div class=\"scoreprog\"><i style=\"width: 53%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow me lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">40</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "chat": "<div class=\"chatsheet\" role=\"dialog\" aria-label=\"Pool Chat\"><div class=\"chathead\"><div class=\"chattitle\"><b>Pool Chat</b><span>Week 3 \u00b7 everyone in the pool</span></div><button class=\"backbtn anback\" type=\"button\">\u2039 Back</button></div><div class=\"chatpeople\"><span class=\"chatonline\"><i class=\"beacon\"></i>1 online now</span><div class=\"chatpills\"><span class=\"chatpill me\" style=\"color: var(--green)\">You<i class=\"beacon\"></i></span></div></div><div class=\"chatlist\"><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#e59cff\">Dale <i>\u00b7 2:57 PM</i></span><div class=\"chatbubble\">Lions are cooking today</div></div><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#ff9ecf\">Kermit <i>\u00b7 3:02 PM</i></span><div class=\"chatbubble\">Bills better cover for me</div></div></div><div class=\"chatcompose\"><textarea rows=\"1\" maxlength=\"200\" placeholder=\"Message the pool\" autocomplete=\"off\" enterkeyhint=\"send\" class=\"lxchatin\"></textarea><span class=\"chatcount\" hidden=\"\">0 / 200</span><button class=\"chatsend\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg></button></div></div>", "an": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Analysis\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker\">ANALYSIS</span><h2>How you\u2019re doing</h2></div><button type=\"button\" class=\"backbtn anback\">\u2039 Back</button></div><div class=\"ansect\">Current outlook<span class=\"anasof\">\u00b7 as of 3:42 PM</span></div><div class=\"anwk\"><div class=\"anwktop\"><div class=\"anwkhead\"><span class=\"anchip run\">IN THE RUNNING</span><b>You\u2019re right in the race.</b><p>You\u2019re one of the favorites. The games left decide it.</p></div><div class=\"anring\"><svg viewBox=\"0 0 88 88\" aria-hidden=\"true\"><circle class=\"rbg\" cx=\"44\" cy=\"44\" r=\"37\"></circle><circle class=\"rfg\" cx=\"44\" cy=\"44\" r=\"37\" style=\"stroke-dasharray: 232.478; stroke-dashoffset: 144.136;\"></circle></svg><div class=\"rin\"><b>38%</b><span>to win</span></div></div></div><div class=\"anvs\"><div class=\"side\"><span>Your best case</span><b>94</b><small>if your games win</small></div><div class=\"vs\">VS</div><div class=\"side w\"><span>Likely winning total</span><b>86</b><small>82\u201390 range</small><button type=\"button\" class=\"anconf\"></button></div></div><div class=\"anconfwhy\" hidden=\"\"></div><div class=\"anres\"></div><div class=\"antrackwrap\"><div class=\"antrack\"><span class=\"tband\"></span><span class=\"tnow\" style=\"width: 39.0805%;\"></span><span class=\"tmax\" style=\"left: 39.0805%; width: 51.7241%;\"></span><span class=\"tflag\"><em></em></span></div><div class=\"tlabels\"><span class=\"tl now\" style=\"left: 39.0805%; transform: translateX(-50%);\">Now 34</span><span class=\"tl\" style=\"left: 90.8046%; transform: translateX(-50%);\">Best 94</span></div></div><div class=\"anpath\"><div class=\"anleft\">6 games left \u00b7 worth 45 points</div></div></div><div class=\"tipnav\"><button class=\"confirmyes\">Got it</button></div><button type=\"button\" class=\"anmeth\" aria-expanded=\"false\"><span class=\"anmi\" aria-hidden=\"true\">i</span>How is this calculated? <span class=\"anchev\" aria-hidden=\"true\">\u25be</span></button><div class=\"anwhat\" hidden=\"\">Once 3 or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.</div></div>"}, "T": ["<svg viewBox=\"0 0 16 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 1h8l4 4v14H2z\"></path><path d=\"M10 1v4h4M5 10h6M5 14h6\"></path></svg>", "<svg viewBox=\"0 0 10 10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 6.5 5 3.5 8 6.5\"></path></svg>", "<svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3.2\" fill=\"currentColor\"></circle></svg>", "<svg viewBox=\"0 0 26 16\" aria-label=\"Has the ball\"><ellipse cx=\"13\" cy=\"8\" rx=\"12\" ry=\"7\" fill=\"#b98552\"></ellipse><path d=\"M8 8h10M11 6v4M13 6v4M15 6v4\" stroke=\"#ffffff\" stroke-width=\"1.4\" stroke-linecap=\"round\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5 10 17.5 19 7\"></path></svg>"]};
   function lxHTML(k){
     return (LX_DATA.S[k] || '')
       .replace(/\u0002(\d+)\u0003/g, function(m, i){ return LX_DATA.T[+i] || ''; })
@@ -11085,6 +11274,34 @@
   function lxPanTo(scr, el, margin){
     if(!el) return;
     lxPan(scr, (el.getBoundingClientRect().top - scr.getBoundingClientRect().top) / scr._s - (margin || 0));
+  }
+  /* A copy of the real tab bar, fixed to the bottom of the tip's screen like the app's. */
+  function lxBar(st, scr, key, badge){
+    const src = document.getElementById('tabBar');
+    if(!src) return null;
+    const w = document.createElement('div');
+    w.className = 'lxbarw';
+    w.innerHTML = src.outerHTML.replace(/\s(id|aria-current)="[^"]*"/g, '');
+    w.style.left = scr.style.left; w.style.transform = 'scale(' + scr._s + ')';
+    st.appendChild(w);
+    const bar = w.querySelector('.tabbar');
+    bar.querySelectorAll('.tabbtn').forEach(function(b){ b.setAttribute('tabindex', '-1'); });
+    const pk = bar.querySelector('[data-tab="picks"]'); if(pk) pk.classList.add('lockd');
+    const bd = bar.querySelector('.tabbadge');
+    if(bd){ bd.textContent = badge || ''; bd.classList.toggle('gone', !badge); }
+    lxBarLight(bar, key, true);
+    return bar;
+  }
+  function lxBarLight(bar, key, jump){
+    if(!bar) return;
+    let on = null;
+    bar.querySelectorAll('.tabbtn').forEach(function(b){ b.classList.toggle('on', b.dataset.tab === key); if(b.dataset.tab === key) on = b; });
+    if(key === 'chat'){ const bd = bar.querySelector('.tabbadge'); if(bd) bd.classList.add('gone'); }
+    const rail = bar.querySelector('.rail');
+    if(!rail || !on) return;
+    if(jump) rail.style.transition = 'none';
+    rail.style.left = (on.offsetLeft + (on.offsetWidth - 40) / 2) + 'px'; rail.style.width = '40px'; rail.style.opacity = 1;
+    if(jump){ void rail.offsetWidth; rail.style.transition = ''; }
   }
   function lxOverlay(scr, html, cls){
     const o = document.createElement('div');
@@ -11176,8 +11393,9 @@
     },
     sheets: function(st, R){
       R.stop();
-      const scr = lxScreen(st, lxHTML('top'), 0.72), sb = scr.querySelector('.sharebtn');
-      if(sb){ sb.classList.remove('on'); sb.lastChild.textContent = 'Open Sheets'; }
+      const scr = lxScreen(st, lxHTML('top'), 0.72), sb = scr.querySelector('.lbsheets');
+      const okd = sb ? sb.querySelector('.ok') : null;
+      if(sb){ sb.classList.remove('on', 'dim'); if(okd) okd.remove(); }
       const dale = [].filter.call(scr.querySelectorAll('.lbrow'), function(r){ return /Dale/.test(r.textContent); })[0];
       const o1 = lxOverlay(scr, lxHTML('share')), o2 = lxOverlay(scr, lxHTML('cmp'));
       const yes = o1.querySelector('.confirmyes');
@@ -11185,7 +11403,7 @@
       R.later(function(){ R.go(sb); }, 300);
       R.later(function(){ R.tap(function(){ o1.classList.add('show'); R.later(function(){ lxPanTo(scr, o1.querySelector('.confirmcard'), 20); }, 250); }); }, 1200);
       R.later(function(){ R.go(yes); }, 2400);
-      R.later(function(){ R.tap(function(){ o1.classList.remove('show'); if(sb){ sb.classList.add('on'); sb.lastChild.textContent = 'Sheets Open'; } lxPan(scr, 0); }); }, 3400);
+      R.later(function(){ R.tap(function(){ o1.classList.remove('show'); if(sb){ sb.classList.add('on'); if(okd) sb.appendChild(okd); } lxPan(scr, 0); }); }, 3400);
       R.later(function(){ R.go(dale); }, 4400);
       R.later(function(){ R.tap(function(){ if(dale) dale.style.boxShadow = '0 0 0 1px rgba(53,208,255,0.9)'; }); }, 5300);
       R.later(function(){ R.hide(); o2.classList.add('show'); }, 5600);
@@ -11250,11 +11468,12 @@
     },
     chat: function(st, R){
       R.stop();
-      const scr = lxScreen(st, lxHTML('top'), 0.72), btn = scr.querySelector('.chatbtn');
+      const scr = lxScreen(st, lxHTML('top'), 0.72);
       const o = lxOverlay(scr, lxHTML('chat')), list = o.querySelector('.chatlist');
+      const bar = lxBar(st, scr, 'live', '2'), btn = bar ? bar.querySelector('[data-tab="chat"]') : null;
       R.start();
       R.later(function(){ R.go(btn); }, 300);
-      R.later(function(){ R.tap(function(){ o.classList.add('show'); }); }, 1300);
+      R.later(function(){ R.tap(function(){ o.classList.add('show'); lxBarLight(bar, 'chat'); }); }, 1300);
       R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.chatsheet'), 10); }, 1800);
       R.later(function(){
         if(!list) return;
@@ -11262,6 +11481,9 @@
         m.innerHTML = '<span class="chatwho" style="color: var(--green)">' + esc(player().name || 'You') + ' <i>\u00B7 3:42 PM</i></span><div class="chatbubble">Don\u2019t jinx it</div>';
         if(!R.still){ m.style.opacity = 0; m.style.transform = 'translateY(8px)'; m.style.transition = 'opacity .35s ease, transform .35s ease'; }
         list.appendChild(m); void m.offsetWidth; m.style.opacity = 1; m.style.transform = 'none';
+        const lim = (st.clientHeight - 96 * scr._s) / scr._s;      // just above the tab bar
+        const mb = (m.getBoundingClientRect().bottom - scr.getBoundingClientRect().top) / scr._s;
+        if(mb - scr._y > lim) lxPan(scr, mb - lim);
       }, 3600);
       R.later(function(){ LX_PLAY.chat(st, R); }, 7800);
     }
