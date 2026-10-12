@@ -3252,6 +3252,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.9.1</b> The Quick Tip for tapping a game now shows both ways in: the game cards and your sheet.</div>
       <div class="cl"><b>4.9.0</b> Tap any game for a live field: every play drawn as it happens, who has the ball, the red zone, the last two minutes and the win chance. Games not on your sheet show their logos again.</div>
       <div class="cl"><b>4.8.0</b> Your sheet now lives on the Live tab with scores as they happen. Tap any game for the full picture. Faster, darker start-up.</div>
       <div class="cl"><b>4.7.0</b> New glass tab bar with Pool Chat as its own tab. Open Sheets moved into the leaderboard. Asking for an unlock now double-checks first.</div>
@@ -3688,7 +3689,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.9.0';
+  const APP_VERSION = '4.9.1';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -12314,7 +12315,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      get the four new cards once. The Quick Tips pill opens the full deck.
      Reduced motion: each card holds still on its key moment, no pointer. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 4;     // 4.9.0: the game slide-up card shows once to everyone
+  const LIVETIPS_VERSION = 5;     // 4.9.1: the redone game slide-up card (cards + sheet) shows once more to everyone
   // 4.9.0: 'lvsheet' (tap any game) shows once to everyone (version 4).
   const LT_FULL = ['live', 'lvsheet', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
   const LT_NEW = ['lvsheet'];
@@ -12463,7 +12464,71 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       c.textContent = Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
     });
   }
-  const LX_STILL = { lvsheet: 2700, live: 5300, sheets: 6400, win: 2500, analysis: 4300, root: 6700, chat: 3700 };
+  /* 4.9.1: the tip plays a real long pass on the slide-up's field, the same
+     way the app does: the ball spirals along the arc, the line of scrimmage,
+     the marker and the drive band follow, the red zone lights up, and the
+     yellow line blinks back in. */
+  function lxDeepPass(o, R){
+    const fx = o.querySelector('.fx'); if(!fx || !fx.clientWidth) return;
+    const W = fx.clientWidth, H = 56, EZ = W / 12, px = function(y){ return EZ + y * (W - 2 * EZ) / 100; };
+    const q = function(sel){ return o.querySelector(sel); };
+    const los = q('.fx-los'), fd = q('.fx-fd'), ch = q('.fx-chev'), ball = q('.fx-ball'), sh = q('.fx-shadow'), band = q('.fx-band'), rz = q('.fx-rz'), pm = q('.fx-pm');
+    const ddl = q('.gx-dd .ddl'), tag = q('.lptag'), txt = q('.lptxt'), wsb = q('.ws .tm b'), wso = q('.ws .tm.op b'), wbar = q('.ws .bar i');
+    const tv = q('.fxt'), A = 35, B = 86, bandL = band ? parseFloat(band.style.left) || px(25) : px(25);
+    const setBall = function(x, y, r){ if(ball) ball.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (r || 0) + 'deg)'; };
+    const still = function(els, fn){ els.forEach(function(e){ if(e) e.style.transition = 'none'; }); fn(); if(los) void los.offsetWidth; els.forEach(function(e){ if(e) e.style.transition = ''; }); };
+    // before the snap: 1st & 10 at NE 35
+    still([los, ch, pm, band, fd], function(){
+      if(los) los.style.left = px(A) + 'px'; if(ch){ ch.style.left = px(A) + 'px'; ch.style.opacity = 1; }
+      if(pm) pm.style.left = Math.max(28, px(A)) + 'px';
+      if(fd){ fd.classList.remove('off', 'fdin'); fd.style.left = px(A + 10) + 'px'; fd.style.opacity = 1; }
+      if(band){ band.style.left = bandL + 'px'; band.style.width = Math.max(0, px(A) - bandL) + 'px'; band.style.opacity = 1; }
+    });
+    if(rz) rz.classList.remove('on'); fx.classList.remove('rzone');
+    if(tv) tv.innerHTML = '';
+    setBall(px(A), H / 2, 0);
+    if(ddl) ddl.innerHTML = '<b class="dnb">1ST</b><span>&amp; 10</span><span class="ddat">at NE 35</span>';
+    if(tag){ tag.className = 'lptag'; tag.textContent = 'RUN'; }
+    if(txt) txt.textContent = 'Rhamondre Stevenson up the middle for 4 yards';
+    // the throw
+    R.later(function(){
+      if(fd) fd.classList.add('off'); if(ch) ch.style.opacity = 0;
+      const ns = 'http://www.w3.org/2000/svg', g = document.createElementNS(ns, 'g'); if(tv) tv.appendChild(g);
+      const st = document.createElementNS(ns, 'circle'); st.setAttribute('class', 'mk-start'); st.setAttribute('cx', px(A)); st.setAttribute('cy', H / 2); st.setAttribute('r', 2.6); g.appendChild(st);
+      const p = document.createElementNS(ns, 'path'); p.setAttribute('class', 'tr pass');
+      p.setAttribute('d', 'M' + px(A) + ' ' + H / 2 + 'Q' + (px(A) + px(B)) / 2 + ' ' + (H / 2 - 38) + ' ' + px(B) + ' ' + H / 2); g.appendChild(p);
+      const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+      const land = function(){
+        p.style.strokeDashoffset = 0; if(ball) ball.classList.remove('spiral'); setBall(px(B), H / 2, 0);
+        if(sh) sh.style.opacity = 0;
+        const d = document.createElementNS(ns, 'circle'); d.setAttribute('class', 'fxdot'); d.setAttribute('cx', px(B)); d.setAttribute('cy', H / 2); d.setAttribute('r', 2); g.appendChild(d);
+        g.setAttribute('class', 'fxold');
+        if(los) los.style.left = px(B) + 'px'; if(ch){ ch.style.left = px(B) + 'px'; ch.style.opacity = 1; }
+        if(pm) pm.style.left = Math.min(W - 28, px(B)) + 'px';
+        if(band) band.style.width = Math.max(0, px(B) - bandL) + 'px';
+        if(rz) rz.classList.add('on'); fx.classList.add('rzone');
+        if(ddl) ddl.innerHTML = '<b class="dnb">1ST</b><span>&amp; 10</span><span class="ddat">at CAR 14</span><span class="rzc">Red Zone</span>';
+        if(tag){ tag.className = 'lptag'; tag.textContent = 'PASS \u00B7 DEEP'; }
+        if(txt) txt.textContent = 'Drake Maye pass deep right to Stefon Diggs for 51 yards';
+        if(wsb){ wsb.textContent = '93%'; } if(wso){ wso.textContent = '7%'; } if(wbar) wbar.style.width = '93%';
+        R.later(function(){ if(fd){ fd.style.transition = 'none'; fd.style.left = px(96) + 'px'; void fd.offsetWidth; fd.style.transition = ''; fd.classList.remove('off'); void fd.offsetWidth; fd.classList.add('fdin'); } }, 950);
+      };
+      if(R.still){ land(); return; }
+      if(ball){ ball.classList.add('spiral'); ball.style.setProperty('--trail', '24px'); }
+      const t0 = performance.now(), ms = 1150;
+      (function f(now){
+        if(!o.isConnected) return;
+        const k = Math.min(1, (now - t0) / ms), s = L * k;
+        const a = p.getPointAtLength(s), b2 = p.getPointAtLength(Math.min(L, s + 1)), b0 = p.getPointAtLength(Math.max(0, s - 1));
+        const lift = Math.sin(Math.PI * k);
+        setBall(a.x, a.y, Math.atan2(b2.y - b0.y, b2.x - b0.x) * 180 / Math.PI);
+        if(sh){ sh.style.transform = 'translate(' + a.x + 'px,' + (H / 2 + 1) + 'px) scale(' + (1 - 0.4 * lift) + ')'; sh.style.opacity = 0.34 * (1 - 0.6 * lift); }
+        p.style.strokeDashoffset = L - s;
+        if(k < 1) requestAnimationFrame(f); else land();
+      })(t0);
+    }, 800);
+  }
+  const LX_STILL = { lvsheet: 3300, live: 5300, sheets: 6400, win: 2500, analysis: 4300, root: 6700, chat: 3700 };
   const LX_PLAY = {
     live: function(st, R){
       R.stop();
@@ -12475,21 +12540,46 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       R.later(function(){ if(g[2]){ lxBump(g[2], 1, 7); lxPlay(g[2], 'TD + XP ' + lxTeam(g[2], 1)); } }, 5200);
       R.later(function(){ LX_PLAY.live(st, R); }, 8400);
     },
+    /* 4.9.1: both ways in. Scene 1: tap a Live now card, the game slides up.
+       Scene 2: tap a row on Your Sheet, the same slide-up. Titles only. */
     lvsheet: function(st, R){
       R.stop();
-      const scr = lxScreen(st, lxHTML('lvs'), 0.74);
-      const o = lxOverlay(scr, lxHTML('gx'));
-      const nm = o.querySelector('.gx-team.mine .gx-name'), rows = scr.querySelectorAll('.lvsheet .sheetrow');
-      const row = [].filter.call(rows, function(r){ return nm && r.querySelector('.sheetcity').textContent === nm.textContent; })[0] || rows[Math.min(4, rows.length - 1)];
-      R.later(function(){ lxPanTo(scr, row, 150); }, 50);
-      R.later(function(){ R.start(); R.go(row); }, 900);
+      R.cap('');
+      let scr = lxScreen(st, lxHTML('live'), 0.74);
+      let o = lxOverlay(scr, lxHTML('gx'));
+      const nm = o.querySelector('.gx-team.mine .gx-name'), who = nm ? nm.textContent : '';
+      const card = [].filter.call(scr.querySelectorAll('.gcard.islive'), function(c){ return c.textContent.indexOf(who) >= 0; })[0] || scr.querySelector('.gcard.islive');
+      R.later(function(){ R.cap('Tap a game card'); lxPanTo(scr, card, 60); }, 50);
+      R.later(function(){ R.start(); R.go(card); }, 700);
       R.later(function(){ R.tap(function(){
-        const h = scr.querySelector('.lvhint'); if(h) h.remove();
+        if(card) card.style.filter = 'brightness(1.12)';
         o.classList.add('show');
-        R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.sheet'), 10); }, 250);
-      }); }, 2000);
-      R.later(function(){ lxPanTo(scr, o.querySelector('.gx-win') || o.querySelector('.gx-last'), 330); }, 4600);
-      R.later(function(){ LX_PLAY.lvsheet(st, R); }, 8200);
+        R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.sheet'), 10); lxDeepPass(o, R); }, 250);
+        R.later(function(){ R.cap(''); }, 1100);
+      }); }, 1700);
+      R.later(function(){ lxPanTo(scr, o.querySelector('.gx-win') || o.querySelector('.gx-last'), 330); }, 5200);
+      R.later(function(){ o.classList.remove('show'); R.cap(''); }, 6600);
+      // scene 2: the sheet
+      R.later(function(){
+        scr.style.transition = 'opacity .25s ease'; scr.style.opacity = 0;
+        R.later(function(){
+          scr = lxScreen(st, lxHTML('lvs'), 0.74);
+          o = lxOverlay(scr, lxHTML('gx'));
+          scr.style.opacity = 0; void scr.offsetWidth; scr.style.transition = 'opacity .3s ease'; scr.style.opacity = 1;
+          const rows = scr.querySelectorAll('.lvsheet .sheetrow');
+          const row = [].filter.call(rows, function(r){ return r.querySelector('.sheetcity').textContent === who; })[0] || rows[Math.min(4, rows.length - 1)];
+          lxPanTo(scr, row, 150); R.cap('Or a game on your sheet');
+          R.later(function(){ R.start(); R.go(row); }, 700);
+          R.later(function(){ R.tap(function(){
+            const h = scr.querySelector('.lvhint'); if(h) h.remove();
+            o.classList.add('show');
+            R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.sheet'), 10); lxDeepPass(o, R); }, 250);
+        R.later(function(){ R.cap(''); }, 1100);
+          }); }, 1700);
+          R.later(function(){ lxPanTo(scr, o.querySelector('.gx-win') || o.querySelector('.gx-last'), 330); }, 5200);
+          R.later(function(){ R.cap(''); LX_PLAY.lvsheet(st, R); }, 7600);
+        }, 260);
+      }, 7000);
     },
     sheets: function(st, R){
       R.stop();
