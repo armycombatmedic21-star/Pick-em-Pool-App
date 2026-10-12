@@ -2727,20 +2727,15 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .gx-tag{ display:inline-flex; align-items:center; gap:5px; height:20px; padding:0 8px; border-radius:6px; font-size:9.5px; font-weight:800; letter-spacing:1.1px;
   color:#8fe6ff; background: rgba(53,208,255,0.10); border:1px solid rgba(53,208,255,0.32); }
 .gx-tag{ display:inline-block; line-height:18px; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-@media (max-width:374px){ .gx-name{ font-size:14.5px; } .gx-match{ gap:6px; } }
-@media (max-width:392px){ .gx-tag{ padding:0 5px; letter-spacing:0.5px; } }
+@media (max-width:392px){ .gx-tag{ padding:0 5px; letter-spacing:0.5px; font-size:9px; } }
 .gx-team.rooted .gx-tag{ color:#b8caff; background: rgba(79,124,255,0.14); border-color: rgba(79,124,255,0.45); }
 .gx-sub{ font-size:11.5px; font-weight:700; color: var(--faint); }
 .gx-mid{ display:flex; flex-direction:column; align-items:center; gap:8px; padding-top:8px; min-width:118px; }
-.gx-score{ display:grid; grid-template-columns: 16px 52px 14px 52px 16px; align-items:center; font-variant-numeric: tabular-nums; }
+.gx-score{ display:grid; grid-template-columns: 20px 52px 14px 52px 20px; align-items:center; font-variant-numeric: tabular-nums; }
 /* possession: a small football beside the score of the team with the ball; it slides across when the ball changes hands */
 .gx-fb{ display:block; width:17px; height:10px; justify-self:center; visibility:hidden; }
 .gx-fb.has{ visibility:visible; }
 .gx-fb svg{ display:block; width:17px; height:10px; filter: drop-shadow(0 0 4px rgba(255,255,255,0.25)); }
-/* drive direction on the field */
-.gx-dir{ position:absolute; top:50%; width:0; height:0; margin-top:-5px; border-top:5px solid transparent; border-bottom:5px solid transparent; opacity:0.9; }
-.gx-dir.r{ border-left:7px solid var(--cyan); margin-left:11px; filter: drop-shadow(0 0 4px rgba(53,208,255,0.8)); }
-.gx-dir.l{ border-right:7px solid var(--cyan); margin-left:-18px; filter: drop-shadow(0 0 4px rgba(53,208,255,0.8)); }
 .gx-score b{ justify-self:end; font-size:40px; font-weight:800; letter-spacing:-1px; color:#ffffff; line-height:1; }
 .gx-score i{ justify-self:center; font-style:normal; font-size:24px; color: var(--faint); }
 .gx-score span{ justify-self:start; font-size:40px; font-weight:800; letter-spacing:-1px; color: var(--muted); line-height:1; }
@@ -2748,7 +2743,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .gx-when{ font-size:26px; font-weight:800; letter-spacing:-0.4px; color:#ffffff; line-height:1.05; text-align:center; }
 .gx-when small{ display:block; font-size:12px; font-weight:700; letter-spacing:0; color: var(--muted); margin-top:5px; }
 .gx-stat{ display:flex; align-items:center; gap:7px; font-size:13px; font-weight:800; color:#ffffff; }
-.gx-stat .beacon{ width:7px; height:7px; background: currentColor; animation:none;
+.gx-stat .beacon{ width:7px; height:7px; background: currentColor; animation: gxdot 2.2s ease-out infinite;
   box-shadow: 0 0 7px 1px color-mix(in srgb, currentColor 70%, transparent), 0 0 0 4px color-mix(in srgb, currentColor 18%, transparent); }
 .gx-stat .beacon.tie{ color: var(--cyan); } .gx-stat .beacon.up2{ color:#2fe07f; } .gx-stat .beacon.dn{ color:#ff9a3c; } .gx-stat .beacon.dn2{ color:#ff3b4e; }
 .gx-stat.fin{ font-size:12px; letter-spacing:1.6px; color: var(--muted); }
@@ -2756,45 +2751,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .gx-to{ display:flex; gap:5px; margin-top:1px; }
 .gx-to i{ width:6px; height:6px; border-radius:50%; background: rgba(147,174,200,0.22); }
 .gx-to i.on{ background:#f4f8fc; box-shadow: 0 0 5px rgba(255,255,255,0.35); }
-/* the field: TV-style, line of scrimmage + yellow first-down line */
-.gx-field{ margin:20px 0 0; }
-.gx-strip{ position:relative; height:46px; border-radius:10px; overflow:hidden; display:grid; grid-template-columns: 34px 1fr 34px;
-  background: linear-gradient(180deg, rgba(53,208,255,0.06), rgba(53,208,255,0.02)); border:1px solid rgba(147,174,200,0.16); }
-.gx-ez{ display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; letter-spacing:1px; color: var(--muted);
-  background: rgba(255,255,255,0.035); writing-mode: vertical-rl; transform: rotate(180deg); }
-.gx-ez.r{ transform:none; }
-.gx-yd{ position:relative; background:
-  repeating-linear-gradient(90deg, rgba(147,174,200,0.16) 0 1px, transparent 1px 10%); background-position: 10% 0; }
-.gx-yd .n{ position:absolute; bottom:3px; transform:translateX(-50%); font-size:8.5px; font-weight:800; color: rgba(147,174,200,0.45); }
-.gx-los{ position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background: var(--cyan); box-shadow: 0 0 8px rgba(53,208,255,0.8); }
-.gx-fd{ position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; background:#f4d03f; box-shadow: 0 0 8px rgba(244,208,63,0.7); }
-.gx-ball{ position:absolute; top:50%; width:15px; height:9px; margin:-5px 0 0 -8px; border-radius:50%; background:#c98a4b;
-  box-shadow: 0 0 0 1.5px #ffffff inset, 0 0 10px rgba(255,255,255,0.35); }
-.gx-dd{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; font-size:14px; font-weight:800; color:#ffffff; }
-.gx-dd span{ font-size:12px; font-weight:700; color: var(--muted); }
-.gx-last{ margin-top:12px; padding:11px 13px; border-radius:12px; background: rgba(255,255,255,0.03); border:1px solid rgba(147,174,200,0.12);
-  font-size:14px; font-weight:600; color:#dfe9f5; line-height:1.4; }
-.gx-last small{ display:block; font-size:9.5px; font-weight:800; letter-spacing:1.4px; color: var(--faint); margin-bottom:3px; }
-/* bottom: your points on this game */
-.gx-pts{ display:flex; align-items:center; gap:12px; margin-top:18px; padding:12px 14px; border-radius:14px;
-  background: rgba(255,255,255,0.03); border:1px solid rgba(147,174,200,0.12); }
-.gx-box{ flex:none; width:48px; height:44px; border-radius:11px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background: rgba(53,208,255,0.08); border:1px solid rgba(53,208,255,0.25); font-size:19px; font-weight:800; color:#ffffff; line-height:1; }
-.gx-box em{ font-style:normal; font-size:8px; font-weight:800; letter-spacing:1px; color: var(--muted); margin-top:3px; }
-.gx-pts.won .gx-box{ background: linear-gradient(180deg, rgba(61,220,132,0.28), rgba(61,220,132,0.12)); border-color: rgba(61,220,132,0.65); color:#8af5b9; box-shadow: 0 0 10px rgba(61,220,132,0.22); }
-.gx-pts.lost .gx-box{ background: linear-gradient(180deg, rgba(255,59,78,0.24), rgba(255,59,78,0.10)); border-color: rgba(255,59,78,0.6); color:#ff8590; }
-.gx-pts.won{ background: linear-gradient(90deg, rgba(61,220,132,0.11), rgba(61,220,132,0.025) 70%, rgba(61,220,132,0)); border-color: rgba(61,220,132,0.2); }
-.gx-pts.lost{ background: linear-gradient(90deg, rgba(255,59,78,0.12), rgba(255,59,78,0.03) 70%, rgba(255,59,78,0)); border-color: rgba(255,59,78,0.2); }
-.gx-ptxt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
-.gx-ptxt b{ font-size:15px; font-weight:800; color:#ffffff; }
-.gx-pts.won .gx-ptxt b{ color:#8af5b9; } .gx-pts.lost .gx-ptxt b{ color:#ff8590; }
-.gx-ptxt span{ font-size:12.5px; font-weight:600; color: var(--muted); }
-.gx-pct{ flex:none; text-align:right; }
-.gx-pct b{ display:block; font-size:20px; font-weight:800; color:#ffffff; line-height:1; }
-.gx-pct span{ font-size:9.5px; font-weight:800; letter-spacing:1.1px; color: var(--muted); }
-.gx-line{ display:flex; justify-content:center; gap:8px; margin-top:16px; flex-wrap:wrap; }
-.gx-chip{ height:26px; padding:0 10px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:800;
-  color: var(--text); background: rgba(255,255,255,0.04); border:1px solid rgba(147,174,200,0.16); }
 /* hint in the column labels row: pulses until the first tap on a game, then it's gone for good */
 .lvsheet .sheetcols{ position:relative; }
 .lvhint{ position:absolute; right:84px; top:50%; transform:translateY(-50%); font-style:normal; font-size:10px; font-weight:800; letter-spacing:1.4px;
@@ -2808,6 +2764,187 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .lvsheet .sheetrow{ cursor:pointer; -webkit-tap-highlight-color: transparent; }
 .gx-to:empty{ display:none; }
 @media (prefers-reduced-motion: reduce){ .gx-fbm{ transition:none; } .lvhint{ animation:none; } }
+/* ===== 4.9.0 game slide-up: tighter card, upgraded live field, possession marker ===== */
+@keyframes gxdot{ 0%{ box-shadow: 0 0 7px 1px color-mix(in srgb, currentColor 70%, transparent), 0 0 0 0 color-mix(in srgb, currentColor 60%, transparent); }
+  70%,100%{ box-shadow: 0 0 7px 1px color-mix(in srgb, currentColor 70%, transparent), 0 0 0 7px transparent; } }
+/* pick tag carries the line: YOUR FAV −3 / YOUR DOG +7.5 (silver, like DOG everywhere else) */
+.gx-tag .sp{ margin-left:5px; font-variant-numeric: tabular-nums; }
+.gx-tag{ letter-spacing:0.55px; padding:0 5px; }
+@media (max-width:392px){ .gx-tag{ letter-spacing:0.4px; padding:0 4px; font-size:9px; } .gx-tag .sp{ margin-left:3px; } }
+@media (max-width:374px){ .gx-name{ font-size:14px; overflow-wrap:normal; } .gx-match{ gap:6px; } .gx-score{ grid-template-columns: 20px 44px 12px 44px 20px; } .gx-score b, .gx-score span{ font-size:34px; } .gx-mid{ min-width:0; } }
+.gx-tag.dog, .gx-team.rooted .gx-tag.dog{ color:#0b1321; background: linear-gradient(180deg, #e6ecf3, #aeb9c7); border-color: rgba(214,224,236,0.9); box-shadow: 0 0 10px rgba(214,224,236,0.22); }
+.gx-tag.offs{ color: var(--muted); background: rgba(255,255,255,0.04); border-color: rgba(147,174,200,0.25); }
+.gx-team.offt .gx-name{ color: var(--text); }
+.gx-team.offt .gx-logo{ border-color: rgba(147,174,200,0.12); box-shadow:none; background: rgba(255,255,255,0.03); }
+/* score: the team that just scored pulses cyan once and keeps the glow (same as the live cards) */
+.gx-score b, .gx-score span{ transition: color .9s ease, text-shadow .9s ease; }
+.gx-score .js{ color: var(--cyan) !important; text-shadow: 0 0 14px rgba(53,208,255,0.55); }
+.gx-score .js.pop{ animation: gxscpulse 1s ease-out; }
+@keyframes gxscpulse{ 0%{ transform:scale(1); } 25%{ transform:scale(1.2); text-shadow: 0 0 24px rgba(53,208,255,0.95); } 100%{ transform:scale(1); } }
+/* under two minutes: the clock becomes a gold capsule with a fuse that burns down to 0:00 */
+.gx-stat .sw{ display:none; width:12px; height:12px; margin-right:-2px; }
+.gx-stat.twomin{ position:relative; overflow:hidden; padding:3px 10px 5px; border-radius:999px; color:#f4c43d;
+  background: rgba(244,196,61,0.08); box-shadow: inset 0 0 0 1px rgba(244,196,61,0.55), 0 0 12px rgba(244,196,61,0.18); }
+.gx-stat.twomin .sw{ display:block; }
+.gx-stat .fuse{ display:none; position:absolute; left:0; bottom:0; height:2px; border-radius:2px; background: linear-gradient(90deg, #f4c43d, #ffe08a);
+  box-shadow: 0 0 6px rgba(244,196,61,0.9); transition: width .9s linear; }
+.gx-stat.twomin .fuse{ display:block; }
+.gx-stat .fuse::after{ content:''; position:absolute; right:-2px; top:-1.5px; width:5px; height:5px; border-radius:50%; background:#fff3c4;
+  box-shadow: 0 0 6px 2px rgba(255,214,102,0.95); animation: gxspark .5s ease-in-out infinite alternate; }
+@keyframes gxspark{ from{ opacity:.55; transform:scale(.8); } to{ opacity:1; transform:scale(1.15); } }
+.gx-stat.twomin.hit{ animation: gxtwhit 1.2s ease-out; }
+@keyframes gxtwhit{ 0%,40%{ text-shadow: 0 0 14px rgba(244,196,61,0.95); transform: scale(1.12); } 100%{ text-shadow:none; transform:none; } }
+#gxOverlay .sheet.twomin .gx-to i.on{ background:#f4c43d; box-shadow: 0 0 6px rgba(244,196,61,0.75); }
+.gx-to i{ transition: background .5s, box-shadow .5s; }
+/* the field */
+.gx-field{ position:relative; margin:16px 0 0; }
+.fx-poss{ position:relative; height:26px; margin-bottom:5px; }
+.fx-poss[hidden]{ display:none; }
+.fx-pm{ position:absolute; top:0; display:flex; align-items:center; gap:5px; height:24px; padding:0 8px 0 5px; border-radius:999px;
+  background: rgba(13,22,38,0.92); box-shadow: inset 0 0 0 1px rgba(53,208,255,0.35), 0 0 12px rgba(53,208,255,0.16);
+  transform: translateX(-50%); transition: left .65s cubic-bezier(.3,.7,.3,1); white-space:nowrap; }
+.fx-pm img{ width:18px; height:18px; object-fit:contain; display:block; transition: opacity .2s ease, transform .3s ease; }
+.fx-pm img.swap{ opacity:0; transform: scale(.6); }
+.fx-pm .ar{ display:block; width:16px; height:10px; color: var(--cyan); filter: drop-shadow(0 0 4px rgba(53,208,255,0.8)); transition: transform .45s cubic-bezier(.3,.8,.3,1.2); }
+.fx-pm .ar svg{ display:block; width:16px; height:10px; }
+.fx-pm.l{ flex-direction: row-reverse; padding:0 5px 0 8px; }
+.fx-pm.l .ar{ transform: rotate(180deg); }
+.fx-pm::after{ content:''; position:absolute; left:50%; bottom:-6px; width:0; height:0; margin-left:-4px;
+  border-left:4px solid transparent; border-right:4px solid transparent; border-top:5px solid rgba(53,208,255,0.55); }
+.fx-pm.flip{ animation: gxpmflip .6s ease-out; }
+@keyframes gxpmflip{ 35%{ box-shadow: inset 0 0 0 1px #35d0ff, 0 0 18px rgba(53,208,255,0.6); } }
+.fx{ position:relative; height:56px; border-radius:11px; overflow:hidden; isolation:isolate; background:#0b1727;
+  box-shadow: inset 0 0 0 1px rgba(147,174,200,0.18), inset 0 10px 18px rgba(255,255,255,0.025), 0 6px 18px rgba(0,0,0,0.35); transition: box-shadow .9s ease; }
+.fx-turf{ position:absolute; top:0; bottom:0; }
+.fx-ez{ position:absolute; top:0; bottom:0; display:flex; align-items:center; justify-content:center; overflow:hidden; background: rgba(147,174,200,0.12); }
+.fx-ez span{ position:relative; z-index:1; font-size:9.5px; font-weight:800; letter-spacing:1.8px; color: rgba(255,255,255,0.82); writing-mode: vertical-rl; transform: rotate(180deg); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.fx-ez.r span{ transform:none; }
+.fx-ez i{ position:absolute; inset:0; opacity:0; }
+.fx-ez.td i{ animation: gxeztd 1.6s ease-out forwards; }
+@keyframes gxeztd{ 0%{ opacity:0; } 20%{ opacity:1; } 100%{ opacity:.55; } }
+.fx svg{ position:absolute; left:0; top:0; overflow:visible; }
+.fx-sheen{ position:absolute; inset:0; pointer-events:none; z-index:6; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0) 40%, rgba(0,0,0,0.14)); }
+.fx-band{ position:absolute; top:0; bottom:0; opacity:0; background: linear-gradient(180deg, rgba(53,208,255,0.10), rgba(53,208,255,0.05)); border-left:1px dashed rgba(53,208,255,0.45);
+  transition: left .65s cubic-bezier(.3,.7,.3,1), width .65s cubic-bezier(.3,.7,.3,1), opacity .3s; }
+.fx-band.l{ border-left:none; border-right:1px dashed rgba(53,208,255,0.45); }
+.fx-rz{ position:absolute; top:0; bottom:0; z-index:1; opacity:0; transition: opacity .5s ease; pointer-events:none;
+  background: linear-gradient(90deg, rgba(255,59,78,0.02), rgba(255,59,78,0.30)), repeating-linear-gradient(115deg, rgba(255,59,78,0.13) 0 3px, transparent 3px 9px);
+  background-size: 100% 100%, 36px 100%; border-left:1.5px solid rgba(255,59,78,0.9); box-shadow: -4px 0 10px -4px rgba(255,59,78,0.9); }
+.fx-rz.l{ background: linear-gradient(270deg, rgba(255,59,78,0.02), rgba(255,59,78,0.30)), repeating-linear-gradient(65deg, rgba(255,59,78,0.13) 0 3px, transparent 3px 9px);
+  background-size: 100% 100%, 36px 100%; border-left:none; border-right:1.5px solid rgba(255,59,78,0.9); box-shadow: 4px 0 10px -4px rgba(255,59,78,0.9); }
+.fx-rz.on{ opacity:1; animation: gxrzflow 2.2s linear infinite, gxrzbreath 2.4s ease-in-out infinite; }
+.fx-rz.l.on{ animation: gxrzflowl 2.2s linear infinite, gxrzbreath 2.4s ease-in-out infinite; }
+@keyframes gxrzflow{ from{ background-position: 0 0, 0 0; } to{ background-position: 0 0, 36px 0; } }
+@keyframes gxrzflowl{ from{ background-position: 0 0, 0 0; } to{ background-position: 0 0, -36px 0; } }
+@keyframes gxrzbreath{ 0%,100%{ filter: brightness(1); } 50%{ filter: brightness(1.45); } }
+.fx.rzone{ box-shadow: inset 0 0 0 1px rgba(255,59,78,0.45), 0 0 14px rgba(255,59,78,0.16), 0 6px 18px rgba(0,0,0,0.35); }
+.fx-line{ position:absolute; top:0; bottom:0; width:2px; margin-left:-1px; z-index:3; transition: left .65s cubic-bezier(.3,.7,.3,1), opacity .3s; }
+.fx-los{ background: var(--cyan); box-shadow: 0 0 8px rgba(53,208,255,0.85); }
+.fx-fd{ background:#f4d03f; box-shadow: 0 0 8px rgba(244,208,63,0.7); }
+.fx-fd.off{ opacity:0 !important; transition: opacity .2s ease !important; }
+.fx-fd.fdin{ transform-origin: 50% 0; animation: gxfdin .5s cubic-bezier(.2,.8,.2,1); }
+@keyframes gxfdin{ 0%{ transform: scaleY(0); opacity:0; box-shadow: 0 0 16px 3px rgba(244,208,63,1); } 55%{ transform: scaleY(1); opacity:1; box-shadow: 0 0 18px 4px rgba(244,208,63,0.95); } 100%{ transform: scaleY(1); opacity:1; } }
+.fx-chev{ position:absolute; top:50%; width:0; height:0; margin-top:-5px; z-index:4; border-top:5px solid transparent; border-bottom:5px solid transparent;
+  transition: left .65s cubic-bezier(.3,.7,.3,1), opacity .3s; filter: drop-shadow(0 0 4px rgba(53,208,255,0.8)); }
+.fx-chev.r{ border-left:7px solid var(--cyan); margin-left:10px; }
+.fx-chev.l{ border-right:7px solid var(--cyan); margin-left:-17px; }
+.fx-ball{ position:absolute; left:0; top:0; width:17px; height:11px; margin:-5.5px 0 0 -8.5px; z-index:5; will-change:transform; }
+.fx-ball .fb{ position:absolute; inset:0; border-radius:50%; overflow:hidden; border:1.4px solid #ffffff;
+  background: radial-gradient(ellipse 75% 65% at 45% 32%, #dc985e, #b46c35 55%, #7b4320 100%); box-shadow: 0 0 5px rgba(255,255,255,0.35); }
+.fx-ball .lace{ position:absolute; left:3.4px; right:3.4px; top:50%; height:4px; margin-top:-2px; display:block; }
+.fx-ball .lace svg{ position:static; display:block; width:100%; height:100%; }
+.fx-ball .shine{ position:absolute; left:18%; right:18%; top:50%; height:2px; margin-top:-1px; border-radius:2px; background: rgba(255,255,255,0.6); filter: blur(0.6px); opacity:0; }
+.fx-ball .trail{ position:absolute; right:50%; top:50%; height:2.6px; margin-top:-1.3px; width:0; border-radius:2px;
+  background: linear-gradient(90deg, rgba(220,232,245,0), rgba(220,232,245,0.6)); transition: width .25s ease; }
+.fx-ball.spiral .trail{ width: var(--trail, 16px); }
+.fx-ball.spiral .lace{ animation: gxlace .19s linear infinite; }
+.fx-ball.spiral .shine{ animation: gxshine .19s linear infinite; animation-delay: -.095s; }
+@keyframes gxlace{ 0%{ transform: translateY(-4.4px) scaleY(.2); opacity:0; } 22%{ opacity:1; } 50%{ transform: translateY(0) scaleY(1); opacity:1; } 78%{ opacity:1; } 100%{ transform: translateY(4.4px) scaleY(.2); opacity:0; } }
+@keyframes gxshine{ 0%{ transform: translateY(-4px); opacity:0; } 50%{ transform: translateY(0); opacity:.6; } 100%{ transform: translateY(4px); opacity:0; } }
+.fx-shadow{ position:absolute; left:0; top:0; width:12px; height:5px; margin:-2.5px 0 0 -6px; border-radius:50%; background: rgba(0,0,0,0.45); z-index:4; opacity:0; filter: blur(1px); }
+.fx-off .fx-los, .fx-off .fx-fd, .fx-off .fx-chev, .fx-off .fx-ball, .fx-off .fx-band{ opacity:0 !important; }
+.fx-hold .fx-los, .fx-hold .fx-fd, .fx-hold .fx-chev, .fx-hold .fx-band, .fx-hold .fx-rz{ opacity:0 !important; }
+/* last-play drawings */
+.tr{ fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.tr.pass{ stroke: rgba(235,243,250,0.95); stroke-width:2; filter: drop-shadow(0 0 2px rgba(220,232,245,0.5)); }
+.tr.kick{ stroke: rgba(235,243,250,0.85); stroke-width:1.8; stroke-dasharray:4.5 3.5; filter: drop-shadow(0 0 2px rgba(220,232,245,0.45)); }
+.tr.loss{ stroke:#ff3b4e; stroke-width:2.3; filter: drop-shadow(0 0 3px rgba(255,59,78,0.6)); }
+.tr.to{ stroke:#ffb020; stroke-width:2.3; filter: drop-shadow(0 0 3px rgba(255,176,32,0.65)); }
+.tr.pen{ stroke:#f4d03f; stroke-width:2.4; stroke-dasharray:0.1 4.5; }
+.tr.inc{ stroke: rgba(170,192,214,0.75); stroke-width:1.7; stroke-dasharray:3.5 3; }
+.fxdot{ fill: rgba(240,246,252,1); filter: drop-shadow(0 0 2px rgba(220,232,245,0.6)); }
+.fxdot.loss{ fill:#ff3b4e; filter: drop-shadow(0 0 2px rgba(255,59,78,0.8)); } .fxdot.to{ fill:#ffb020; }
+.fxhead{ fill: rgba(220,232,245,0.95); } .fxhead.loss{ fill:#ff3b4e; } .fxhead.to{ fill:#ffb020; } .fxhead.pen{ fill:#f4d03f; }
+.mk-start{ fill:#0b1727; stroke: rgba(220,232,245,0.8); stroke-width:1.3; }
+.mk-x{ stroke: rgba(147,174,200,0.9); stroke-width:1.6; stroke-linecap:round; }
+.mk-burst{ fill:#ffb020; filter: drop-shadow(0 0 4px rgba(255,176,32,0.9)); }
+.mk-flag{ fill:#f4d03f; filter: drop-shadow(0 0 3px rgba(244,208,63,0.7)); }
+.fxold{ opacity:.78; transition: opacity .5s ease; }
+.fxpost{ stroke: rgba(244,208,63,0.6); stroke-width:1.6; fill:none; stroke-linecap:round; }
+.fxpostdot{ fill: rgba(244,208,63,0.75); }
+.fxposts.good .fxpost{ stroke:#2fe07f; filter: drop-shadow(0 0 4px rgba(47,224,127,0.9)); } .fxposts.good .fxpostdot{ fill:#2fe07f; }
+.fxposts.miss .fxpost{ stroke:#ff3b4e; filter: drop-shadow(0 0 4px rgba(255,59,78,0.9)); } .fxposts.miss .fxpostdot{ fill:#ff3b4e; }
+/* field flashes: the live cards' scoring / turnover flashes */
+.fx.flash{ animation: gxfxflash 1.5s ease-out; }
+.fx.scored{ box-shadow: inset 0 0 0 1px rgba(53,208,255,0.55), 0 0 12px rgba(53,208,255,0.14), 0 6px 18px rgba(0,0,0,0.35); }
+@keyframes gxfxflash{ 0%,35%{ box-shadow: inset 0 0 0 1px #35d0ff, inset 0 0 0 999px rgba(53,208,255,0.08), 0 0 26px rgba(53,208,255,0.45); }
+  100%{ box-shadow: inset 0 0 0 1px rgba(53,208,255,0.55), inset 0 0 0 999px rgba(53,208,255,0), 0 0 12px rgba(53,208,255,0.14); } }
+.fx.flashto{ animation: gxfxflashto 1.5s ease-out; }
+.fx.turned{ box-shadow: inset 0 0 0 1px rgba(255,176,32,0.55), 0 0 12px rgba(255,176,32,0.14), 0 6px 18px rgba(0,0,0,0.35); }
+@keyframes gxfxflashto{ 0%,35%{ box-shadow: inset 0 0 0 1px #ffb020, inset 0 0 0 999px rgba(255,176,32,0.08), 0 0 26px rgba(255,176,32,0.45); }
+  100%{ box-shadow: inset 0 0 0 1px rgba(255,176,32,0.55), inset 0 0 0 999px rgba(255,176,32,0), 0 0 12px rgba(255,176,32,0.14); } }
+/* down & distance: centered, down badge (orange on 3rd, red on 4th); a badge takes the line over during scores and turnovers */
+.gx-dd{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:44px; margin-top:10px; text-align:center; }
+.gx-dd .ddl{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; font-size:19px; font-weight:800; color:#ffffff; letter-spacing:-0.2px; line-height:1.2; transition: opacity .25s ease; }
+.gx-dd .ddl > span{ font-size:19px; font-weight:800; color:#ffffff; }
+.gx-dd .ddl > span.ddat{ font-size:15px; font-weight:700; color: var(--muted); }
+.gx-dd .dnb{ display:inline-flex; align-items:center; height:26px; padding:0 9px; border-radius:7px; font-size:13px; font-weight:800; letter-spacing:1.2px;
+  color:#dce8f5; background: rgba(255,255,255,0.06); border:1px solid rgba(147,174,200,0.28); }
+.gx-dd .dnb.d3{ color:#ffb36b; background: rgba(255,154,60,0.14); border-color: rgba(255,154,60,0.6); box-shadow: 0 0 10px rgba(255,154,60,0.22); }
+.gx-dd .dnb.d4{ color:#ff7a86; background: rgba(255,59,78,0.15); border-color: rgba(255,59,78,0.65); box-shadow: 0 0 10px rgba(255,59,78,0.25); }
+.gx-dd .ddl > .rzc{ display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:5px; font-size:10px; font-weight:800; letter-spacing:1px;
+  text-transform:uppercase; color:#ffffff; background: var(--red); animation: gxrzchip 2.4s ease-in-out infinite; }
+@keyframes gxrzchip{ 0%,100%{ box-shadow: 0 0 8px rgba(255,59,78,0.45); } 50%{ box-shadow: 0 0 16px rgba(255,59,78,0.85); } }
+.gx-dd .ddrive{ font-size:10.5px; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; color: var(--faint); transition: opacity .25s ease; }
+.gx-dd .ddrive:empty{ display:none; }
+.gx-dd .playtag{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%) scale(.9); opacity:0; font-size:13px; padding:4px 10px; border-radius:7px;
+  transition: opacity .25s ease, transform .3s cubic-bezier(.2,.9,.3,1.3); pointer-events:none; }
+.gx-dd.badge .playtag{ opacity:1; transform: translate(-50%,-50%) scale(1); }
+.gx-dd.badge .ddl, .gx-dd.badge .ddrive{ opacity:0; }
+.gx-dd .playtag.tw{ display:inline-flex; align-items:center; gap:6px; color:#f4c43d; background: rgba(244,196,61,0.10); border:1px solid rgba(244,196,61,0.75);
+  box-shadow: 0 0 16px rgba(244,196,61,0.35); letter-spacing:1px; }
+.gx-dd .playtag.tw svg{ width:13px; height:13px; display:block; }
+/* last play box with the play type */
+.gx-last{ margin-top:12px; padding:11px 13px; border-radius:12px; background: rgba(255,255,255,0.03); border:1px solid rgba(147,174,200,0.12);
+  font-size:14px; font-weight:600; color:#dfe9f5; line-height:1.4; }
+.gx-last .lphd{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+.gx-last small{ display:block; font-size:9.5px; font-weight:800; letter-spacing:1.4px; color: var(--faint); }
+.lptag{ height:19px; padding:0 7px; border-radius:5px; display:inline-flex; align-items:center; font-size:9.5px; font-weight:800; letter-spacing:1.1px;
+  color: var(--text); background: rgba(255,255,255,0.05); border:1px solid rgba(147,174,200,0.22); white-space:nowrap; }
+.lptag:empty{ display:none; }
+.lptag.sc{ color:#03131f; background: var(--cyan); border-color: var(--cyan); }
+.lptag.to{ color:#03131f; background:#ffb020; border-color:#ffb020; }
+.lptag.loss{ color:#ff8590; background: rgba(255,59,78,0.14); border-color: rgba(255,59,78,0.5); }
+.lptag.pen{ color:#1d1700; background:#f4d03f; border-color:#f4d03f; animation: gxpenpulse 1.4s ease-in-out infinite; }
+@keyframes gxpenpulse{ 0%,100%{ box-shadow: 0 0 0 0 rgba(244,208,63,0); } 50%{ box-shadow: 0 0 12px 2px rgba(244,208,63,0.75); } }
+.lptag.tw{ color:#f4c43d; background: rgba(244,196,61,0.10); border-color: rgba(244,196,61,0.7); }
+/* win chance: slim, both teams in the same plain style, thin bar */
+.gx-win{ margin-top:16px; }
+.ws{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; padding:11px 14px 12px; border-radius:14px;
+  background: rgba(255,255,255,0.03); border:1px solid rgba(147,174,200,0.12); --wc:#35d0ff; }
+.ws.g{ --wc:#2fe07f; } .ws.c{ --wc:#35d0ff; } .ws.o{ --wc:#ff9a3c; } .ws.r{ --wc:#ff3b4e; }
+.ws .wslbl{ grid-column:1 / -1; text-align:center; margin-bottom:-2px; font-size:9.5px; font-weight:800; letter-spacing:1.6px; color: var(--faint); }
+.ws .tm{ font-size:13px; font-weight:800; color:#dce8f5; white-space:nowrap; }
+.ws .tm b{ font-weight:800; color:#ffffff; font-variant-numeric: tabular-nums; }
+.ws .bar{ position:relative; height:5px; border-radius:3px; background: rgba(147,174,200,0.16); overflow:hidden; }
+.ws .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:3px; background: color-mix(in srgb, var(--wc) 70%, #0d1626); transition: width .8s cubic-bezier(.2,.8,.2,1), background .6s; }
+/* every live card opens the game: a quiet chevron and a press effect */
+#resultsList .gcard, #offSheetList .gcard{ cursor:pointer; -webkit-tap-highlight-color: transparent; }
+.gchev{ position:absolute; right:1px; top:50%; margin-top:-8px; font-style:normal; font-size:15px; line-height:16px; font-weight:700; color: rgba(147,174,200,0.45); pointer-events:none; }
+#resultsList .gcard:active, #offSheetList .gcard:active{ filter: brightness(1.12); }
+@media (prefers-reduced-motion: reduce){
+  .fx *, .fx, .gx-score *, .fx-pm, .lptag.pen, .gx-stat .beacon, .gx-stat .fuse::after, .gx-dd .ddl > .rzc{ animation:none !important; transition:none !important; }
+}
 </style>
 </head>
 <body class="glass">
@@ -3115,6 +3252,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.9.0</b> Tap any game for a live field: every play drawn as it happens, who has the ball, the red zone, the last two minutes and the win chance. Games not on your sheet show their logos again.</div>
       <div class="cl"><b>4.8.0</b> Your sheet now lives on the Live tab with scores as they happen. Tap any game for the full picture. Faster, darker start-up.</div>
       <div class="cl"><b>4.7.0</b> New glass tab bar with Pool Chat as its own tab. Open Sheets moved into the leaderboard. Asking for an unlock now double-checks first.</div>
       <div class="cl"><b>4.6.11</b> Snap tells you right away when it’s offline. Everyone tied for first gets the gold bar.</div>
@@ -3550,8 +3688,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.8.0';
-  const APP_BUILT = 'Oct 11, 2026';
+  const APP_VERSION = '4.9.0';
+  const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -5769,6 +5907,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(demoOn()){
       liveGames = simulateScoreboard();
       notePlays(liveGames);
+      try{ gxTrack(liveGames); }catch(e){}
       computeDemoResults();
       liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
       liveLoading = false;
@@ -5793,6 +5932,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
           const scores = {};
           const abbrs = [];
           const logos = {};
+          const colors = {};      // 4.9.0: team colours for the end zones on the game field
           const idToAbbr = {};
           (comp.competitors || []).forEach(function(c){
             const a = c.team && c.team.abbreviation;
@@ -5800,6 +5940,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
             abbrs.push(a);
             scores[a] = parseInt(c.score, 10);
             logos[a] = pickLogo(c.team);
+            if(c.team.color && /^[0-9a-f]{6}$/i.test(c.team.color)) colors[a] = '#' + c.team.color;
             if(c.team.id) idToAbbr[String(c.team.id)] = a;
           });
           // Live drive info: who has the ball and where it sits.
@@ -5826,7 +5967,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
             id: String(lpRaw.id),
             type: (lpRaw.type && lpRaw.type.text) || '',
             text: lpRaw.text || '',
-            team: (lpRaw.team && lpRaw.team.id) ? (idToAbbr[String(lpRaw.team.id)] || '') : ''
+            team: (lpRaw.team && lpRaw.team.id) ? (idToAbbr[String(lpRaw.team.id)] || '') : '',
+            // 4.9.0: for the game field (all optional; the field works without them)
+            yds: typeof lpRaw.statYardage === 'number' ? lpRaw.statYardage : null,
+            drive: lpRaw.drive ? { desc: String(lpRaw.drive.description || ''), start: String((lpRaw.drive.start && lpRaw.drive.start.text) || '') } : null
           } : null;
           const st = (ev.status && ev.status.type) || {};
           const away = (comp.competitors || []).filter(function(c){ return c.homeAway === 'away'; })[0];
@@ -5841,6 +5985,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
             abbrs: abbrs,
             scores: scores,
             logos: logos,
+            colors: colors,
             away: away && away.team ? away.team.abbreviation : abbrs[0],
             home: home && home.team ? home.team.abbreviation : abbrs[1],
             state: st.state || 'pre',            // pre | in | post
@@ -5861,6 +6006,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         });
         liveGames = out;
         if(week === currentWeek) notePlays(out);
+        if(week === currentWeek){ try{ gxTrack(out); }catch(e){} }
         liveStatus = weekComplete()
           ? ('Week ' + week + ' final')
           : ('Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
@@ -6039,6 +6185,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const pinOn = grp !== 'final' && pinIndex(g.id) >= 0;
     return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + (pinOn ? ' pinned' : '') + '" data-id="' + g.id +
         '" data-grp="' + grp + '" data-pts="' + pts + '" style="order:' + cardOrder(grp, pts, g.id) + '">' +
+      '<i class="gchev" aria-hidden="true">\u203A</i>' +
       pinBtnHtml(g.id, grp) +
       '<button type="button" class="dogtab" data-role="dog" aria-label="Underdog: see who else took them"' + (dog ? '' : ' hidden') + '>' + dogLabel() + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5 5 3.5 8 6.5"/></svg>' + '</button>' +
       '<div class="gmain">' +
@@ -6352,22 +6499,42 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     gxOpen(row.dataset.eid);
   });
 
-  /* ---------- 4.8.0: game slide-up ----------
-     Tap a game on the Live sheet. The sheet owner's pick is on the left (your
-     pick, or theirs while rooting), the score in the middle with a football
-     beside the team that has the ball, the field while it's live, your points
-     at the bottom. Built once when it opens; each refresh only touches the
-     parts that changed, so logos never blink. */
+  /* ---------- 4.9.0: game slide-up ----------
+     Tap any game: a row on the Live sheet, a Live now / Up next card, or a
+     game that's not on your sheet. The sheet owner's pick is on the left with
+     the line in its tag (YOUR FAV −3 / DALE'S DOG +3); the score in the
+     middle with a football by the team that has the ball. While it's live:
+     the field (team-colour end zones, line of scrimmage, yellow first-down
+     line, the drive so far, the red zone), a marker with the logo of the team
+     with the ball riding above the ball, the last play drawn on the field,
+     down & distance, the last play's text and type, and the win chance.
+     Scores and turnovers get the live cards' badge, flash and cyan score.
+     Built once when it opens; each refresh only touches what changed, so
+     logos never blink. */
   const gxOverlay = document.getElementById('gxOverlay');
   let gxId = '', gxBuilt = '', gxPossWas = '';
+  let gxF = null;            // the open game's field: geometry + what's drawn
   const GX_FB = '<svg viewBox="0 0 34 20" aria-hidden="true"><ellipse cx="17" cy="10" rx="16" ry="9" fill="#b9733e" stroke="#fff" stroke-width="1.6"/><path d="M11 10h12M14 7.5v5M17 7.5v5M20 7.5v5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  const GX_FB_X = { me: -0.5, them: 133.5 };   // two-digit scores are ~50px wide: 52px columns
+  const GX_SW = '<svg class="sw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M18.5 6.5l1.5-1.5"/></svg>';
+  const GX_AR = '<svg viewBox="0 0 16 10" aria-hidden="true"><path d="M1 5h11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M10 1l5 4-5 4z" fill="currentColor"/></svg>';
+  const GX_NS = 'http://www.w3.org/2000/svg';
+  function gxRM(){ return !lbMotionOK(); }
+  function gxFbX(side, el){ const w = el ? el.clientWidth : 158; return side === 'me' ? 1.5 : Math.max(0, w - 18.5); }
   function gxView(){
     const rootR = rootRow();
     const list = rootR ? rootGames(rootR) : games;
     const act = list.filter(function(x){ return !x.removed; });
-    for(let i = 0; i < act.length; i++){ if(act[i].id === gxId) return { g: act[i], pts: i + 1, rootR: rootR }; }
+    for(let i = 0; i < act.length; i++){ if(act[i].id === gxId) return { g: act[i], pts: i + 1, rootR: rootR, off: false }; }
+    const off = list.filter(function(x){ return x.removed; });
+    for(let i = 0; i < off.length; i++){ if(off[i].id === gxId) return { g: off[i], pts: 0, rootR: rootR, off: true }; }
     return null;
+  }
+  // Not on the sheet: the away team goes on the left.
+  function gxSides(v, lg){
+    if(!v.off) return lvSides(v.g, lg);
+    const g = v.g, abA = g.abbrA || ABBR[g.cityA];
+    const awayCity = lg ? (lg.away === abA ? g.cityA : g.cityB) : (homeSideOf(g) === 'A' ? g.cityB : g.cityA);
+    return lvSides(Object.assign({}, g, { pick: awayCity === favCityOf(g) ? 'fav' : 'dog' }), lg);
   }
   function gxSlot(g, lg){
     const src = (lg && lg.date) || g.date;
@@ -6384,9 +6551,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     return day + ' ' + d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
   }
   function gxPct(v){
-    if(typeof v !== 'number' || isNaN(v)) return '';
+    if(typeof v !== 'number' || isNaN(v)) return null;
     const r = Math.round(v * 100);
-    return (v > 0 && r === 0) ? '<1%' : ((v < 1 && r === 100) ? '>99%' : r + '%');
+    return (v > 0 && r === 0) ? 1 : ((v < 1 && r === 100) ? 99 : r);
   }
   function gxWhenSub(g, lg){
     const src = (lg && lg.date) || g.date;
@@ -6395,62 +6562,417 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const ap = (d.toLocaleTimeString([], {hour:'numeric'}).match(/[AaPp]\.?\s?[Mm]\.?/) || [''])[0].replace(/[.\s]/g, '').toUpperCase();
     return d.toLocaleDateString([], {weekday:'long', month:'short', day:'numeric'}) + (ap ? ' · ' + ap : '');
   }
-  function gxKickoffLine(g, lg){
-    const src = (lg && lg.date) || g.date;
-    const d = src ? new Date(src) : null;
-    if(!d || isNaN(d)) return 'Kickoff time to come';
-    const night = isNightGame(g), today = new Date(), tmw = new Date(today.getTime() + 86400000);
-    if(sameDay(d, today)) return night ? 'Kicks off tonight' : 'Kicks off today';
-    if(sameDay(d, tmw)) return night ? 'Kicks off tomorrow night' : 'Kicks off tomorrow';
-    return 'Kicks off ' + d.toLocaleDateString([], {weekday:'long'});
-  }
   function gxSet(el, html){ if(el && el.innerHTML !== html){ el.innerHTML = html; return true; } return false; }
-  function gxTeam(city, logo, mine, rooted, tag, sub){
-    return '<div class="gx-team' + (mine ? ' mine' : '') + (mine && rooted ? ' rooted' : '') + '">' +
+  function gxTeam(city, logo, mine, rooted, tag, tagCls, sub, off){
+    return '<div class="gx-team' + (mine ? ' mine' : '') + (mine && rooted ? ' rooted' : '') + (off ? ' offt' : '') + '">' +
       '<div class="gx-logo">' + (logo ? '<img src="' + logo + '" alt="" onerror="this.style.display=\'none\'">' : '') + '</div>' +
       '<b class="gx-name">' + esc(city) + '</b>' +
-      (mine ? '<span class="gx-tag">' + tag + '</span>' : '<span class="gx-sub">' + esc(sub) + '</span>') +
+      (mine ? '<span class="gx-tag ' + tagCls + '">' + tag + '</span>' : '<span class="gx-sub">' + esc(sub) + '</span>') +
       '<span class="gx-to" data-role="' + (mine ? 'to-me' : 'to-them') + '"></span></div>';
   }
-  function gxPaint(){
+
+  /* ---- reading the field from ESPN's feed ----
+     The spot comes straight from the down & distance ("2nd & 7 at BAL 41"),
+     as yards from the AWAY team's goal line. Every game in progress is
+     tracked on each refresh, so opening a game can already show its last play
+     (from the spot before it to the spot after it). */
+  function gxRawY(lg){
+    const pos = lg && lg.poss;
+    if(!pos) return null;
+    if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
+    const m = String(lg.downDistance || '').trim().match(/^(1st|2nd|3rd|4th)\s*&\s*(goal|\d+)\s+at\s+(?:([A-Za-z]{2,4})\s+)?(\d{1,2})$/i);
+    if(!m) return null;
+    const side = m[3] ? m[3].toUpperCase() : '', yl = parseInt(m[4], 10);
+    let d;
+    if(yl === 50) d = 50;
+    else if(side === pos) d = 100 - yl;
+    else if(side && (side === lg.away || side === lg.home)) d = yl;
+    else return null;
+    if(!(d >= 1 && d <= 99)) return null;
+    const goal = /goal/i.test(m[2]);
+    return { y: pos === lg.away ? 100 - d : d, d: d, pos: pos, down: parseInt(m[1], 10), dist: goal ? 0 : parseInt(m[2], 10), goal: goal,
+             at: (side ? side + ' ' : '') + yl };
+  }
+  const gxT = {};
+  let gxTKey = '';
+  function gxTrack(list){
+    const key = (demoOn() ? 'demo' : 'real') + ':' + currentWeek;
+    if(key !== gxTKey){ gxTKey = key; Object.keys(gxT).forEach(function(k){ delete gxT[k]; }); }
+    (list || []).forEach(function(lg){
+      if(!lg || !lg.id || lg.state !== 'in') return;
+      const r = gxRawY(lg), lp = lg.lastPlay;
+      const T = gxT[lg.id] || (gxT[lg.id] = { lp: '', y: null, pos: '', dsY: null, dsPos: '', plays: 0, last: null });
+      if(lp && lp.id && lp.id !== T.lp){
+        const fresh = !!T.lp;
+        T.last = { id: lp.id, from: T.y, fromPos: T.pos, to: r ? r.y : null, toPos: r ? r.pos : (lg.poss || ''), lp: lp, t: Date.now(), fresh: fresh };
+        T.lp = lp.id;
+        if(fresh && r && r.pos === T.pos) T.plays++;
+      }
+      if(r){
+        if(r.pos !== T.dsPos){ T.dsPos = r.pos; T.dsY = r.y; T.plays = 0; }
+        T.y = r.y; T.pos = r.pos;
+      }
+    });
+  }
+  function gxKind(lp){
+    const t = String(lp && lp.type || ''), x = String(lp && lp.text || '');
+    if(/two.?minute/i.test(t) || /two.?minute warning/i.test(x)) return 'twomin';
+    if(/timeout|end (of )?(period|quarter|half|game)|end period|coin toss/i.test(t)) return 'none';
+    if(/penalty/i.test(t) || (/No Play/i.test(x) && /penalty/i.test(x))) return 'pen';
+    if(/interception/i.test(t)) return 'int';
+    if(/Fumble Recovery \(Opponent\)|Sack Opp Fumble Recovery/i.test(t)) return 'fum';
+    if(/field goal good/i.test(t)) return 'fg';
+    if(/field goal (missed|blocked)|blocked field goal/i.test(t)) return 'fgx';
+    if(/punt/i.test(t)) return 'punt';
+    if(/kickoff/i.test(t)) return 'ko';
+    if(/touchdown/i.test(t)) return (/pass/i.test(t) || (/pass/i.test(x) && !/rush/i.test(t))) ? 'tdpass' : 'tdrun';
+    if(/extra point|two-point|2pt|conversion/i.test(t)) return 'none';
+    if(/sack/i.test(t)) return 'sack';
+    if(/incomplet/i.test(t)) return 'inc';
+    if(/pass/i.test(t)) return 'pass';
+    if(/rush|run/i.test(t)) return 'run';
+    if(/safety/i.test(t)) return 'run';
+    return 'none';
+  }
+  function gxYards(lp){
+    if(lp && typeof lp.yds === 'number') return lp.yds;
+    const x = String(lp && lp.text || '');
+    let m = /loss of (\d+) yards?/i.exec(x); if(m) return -parseInt(m[1], 10);
+    m = /for (-?\d+) yards?/i.exec(x); if(m) return parseInt(m[1], 10);
+    return 0;
+  }
+  function gxTagOf(kind, lp){
+    const y = gxYards(lp);
+    switch(kind){
+      case 'run': return y < 0 ? ['RUN · LOSS ' + (-y), 'loss'] : ['RUN', ''];
+      case 'pass': return [/deep/i.test(lp.text || '') ? 'PASS · DEEP' : 'PASS', ''];
+      case 'inc': return ['INCOMPLETE', ''];
+      case 'sack': return ['SACK' + (y ? ' −' + Math.abs(y) : ''), 'loss'];
+      case 'tdpass': case 'tdrun': return ['TOUCHDOWN', 'sc'];
+      case 'fg': return ['FIELD GOAL', 'sc'];
+      case 'fgx': return ['FG · NO GOOD', ''];
+      case 'punt': return ['PUNT', ''];
+      case 'ko': return ['KICKOFF', ''];
+      case 'int': return ['INTERCEPTION', 'to'];
+      case 'fum': return ['FUMBLE', 'to'];
+      case 'pen': return ['PENALTY', 'pen'];
+      case 'twomin': return ['2-MIN WARNING', 'tw'];
+    }
+    const t = String(lp && lp.type || '').toUpperCase();
+    return [t.length > 18 ? '' : t, ''];
+  }
+  function gxTwoMin(lg){
+    if(!lg || lg.state !== 'in' || (lg.period !== 2 && lg.period !== 4)) return null;
+    if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
+    const m = /^(\d+):(\d\d)$/.exec(String(lg.clock || ''));
+    if(!m) return null;
+    const s = (+m[1]) * 60 + (+m[2]);
+    return s <= 120 ? s : null;
+  }
+
+  /* ---- the field ---- */
+  function gxSvg(tag, attrs, parent){ const e = document.createElementNS(GX_NS, tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(parent) parent.appendChild(e); return e; }
+  function gxFieldHtml(){
+    return '<div class="fx-poss" hidden><div class="fx-pm"><img alt=""><span class="ar">' + GX_AR + '</span></div></div>' +
+      '<div class="fx"><div class="fx-turf"></div><div class="fx-ez l"><i></i><span></span></div><div class="fx-ez r"><i></i><span></span></div>' +
+      '<svg class="fxs" aria-hidden="true"></svg><div class="fx-band"></div><div class="fx-rz"></div><svg class="fxt" aria-hidden="true" style="z-index:2"></svg>' +
+      '<span class="fx-line fx-fd"></span><span class="fx-line fx-los"></span><span class="fx-chev r"></span><span class="fx-shadow"></span>' +
+      '<span class="fx-ball"><i class="trail"></i><span class="fb"><i class="shine"></i><i class="lace"><svg viewBox="0 0 10 4" aria-hidden="true"><path d="M0.6 2h8.8M2.6 0.7v2.6M5 0.7v2.6M7.4 0.7v2.6" stroke="#fff" stroke-width="1" stroke-linecap="round" fill="none"/></svg></i></span></span>' +
+      '<div class="fx-sheen"></div></div>' +
+      '<div class="gx-dd"><div class="ddl"></div><div class="ddrive"></div><span class="playtag"></span></div>';
+  }
+  function gxBuildField(fx, lg, s, W){
+    const H = 56, EZ = W / 12;
+    const px = function(yd){ return EZ + yd * (W - 2 * EZ) / 100; };
+    const colorOf = function(ab){ const c = lg && lg.colors && lg.colors[ab]; return /^#[0-9a-f]{6}$/i.test(c || '') ? c : '#5f7894'; };
+    const turf = fx.querySelector('.fx-turf'), yd5 = (W - 2 * EZ) / 20;
+    turf.style.left = EZ + 'px'; turf.style.right = EZ + 'px';
+    turf.style.background = 'repeating-linear-gradient(90deg, rgba(53,208,255,0.055) 0 ' + yd5 + 'px, rgba(53,208,255,0.015) ' + yd5 + 'px ' + (2 * yd5) + 'px)';
+    const ezL = fx.querySelector('.fx-ez.l'), ezR = fx.querySelector('.fx-ez.r'), cL = colorOf(s.mine), cR = colorOf(s.other);
+    ezL.style.left = '0'; ezL.style.width = EZ + 'px'; ezR.style.right = '0'; ezR.style.width = EZ + 'px';
+    ezL.style.background = 'linear-gradient(90deg, ' + cL + 'cc, ' + cL + '55)';
+    ezR.style.background = 'linear-gradient(270deg, ' + cR + 'dd, ' + cR + '66)';
+    ezL.querySelector('i').style.background = 'radial-gradient(circle at 50% 50%, rgba(53,208,255,0.55), ' + cL + ' 80%)';
+    ezR.querySelector('i').style.background = 'radial-gradient(circle at 50% 50%, rgba(53,208,255,0.55), ' + cR + ' 80%)';
+    ezL.querySelector('span').textContent = s.mine; ezR.querySelector('span').textContent = s.other;
+    const sv = fx.querySelector('.fxs'), tv = fx.querySelector('.fxt');
+    [sv, tv].forEach(function(v){ v.setAttribute('viewBox', '0 0 ' + W + ' ' + H); v.setAttribute('width', W); v.setAttribute('height', H); });
+    sv.innerHTML = ''; tv.innerHTML = '';
+    let d = '';
+    for(let y = 5; y < 100; y += 10) d += 'M' + px(y).toFixed(1) + ' 0V' + H;
+    gxSvg('path', { d: d, stroke: 'rgba(220,232,245,0.07)', 'stroke-width': 1 }, sv);
+    d = ''; for(let y = 10; y < 100; y += 10) d += 'M' + px(y).toFixed(1) + ' 0V' + H;
+    gxSvg('path', { d: d, stroke: 'rgba(220,232,245,0.15)', 'stroke-width': 1 }, sv);
+    gxSvg('path', { d: 'M' + px(50).toFixed(1) + ' 0V' + H, stroke: 'rgba(220,232,245,0.24)', 'stroke-width': 1 }, sv);
+    gxSvg('path', { d: 'M' + px(0).toFixed(1) + ' 0V' + H + 'M' + px(100).toFixed(1) + ' 0V' + H, stroke: 'rgba(255,255,255,0.55)', 'stroke-width': 1.3 }, sv);
+    let h = '';
+    for(let y = 1; y < 100; y++){ if(y % 5 === 0) continue; const x = px(y).toFixed(1);
+      h += 'M' + x + ' 0v2.2M' + x + ' ' + (H - 2.2) + 'v2.2M' + x + ' ' + (H * 0.42).toFixed(1) + 'v2M' + x + ' ' + (H * 0.58 - 2).toFixed(1) + 'v2'; }
+    gxSvg('path', { d: h, stroke: 'rgba(220,232,245,0.16)', 'stroke-width': 0.8 }, sv);
+    [10, 20, 30, 40, 50, 60, 70, 80, 90].forEach(function(y){
+      const t = gxSvg('text', { x: px(y), y: H - 5, 'text-anchor': 'middle', 'font-size': 7.5, 'font-weight': 800, fill: 'rgba(147,174,200,0.5)', 'font-family': 'Manrope, sans-serif' }, sv);
+      t.textContent = y <= 50 ? y : 100 - y;
+    });
+    [['l', 2.5, 1], ['r', W - 2.5, -1]].forEach(function(p){
+      const g = gxSvg('g', { class: 'fxposts ' + p[0] }, sv);
+      gxSvg('path', { class: 'fxpost', d: 'M' + p[1] + ' ' + H / 2 + 'h' + (5 * p[2]) + 'M' + (p[1] + 5 * p[2]) + ' ' + (H / 2 - 8) + 'v16' }, g);
+      gxSvg('circle', { class: 'fxpostdot', cx: p[1] + 5 * p[2], cy: H / 2 - 8, r: 1.6 }, g);
+      gxSvg('circle', { class: 'fxpostdot', cx: p[1] + 5 * p[2], cy: H / 2 + 8, r: 1.6 }, g);
+    });
+    return { key: gxId + '|' + s.mine, W: W, H: H, EZ: EZ, px: px, lpId: null, fd: null, flashAt: 0, pmPoss: '', anim: 0, hold: false };
+  }
+  function gxBallAt(fx, x, y, rot){ fx.querySelector('.fx-ball').style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (rot || 0) + 'deg)'; }
+  function gxShadow(fx, x, op, sc){ const e = fx.querySelector('.fx-shadow'); e.style.transform = 'translate(' + x + 'px,' + (gxF.H / 2 + 1) + 'px) scale(' + (sc || 1) + ')'; e.style.opacity = op; }
+  function gxTween(ms, fn, tok){
+    return new Promise(function(res){
+      if(gxRM()){ fn(1); return res(); }
+      const t0 = performance.now();
+      (function f(now){ if(tok !== gxF.anim){ return res(); } const k = Math.min(1, (now - t0) / ms); fn(k); if(k < 1) requestAnimationFrame(f); else res(); })(t0);
+    });
+  }
+  function gxPath(x1, x2, apex){ const y = gxF.H / 2, mx = (x1 + x2) / 2;
+    return apex ? 'M' + x1 + ' ' + y + 'Q' + mx + ' ' + (y - 2 * apex) + ' ' + x2 + ' ' + y : 'M' + x1 + ' ' + y + 'L' + x2 + ' ' + y; }
+  function gxHead(g, p, len, cls){ const a = p.getPointAtLength(len), b = p.getPointAtLength(Math.max(0, len - 1.5));
+    const ang = Math.atan2(a.y - b.y, a.x - b.x), s = 4.6;
+    const pts = [[a.x + Math.cos(ang) * 2, a.y + Math.sin(ang) * 2], [a.x - Math.cos(ang - .55) * s, a.y - Math.sin(ang - .55) * s], [a.x - Math.cos(ang + .55) * s, a.y - Math.sin(ang + .55) * s]];
+    gxSvg('path', { class: 'fxhead ' + (cls || ''), d: 'M' + pts.map(function(q){ return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('L') + 'Z' }, g); }
+  /* One leg of a play. The line draws in behind the ball; animate = false draws it at once. */
+  async function gxLeg(fx, g, x1, x2, o, animate, tok){
+    o = o || {}; const apex = o.apex || 0, H = gxF.H;
+    const p = gxSvg('path', { class: 'tr ' + (o.cls || 'pass'), d: gxPath(x1, x2, apex) }, g);
+    const L = p.getTotalLength();
+    let dots = null;
+    if(o.dots){ p.style.opacity = 0; dots = []; for(let s = 0; s <= L; s += 5){ const q = p.getPointAtLength(s); dots.push(gxSvg('circle', { class: 'fxdot ' + (o.dotcls || ''), cx: q.x.toFixed(1), cy: q.y.toFixed(1), r: 1.5, opacity: animate ? 0 : 1 }, g)); } }
+    else if(animate && o.cls !== 'kick' && o.cls !== 'inc' && o.cls !== 'pen'){ p.style.strokeDasharray = L; p.style.strokeDashoffset = L; }
+    else if(animate) p.style.opacity = 0;
+    if(animate){
+      const air = apex > 0, mode = o.cls === 'kick' ? 'tumble' : (air ? 'spiral' : 'carry'), bl = fx.querySelector('.fx-ball');
+      bl.classList.toggle('spiral', mode === 'spiral');
+      if(mode === 'spiral') bl.style.setProperty('--trail', (apex >= 15 ? 24 : 15) + 'px');
+      await gxTween(o.ms || 700, function(k){
+        const t = air ? k : k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, s = L * t;
+        const q = p.getPointAtLength(s), q2 = p.getPointAtLength(Math.min(L, s + 1)), q0 = p.getPointAtLength(Math.max(0, s - 1));
+        const ang = Math.atan2(q2.y - q0.y, q2.x - q0.x) * 180 / Math.PI, lift = air ? Math.sin(Math.PI * k) : 0;
+        if(mode === 'spiral'){ gxBallAt(fx, q.x, q.y, ang); gxShadow(fx, q.x, 0.34 * (1 - 0.6 * lift), 1 - 0.4 * lift); }
+        else if(mode === 'tumble'){ gxBallAt(fx, q.x, q.y, ang + k * 720); gxShadow(fx, q.x, 0.25 + lift * 0.3, 1 - 0.3 * lift); }
+        else { gxBallAt(fx, q.x, q.y + Math.sin(k * Math.PI * 8) * 0.7, ang); gxShadow(fx, q.x, 0); }
+        if(dots) dots.forEach(function(dd, i){ if(i * 5 <= s) dd.setAttribute('opacity', 1); });
+        else if(p.style.strokeDasharray) p.style.strokeDashoffset = L - s;
+        else p.style.opacity = Math.min(1, k * 3);
+      }, tok);
+      bl.classList.remove('spiral'); gxShadow(fx, x2, 0);
+      p.style.opacity = ''; p.style.strokeDashoffset = 0;
+    }
+    gxBallAt(fx, x2, H / 2, x2 >= x1 ? 0 : 180);
+    if(o.arrow) gxHead(g, p, L, o.headcls);
+    return p;
+  }
+  function gxMark(g, kind, x){
+    const H = gxF.H;
+    if(kind === 'start') gxSvg('circle', { class: 'mk-start', cx: x, cy: H / 2, r: 2.6 }, g);
+    else if(kind === 'x') gxSvg('path', { class: 'mk-x', d: 'M' + (x - 3.5) + ' ' + (H / 2 - 3.5) + 'l7 7M' + (x + 3.5) + ' ' + (H / 2 - 3.5) + 'l-7 7' }, g);
+    else if(kind === 'burst'){ const pts = []; for(let i = 0; i < 16; i++){ const r = i % 2 ? 2.6 : 6, a = i * Math.PI / 8; pts.push((x + r * Math.cos(a)).toFixed(1) + ' ' + (H / 2 + r * Math.sin(a)).toFixed(1)); }
+      gxSvg('path', { class: 'mk-burst', d: 'M' + pts.join('L') + 'Z' }, g); }
+    else if(kind === 'flag'){ gxSvg('path', { class: 'mk-flag', d: 'M' + x + ' ' + (H / 2 - 9) + 'l7 3.2l-7 3.2z' }, g); gxSvg('path', { d: 'M' + x + ' ' + (H / 2 - 9) + 'v13', stroke: '#f4d03f', 'stroke-width': 1.2 }, g); }
+  }
+  /* Draw the last play from the spot before it to the spot after it. */
+  async function gxDrawPlay(fx, last, lg, s, animate){
+    const kind = gxKind(last.lp);
+    // an extra point, a timeout or the two-minute warning leaves the last real play on the field
+    if(kind === 'none' || kind === 'twomin') return kind;
+    const tv = fx.querySelector('.fxt'); tv.innerHTML = '';
+    fx.querySelectorAll('.fx-ez').forEach(function(e){ e.classList.remove('td'); });
+    fx.querySelectorAll('.fxposts').forEach(function(e){ e.classList.remove('good', 'miss'); });
+    if(kind === 'ko' || last.from === null) return kind;
+    const tok = ++gxF.anim, px = gxF.px;
+    const own = function(y){ return lg.away === s.mine ? y : 100 - y; };      // away-goal yards -> yards from the left end zone
+    const a = own(last.from), dir = last.fromPos === s.mine ? 1 : -1;
+    const b = last.to !== null ? own(last.to) : null;
+    const g = gxSvg('g', {}, tv);
+    const clampY = function(y){ return Math.max(-4, Math.min(104, y)); };
+    if(kind === 'pen'){
+      gxMark(g, 'flag', px(a));
+      if(b !== null && Math.abs(b - a) >= 1) await gxLeg(fx, g, px(a), px(b), { cls: 'pen', arrow: true, headcls: 'pen', ms: 700 }, animate, tok);
+    }else if(kind === 'fg' || kind === 'fgx'){
+      const ks = a - 7 * dir; gxMark(g, 'start', px(ks)); gxBallAt(fx, px(ks), gxF.H / 2, 0);
+      await gxLeg(fx, g, px(ks), dir > 0 ? gxF.W - 7.5 : 7.5, { cls: 'kick', apex: 18, ms: 1100 }, animate, tok);
+      const posts = fx.querySelector('.fxposts.' + (dir > 0 ? 'r' : 'l'));
+      if(posts) posts.classList.add(kind === 'fg' ? 'good' : 'miss');
+      if(kind === 'fgx') gxMark(g, 'x', dir > 0 ? gxF.W - 12 : 12);
+    }else if(kind === 'punt'){
+      const e = b !== null ? b : clampY(a + 45 * dir);
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(e), { cls: 'kick', apex: 23, ms: 1250 }, animate, tok);
+    }else if(kind === 'tdpass' || kind === 'tdrun'){
+      const e = dir > 0 ? 104 : -4; gxMark(g, 'start', px(a));
+      if(kind === 'tdpass') await gxLeg(fx, g, px(a), px(e), { apex: Math.min(19, 6 + Math.abs(e - a) / 4), ms: 950 }, animate, tok);
+      else await gxLeg(fx, g, px(a), px(e), { dots: true, arrow: true, ms: 900 }, animate, tok);
+      const ez = fx.querySelector('.fx-ez.' + (dir > 0 ? 'r' : 'l')); if(ez) ez.classList.add('td');
+    }else if(b === null){
+      return kind;
+    }else if(kind === 'inc'){
+      const t = px(clampY(a + 15 * dir)); gxMark(g, 'start', px(a));
+      await gxLeg(fx, g, px(a), t, { cls: 'inc', apex: 13, ms: 850 }, animate, tok); gxMark(g, 'x', t);
+      gxBallAt(fx, px(a), gxF.H / 2, 0);
+    }else if(kind === 'int'){
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { apex: 16, ms: 1000 }, animate, tok); gxMark(g, 'burst', px(b));
+    }else if(kind === 'fum'){
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { dots: true, dotcls: 'to', ms: 700 }, animate, tok); gxMark(g, 'burst', px(b));
+    }else if(kind === 'sack'){
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { cls: 'loss', arrow: true, headcls: 'loss', ms: 600 }, animate, tok);
+    }else if(kind === 'pass'){
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { apex: /deep/i.test(last.lp.text || '') ? 19 : 7, ms: /deep/i.test(last.lp.text || '') ? 1100 : 650 }, animate, tok);
+      gxSvg('circle', { class: 'fxdot', cx: px(b), cy: gxF.H / 2, r: 2 }, g);
+    }else{
+      const loss = (b - a) * dir < 0;
+      gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { dots: true, dotcls: loss ? 'loss' : '', arrow: true, headcls: loss ? 'loss' : '', ms: 750 }, animate, tok);
+    }
+    if(tok === gxF.anim) g.classList.add('fxold');
+    return kind;
+  }
+  /* Lines, drive band, red zone, ball and the possession marker for the current spot. */
+  function gxSettle(fx, lg, s, r, T, instant){
+    const px = gxF.px, wrap = fx.parentNode, los = fx.querySelector('.fx-los'), fd = fx.querySelector('.fx-fd'), ch = fx.querySelector('.fx-chev');
+    const band = fx.querySelector('.fx-band'), rz = fx.querySelector('.fx-rz'), pw = wrap.querySelector('.fx-poss'), pm = pw.querySelector('.fx-pm');
+    fx.classList.remove('fx-hold');
+    fx.classList.toggle('fx-off', !r);
+    if(!r){ pw.hidden = true; rz.classList.remove('on'); fx.classList.remove('rzone'); return; }
+    const own = function(y){ return lg.away === s.mine ? y : 100 - y; };
+    const yd = own(r.y), mine = r.pos === s.mine, dir = mine ? 1 : -1;
+    [los, ch, pm, band].forEach(function(e){ e.style.transition = instant ? 'none' : ''; });
+    los.style.left = px(yd) + 'px';
+    ch.className = 'fx-chev ' + (mine ? 'r' : 'l'); ch.style.left = px(yd) + 'px';
+    const fdy = r.goal ? null : yd + dir * r.dist;
+    const fdOk = fdy !== null && fdy > 0 && fdy < 100;
+    const moved = gxF.fd !== (fdOk ? Math.round(fdy * 10) : -1);
+    if(instant || !moved){
+      fd.classList.remove('off', 'fdin'); fd.style.transition = 'none';
+      if(fdOk) fd.style.left = px(fdy) + 'px';
+      fd.style.opacity = fdOk ? 1 : 0; void fd.offsetWidth; fd.style.transition = '';
+    }else{
+      // a new set of downs: the yellow line blinks out, the line of scrimmage moves, then it blinks back in
+      fd.classList.add('off');
+      const tok = gxF.anim;
+      setTimeout(function(){
+        if(!gxF || tok !== gxF.anim) return;
+        fd.style.transition = 'none'; if(fdOk) fd.style.left = px(fdy) + 'px'; fd.style.opacity = fdOk ? 1 : 0; void fd.offsetWidth; fd.style.transition = '';
+        fd.classList.remove('off', 'fdin'); void fd.offsetWidth; if(fdOk) fd.classList.add('fdin');
+      }, gxRM() ? 0 : 950);
+    }
+    gxF.fd = fdOk ? Math.round(fdy * 10) : -1;
+    // the drive so far
+    let ds = null;
+    const dstart = lg.lastPlay && lg.lastPlay.drive && lg.lastPlay.drive.start;
+    const dm = dstart ? /([A-Z]{2,4})\s+(\d{1,2})/.exec(dstart) : null;
+    if(dm && (dm[1] === lg.away || dm[1] === lg.home)){ const yl = +dm[2]; ds = own(dm[1] === lg.away ? yl : 100 - yl); }
+    else if(T && T.dsY !== null && T.dsPos === r.pos) ds = own(T.dsY);
+    const bA = ds === null ? px(yd) : Math.min(px(ds), px(yd)), bB = ds === null ? px(yd) : Math.max(px(ds), px(yd));
+    band.className = 'fx-band' + (mine ? '' : ' l');
+    band.style.left = bA + 'px'; band.style.width = Math.max(0, bB - bA) + 'px'; band.style.opacity = (bB - bA) > 1 ? 1 : 0;
+    // red zone: the offense inside the opponent's 20
+    const inRz = r.d <= 20;
+    rz.className = 'fx-rz' + (mine ? '' : ' l') + (inRz ? ' on' : '');
+    rz.style.left = (mine ? px(80) : px(0)) + 'px'; rz.style.width = (px(20) - px(0)) + 'px';
+    fx.classList.toggle('rzone', inRz);
+    // possession marker rides above the ball
+    pw.hidden = false;
+    pm.style.left = Math.max(28, Math.min(gxF.W - 28, px(yd))) + 'px';
+    const img = pm.querySelector('img'), logo = (lg.logos && lg.logos[r.pos]) || '';
+    if(gxF.pmPoss !== r.pos){
+      const first = !gxF.pmPoss; gxF.pmPoss = r.pos;
+      const set = function(){ if(logo) img.src = logo; img.style.visibility = logo ? '' : 'hidden'; pm.classList.toggle('l', !mine); img.classList.remove('swap'); };
+      if(first || instant || gxRM()) set();
+      else { img.classList.add('swap'); setTimeout(set, 200); pm.classList.remove('flip'); void pm.offsetWidth; pm.classList.add('flip'); }
+    }
+    if(!gxF.busy) gxBallAt(fx, px(yd), gxF.H / 2, mine ? 0 : 180);
+    if(instant){ void los.offsetWidth; [los, ch, pm, band].forEach(function(e){ e.style.transition = ''; }); }
+  }
+  async function gxFieldPaint(fx, lg, s, opening){
+    if(!fx || !fx.clientWidth) return;
+    const W = fx.clientWidth;
+    if(!gxF || gxF.key !== gxId + '|' + s.mine || Math.abs(gxF.W - W) > 1) gxF = gxBuildField(fx, lg, s, W);
+    const r = gxRawY(lg), T = gxT[lg.id] || null, last = T && T.last;
+    const first = gxF.lpId === null;
+    if(last && last.id !== gxF.lpId){
+      gxF.lpId = last.id;
+      const animate = !first && !opening && last.fresh && !gxRM();
+      const kind = gxKind(last.lp);
+      if(animate && kind !== 'none' && kind !== 'ko' && kind !== 'twomin'){
+        fx.querySelector('.fx-fd').classList.add('off');
+        fx.querySelector('.fx-chev').style.opacity = 0;
+        gxF.busy = true;
+        gxF.hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'tdpass' || k === 'tdrun' || k === 'fg'; });
+        gxF.busy = false;
+        fx.querySelector('.fx-chev').style.opacity = '';
+        const v2 = gxView(), lg2 = (v2 && liveFor(v2.g)) || lg;
+        if(!gxF.hold) gxSettle(fx, lg2, s, gxRawY(lg2), gxT[lg.id], false);
+        else { fx.classList.add('fx-hold'); fx.parentNode.querySelector('.fx-poss').hidden = true; }
+        return;
+      }
+      const k2 = await gxDrawPlay(fx, last, lg, s, false);
+      if(k2 !== 'none' && k2 !== 'twomin') gxF.hold = (k2 === 'tdpass' || k2 === 'tdrun' || k2 === 'fg') && Date.now() - last.t < PLAY_MIN;
+    }
+    if(gxF.busy) return;
+    if(gxF.hold && last && Date.now() - last.t < PLAY_MIN * 2 && gxKind(last.lp) !== 'ko'){
+      fx.classList.add('fx-hold'); fx.parentNode.querySelector('.fx-poss').hidden = true; return;
+    }
+    gxF.hold = false;
+    gxSettle(fx, lg, s, r, T, first || opening);
+  }
+
+  function gxPaint(opening){
     const v = gxId ? gxView() : null;
     if(!v){ if(gxOverlay.classList.contains('show')) closeOverlay(gxOverlay); return false; }
-    const g = v.g, lg = liveFor(g), s = lvSides(g, lg), rooted = !!v.rootR;
-    const state = (lg && lg.state === 'in' && s.my !== null) ? 'in'
-      : ((lg && lg.state === 'post') || (rooted ? rootResults([g])[g.id] : activeResults()[g.id])) ? 'post' : 'pre';
-    const r = state === 'post' ? lvResult(g, lg, rooted ? rootResults([g])[g.id] : activeResults()[g.id], s) : '';
+    const g = v.g, lg = liveFor(g), s = gxSides(v, lg), rooted = !!v.rootR;
+    const ownRes = v.off ? null : (rooted ? rootResults([g])[g.id] : activeResults()[g.id]);
+    const state = (lg && lg.state === 'in' && s.my !== null) ? 'in' : ((lg && lg.state === 'post') || ownRes) ? 'post' : 'pre';
+    const r = state === 'post' && !v.off ? lvResult(g, lg, ownRes, s) : '';
     const res = r === 'win' || r === 'tie' ? 'won' : (r === 'loss' ? 'lost' : '');
     const owner = rooted ? String(v.rootR.name) : '';
+    const sheet = gxOverlay.querySelector('.sheet');
 
-    // kicker
     const slot = gxSlot(g, lg);
     gxSet(document.getElementById('gxKick'),
       state === 'in' ? '<b>Live</b>' + (slot ? ' · ' + esc(slot) : '')
       : state === 'post' ? '<b class="fin">Final</b>' + (slot ? ' · ' + esc(slot) : '')
       : esc(slot));
 
-    // the match row: built once per game (and per whose sheet)
+    // the match row and the empty field: built once per game (and per whose sheet)
     const body = document.getElementById('gxBody');
-    const built = gxId + '|' + (rooted ? v.rootR.id : '');
+    const built = gxId + '|' + (rooted ? v.rootR.id : '') + '|' + (v.off ? 'off' : '');
     if(gxBuilt !== built || !body.firstChild){
       const logoOf = function(ab, city){ return (lg && lg.logos && lg.logos[ab]) || logoForCity(g, city); };
       const oppHome = lg ? lg.home === s.other : homeCityOf(g) === s.oppCity;
-      const tag = rooted ? esc(owner.toUpperCase()) + '’S PICK' : 'YOUR PICK';
+      let tag, tagCls;
+      if(v.off){ tag = 'NOT ON SHEET'; tagCls = 'offs'; }
+      else {
+        const fav = s.city === favCityOf(g);
+        const sp = typeof g.spread !== 'number' ? '' : (g.spread === 0 ? 'PK' : (fav ? '−' : '+') + g.spread);
+        tag = (rooted ? esc(owner.toUpperCase()) + '’S ' : 'YOUR ') + (fav ? 'FAV' : 'DOG') + (sp ? '<span class="sp">' + sp + '</span>' : '');
+        tagCls = fav ? 'fav' : 'dog';
+      }
       body.innerHTML = '<div class="gx-match">' +
-          gxTeam(s.city, logoOf(s.mine, s.city), true, rooted, tag, '') +
+          gxTeam(s.city, logoOf(s.mine, s.city), true, rooted, tag, tagCls, '', v.off) +
           '<div class="gx-mid" data-role="mid"></div>' +
-          gxTeam(s.oppCity, logoOf(s.other, s.oppCity), false, rooted, '', oppHome ? 'Home' : '@ ' + s.city) +
-        '</div><div data-role="field"></div><div data-role="line"></div><div data-role="pts"></div>';
-      gxBuilt = built; gxPossWas = '';
+          gxTeam(s.oppCity, logoOf(s.other, s.oppCity), false, rooted, '', '', v.off ? (oppHome ? 'Home' : '') : (oppHome ? 'Home' : '@ ' + s.city), v.off) +
+        '</div><div class="gx-field" data-role="field" hidden>' + gxFieldHtml() + '</div>' +
+        '<div class="gx-last" data-role="last" hidden><div class="lphd"><small>LAST PLAY</small><span class="lptag"></span></div><span class="lptxt"></span></div>' +
+        '<div class="gx-win" data-role="win"></div>';
+      gxBuilt = built; gxPossWas = ''; gxF = null;
     }
 
-    // timeouts: three dots under each team while live (hidden when ESPN doesn't send them)
+    // timeouts: three dots under each team while live; gold under two minutes
     const toHtml = function(n){ return (state === 'in' && typeof n === 'number')
       ? [0, 1, 2].map(function(k){ return '<i' + (k < n ? ' class="on"' : '') + '></i>'; }).join('') : ''; };
     const tos = lg && lg.tos;
     const toOf = function(ab){ return tos ? (ab === lg.home ? tos.home : (ab === lg.away ? tos.away : null)) : null; };
     gxSet(body.querySelector('[data-role="to-me"]'), toHtml(toOf(s.mine)));
     gxSet(body.querySelector('[data-role="to-them"]'), toHtml(toOf(s.other)));
+
+    // scores and turnovers: the live cards' badge, flash and cyan score
+    const play = state === 'in' ? activePlay(lg) : null;
+    const scorer = play && !play.to ? (play.ab === s.mine ? 'me' : (play.ab === s.other ? 'them' : '')) : '';
+    const left = gxTwoMin(lg);
+    if(sheet) sheet.classList.toggle('twomin', left !== null);
 
     // middle: score with the football, clock / FINAL, or the kickoff
     const poss = (state === 'in' && lg.poss) ? (lg.poss === s.mine ? 'me' : (lg.poss === s.other ? 'them' : '')) : '';
@@ -6459,100 +6981,124 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       mid = '<div class="gx-when">' + esc(lvKick(g, lg) || 'TBD') + '<small>' + esc(gxWhenSub(g, lg)) + '</small></div>';
     }else{
       const lc = state === 'in' ? liveClock(lg).replace(' - ', ' · ') : '';
-      mid = '<div class="gx-score ' + res + '"><em class="gx-fb"></em><b>' + (s.my === null ? '–' : s.my) + '</b><i>–</i><span>' +
+      const stat = state === 'in'
+        ? '<div class="gx-stat' + (left !== null ? ' twomin' : '') + '"><i class="beacon ' + lvDot(s.my, s.op) + '"></i>' + GX_SW + esc(lc) +
+          '<i class="fuse" style="width:' + (left !== null ? (left / 120 * 100).toFixed(1) : 0) + '%"></i></div>'
+        : '<div class="gx-stat fin">FINAL</div>';
+      mid = '<div class="gx-score ' + (v.off ? '' : res) + '"><em class="gx-fb"></em><b' + (scorer === 'me' ? ' class="js"' : '') + '>' + (s.my === null ? '–' : s.my) + '</b><i>–</i><span' + (scorer === 'them' ? ' class="js"' : '') + '>' +
           (s.op === null ? '–' : s.op) + '</span><em class="gx-fb"></em>' +
-          '<em class="gx-fbm' + (poss ? ' has' : '') + '" style="transform:translateX(' + (GX_FB_X[poss] || 0) + 'px)">' + GX_FB + '</em></div>' +
-        (state === 'in' ? '<div class="gx-stat"><i class="beacon ' + lvDot(s.my, s.op) + '"></i>' + esc(lc) + '</div>'
-                        : '<div class="gx-stat fin">FINAL</div>');
+          '<em class="gx-fbm' + (poss ? ' has' : '') + '" data-p="' + poss + '">' + GX_FB + '</em></div>' + stat;
     }
     const midEl = body.querySelector('[data-role="mid"]');
-    if(gxSet(midEl, mid) && poss && gxPossWas && gxPossWas !== poss && lbMotionOK()){
-      const fb = midEl.querySelector('.gx-fbm');
-      if(fb){
-        fb.style.transition = 'none';
-        fb.style.transform = 'translateX(' + GX_FB_X[gxPossWas] + 'px)';
-        void fb.offsetWidth;
-        fb.style.transition = '';
-        fb.style.transform = 'translateX(' + GX_FB_X[poss] + 'px)';
+    gxSet(midEl, mid);
+    const fbm = midEl.querySelector('.gx-fbm'), sc = midEl.querySelector('.gx-score');
+    if(fbm && poss){
+      const to = gxFbX(poss, sc);
+      if(gxPossWas && gxPossWas !== poss && lbMotionOK()){
+        fbm.style.transition = 'none'; fbm.style.transform = 'translateX(' + gxFbX(gxPossWas, sc) + 'px)'; void fbm.offsetWidth; fbm.style.transition = '';
       }
+      fbm.style.transform = 'translateX(' + to + 'px)';
     }
     if(poss) gxPossWas = poss;
 
-    // the field (live only): line of scrimmage, yellow first-down line, drive arrow
-    let field = '';
+    // the field, down & distance and the last play (live only)
+    const fw = body.querySelector('[data-role="field"]'), lb = body.querySelector('[data-role="last"]');
+    fw.hidden = state !== 'in';
+    const lpx = state === 'in' && lg.lastPlay && lg.lastPlay.text ? lg.lastPlay : null;
+    lb.hidden = !lpx;
     if(state === 'in'){
-      let spot = null;
-      try{ spot = ballSpot(lg, s.abA, s.abB); }catch(e){ spot = null; }
-      const possCity = lg.poss === s.mine ? s.city : (lg.poss === s.other ? s.oppCity : '');
-      if(spot){
-        const ours = spot.pos === s.mine;
-        const x = ours ? 100 - spot.d : spot.d;
-        const dm = String(lg.downDistance || '').match(/&\s*(goal|\d+)/i);
-        const dist = dm && !/goal/i.test(dm[1]) ? parseInt(dm[1], 10) : 0;
-        const fd = dist ? Math.max(0, Math.min(100, ours ? x + dist : x - dist)) : null;
-        const ticks = [10, 20, 30, 40, 50, 40, 30, 20, 10].map(function(n, i){ return '<span class="n" style="left:' + ((i + 1) * 10) + '%">' + n + '</span>'; }).join('');
-        field = '<div class="gx-field"><div class="gx-strip"><span class="gx-ez">' + esc(s.mine) + '</span><div class="gx-yd">' + ticks +
-          (fd !== null ? '<span class="gx-fd" style="left:' + fd + '%"></span>' : '') +
-          '<span class="gx-los" style="left:' + x + '%"></span><span class="gx-ball" style="left:' + x + '%"></span>' +
-          '<span class="gx-dir ' + (ours ? 'r' : 'l') + '" style="left:' + x + '%"></span></div>' +
-          '<span class="gx-ez r">' + esc(s.other) + '</span></div>' +
-          '<div class="gx-dd">' + esc(lg.downDistance) + '<span>' + (possCity ? esc(possCity) + ' ball' : '') + '</span></div></div>';
-      }else if(lg.downDistance && possCity){
-        field = '<div class="gx-field"><div class="gx-dd">' + esc(lg.downDistance) + '<span>' + esc(possCity) + ' ball</span></div></div>';
+      const fx = fw.querySelector('.fx'), rr = gxRawY(lg), T = gxT[lg.id];
+      const dd = fw.querySelector('.gx-dd'), ddl = dd.querySelector('.ddl'), drv = dd.querySelector('.ddrive'), pt = dd.querySelector('.playtag');
+      if(rr){
+        const cls = rr.down === 3 ? ' d3' : (rr.down === 4 ? ' d4' : '');
+        gxSet(ddl, '<b class="dnb' + cls + '">' + ['1ST', '2ND', '3RD', '4TH'][rr.down - 1] + '</b><span>&amp; ' + (rr.goal ? 'Goal' : rr.dist) + '</span>' +
+          '<span class="ddat">at ' + esc(rr.at) + '</span>' + (rr.d <= 20 ? '<span class="rzc">Red Zone</span>' : ''));
+      }else gxSet(ddl, '');
+      let dtxt = '';
+      const ldr = lg.lastPlay && lg.lastPlay.drive && lg.lastPlay.drive.desc;
+      if(ldr) dtxt = 'Drive · ' + String(ldr).replace(/,\s*/g, ' · ').replace(/yards?/i, 'yds');
+      else if(rr && T && T.plays > 0 && T.dsPos === rr.pos && T.dsY !== null){
+        const yds = Math.round((rr.y - T.dsY) * (rr.pos === lg.away ? 1 : -1));
+        dtxt = 'Drive · ' + T.plays + ' play' + (T.plays === 1 ? '' : 's') + ' · ' + yds + ' yds';
       }
-      if(lg.lastPlay && lg.lastPlay.text) field += '<div class="gx-last"><small>LAST PLAY</small>' + esc(lg.lastPlay.text) + '</div>';
+      if(drv.textContent !== dtxt) drv.textContent = dtxt;
+      const kind = lpx ? gxKind(lpx) : 'none';
+      if(play){ pt.className = 'playtag' + (play.to ? ' to' : ''); if(pt.textContent !== play.label) pt.textContent = play.label; dd.classList.add('badge'); }
+      else if(kind === 'twomin'){ pt.className = 'playtag tw'; gxSet(pt, GX_SW.replace('class="sw" ', '') + 'TWO-MINUTE WARNING'); dd.classList.add('badge'); }
+      else dd.classList.remove('badge');
+      fx.classList.toggle('scored', !!(play && !play.to));
+      fx.classList.toggle('turned', !!(play && play.to));
+      // the flash and the score pulse, once per play
+      const flashKey = play ? play.flashAt : (kind === 'twomin' ? 'tw' + (lpx && lpx.id) : '');
+      if(flashKey && gxF && gxF.flashAt !== flashKey && !opening){
+        if(play){ fx.classList.remove('flash', 'flashto'); void fx.offsetWidth; fx.classList.add(play.to ? 'flashto' : 'flash');
+          const js = midEl.querySelector('.js'); if(js){ js.classList.remove('pop'); void js.offsetWidth; js.classList.add('pop'); } }
+        else { const c = midEl.querySelector('.gx-stat'); if(c){ c.classList.remove('hit'); void c.offsetWidth; c.classList.add('hit'); } }
+      }
+      if(lpx){
+        const tg = gxTagOf(kind, lpx), tagEl = lb.querySelector('.lptag');
+        tagEl.className = 'lptag' + (tg[1] ? ' ' + tg[1] : '');
+        if(tagEl.textContent !== tg[0]) tagEl.textContent = tg[0];
+        const tx = lb.querySelector('.lptxt'); if(tx.textContent !== lpx.text) tx.textContent = lpx.text;
+      }
+      const go = function(){ gxFieldPaint(fx, lg, s, opening).then(function(){ if(gxF && flashKey) gxF.flashAt = flashKey; }).catch(function(){}); };
+      if(fx.clientWidth) go(); else requestAnimationFrame(go);
+      if(gxF && flashKey && opening) gxF.flashAt = flashKey;
     }
-    gxSet(body.querySelector('[data-role="field"]'), field);
 
-    // the line: "Atlanta −3" + Favorite / Underdog
-    let line = '';
-    if(typeof g.spread === 'number'){
-      const fav = s.city === favCityOf(g);
-      line = g.spread === 0 ? '<div class="gx-line"><span class="gx-chip">Pick’em</span></div>'
-        : '<div class="gx-line"><span class="gx-chip">' + esc(s.city) + ' ' + (fav ? '−' : '+') + g.spread + '</span>' +
-          '<span class="gx-chip">' + (fav ? 'Favorite' : 'Underdog') + '</span></div>';
-    }
-    gxSet(body.querySelector('[data-role="line"]'), line);
-
-    // your points on this game
-    const pts = v.pts;
-    let head, sub, pct = '';
-    if(state === 'post'){
-      if(r === 'win'){ head = 'Won · +' + pts + ' point' + (pts === 1 ? '' : 's'); sub = 'Banked'; }
-      else if(r === 'tie'){ head = 'Tie · +' + pts + ' point' + (pts === 1 ? '' : 's'); sub = 'Banked — a tie pays both sides'; }
-      else { head = 'Lost'; sub = 'No points from this one'; }
-    }else if(state === 'in'){
-      const d = s.my - s.op;
-      head = d > 0 ? 'Up ' + d : (d < 0 ? 'Down ' + (-d) : 'Tied');
-      sub = d >= 0 ? pts + ' point' + (pts === 1 ? '' : 's') + ' if ' + s.city + ' holds on'
-                   : (rooted ? owner + ' needs ' : 'You need ') + s.city + ' to come back';
+    // win chance: slim, both teams in the same plain style (live: ESPN's live chance; before kickoff: the Picks tab's)
+    let pct = null;
+    if(!v.off && state === 'in'){
       let p = null;
       if(lg.wp){ p = lg.home === s.mine ? lg.wp.home : (lg.away === s.mine ? lg.wp.away : null); }
       if(typeof p !== 'number'){ try{ const c = gameChanceA(g); if(c && typeof c.p === 'number') p = s.mine === s.abA ? c.p : 1 - c.p; }catch(e){} }
       pct = gxPct(p);
-    }else{
-      head = pts + ' point' + (pts === 1 ? '' : 's') + ' on the line';
-      sub = gxKickoffLine(g, lg);
-      if(typeof g.spread === 'number'){ try{ pct = gxPct(pickWinProb(g)); }catch(e){} }
+    }else if(!v.off && state === 'pre' && typeof g.spread === 'number'){ try{ pct = gxPct(pickWinProb(g)); }catch(e){} }
+    const winEl = body.querySelector('[data-role="win"]');
+    if(pct === null) gxSet(winEl, '');
+    else {
+      const short = (s.city.length + s.oppCity.length) > 18;
+      const nm = short ? s.mine : s.city, on = short ? s.other : s.oppCity;
+      const tier = pct >= 60 ? 'g' : pct >= 40 ? 'c' : pct >= 20 ? 'o' : 'r';
+      const ws = winEl.querySelector('.ws');
+      if(!ws || ws.dataset.k !== nm + '|' + on){
+        winEl.innerHTML = '<div class="ws s2 ' + tier + '" data-k="' + esc(nm + '|' + on) + '"><span class="wslbl">WIN CHANCE</span><span class="tm"><b>' + pct + '%</b> ' + esc(nm) + '</span>' +
+          '<div class="bar"><i style="width:' + pct + '%"></i></div><span class="tm op">' + esc(on) + ' <b>' + (100 - pct) + '%</b></span></div>';
+      }else{
+        ws.className = 'ws s2 ' + tier;
+        setText(ws.querySelector('.tm b'), pct + '%'); setText(ws.querySelector('.tm.op b'), (100 - pct) + '%');
+        ws.querySelector('.bar i').style.width = pct + '%';
+      }
     }
-    gxSet(body.querySelector('[data-role="pts"]'),
-      '<div class="gx-pts ' + res + '"><span class="gx-box">' + pts + '<em>PTS</em></span>' +
-      '<div class="gx-ptxt"><b>' + esc(head) + '</b><span>' + esc(sub) + '</span></div>' +
-      (pct ? '<div class="gx-pct"><b>' + esc(pct) + '</b><span>WIN CHANCE</span></div>' : '') + '</div>');
     return true;
   }
   function gxOpen(gid){
-    gxId = gid; gxBuilt = ''; gxPossWas = '';
-    if(!gxPaint()) return;
+    gxId = gid; gxBuilt = ''; gxPossWas = ''; gxF = null;
+    if(!gxPaint(true)) return;
     if(!getLocal(GX_TAP_KEY)){
       put(GX_TAP_KEY, { t: Date.now() });
       document.querySelectorAll('.lvsheet .lvhint').forEach(function(h){ h.remove(); });
       lvColsDrawn = '<div class="sheetcols" aria-hidden="true"><span>Pts</span><span>Pick</span><span>Score</span></div>';   // no rebuild, no logo blink
     }
     openOverlay(gxOverlay);
+    // the field needs the sheet on screen to measure itself
+    requestAnimationFrame(function(){ try{ gxPaint(true); }catch(e){} });
   }
   document.getElementById('gxBack').addEventListener('click', function(){ closeOverlay(gxOverlay); });
   gxOverlay.addEventListener('click', function(e){ if(e.target === gxOverlay) closeOverlay(gxOverlay); });
+  /* Every game card opens it too (Live now, Up next, Not on your sheet). The pin,
+     the underdog tab and the spread keep their own jobs. */
+  function gxCardTap(e){
+    const t = e.target;
+    if(!t || !t.closest) return;
+    if(t.closest('[data-role="pin"], .dogtab, [data-role="hist"], .lvsheet')) return;
+    const card = t.closest('.gcard');
+    if(!card || !card.dataset.id) return;
+    if(Date.now() - lvScrollAt < 250) return;
+    gxOpen(card.dataset.id);
+  }
+  resultsList.addEventListener('click', gxCardTap);
+  document.getElementById('offSheetList').addEventListener('click', gxCardTap);
 
   function groupHeads(){
     return '<div class="ggroup" data-group="live" style="order:-50" hidden>' +
@@ -6606,10 +7152,14 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function offCard(g){
     const lg = liveFor(g);
     const started = lg && lg.state !== 'pre';
+    /* 4.9.0: names, scores and logos all follow ESPN's away/home order, and the
+       logo falls back to the sheet's own (it used to wait for scores, and the
+       cards are only redrawn when the games change, so it never showed). */
+    const abA = g.abbrA || ABBR[g.cityA], abB = g.abbrB || ABBR[g.cityB];
     const rows = ['a','b'].map(function(side){
-      const ab = lg ? (side === 'a' ? lg.away : lg.home) : '';
-      const city = (side === 'a') ? g.cityA : g.cityB;
-      const logo = lg ? lg.logos[ab] : '';
+      const ab = lg ? (side === 'a' ? lg.away : lg.home) : (side === 'a' ? abA : abB);
+      const city = ab === abA ? g.cityA : (ab === abB ? g.cityB : (side === 'a' ? g.cityA : g.cityB));
+      const logo = (lg && lg.logos && lg.logos[ab]) || logoForCity(g, city);
       const sc = (lg && typeof lg.scores[ab] === 'number') ? lg.scores[ab] : null;
       return '<div class="trow">' +
         '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="">' : '') + '</span>' +
@@ -6626,6 +7176,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     else { const k = kickoffText(lg, g); s1 = k.day; s2 = k.time; }
 
     return '<div class="gcard off" data-id="' + g.id + '">' +
+      '<i class="gchev" aria-hidden="true">\u203A</i>' +
       '<div class="gmain">' +
         '<span class="gpts off">\u2013</span>' +
         '<div class="gteams">' + rows + '</div>' +
@@ -6640,7 +7191,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function paintOffSheet(list){
     const el = document.getElementById('offSheetList');
     if(!el) return;
-    const ids = list.map(function(g){ return g.id; }).join(',');
+    // 4.9.0: redrawn once more when the scores arrive, so the away/home order and logos are right
+    const ids = list.map(function(g){ return g.id + (liveFor(g) ? '+' : ''); }).join(',');
     if(el.dataset.ids !== ids){
       el.innerHTML = list.map(offCard).join('');
       el.dataset.ids = ids;
@@ -11762,12 +12314,12 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      get the four new cards once. The Quick Tips pill opens the full deck.
      Reduced motion: each card holds still on its key moment, no pointer. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 3;
-  // 4.8.0: 'lvsheet' joins the full deck only (no version bump, so it doesn't pop up for anyone).
+  const LIVETIPS_VERSION = 4;     // 4.9.0: the game slide-up card shows once to everyone
+  // 4.9.0: 'lvsheet' (tap any game) shows once to everyone (version 4).
   const LT_FULL = ['live', 'lvsheet', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
-  const LT_NEW = ['sheets', 'win', 'analysis', 'root'];
+  const LT_NEW = ['lvsheet'];
   const LT_TITLE = { live: 'Live games update themselves', pin: 'Pin a game', sheets: 'Open &amp; compare sheets',
-    lvsheet: 'Tap a game on your sheet', win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
+    lvsheet: 'Tap any game', win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
   let ltDeck = LT_FULL.slice(), ltIndex = 0, pnTimers = [], lxR = null;
   const liveTipsOverlay = document.getElementById('liveTipsOverlay');
   function liveTipsSeenVer(){
@@ -11778,7 +12330,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 
   /* Sample screens, copied from the real Live tab (IDs removed). \u0001 = this
      player's name, \u0002n\u0003 = a shared icon from T. */
-  const LX_DATA = {"S": {"live": "<div class=\"weekhead\"><span>Week 3 of 18</span><button class=\"tipbtn livetipbtn unseen\" type=\"button\"><span class=\"tipplay\"><svg viewBox=\"0 0 8 9\" aria-hidden=\"true\"><path d=\"M1 0.8v7.4L7.2 4.5z\" fill=\"#03131f\"></path></svg></span>Quick Tips</button></div><div class=\"lxres\"><div class=\"ggroup\" data-group=\"live\" style=\"order:-50\"><div class=\"gghead\"><i class=\"gdot\"></i><b>Live now</b><span data-role=\"count\">3 games</span></div><div class=\"gsweep\"><i></i></div></div><div class=\"ggroup\" data-group=\"next\" style=\"order:950\"><div class=\"gghead\"><b>Up next</b><span data-role=\"count\">3 games</span></div></div><div class=\"gcard islive\" data-id=\"e401900014\" data-grp=\"live\" data-pts=\"3\" style=\"order: 3;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.154\">3<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"CAR\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Carolina</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine leading\" data-ab=\"NE\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>New England<b class=\"tspread\" data-role=\"hist\">\u22121.5</b></span><span class=\"tscore\" data-role=\"score\">17</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q1</span><span class=\"s2\" data-role=\"s2\">2:00</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">2nd &amp; 6 at CAR 14</span><span class=\"rzchip\" data-role=\"rz\">Red Zone</span></div></div><div class=\"gcard pregame\" data-id=\"e401900013\" data-grp=\"next\" data-pts=\"4\" style=\"order:1004\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.231\">4<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"WSH\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/wsh.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Washington</span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"DAL\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Dallas<b class=\"tspread\" data-role=\"hist\">\u22122</b></span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus pre offgame\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Sun</span><span class=\"s2\" data-role=\"s2\">8:20 PM</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div><div class=\"gcard islive\" data-id=\"e401900008\" data-grp=\"live\" data-pts=\"7\" style=\"order: 7;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.462\">7<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"IND\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Indianapolis</span><span class=\"tscore\" data-role=\"score\">13</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"HOU\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Houston<b class=\"tspread\" data-role=\"hist\">\u22123.5</b></span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live solo\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Halftime</span><span class=\"s2\" data-role=\"s2\" hidden=\"\"></span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div><div class=\"gcard islive\" data-id=\"e401900002\" data-grp=\"live\" data-pts=\"11\" style=\"order: 11;\"><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.769\">11<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"CHI\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Chicago</span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div><div class=\"trow mine\" data-ab=\"DET\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Detroit<b class=\"tspread\" data-role=\"hist\">\u22127</b></span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">1:12</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">3rd &amp; 7 at DET 38</span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div></div>", "top": "<div class=\"livehead\"><h2 class=\"panelhead\">Score Tracker</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\" hidden=\"\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\"></b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Your Score</div><div class=\"scorebig\">34</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">45</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 14 scored</div><div class=\"scoreprog\"><i style=\"width: 57%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">41</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow me\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "share": "<div class=\"confirmcard\" role=\"dialog\" aria-label=\"Open Sheets\"><div class=\"chead\"><span class=\"cicon\">\u00020\u0003</span><h2>Open Sheets</h2></div><p>Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.</p><div class=\"sharerules\"><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg></i><span>Anyone who has opened theirs can see yours.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"11\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"></path></svg></i><span>It can't be closed again this week.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 10h18M8 3v4M16 3v4\"></path></svg></i><span>Every sheet closes when next week starts.</span></div></div><div class=\"confirmrow\"><button class=\"confirmyes\">Open My Sheet</button><button class=\"confirmcancel\">Not this week</button></div></div>", "cmp": "<div class=\"sheet\"><div class=\"sheettop\"><button class=\"backbtn\">\u2039 Back</button><h2>\u0001 vs Dale</h2></div><button type=\"button\" class=\"rootbtn\">Root for Dale</button><div class=\"viewtabs\"><button class=\"viewtab on\" data-view=\"ladder\">Ladder</button><button class=\"viewtab\" data-view=\"h2h\">Head-to-Head</button></div><div><div class=\"vhead\"><span class=\"vwho mine\"><i></i>\u0001</span><span class=\"vwho them\"><i></i>Dale</span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">1</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">1</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span></div><div class=\"vrow differ\"><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">2</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">2</b><span class=\"vname\">Buffalo</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">@ Miami</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">3</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">3</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">5</b><span class=\"vname\">Cincinnati</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">vs Pittsburgh</span></span><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">5</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Green Bay</span><b class=\"vsp\">\u22123</b></span><span class=\"vopp\">vs Minnesota</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Jacksonville</span><b class=\"vsp\">\u22125.5</b></span><span class=\"vopp\">vs Tennessee</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Houston</span><b class=\"vsp\">\u22123.5</b></span><span class=\"vopp\">vs Indianapolis</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Indianapolis</span><b class=\"vsp\">+3.5</b></span><span class=\"vopp\">@ Houston</span></span></div><div class=\"vtotals\"><span class=\"vtot\"><b>34</b><span class=\"vtotlbl\">pts</span></span><span class=\"vtot lead\"><b>41</b><span class=\"vtotlbl\">pts</span></span></div></div></div>", "ask": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Root for\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker rootkick\">ROOT FOR</span><h2>Root for Dale?</h2></div></div><p class=\"rootasktext\">Your Live tab turns into <b>Dale\u2019s</b>: their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> on it any time to switch back to your own view. It ends on its own when the week does.</p><div class=\"tipnav\"><button class=\"confirmyes rootgo\">Root for Dale</button></div><button class=\"closebtn\">Cancel</button></div>", "rooted": "<div class=\"livehead\"><h2 class=\"panelhead\">Dale\u2019s Live</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\">Dale</b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Dale\u2019s Score</div><div class=\"scorebig\">40</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">49</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 15 scored</div><div class=\"scoreprog\"><i style=\"width: 53%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow me lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">40</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "chat": "<div class=\"chatsheet\" role=\"dialog\" aria-label=\"Pool Chat\"><div class=\"chathead\"><div class=\"chattitle\"><b>Pool Chat</b><span>Week 3 \u00b7 everyone in the pool</span></div><button class=\"backbtn anback\" type=\"button\">\u2039 Back</button></div><div class=\"chatpeople\"><span class=\"chatonline\"><i class=\"beacon\"></i>1 online now</span><div class=\"chatpills\"><span class=\"chatpill me\" style=\"color: var(--green)\">You<i class=\"beacon\"></i></span></div></div><div class=\"chatlist\"><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#e59cff\">Dale <i>\u00b7 2:57 PM</i></span><div class=\"chatbubble\">Lions are cooking today</div></div><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#ff9ecf\">Kermit <i>\u00b7 3:02 PM</i></span><div class=\"chatbubble\">Bills better cover for me</div></div></div><div class=\"chatcompose\"><textarea rows=\"1\" maxlength=\"200\" placeholder=\"Message the pool\" autocomplete=\"off\" enterkeyhint=\"send\" class=\"lxchatin\"></textarea><span class=\"chatcount\" hidden=\"\">0 / 200</span><button class=\"chatsend\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg></button></div></div>", "an": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Analysis\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker\">ANALYSIS</span><h2>How you\u2019re doing</h2></div><button type=\"button\" class=\"backbtn anback\">\u2039 Back</button></div><div class=\"ansect\">Current outlook<span class=\"anasof\">\u00b7 as of 3:42 PM</span></div><div class=\"anwk\"><div class=\"anwktop\"><div class=\"anwkhead\"><span class=\"anchip run\">IN THE RUNNING</span><b>You\u2019re right in the race.</b><p>You\u2019re one of the favorites. The games left decide it.</p></div><div class=\"anring\"><svg viewBox=\"0 0 88 88\" aria-hidden=\"true\"><circle class=\"rbg\" cx=\"44\" cy=\"44\" r=\"37\"></circle><circle class=\"rfg\" cx=\"44\" cy=\"44\" r=\"37\" style=\"stroke-dasharray: 232.478; stroke-dashoffset: 144.136;\"></circle></svg><div class=\"rin\"><b>38%</b><span>to win</span></div></div></div><div class=\"anvs\"><div class=\"side\"><span>Your best case</span><b>94</b><small>if your games win</small></div><div class=\"vs\">VS</div><div class=\"side w\"><span>Likely winning total</span><b>86</b><small>82\u201390 range</small><button type=\"button\" class=\"anconf\"></button></div></div><div class=\"anconfwhy\" hidden=\"\"></div><div class=\"anres\"></div><div class=\"antrackwrap\"><div class=\"antrack\"><span class=\"tband\"></span><span class=\"tnow\" style=\"width: 39.0805%;\"></span><span class=\"tmax\" style=\"left: 39.0805%; width: 51.7241%;\"></span><span class=\"tflag\"><em></em></span></div><div class=\"tlabels\"><span class=\"tl now\" style=\"left: 39.0805%; transform: translateX(-50%);\">Now 34</span><span class=\"tl\" style=\"left: 90.8046%; transform: translateX(-50%);\">Best 94</span></div></div><div class=\"anpath\"><div class=\"anleft\">6 games left \u00b7 worth 45 points</div></div></div><div class=\"tipnav\"><button class=\"confirmyes\">Got it</button></div><button type=\"button\" class=\"anmeth\" aria-expanded=\"false\"><span class=\"anmi\" aria-hidden=\"true\">i</span>How is this calculated? <span class=\"anchev\" aria-hidden=\"true\">\u25be</span></button><div class=\"anwhat\" hidden=\"\">Once 3 or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.</div></div>", "lvs": "<div class=\"lxres\"><div class=\"ggroup lvsheethd\" data-group=\"sheet\"><div class=\"gghead\"><b data-role=\"who\">Your Sheet</b><span data-role=\"count\">34 banked \u00b7 8 of 14 final</span></div></div><div class=\"sheetcard lvsheet\" data-key=\"|3\"><div class=\"sheetcols\" aria-hidden=\"true\"><span>Pts</span><span>Pick</span><span>Score</span><i class=\"lvhint\">Tap a game \u203a</i></div><div class=\"sheetrow won\" data-eid=\"e401900011\"><span class=\"sheetnum\">1</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/sea.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Seattle</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>17</b><i class=\"sd\">\u2013</i><span class=\"so\">13</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900010\"><span class=\"sheetnum\">2</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/lac.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">LA Chargers</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900014\"><span class=\"sheetnum\">3</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">New England</span><span class=\"sheetscore\"><i class=\"beacon up2\"></i><b>17</b><i class=\"sd\">\u2013</i><span class=\"so\">7</span></span></div><div class=\"sheetrow\" data-eid=\"e401900013\"><span class=\"sheetnum\">4</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Dallas</span><span class=\"sheetscore\"><em class=\"lvprime\">Sun 8:20</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900007\"><span class=\"sheetnum\">5</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/cin.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Cincinnati</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">17</span></span></div><div class=\"sheetrow tied\" data-eid=\"e401900006\"><span class=\"sheetnum\">6</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/gb.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Green Bay</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900008\"><span class=\"sheetnum\">7</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Houston</span><span class=\"sheetscore\"><i class=\"beacon dn\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">17</span></span></div><div class=\"sheetrow\" data-eid=\"e401900009\"><span class=\"sheetnum\">8</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/tb.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Tampa Bay</span><span class=\"sheetscore\"><em>Sun 1:00</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900012\"><span class=\"sheetnum\">9</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/jax.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Jacksonville</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">10</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900005\"><span class=\"sheetnum\">10</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/sf.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">San Francisco</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>14</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900002\"><span class=\"sheetnum\">11</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Detroit</span><span class=\"sheetscore\"><i class=\"beacon dn\"></i><b>7</b><i class=\"sd\">\u2013</i><span class=\"so\">13</span></span></div><div class=\"sheetrow\" data-eid=\"e401900003\"><span class=\"sheetnum\">12</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/phi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Philadelphia</span><span class=\"sheetscore\"><em>Sun 1:00</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900004\"><span class=\"sheetnum\">13</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/bal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Baltimore</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">17</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900001\"><span class=\"sheetnum\">14</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/kc.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Kansas City</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div></div></div>", "gx": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Game\"><div class=\"gx-top\"><span class=\"gx-kick\"><b>Live</b> \u00b7 Sunday 1:00 PM</span><button class=\"backbtn\" type=\"button\">\u2039 Back</button></div><div><div class=\"gx-match\"><div class=\"gx-team mine\"><div class=\"gx-logo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></div><b class=\"gx-name\">New England</b><span class=\"gx-tag\">YOUR PICK</span><span class=\"gx-to\" data-role=\"to-me\"></span></div><div class=\"gx-mid\" data-role=\"mid\"><div class=\"gx-score \"><em class=\"gx-fb\"></em><b>17</b><i>\u2013</i><span>7</span><em class=\"gx-fb\"></em><em class=\"gx-fbm has\" style=\"transform:translateX(-0.5px)\"><svg viewBox=\"0 0 34 20\" aria-hidden=\"true\"><ellipse cx=\"17\" cy=\"10\" rx=\"16\" ry=\"9\" fill=\"#b9733e\" stroke=\"#fff\" stroke-width=\"1.6\"></ellipse><path d=\"M11 10h12M14 7.5v5M17 7.5v5M20 7.5v5\" stroke=\"#fff\" stroke-width=\"1.5\" stroke-linecap=\"round\"></path></svg></em></div><div class=\"gx-stat\"><i class=\"beacon up2\"></i>Q4 \u00b7 6:00</div></div><div class=\"gx-team\"><div class=\"gx-logo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></div><b class=\"gx-name\">Carolina</b><span class=\"gx-sub\">@ New England</span><span class=\"gx-to\" data-role=\"to-them\"></span></div></div><div data-role=\"field\"><div class=\"gx-field\"><div class=\"gx-strip\"><span class=\"gx-ez\">NE</span><div class=\"gx-yd\"><span class=\"n\" style=\"left:10%\">10</span><span class=\"n\" style=\"left:20%\">20</span><span class=\"n\" style=\"left:30%\">30</span><span class=\"n\" style=\"left:40%\">40</span><span class=\"n\" style=\"left:50%\">50</span><span class=\"n\" style=\"left:60%\">40</span><span class=\"n\" style=\"left:70%\">30</span><span class=\"n\" style=\"left:80%\">20</span><span class=\"n\" style=\"left:90%\">10</span><span class=\"gx-fd\" style=\"left:92%\"></span><span class=\"gx-los\" style=\"left:86%\"></span><span class=\"gx-ball\" style=\"left:86%\"></span><span class=\"gx-dir r\" style=\"left:86%\"></span></div><span class=\"gx-ez r\">CAR</span></div><div class=\"gx-dd\">2nd &amp; 6 at CAR 14<span>New England ball</span></div></div></div><div data-role=\"line\"><div class=\"gx-line\"><span class=\"gx-chip\">New England \u22121.5</span><span class=\"gx-chip\">Favorite</span></div></div><div data-role=\"pts\"><div class=\"gx-pts \"><span class=\"gx-box\">3<em>PTS</em></span><div class=\"gx-ptxt\"><b>Up 10</b><span>3 points if New England holds on</span></div><div class=\"gx-pct\"><b>99%</b><span>WIN CHANCE</span></div></div></div></div></div>"}, "T": ["<svg viewBox=\"0 0 16 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 1h8l4 4v14H2z\"></path><path d=\"M10 1v4h4M5 10h6M5 14h6\"></path></svg>", "<svg viewBox=\"0 0 10 10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 6.5 5 3.5 8 6.5\"></path></svg>", "<svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3.2\" fill=\"currentColor\"></circle></svg>", "<svg viewBox=\"0 0 26 16\" aria-label=\"Has the ball\"><ellipse cx=\"13\" cy=\"8\" rx=\"12\" ry=\"7\" fill=\"#b98552\"></ellipse><path d=\"M8 8h10M11 6v4M13 6v4M15 6v4\" stroke=\"#ffffff\" stroke-width=\"1.4\" stroke-linecap=\"round\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5 10 17.5 19 7\"></path></svg>"]};
+  const LX_DATA = {"S": {"live": "<div class=\"weekhead\"><span>Week 3 of 18</span><button class=\"tipbtn livetipbtn unseen\" type=\"button\"><span class=\"tipplay\"><svg viewBox=\"0 0 8 9\" aria-hidden=\"true\"><path d=\"M1 0.8v7.4L7.2 4.5z\" fill=\"#03131f\"></path></svg></span>Quick Tips</button></div><div class=\"lxres\"><div class=\"ggroup\" data-group=\"live\" style=\"order:-50\"><div class=\"gghead\"><i class=\"gdot\"></i><b>Live now</b><span data-role=\"count\">3 games</span></div><div class=\"gsweep\"><i></i></div></div><div class=\"ggroup\" data-group=\"next\" style=\"order:950\"><div class=\"gghead\"><b>Up next</b><span data-role=\"count\">3 games</span></div></div><div class=\"gcard islive\" data-id=\"e401900014\" data-grp=\"live\" data-pts=\"3\" style=\"order: 3;\"><i class=\"gchev\" aria-hidden=\"true\">\u203a</i><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.154\">3<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"CAR\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Carolina</span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine leading\" data-ab=\"NE\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>New England<b class=\"tspread\" data-role=\"hist\">\u22121.5</b></span><span class=\"tscore\" data-role=\"score\">17</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q2</span><span class=\"s2\" data-role=\"s2\">7:00</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">2nd &amp; 6 at CAR 14</span><span class=\"rzchip\" data-role=\"rz\">Red Zone</span></div></div><div class=\"gcard pregame\" data-id=\"e401900013\" data-grp=\"next\" data-pts=\"4\" style=\"order:1004\"><i class=\"gchev\" aria-hidden=\"true\">\u203a</i><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.231\">4<em>pts</em></span><div class=\"gteams\"><div class=\"trow\" data-ab=\"WSH\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/wsh.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Washington</span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"DAL\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Dallas<b class=\"tspread\" data-role=\"hist\">\u22122</b></span><span class=\"tscore pending\" data-role=\"score\">\u2013</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus pre offgame\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Sun</span><span class=\"s2\" data-role=\"s2\">8:20 PM</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div><div class=\"gcard islive\" data-id=\"e401900008\" data-grp=\"live\" data-pts=\"7\" style=\"order: 7;\"><i class=\"gchev\" aria-hidden=\"true\">\u203a</i><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.462\">7<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"IND\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ind.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Indianapolis</span><span class=\"tscore\" data-role=\"score\">13</span><span class=\"tposs\" data-role=\"poss\"></span></div><div class=\"trow mine\" data-ab=\"HOU\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Houston<b class=\"tspread\" data-role=\"hist\">\u22123.5</b></span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live solo\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">End Q1</span><span class=\"s2\" data-role=\"s2\" hidden=\"\"></span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\" hidden=\"\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\"></span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div><div class=\"gcard islive\" data-id=\"e401900002\" data-grp=\"live\" data-pts=\"11\" style=\"order: 11;\"><i class=\"gchev\" aria-hidden=\"true\">\u203a</i><button type=\"button\" class=\"pinbtn\" data-role=\"pin\" aria-label=\"Pin to top\" aria-pressed=\"false\">\u00022\u0003</button><button type=\"button\" class=\"dogtab\" data-role=\"dog\" aria-label=\"Underdog: see who else took them\" hidden=\"\">YOUR UNDERDOG\u00021\u0003</button><div class=\"gmain\"><span class=\"gpts\" style=\"--c:0.769\">11<em>pts</em></span><div class=\"gteams\"><div class=\"trow leading\" data-ab=\"CHI\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/chi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\">Chicago</span><span class=\"tscore\" data-role=\"score\">10</span><span class=\"tposs\" data-role=\"poss\">\u00024\u0003</span></div><div class=\"trow mine\" data-ab=\"DET\"><span class=\"tlogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"tname\"><i>@</i>Detroit<b class=\"tspread\" data-role=\"hist\">\u22127</b></span><span class=\"tscore\" data-role=\"score\">7</span><span class=\"tposs\" data-role=\"poss\"></span></div></div><div class=\"gstatus live\" data-role=\"status\"><span class=\"s1\" data-role=\"s1\">Q4</span><span class=\"s2\" data-role=\"s2\">1:37</span><span data-role=\"restag\"></span></div></div><div class=\"gdd\" data-role=\"dd\"><span class=\"playtag\" data-role=\"play\" hidden=\"\"></span><span data-role=\"ddtext\">3rd &amp; 7 at DET 38</span><span class=\"rzchip\" data-role=\"rz\" hidden=\"\">Red Zone</span></div></div></div>", "top": "<div class=\"livehead\"><h2 class=\"panelhead\">Score Tracker</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\" hidden=\"\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\"></b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Your Score</div><div class=\"scorebig\">34</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">45</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 14 scored</div><div class=\"scoreprog\"><i style=\"width: 57%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">41</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow me\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "share": "<div class=\"confirmcard\" role=\"dialog\" aria-label=\"Open Sheets\"><div class=\"chead\"><span class=\"cicon\">\u00020\u0003</span><h2>Open Sheets</h2></div><p>Show yours to see theirs. Open your sheet and you can compare it with anyone else who has opened theirs.</p><div class=\"sharerules\"><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg></i><span>Anyone who has opened theirs can see yours.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"11\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"></path></svg></i><span>It can't be closed again this week.</span></div><div class=\"sharerule\"><i><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 10h18M8 3v4M16 3v4\"></path></svg></i><span>Every sheet closes when next week starts.</span></div></div><div class=\"confirmrow\"><button class=\"confirmyes\">Open My Sheet</button><button class=\"confirmcancel\">Not this week</button></div></div>", "cmp": "<div class=\"sheet\"><div class=\"sheettop\"><button class=\"backbtn\">\u2039 Back</button><h2>\u0001 vs Dale</h2></div><button type=\"button\" class=\"rootbtn\">Root for Dale</button><div class=\"viewtabs\"><button class=\"viewtab on\" data-view=\"ladder\">Ladder</button><button class=\"viewtab\" data-view=\"h2h\">Head-to-Head</button></div><div><div class=\"vhead\"><span class=\"vwho mine\"><i></i>\u0001</span><span class=\"vwho them\"><i></i>Dale</span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">1</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">1</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span></div><div class=\"vrow differ\"><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">2</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">2</b><span class=\"vname\">Buffalo</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">@ Miami</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">3</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">3</b><span class=\"vname\">Seattle</span><b class=\"vsp\">\u22121</b></span><span class=\"vopp\">vs Atlanta</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">Dallas</span><b class=\"vsp\">\u22122</b></span><span class=\"vopp\">vs Washington</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">4</b><span class=\"vname\">New England</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">vs Carolina</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">5</b><span class=\"vname\">Cincinnati</span><b class=\"vsp\">\u22122.5</b></span><span class=\"vopp\">vs Pittsburgh</span></span><span class=\"vteam lost\"><span class=\"vtop\"><b class=\"vpt lost\">5</b><span class=\"vname\">LA Chargers</span><b class=\"vsp\">\u22121.5</b></span><span class=\"vopp\">@ Denver</span></span></div><div class=\"vrow differ\"><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Green Bay</span><b class=\"vsp\">\u22123</b></span><span class=\"vopp\">vs Minnesota</span></span><span class=\"vteam won\"><span class=\"vtop\"><b class=\"vpt won\">6</b><span class=\"vname\">Jacksonville</span><b class=\"vsp\">\u22125.5</b></span><span class=\"vopp\">vs Tennessee</span></span></div><div class=\"vrow differ\"><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Houston</span><b class=\"vsp\">\u22123.5</b></span><span class=\"vopp\">vs Indianapolis</span></span><span class=\"vteam\"><span class=\"vtop\"><b class=\"vpt\">7</b><span class=\"vname\">Indianapolis</span><b class=\"vsp\">+3.5</b></span><span class=\"vopp\">@ Houston</span></span></div><div class=\"vtotals\"><span class=\"vtot\"><b>34</b><span class=\"vtotlbl\">pts</span></span><span class=\"vtot lead\"><b>41</b><span class=\"vtotlbl\">pts</span></span></div></div></div>", "ask": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Root for\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker rootkick\">ROOT FOR</span><h2>Root for Dale?</h2></div></div><p class=\"rootasktext\">Your Live tab turns into <b>Dale\u2019s</b>: their score, their picks on every game, and their underdogs. Nothing changes on your sheet or theirs, and nobody else sees it.<br><br>A blue banner stays at the top while you\u2019re rooting. Tap <b>\u2715</b> on it any time to switch back to your own view. It ends on its own when the week does.</p><div class=\"tipnav\"><button class=\"confirmyes rootgo\">Root for Dale</button></div><button class=\"closebtn\">Cancel</button></div>", "rooted": "<div class=\"livehead\"><h2 class=\"panelhead\">Dale\u2019s Live</h2><span class=\"livestatus\">Simulated 3:12 PM</span></div><div class=\"rootbar\"><span class=\"rooteye\" aria-hidden=\"true\">\u00023\u0003</span><span class=\"roottxt\"><span class=\"rootk\">ROOTING FOR</span><b class=\"rootname\">Dale</b></span><button type=\"button\" class=\"rootx\" aria-label=\"Stop rooting\">\u2715</button></div><div class=\"scorewrap\"><div class=\"scorecard\"><div class=\"cardbanner\">Dale\u2019s Score</div><div class=\"scorebig\">40</div><div class=\"scorelabel\">points banked</div><div class=\"scorerule\"></div><div class=\"scoreleft\">49</div><div class=\"scoreleftlbl\">still in play</div><div class=\"scorecompare\">8 of 15 scored</div><div class=\"scoreprog\"><i style=\"width: 53%;\"></i></div><button type=\"button\" class=\"anpill\">Analysis</button></div><div class=\"lbcard adv\"><div class=\"lbtop\"><button type=\"button\" class=\"lbmode\" aria-pressed=\"true\">Advanced</button><button type=\"button\" class=\"lbmode lbsheets on\" aria-label=\"Sheets, yours is open\">\u00020\u0003Sheets<span class=\"ok\">\u00025\u0003</span></button></div><div class=\"lbhead\"><span class=\"lbtitle\">Leaderboard</span><span class=\"lbwinh\">Win</span><span class=\"lbptsh\">Pts</span></div><div class=\"lblist\" data-stale=\"\" data-wk=\"3\"><div class=\"lbrow me lead shares\"><span class=\"lbrank\">1</span><span class=\"lbname\">Dale</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">40</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">2</span><span class=\"lbname\">Kermit</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">6%</span><span class=\"lbpts\">37</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">3</span><span class=\"lbname\">Laura Welsh</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">47%</span><span class=\"lbpts\">30</span></div><div class=\"lbrow shares\"><span class=\"lbrank\">4</span><span class=\"lbname\">Jakeyallsuck</span><span class=\"sheeticon\">\u00020\u0003</span><span class=\"lbwin\">&lt;1%</span><span class=\"lbpts\">22</span></div><div class=\"lbrow\"><i class=\"beacon lbdot\" aria-label=\"Online\"></i><span class=\"lbrank\">5</span><span class=\"lbname\">\u0001</span><span class=\"sheeticon own\">\u00020\u0003</span><span class=\"lbwin\">0%</span><span class=\"lbpts\">34</span></div></div><div class=\"lbnote\"></div></div></div>", "chat": "<div class=\"chatsheet\" role=\"dialog\" aria-label=\"Pool Chat\"><div class=\"chathead\"><div class=\"chattitle\"><b>Pool Chat</b><span>Week 3 \u00b7 everyone in the pool</span></div><button class=\"backbtn anback\" type=\"button\">\u2039 Back</button></div><div class=\"chatpeople\"><span class=\"chatonline\"><i class=\"beacon\"></i>1 online now</span><div class=\"chatpills\"><span class=\"chatpill me\" style=\"color: var(--green)\">You<i class=\"beacon\"></i></span></div></div><div class=\"chatlist\"><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#e59cff\">Dale <i>\u00b7 2:57 PM</i></span><div class=\"chatbubble\">Lions are cooking today</div></div><div class=\"chatmsg first\"><span class=\"chatwho\" style=\"color:#ff9ecf\">Kermit <i>\u00b7 3:02 PM</i></span><div class=\"chatbubble\">Bills better cover for me</div></div></div><div class=\"chatcompose\"><textarea rows=\"1\" maxlength=\"200\" placeholder=\"Message the pool\" autocomplete=\"off\" enterkeyhint=\"send\" class=\"lxchatin\"></textarea><span class=\"chatcount\" hidden=\"\">0 / 200</span><button class=\"chatsend\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg></button></div></div>", "an": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Analysis\"><div class=\"tipshead\"><div class=\"tipstitle\"><span class=\"kicker\">ANALYSIS</span><h2>How you\u2019re doing</h2></div><button type=\"button\" class=\"backbtn anback\">\u2039 Back</button></div><div class=\"ansect\">Current outlook<span class=\"anasof\">\u00b7 as of 3:42 PM</span></div><div class=\"anwk\"><div class=\"anwktop\"><div class=\"anwkhead\"><span class=\"anchip run\">IN THE RUNNING</span><b>You\u2019re right in the race.</b><p>You\u2019re one of the favorites. The games left decide it.</p></div><div class=\"anring\"><svg viewBox=\"0 0 88 88\" aria-hidden=\"true\"><circle class=\"rbg\" cx=\"44\" cy=\"44\" r=\"37\"></circle><circle class=\"rfg\" cx=\"44\" cy=\"44\" r=\"37\" style=\"stroke-dasharray: 232.478; stroke-dashoffset: 144.136;\"></circle></svg><div class=\"rin\"><b>38%</b><span>to win</span></div></div></div><div class=\"anvs\"><div class=\"side\"><span>Your best case</span><b>94</b><small>if your games win</small></div><div class=\"vs\">VS</div><div class=\"side w\"><span>Likely winning total</span><b>86</b><small>82\u201390 range</small><button type=\"button\" class=\"anconf\"></button></div></div><div class=\"anconfwhy\" hidden=\"\"></div><div class=\"anres\"></div><div class=\"antrackwrap\"><div class=\"antrack\"><span class=\"tband\"></span><span class=\"tnow\" style=\"width: 39.0805%;\"></span><span class=\"tmax\" style=\"left: 39.0805%; width: 51.7241%;\"></span><span class=\"tflag\"><em></em></span></div><div class=\"tlabels\"><span class=\"tl now\" style=\"left: 39.0805%; transform: translateX(-50%);\">Now 34</span><span class=\"tl\" style=\"left: 90.8046%; transform: translateX(-50%);\">Best 94</span></div></div><div class=\"anpath\"><div class=\"anleft\">6 games left \u00b7 worth 45 points</div></div></div><div class=\"tipnav\"><button class=\"confirmyes\">Got it</button></div><button type=\"button\" class=\"anmeth\" aria-expanded=\"false\"><span class=\"anmi\" aria-hidden=\"true\">i</span>How is this calculated? <span class=\"anchev\" aria-hidden=\"true\">\u25be</span></button><div class=\"anwhat\" hidden=\"\">Once 3 or fewer games are left, the Current Outlook runs a Monte Carlo projection: the rest of the week is simulated 2,000 times across a 25-entry field (every locked sheet in the app, plus entries modeled on typical pick and confidence behavior), weighted by ESPN\u2019s live win probability and sportsbook moneylines. Until then there\u2019s too much football left for a chance to mean much.</div></div>", "lvs": "<div class=\"lxres\"><div class=\"ggroup lvsheethd\" data-group=\"sheet\"><div class=\"gghead\"><b data-role=\"who\">Your Sheet</b><span data-role=\"count\">34 banked \u00b7 8 of 14 final</span></div></div><div class=\"sheetcard lvsheet\" data-key=\"|3\"><div class=\"sheetcols\" aria-hidden=\"true\"><span>Pts</span><span>Pick</span><span>Score</span><i class=\"lvhint\">Tap a game \u203a</i></div><div class=\"sheetrow won\" data-eid=\"e401900011\"><span class=\"sheetnum\">1</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/sea.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Seattle</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>17</b><i class=\"sd\">\u2013</i><span class=\"so\">13</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900010\"><span class=\"sheetnum\">2</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/lac.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">LA Chargers</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900014\"><span class=\"sheetnum\">3</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">New England</span><span class=\"sheetscore\"><i class=\"beacon up2\"></i><b>17</b><i class=\"sd\">\u2013</i><span class=\"so\">7</span></span></div><div class=\"sheetrow\" data-eid=\"e401900013\"><span class=\"sheetnum\">4</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/dal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Dallas</span><span class=\"sheetscore\"><em class=\"lvprime\">Sun 8:20</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900007\"><span class=\"sheetnum\">5</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/cin.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Cincinnati</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">17</span></span></div><div class=\"sheetrow tied\" data-eid=\"e401900006\"><span class=\"sheetnum\">6</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/gb.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Green Bay</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900008\"><span class=\"sheetnum\">7</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/hou.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Houston</span><span class=\"sheetscore\"><i class=\"beacon tie\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">13</span></span></div><div class=\"sheetrow\" data-eid=\"e401900009\"><span class=\"sheetnum\">8</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/tb.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Tampa Bay</span><span class=\"sheetscore\"><em>Sun 1:00</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900012\"><span class=\"sheetnum\">9</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/jax.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Jacksonville</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">10</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900005\"><span class=\"sheetnum\">10</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/sf.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">San Francisco</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>14</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div><div class=\"sheetrow islv\" data-eid=\"e401900002\"><span class=\"sheetnum\">11</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/det.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Detroit</span><span class=\"sheetscore\"><i class=\"beacon tie\"></i><b>7</b><i class=\"sd\">\u2013</i><span class=\"so\">10</span></span></div><div class=\"sheetrow\" data-eid=\"e401900003\"><span class=\"sheetnum\">12</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/phi.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Philadelphia</span><span class=\"sheetscore\"><em>Sun 1:00</em></span></div><div class=\"sheetrow won\" data-eid=\"e401900004\"><span class=\"sheetnum\">13</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/bal.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Baltimore</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>20</b><i class=\"sd\">\u2013</i><span class=\"so\">17</span></span></div><div class=\"sheetrow lost\" data-eid=\"e401900001\"><span class=\"sheetnum\">14</span><span class=\"slogo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/kc.png\" alt=\"\" onerror=\"this.style.display='none'\"></span><span class=\"sheetcity\">Kansas City</span><span class=\"sheetscore\"><i class=\"slot\"></i><b>10</b><i class=\"sd\">\u2013</i><span class=\"so\">20</span></span></div></div></div>", "gx": "<div class=\"sheet\" role=\"dialog\" aria-label=\"Game\"><div class=\"gx-top\"><span class=\"gx-kick\"><b>Live</b> \u00b7 Sunday 1:00 PM</span><button class=\"backbtn\" type=\"button\">\u2039 Back</button></div><div><div class=\"gx-match\"><div class=\"gx-team mine\"><div class=\"gx-logo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\" alt=\"\" onerror=\"this.style.display='none'\"></div><b class=\"gx-name\">New England</b><span class=\"gx-tag fav\">YOUR FAV<span class=\"sp\">\u22121.5</span></span><span class=\"gx-to\" data-role=\"to-me\"></span></div><div class=\"gx-mid\" data-role=\"mid\"><div class=\"gx-score \"><em class=\"gx-fb\"></em><b>17</b><i>\u2013</i><span>7</span><em class=\"gx-fb\"></em><em class=\"gx-fbm has\" data-p=\"me\" style=\"transform: translateX(1.5px);\"><svg viewBox=\"0 0 34 20\" aria-hidden=\"true\"><ellipse cx=\"17\" cy=\"10\" rx=\"16\" ry=\"9\" fill=\"#b9733e\" stroke=\"#fff\" stroke-width=\"1.6\"></ellipse><path d=\"M11 10h12M14 7.5v5M17 7.5v5M20 7.5v5\" stroke=\"#fff\" stroke-width=\"1.5\" stroke-linecap=\"round\"></path></svg></em></div><div class=\"gx-stat\"><i class=\"beacon up2\"></i><svg class=\"sw\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"13.5\" r=\"7.5\"></circle><path d=\"M12 13.5V9.5M10 2.5h4M18.5 6.5l1.5-1.5\"></path></svg>Q2 \u00b7 7:00<i class=\"fuse\" style=\"width:0%\"></i></div></div><div class=\"gx-team\"><div class=\"gx-logo\"><img src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/car.png\" alt=\"\" onerror=\"this.style.display='none'\"></div><b class=\"gx-name\">Carolina</b><span class=\"gx-sub\">@ New England</span><span class=\"gx-to\" data-role=\"to-them\"></span></div></div><div class=\"gx-field\" data-role=\"field\"><div class=\"fx-poss\"><div class=\"fx-pm\" style=\"left: 282.4px;\"><img alt=\"\" style=\"\" src=\"https://a.espncdn.com/i/teamlogos/nfl/500/scoreboard/ne.png\"><span class=\"ar\"><svg viewBox=\"0 0 16 10\" aria-hidden=\"true\"><path d=\"M1 5h11\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"></path><path d=\"M10 1l5 4-5 4z\" fill=\"currentColor\"></path></svg></span></div></div><div class=\"fx rzone\"><div class=\"fx-turf\" style=\"left: 29.4167px; right: 29.4167px; background: repeating-linear-gradient(90deg, rgba(53, 208, 255, 0.055) 0px, rgba(53, 208, 255, 0.055) 14.7083px, rgba(53, 208, 255, 0.016) 14.7083px, rgba(53, 208, 255, 0.016) 29.4167px);\"></div><div class=\"fx-ez l\" style=\"left: 0px; width: 29.4167px; background: linear-gradient(90deg, rgba(95, 120, 148, 0.8), rgba(95, 120, 148, 0.333));\"><i style=\"background: radial-gradient(circle, rgba(53, 208, 255, 0.55), rgb(95, 120, 148) 80%);\"></i><span>NE</span></div><div class=\"fx-ez r\" style=\"right: 0px; width: 29.4167px; background: linear-gradient(270deg, rgba(95, 120, 148, 0.867), rgba(95, 120, 148, 0.4));\"><i style=\"background: radial-gradient(circle, rgba(53, 208, 255, 0.55), rgb(95, 120, 148) 80%);\"></i><span>CAR</span></div><svg class=\"fxs\" aria-hidden=\"true\" viewBox=\"0 0 353 56\" width=\"353\" height=\"56\"><path d=\"M44.1 0V56M73.5 0V56M103.0 0V56M132.4 0V56M161.8 0V56M191.2 0V56M220.6 0V56M250.0 0V56M279.5 0V56M308.9 0V56\" stroke=\"rgba(220,232,245,0.07)\" stroke-width=\"1\"></path><path d=\"M58.8 0V56M88.3 0V56M117.7 0V56M147.1 0V56M176.5 0V56M205.9 0V56M235.3 0V56M264.8 0V56M294.2 0V56\" stroke=\"rgba(220,232,245,0.15)\" stroke-width=\"1\"></path><path d=\"M176.5 0V56\" stroke=\"rgba(220,232,245,0.24)\" stroke-width=\"1\"></path><path d=\"M29.4 0V56M323.6 0V56\" stroke=\"rgba(255,255,255,0.55)\" stroke-width=\"1.3\"></path><path d=\"M32.4 0v2.2M32.4 53.8v2.2M32.4 23.5v2M32.4 30.5v2M35.3 0v2.2M35.3 53.8v2.2M35.3 23.5v2M35.3 30.5v2M38.2 0v2.2M38.2 53.8v2.2M38.2 23.5v2M38.2 30.5v2M41.2 0v2.2M41.2 53.8v2.2M41.2 23.5v2M41.2 30.5v2M47.1 0v2.2M47.1 53.8v2.2M47.1 23.5v2M47.1 30.5v2M50.0 0v2.2M50.0 53.8v2.2M50.0 23.5v2M50.0 30.5v2M53.0 0v2.2M53.0 53.8v2.2M53.0 23.5v2M53.0 30.5v2M55.9 0v2.2M55.9 53.8v2.2M55.9 23.5v2M55.9 30.5v2M61.8 0v2.2M61.8 53.8v2.2M61.8 23.5v2M61.8 30.5v2M64.7 0v2.2M64.7 53.8v2.2M64.7 23.5v2M64.7 30.5v2M67.7 0v2.2M67.7 53.8v2.2M67.7 23.5v2M67.7 30.5v2M70.6 0v2.2M70.6 53.8v2.2M70.6 23.5v2M70.6 30.5v2M76.5 0v2.2M76.5 53.8v2.2M76.5 23.5v2M76.5 30.5v2M79.4 0v2.2M79.4 53.8v2.2M79.4 23.5v2M79.4 30.5v2M82.4 0v2.2M82.4 53.8v2.2M82.4 23.5v2M82.4 30.5v2M85.3 0v2.2M85.3 53.8v2.2M85.3 23.5v2M85.3 30.5v2M91.2 0v2.2M91.2 53.8v2.2M91.2 23.5v2M91.2 30.5v2M94.1 0v2.2M94.1 53.8v2.2M94.1 23.5v2M94.1 30.5v2M97.1 0v2.2M97.1 53.8v2.2M97.1 23.5v2M97.1 30.5v2M100.0 0v2.2M100.0 53.8v2.2M100.0 23.5v2M100.0 30.5v2M105.9 0v2.2M105.9 53.8v2.2M105.9 23.5v2M105.9 30.5v2M108.8 0v2.2M108.8 53.8v2.2M108.8 23.5v2M108.8 30.5v2M111.8 0v2.2M111.8 53.8v2.2M111.8 23.5v2M111.8 30.5v2M114.7 0v2.2M114.7 53.8v2.2M114.7 23.5v2M114.7 30.5v2M120.6 0v2.2M120.6 53.8v2.2M120.6 23.5v2M120.6 30.5v2M123.6 0v2.2M123.6 53.8v2.2M123.6 23.5v2M123.6 30.5v2M126.5 0v2.2M126.5 53.8v2.2M126.5 23.5v2M126.5 30.5v2M129.4 0v2.2M129.4 53.8v2.2M129.4 23.5v2M129.4 30.5v2M135.3 0v2.2M135.3 53.8v2.2M135.3 23.5v2M135.3 30.5v2M138.3 0v2.2M138.3 53.8v2.2M138.3 23.5v2M138.3 30.5v2M141.2 0v2.2M141.2 53.8v2.2M141.2 23.5v2M141.2 30.5v2M144.1 0v2.2M144.1 53.8v2.2M144.1 23.5v2M144.1 30.5v2M150.0 0v2.2M150.0 53.8v2.2M150.0 23.5v2M150.0 30.5v2M153.0 0v2.2M153.0 53.8v2.2M153.0 23.5v2M153.0 30.5v2M155.9 0v2.2M155.9 53.8v2.2M155.9 23.5v2M155.9 30.5v2M158.8 0v2.2M158.8 53.8v2.2M158.8 23.5v2M158.8 30.5v2M164.7 0v2.2M164.7 53.8v2.2M164.7 23.5v2M164.7 30.5v2M167.7 0v2.2M167.7 53.8v2.2M167.7 23.5v2M167.7 30.5v2M170.6 0v2.2M170.6 53.8v2.2M170.6 23.5v2M170.6 30.5v2M173.6 0v2.2M173.6 53.8v2.2M173.6 23.5v2M173.6 30.5v2M179.4 0v2.2M179.4 53.8v2.2M179.4 23.5v2M179.4 30.5v2M182.4 0v2.2M182.4 53.8v2.2M182.4 23.5v2M182.4 30.5v2M185.3 0v2.2M185.3 53.8v2.2M185.3 23.5v2M185.3 30.5v2M188.3 0v2.2M188.3 53.8v2.2M188.3 23.5v2M188.3 30.5v2M194.2 0v2.2M194.2 53.8v2.2M194.2 23.5v2M194.2 30.5v2M197.1 0v2.2M197.1 53.8v2.2M197.1 23.5v2M197.1 30.5v2M200.0 0v2.2M200.0 53.8v2.2M200.0 23.5v2M200.0 30.5v2M203.0 0v2.2M203.0 53.8v2.2M203.0 23.5v2M203.0 30.5v2M208.9 0v2.2M208.9 53.8v2.2M208.9 23.5v2M208.9 30.5v2M211.8 0v2.2M211.8 53.8v2.2M211.8 23.5v2M211.8 30.5v2M214.7 0v2.2M214.7 53.8v2.2M214.7 23.5v2M214.7 30.5v2M217.7 0v2.2M217.7 53.8v2.2M217.7 23.5v2M217.7 30.5v2M223.6 0v2.2M223.6 53.8v2.2M223.6 23.5v2M223.6 30.5v2M226.5 0v2.2M226.5 53.8v2.2M226.5 23.5v2M226.5 30.5v2M229.5 0v2.2M229.5 53.8v2.2M229.5 23.5v2M229.5 30.5v2M232.4 0v2.2M232.4 53.8v2.2M232.4 23.5v2M232.4 30.5v2M238.3 0v2.2M238.3 53.8v2.2M238.3 23.5v2M238.3 30.5v2M241.2 0v2.2M241.2 53.8v2.2M241.2 23.5v2M241.2 30.5v2M244.2 0v2.2M244.2 53.8v2.2M244.2 23.5v2M244.2 30.5v2M247.1 0v2.2M247.1 53.8v2.2M247.1 23.5v2M247.1 30.5v2M253.0 0v2.2M253.0 53.8v2.2M253.0 23.5v2M253.0 30.5v2M255.9 0v2.2M255.9 53.8v2.2M255.9 23.5v2M255.9 30.5v2M258.9 0v2.2M258.9 53.8v2.2M258.9 23.5v2M258.9 30.5v2M261.8 0v2.2M261.8 53.8v2.2M261.8 23.5v2M261.8 30.5v2M267.7 0v2.2M267.7 53.8v2.2M267.7 23.5v2M267.7 30.5v2M270.6 0v2.2M270.6 53.8v2.2M270.6 23.5v2M270.6 30.5v2M273.6 0v2.2M273.6 53.8v2.2M273.6 23.5v2M273.6 30.5v2M276.5 0v2.2M276.5 53.8v2.2M276.5 23.5v2M276.5 30.5v2M282.4 0v2.2M282.4 53.8v2.2M282.4 23.5v2M282.4 30.5v2M285.3 0v2.2M285.3 53.8v2.2M285.3 23.5v2M285.3 30.5v2M288.3 0v2.2M288.3 53.8v2.2M288.3 23.5v2M288.3 30.5v2M291.2 0v2.2M291.2 53.8v2.2M291.2 23.5v2M291.2 30.5v2M297.1 0v2.2M297.1 53.8v2.2M297.1 23.5v2M297.1 30.5v2M300.1 0v2.2M300.1 53.8v2.2M300.1 23.5v2M300.1 30.5v2M303.0 0v2.2M303.0 53.8v2.2M303.0 23.5v2M303.0 30.5v2M305.9 0v2.2M305.9 53.8v2.2M305.9 23.5v2M305.9 30.5v2M311.8 0v2.2M311.8 53.8v2.2M311.8 23.5v2M311.8 30.5v2M314.8 0v2.2M314.8 53.8v2.2M314.8 23.5v2M314.8 30.5v2M317.7 0v2.2M317.7 53.8v2.2M317.7 23.5v2M317.7 30.5v2M320.6 0v2.2M320.6 53.8v2.2M320.6 23.5v2M320.6 30.5v2\" stroke=\"rgba(220,232,245,0.16)\" stroke-width=\"0.8\"></path><text x=\"58.83333333333334\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">10</text><text x=\"88.25000000000001\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">20</text><text x=\"117.66666666666667\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">30</text><text x=\"147.08333333333334\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">40</text><text x=\"176.5\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">50</text><text x=\"205.91666666666666\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">40</text><text x=\"235.33333333333334\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">30</text><text x=\"264.75000000000006\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">20</text><text x=\"294.1666666666667\" y=\"51\" text-anchor=\"middle\" font-size=\"7.5\" font-weight=\"800\" fill=\"rgba(147,174,200,0.5)\" font-family=\"Manrope, sans-serif\">10</text><g class=\"fxposts l\"><path class=\"fxpost\" d=\"M2.5 28h5M7.5 20v16\"></path><circle class=\"fxpostdot\" cx=\"7.5\" cy=\"20\" r=\"1.6\"></circle><circle class=\"fxpostdot\" cx=\"7.5\" cy=\"36\" r=\"1.6\"></circle></g><g class=\"fxposts r\"><path class=\"fxpost\" d=\"M350.5 28h-5M345.5 20v16\"></path><circle class=\"fxpostdot\" cx=\"345.5\" cy=\"20\" r=\"1.6\"></circle><circle class=\"fxpostdot\" cx=\"345.5\" cy=\"36\" r=\"1.6\"></circle></g></svg><div class=\"fx-band\" style=\"left: 282.4px; width: 0px; opacity: 0;\"></div><div class=\"fx-rz on\" style=\"left: 264.75px; width: 58.8333px;\"></div><svg class=\"fxt\" aria-hidden=\"true\" style=\"z-index:2\" viewBox=\"0 0 353 56\" width=\"353\" height=\"56\"></svg><span class=\"fx-line fx-fd\" style=\"left: 300.05px; opacity: 1;\"></span><span class=\"fx-line fx-los\" style=\"left: 282.4px;\"></span><span class=\"fx-chev r\" style=\"left: 282.4px;\"></span><span class=\"fx-shadow\"></span><span class=\"fx-ball\" style=\"transform: translate(282.4px, 28px) rotate(0deg);\"><i class=\"trail\"></i><span class=\"fb\"><i class=\"shine\"></i><i class=\"lace\"><svg viewBox=\"0 0 10 4\" aria-hidden=\"true\"><path d=\"M0.6 2h8.8M2.6 0.7v2.6M5 0.7v2.6M7.4 0.7v2.6\" stroke=\"#fff\" stroke-width=\"1\" stroke-linecap=\"round\" fill=\"none\"></path></svg></i></span></span><div class=\"fx-sheen\"></div></div><div class=\"gx-dd\"><div class=\"ddl\"><b class=\"dnb\">2ND</b><span>&amp; 6</span><span class=\"ddat\">at CAR 14</span><span class=\"rzc\">Red Zone</span></div><div class=\"ddrive\"></div><span class=\"playtag\"></span></div></div><div class=\"gx-last\" data-role=\"last\" hidden=\"\"><div class=\"lphd\"><small>LAST PLAY</small><span class=\"lptag\"></span></div><span class=\"lptxt\"></span></div><div class=\"gx-win\" data-role=\"win\"><div class=\"ws s2 g\" data-k=\"NE|CAR\"><span class=\"wslbl\">WIN CHANCE</span><span class=\"tm\"><b>91%</b> NE</span><div class=\"bar\"><i style=\"width:91%\"></i></div><span class=\"tm op\">CAR <b>9%</b></span></div></div></div></div>"}, "T": ["<svg viewBox=\"0 0 16 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 1h8l4 4v14H2z\"></path><path d=\"M10 1v4h4M5 10h6M5 14h6\"></path></svg>", "<svg viewBox=\"0 0 10 10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 6.5 5 3.5 8 6.5\"></path></svg>", "<svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M4.4 1.2h3.2l-.5 3.1 1.9 1.7v.8H6.5L6 10.8 5.5 6.8H3V6l1.9-1.7z\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3.2\" fill=\"currentColor\"></circle></svg>", "<svg viewBox=\"0 0 26 16\" aria-label=\"Has the ball\"><ellipse cx=\"13\" cy=\"8\" rx=\"12\" ry=\"7\" fill=\"#b98552\"></ellipse><path d=\"M8 8h10M11 6v4M13 6v4M15 6v4\" stroke=\"#ffffff\" stroke-width=\"1.4\" stroke-linecap=\"round\"></path></svg>", "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5 10 17.5 19 7\"></path></svg>"]};
   function lxHTML(k){
     return (LX_DATA.S[k] || '')
       .replace(/\u0002(\d+)\u0003/g, function(m, i){ return LX_DATA.T[+i] || ''; })
@@ -11936,7 +12488,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         o.classList.add('show');
         R.later(function(){ R.hide(); lxPanTo(scr, o.querySelector('.sheet'), 10); }, 250);
       }); }, 2000);
-      R.later(function(){ lxPanTo(scr, o.querySelector('.gx-pts'), 330); }, 4600);
+      R.later(function(){ lxPanTo(scr, o.querySelector('.gx-win') || o.querySelector('.gx-last'), 330); }, 4600);
       R.later(function(){ LX_PLAY.lvsheet(st, R); }, 8200);
     },
     sheets: function(st, R){
