@@ -6625,6 +6625,53 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     return { y: pos === lg.away ? 100 - d : d, d: d, pos: pos, down: parseInt(m[1], 10), dist: goal ? 0 : parseInt(m[2], 10), goal: goal,
              at: (raw ? raw + ' ' : '') + yl };
   }
+  /* 4.9.2: right after a kickoff or punt ESPN can go a while with no down & distance.
+     The kick's own text says where the ball ended up ("pushed ob at LA 37"), so that
+     spot stands in until ESPN catches up: ball, line of scrimmage and possession, no yellow line. */
+  function gxTxtSpot(lg, lp, kickerHint){
+    const k = gxKind(lp);
+    if(k !== 'ko' && k !== 'punt') return null;
+    if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
+    const x = String(lp.text || '');
+    if(/FUMBLE|MUFF/i.test(x)) return null;
+    const K = gxKickOf(lp, lg), kicker = K.kicker || (k === 'punt' ? kickerHint : '') || '';
+    let recv = lg.poss || '';
+    if(!recv && kicker) recv = kicker === lg.away ? lg.home : (kicker === lg.home ? lg.away : '');
+    if(recv !== lg.away && recv !== lg.home) return null;
+    let y = null;
+    const pm = /PENALTY on ([A-Z]{2,4})\b/i.exec(x);
+    if(pm){
+      // "...to LA 27 for 23 yards. PENALTY on LA-G.Stuard, Offensive Holding, 10 yards, enforced at LA 27." -> LA 17
+      const P = gxPenOf(lp, lg), who = gxSideAb(pm[1], lg);
+      if(P.dec || P.off) {}                      // declined/offsetting: the kick's own spot stands
+      else if(P.at !== null && P.yds && who){ y = who === lg.away ? P.at - P.yds : P.at + P.yds; }
+      else return null;
+    }
+    if(y !== null) {}
+    else if(K.tb){ const own = k === 'ko' ? 35 : 20; y = recv === lg.away ? own : 100 - own; }
+    else {
+      let m, lastM = null; const re = /\b(?:at|to)\s+([A-Z]{2,4})\s+(\d{1,2})\b/g;
+      while((m = re.exec(x))) lastM = m;
+      if(!lastM) return null;
+      const yl = +lastM[2], sd = gxSideAb(lastM[1], lg);
+      if(yl === 50) y = 50; else if(sd) y = sd === lg.away ? yl : 100 - yl; else return null;
+    }
+    if(!(y >= 1 && y <= 99)) return null;
+    return { y: y, d: recv === lg.away ? 100 - y : y, pos: recv, down: 1, dist: NaN, goal: false, at: '', txt: true };
+  }
+  // where the ball is: ESPN's down & distance, or the kick's text while that's missing
+  function gxSpot(lg){
+    const r = gxRawY(lg);
+    if(r || !lg || !lg.lastPlay) return r;
+    const T = gxT[lg.id];
+    if(T && T.rr && gxIsPause(lg.lastPlay) && !/HALFTIME/i.test(lg.statusName || '') && !/end of (half|regulation|game)|end game/i.test(lg.lastPlay.type + ' ' + lg.lastPlay.text)) return T.rr;
+    return gxTxtSpot(lg, lg.lastPlay, T && T.last ? T.last.fromPos : '');
+  }
+  // timeouts, the two-minute warning, end of a quarter: nothing happened on the field
+  function gxIsPause(lp){
+    const t = String(lp && lp.type || '');
+    return /timeout|two.?minute|end (of )?(period|quarter|half|game|regulation)|end period|coin toss/i.test(t);
+  }
   const gxT = {};
   let gxTKey = '';
   function gxTrack(list){
@@ -6632,18 +6679,23 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(key !== gxTKey){ gxTKey = key; Object.keys(gxT).forEach(function(k){ delete gxT[k]; }); }
     (list || []).forEach(function(lg){
       if(!lg || !lg.id || lg.state !== 'in') return;
-      const r = gxRawY(lg), lp = lg.lastPlay;
-      const T = gxT[lg.id] || (gxT[lg.id] = { lp: '', y: null, pos: '', dsY: null, dsPos: '', plays: 0, last: null });
-      if(lp && lp.id && lp.id !== T.lp){
-        const fresh = !!T.lp;
-        T.last = { id: lp.id, from: T.y, fromPos: T.pos, to: r ? r.y : null, toPos: r ? r.pos : (lg.poss || ''), lp: lp, t: Date.now(), fresh: fresh };
+      const lp = lg.lastPlay;
+      const T = gxT[lg.id] || (gxT[lg.id] = { lp: '', y: null, pos: '', dsY: null, dsPos: '', plays: 0, last: null, real: null, rr: null });
+      const isNew = !!(lp && lp.id && lp.id !== T.lp);
+      const pause = !!(lp && gxIsPause(lp));
+      const r = gxRawY(lg) || (lp ? gxTxtSpot(lg, lp, isNew ? T.pos : (T.last ? T.last.fromPos : '')) : null);
+      if(isNew){
+        const fresh = !!T.lp, k = gxKind(lp);
+        T.last = { id: lp.id, from: T.y, fromPos: T.pos, to: r ? r.y : (pause ? T.y : null), toPos: r ? r.pos : (pause ? T.pos : (lg.poss || '')), lp: lp, t: Date.now(), fresh: fresh };
         T.lp = lp.id;
-        if(fresh && r && r.pos === T.pos) T.plays++;
-        if(!r){ T.y = null; T.pos = ''; }
+        if(!pause && !(k === 'pen' && !r)) T.real = T.last;
+        if(fresh && r && r.pos === T.pos && !pause && k !== 'none') T.plays++;
+        if(k === 'ko' || k === 'punt'){ T.plays = 0; T.dsY = r ? r.y : null; T.dsPos = r ? r.pos : ''; }
+        if(!r && !pause){ T.y = null; T.pos = ''; T.rr = null; }
       }
       if(r){
         if(r.pos !== T.dsPos){ T.dsPos = r.pos; T.dsY = r.y; T.plays = 0; }
-        T.y = r.y; T.pos = r.pos;
+        T.y = r.y; T.pos = r.pos; T.rr = r;
       }
     });
   }
@@ -6654,12 +6706,14 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(/penalty/i.test(t) || (/No Play/i.test(x) && /penalty/i.test(x))) return 'pen';
     if(/interception/i.test(t)) return 'int';
     if(/Fumble Recovery \(Opponent\)|Sack Opp Fumble Recovery/i.test(t)) return 'fum';
+    if(/Fumble Recovery \(Own\)/i.test(t)) return 'fumown';
     if(/field goal good/i.test(t)) return 'fg';
     if(/field goal (missed|blocked)|blocked field goal/i.test(t)) return 'fgx';
     if(/punt/i.test(t)) return 'punt';
     if(/kickoff/i.test(t)) return 'ko';
     if(/touchdown/i.test(t)) return (/pass/i.test(t) || (/pass/i.test(x) && !/rush/i.test(t))) ? 'tdpass' : 'tdrun';
     if(/extra point|two-point|2pt|conversion/i.test(t)) return 'none';
+    if(/PENALTY on/i.test(x) && !/declined|offsetting/i.test(x)) return 'pen';      // 4.9.2: e.g. a run, then holding
     if(/sack/i.test(t)) return 'sack';
     if(/incomplet/i.test(t)) return 'inc';
     if(/pass/i.test(t)) return 'pass';
@@ -6678,13 +6732,13 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      at = the spot it's enforced from, in yards from the away team's goal line (null when unknown). */
   function gxPenOf(lp, lg){
     const x = String(lp && lp.text || ''), dec = /declined/i.test(x), off = /offsetting/i.test(x);
-    const m = /PENALTY on ([A-Z]{2,4})-[^,]*,\s*([^,]+?)\s*,\s*(\d+)\s*yards?\s*,\s*enforced at\s+(?:([A-Z]{2,4})\s+)?(\d{1,2})/i.exec(x);
+    const m = /PENALTY on ([A-Z]{2,4})(?:-[^,]*)?,\s*([^,]+?)\s*,\s*(\d+)\s*yards?\s*,\s*enforced at\s+(?:([A-Z]{2,4})\s+)?(\d{1,2})/i.exec(x);
     if(m){
       const side = m[4] ? gxSideAb(m[4], lg) : '', yl = +m[5];
       const at = yl === 50 ? 50 : (side ? (side === lg.away ? yl : 100 - yl) : null);
       return { foul: m[2], yds: +m[3], at: at, dec: dec, off: off };
     }
-    const m2 = /PENALTY on [A-Z]{2,4}-[^,]*,\s*([^,.]+)/i.exec(x);
+    const m2 = /PENALTY on [A-Z]{2,4}(?:-[^,]*)?,\s*([^,.]+)/i.exec(x);
     return { foul: m2 ? m2[1] : '', yds: 0, at: null, dec: dec, off: off };
   }
   function gxFoul(f){ return String(f || '').trim().toUpperCase().replace(/^DEFENSIVE /, 'DEF. ').replace(/^OFFENSIVE /, 'OFF. '); }
@@ -6716,7 +6770,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       case 'sack': return ['SACK' + (y ? ' · −' + Math.abs(y) : ''), 'loss'];
       case 'tdpass': case 'tdrun': return ['TOUCHDOWN' + (y > 0 ? ' · ' + gxYd(y) : ''), 'scr'];
       case 'fg': return ['FIELD GOAL', 'scr'];
-      case 'fgx': return ['FG · NO GOOD', ''];
+      case 'fgx': return [/blocked/i.test(String(lp && lp.type || '') + ' ' + String(lp && lp.text || '')) ? 'FG · BLOCKED' : 'FG · NO GOOD', ''];
+      case 'fumown': return ['FUMBLE · RECOVERED', ''];
       case 'punt': {
         const K = gxKickOf(lp, null);
         if(K.tb) return ['PUNT · TOUCHBACK', ''];
@@ -6886,11 +6941,12 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   }
   /* 4.9.2: after a touchdown's try or a field goal the field waits for the kickoff:
      the scoring team's ball on a tee at its 35, no lines. Returns the kicking team or ''. */
-  function gxKoWait(lg, last){
-    if(!last || !last.lp) return '';
-    const t = String(last.lp.type || '');
-    if(!(/extra point|two-point|2pt|conversion|\bpat\b/i.test(t) || gxKind(last.lp) === 'fg')) return '';
-    const k = last.lp.team || lg.poss || '';
+  function gxKoWait(lg, T){
+    const L = T && T.real;
+    if(!L || !L.lp) return '';
+    const t = String(L.lp.type || ''), kd = gxKind(L.lp);
+    if(!(/extra point|two-point|2pt|conversion|\bpat\b/i.test(t) || kd === 'fg' || kd === 'tdpass' || kd === 'tdrun')) return '';
+    const k = (kd === 'tdpass' || kd === 'tdrun' || kd === 'fg') ? (L.fromPos || L.lp.team || lg.poss || '') : (L.lp.team || lg.poss || '');
     return (k === lg.away || k === lg.home) ? k : '';
   }
   function gxTee(fx, lg, s, kicker){
@@ -6936,6 +6992,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const clampY = function(y){ return Math.max(-4, Math.min(104, y)); };
     if(kind === 'pen'){
       // 4.9.2: nothing drawn; the ball is walked off a yard at a time from where the foul was enforced
+      if(b === null) return 'nospot';
       const P = gxPenOf(last.lp, lg), e0 = P.at !== null ? own(P.at) : a, rot = last.fromPos === s.mine ? 0 : 180;
       if(animate && b !== null && Math.abs(b - e0) >= 1 && !P.off){
         const n = Math.min(15, Math.round(Math.abs(b - e0))), st = (b - e0) / n;
@@ -7048,7 +7105,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(!fx || !fx.clientWidth) return;
     const W = fx.clientWidth;
     if(!gxF || gxF.key !== gxId + '|' + s.mine || Math.abs(gxF.W - W) > 1) gxF = gxBuildField(fx, lg, s, W);
-    const r = gxRawY(lg), T = gxT[lg.id] || null, last = T && T.last;
+    const r = gxSpot(lg), T = gxT[lg.id] || null, last = T && T.last;
     const first = gxF.lpId === null;
     if(last && last.id !== gxF.lpId){
       gxF.lpId = last.id;
@@ -7059,23 +7116,24 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         if(nr && nr.down === 1 && nk !== -1 && nk !== gxF.fd) fx.querySelector('.fx-fd').classList.add('off');
         fx.querySelector('.fx-chev').style.opacity = 0;
         gxF.busy = true;
-        gxF.hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'tdpass' || k === 'tdrun' || k === 'fg'; });
+        const keep = gxF.hold;
+        gxF.hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'nospot' ? keep : (k === 'tdpass' || k === 'tdrun' || k === 'fg'); });
         gxF.busy = false;
         fx.querySelector('.fx-chev').style.opacity = '';
         const v2 = gxView(), lg2 = (v2 && liveFor(v2.g)) || lg;
-        if(!gxF.hold) gxSettle(fx, lg2, s, gxRawY(lg2), gxT[lg.id], false);
+        if(!gxF.hold) gxSettle(fx, lg2, s, gxSpot(lg2), gxT[lg.id], false);
         else { fx.classList.add('fx-hold'); fx.parentNode.querySelector('.fx-poss').hidden = true; }
         return;
       }
       const k2 = await gxDrawPlay(fx, last, lg, s, false);
-      if(k2 !== 'none' && k2 !== 'twomin') gxF.hold = (k2 === 'tdpass' || k2 === 'tdrun' || k2 === 'fg') && Date.now() - last.t < PLAY_MIN;
+      if(k2 !== 'none' && k2 !== 'twomin' && k2 !== 'nospot') gxF.hold = (k2 === 'tdpass' || k2 === 'tdrun' || k2 === 'fg') && Date.now() - last.t < PLAY_MIN;
     }
     if(gxF.busy) return;
     if(gxF.hold && last && Date.now() - last.t < PLAY_MIN * 2 && gxKind(last.lp) !== 'ko'){
       fx.classList.add('fx-hold'); fx.parentNode.querySelector('.fx-poss').hidden = true; return;
     }
     gxF.hold = false;
-    const kw = gxKoWait(lg, last);
+    const kw = gxKoWait(lg, T);
     if(kw){ gxTee(fx, lg, s, kw); return; }
     fx.classList.remove('fx-tee');
     gxSettle(fx, lg, s, r, T, first || opening);
@@ -7171,8 +7229,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     lb.hidden = !lpx;
     if(state === 'in'){
       const fx = fw.querySelector('.fx'), T = gxT[lg.id];
-      const koWait = !!(T && T.last && gxKoWait(lg, T.last) && !(gxF && gxF.hold && Date.now() - T.last.t < PLAY_MIN * 2));
-      const rr = koWait ? null : gxRawY(lg);
+      const koWait = !!(T && T.last && gxKoWait(lg, T) && !(gxF && gxF.hold && Date.now() - T.last.t < PLAY_MIN * 2));
+      const rs = koWait ? null : gxSpot(lg), rr = rs && !rs.txt ? rs : null;
       const dd = fw.querySelector('.gx-dd'), ddl = dd.querySelector('.ddl'), drv = dd.querySelector('.ddrive'), pt = dd.querySelector('.playtag');
       if(rr){
         const cls = rr.down === 3 ? ' d3' : (rr.down === 4 ? ' d4' : '');
