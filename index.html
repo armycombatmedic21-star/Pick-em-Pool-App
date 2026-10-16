@@ -3350,6 +3350,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.1</b> Live Quick Tips: a Close button, so you can leave without going through every card.</div>
       <div class="cl"><b>4.11.0</b> Turn your phone sideways on a live game to see it full screen with a much bigger field. On a computer, click Big screen. The game clock is back to ESPN’s own time, as fast as it comes in.</div>
       <div class="cl"><b>4.10.0</b> Live games: the game clock now ticks along smoothly between updates. Inside the 20 the field zooms in to the 30 and the end zone so you can see every yard, and the field is a little taller.</div>
       <div class="cl"><b>4.9.3</b> When a new week opens, the app takes you to Picks once that week so you can make your picks.</div>
@@ -3707,6 +3708,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <button class="tipback" id="liveTipBack" hidden>Back</button>
       <button class="confirmyes" id="liveTipsOk">Got it</button>
     </div>
+    <button class="closebtn" id="liveTipsClose">Close</button>
   </div>
 </div>
 
@@ -3791,7 +3793,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.0';
+  const APP_VERSION = '4.11.1';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -12819,11 +12821,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      get the four new cards once. The Quick Tips pill opens the full deck.
      Reduced motion: each card holds still on its key moment, no pointer. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 6;     // 4.11.0: the sideways game view card shows once to everyone who's seen the deck
-  // 4.9.1: version 5 showed the redone game slide-up card (cards + sheet) once more to everyone
+  const LIVETIPS_VERSION = 5;     // 4.9.1: the redone game slide-up card (cards + sheet) shows once more to everyone
   // 4.9.0: 'lvsheet' (tap any game) shows once to everyone (version 4).
   const LT_FULL = ['live', 'lvsheet', 'side', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
-  const LT_NEW = ['side'];
+  const LT_NEW = ['lvsheet'];
   const LX_PC = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);      // a computer: Big screen instead of turning the phone
   const LT_TITLE = { live: 'Live games update themselves', pin: 'Pin a game', sheets: 'Open &amp; compare sheets',
     lvsheet: 'Tap any game', side: LX_PC ? 'Big screen' : 'Turn your phone sideways', win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
@@ -13396,6 +13397,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(ltIndex >= ltDeck.length - 1) closeLiveTips(); else ltShow(ltIndex + 1);
   });
   document.getElementById('liveTipBack').addEventListener('click', function(){ ltShow(ltIndex - 1); });
+  document.getElementById('liveTipsClose').addEventListener('click', closeLiveTips);      // 4.11.0: close any time, like the Picks tips
   document.getElementById('liveTipDots').addEventListener('click', function(e){
     const d = e.target.closest ? e.target.closest('.tipdot') : null;
     if(d && d.dataset.i) ltShow(Number(d.dataset.i));
