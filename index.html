@@ -2965,6 +2965,81 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 #resultsList .gcard, #offSheetList .gcard{ cursor:pointer; -webkit-tap-highlight-color: transparent; }
 .gchev{ position:absolute; right:1px; top:50%; margin-top:-8px; font-style:normal; font-size:15px; line-height:16px; font-weight:700; color: rgba(147,174,200,0.45); pointer-events:none; }
 #resultsList .gcard:active, #offSheetList .gcard:active{ filter: brightness(1.12); }
+/* ===== 4.11.0 Sideways game view =====
+   A live game's slide-up turned sideways (a phone on its side), or the Big screen button on a computer:
+   the slide-up fills the screen, the score runs across the top, the field takes all the height that's
+   left, and last play + win chance sit side by side at the bottom. Upright it's the normal card. */
+#gxOverlay .sheet.land, .lxland .sheet.land{ position:absolute; inset:0; width:auto; max-width:none; max-height:none; overflow:hidden; transform:none; border:0; border-radius:0; box-shadow:none;
+  --sl: max(14px, env(safe-area-inset-left, 0px)); --sr: max(14px, env(safe-area-inset-right, 0px)); --sb: max(6px, env(safe-area-inset-bottom, 0px)); --st: env(safe-area-inset-top, 0px);
+  background: linear-gradient(180deg, #111e33, #0b1321 60%);
+  padding: calc(6px + var(--st)) var(--sr) calc(6px + var(--sb)) var(--sl);
+  display:flex; flex-direction:column; }
+#gxOverlay .sheet.land::before, .lxland .sheet.land::before{ display:none; }
+/* Big screen on a computer: laid out about 1000 wide, then scaled up to fill the screen */
+#gxOverlay .sheet.land.big{ right:auto; bottom:auto; width:calc(100% / var(--bz, 1)); height:calc(100% / var(--bz, 1)); transform:scale(var(--bz, 1)); transform-origin:0 0; }
+/* on a tall screen the field stops growing (about 3.5 to 1) and the whole view sits in the middle */
+.sheet.land.big .gxbody{ grid-template-rows: auto minmax(0, 360px) auto auto; align-content:center; }
+/* kicker centered over the score; Back on the left of the score bar, Big screen on the right */
+.sheet.land .gx-top{ position:absolute; left:var(--sl); right:var(--sr); top:calc(6px + var(--st)); height:0; margin:0; display:block; z-index:3; }
+.sheet.land .gx-kick{ position:absolute; left:84px; right:84px; top:0; text-align:center; font-size:9.5px; letter-spacing:1.5px; line-height:12px; }
+.sheet.land .backbtn{ position:absolute; left:0; top:12px; height:34px; padding:0 11px; font-size:13px; }
+.sheet.land .gxbigbtn{ position:absolute; right:0; top:12px; height:34px; }
+.sheet.land .gxbody{ flex:1; min-height:0; display:grid; grid-template-columns: minmax(0,1fr) minmax(190px, 27%); grid-template-rows: auto minmax(0,1fr) auto auto; column-gap:8px; }
+/* score bar: one row, teams either side of the score */
+.sheet.land .gx-match{ grid-column:1 / -1; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:20px; padding:14px 76px 0; }
+.sheet.land .gx-team{ display:grid; grid-template-columns:auto auto auto; grid-template-areas:"lg nm nm" "lg tg to"; justify-content:end; align-items:center; column-gap:8px; row-gap:4px; text-align:left; }
+.sheet.land .gx-team:not(.mine){ grid-template-areas:"nm nm lg" "to tg lg"; justify-content:start; text-align:right; }
+.sheet.land .gx-logo{ grid-area:lg; width:44px; height:44px; border-radius:14px; }
+.sheet.land .gx-logo img{ width:33px; height:33px; }
+.sheet.land .gx-name{ grid-area:nm; font-size:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sheet.land .gx-team:not(.mine) .gx-name{ justify-self:end; }
+.sheet.land .gx-tag, .sheet.land .gx-sub{ grid-area:tg; justify-self:start; }
+.sheet.land .gx-team:not(.mine) .gx-sub{ justify-self:end; }
+.sheet.land .gx-to{ grid-area:to; margin:0; }
+.sheet.land .gx-mid{ padding-top:0; gap:3px; min-width:0; }
+.sheet.land .gx-score{ grid-template-columns: 20px 48px 14px 48px 20px; }
+.sheet.land .gx-score b, .sheet.land .gx-score span{ font-size:34px; }
+.sheet.land .gx-score i{ font-size:21px; }
+.sheet.land .gx-stat{ font-size:12.5px; }
+/* the field takes all the height that's left */
+.sheet.land .gx-field{ grid-column:1 / -1; display:flex; flex-direction:column; min-height:0; margin:4px 0 0; }
+.sheet.land .fx-poss{ flex:none; }
+.sheet.land .fx{ flex:1; height:auto; min-height:60px; border-radius:13px; }
+.sheet.land .fx-teeg{ width:11px; height:8px; margin-left:-5.5px; }
+/* down & distance and the drive on one line */
+.sheet.land .gx-dd{ flex-direction:row; gap:14px; min-height:28px; margin-top:6px; }
+.sheet.land .gx-dd .ddl{ gap:7px; font-size:16px; }
+.sheet.land .gx-dd .ddl > span{ font-size:16px; }
+.sheet.land .gx-dd .ddl > span.ddat{ font-size:13.5px; }
+.sheet.land .gx-dd .dnb{ height:23px; padding:0 8px; font-size:11.5px; }
+.sheet.land .gx-dd .ddl > .rzc{ height:19px; font-size:9.5px; }
+.sheet.land .gx-dd .ddrive{ position:relative; padding-left:14px; font-size:10px; }
+.sheet.land .gx-dd .ddrive::before{ content:''; position:absolute; left:0; top:50%; width:4px; height:4px; margin-top:-2px; border-radius:50%; background: var(--faint); }
+/* last play and win chance side by side */
+.sheet.land .gx-last{ grid-column:1; margin-top:6px; height:74px; display:flex; flex-direction:column; justify-content:center; padding:8px 12px; font-size:13px; line-height:1.35; overflow:hidden; }
+.sheet.land .gx-last .lphd{ margin-bottom:3px; }
+.sheet.land .lptxt{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.sheet.land .gx-win{ grid-column:2; margin-top:6px; }
+.sheet.land .gx-last[hidden] + .gx-win{ grid-column:1 / -1; }
+.sheet.land .gx-win .ws.s3{ height:74px; grid-template-columns: minmax(0,1fr) minmax(0,1fr); row-gap:0; column-gap:10px; padding:7px 14px 9px; align-content:center; }
+.sheet.land .gx-win .ws.s3 .wslbl{ grid-column:1 / -1; grid-row:1; margin:0 0 3px; line-height:12px; }
+.sheet.land .gx-win .ws.s3 .wn{ grid-row:2; grid-column:1; font-size:12.5px; }
+.sheet.land .gx-win .ws.s3 .wn.op{ grid-column:2; }
+.sheet.land .gx-win .ws.s3 .wp{ grid-row:3; grid-column:1; font-size:19px; }
+.sheet.land .gx-win .ws.s3 .wp.op{ grid-column:2; }
+.sheet.land .gx-win .ws.s3 .bar{ grid-row:4; margin-top:5px; }
+.sheet.land .gx-field[hidden], .sheet.land .gx-last[hidden]{ display:none; }
+/* Big screen button: computers only (a mouse), live games only */
+.gxbigbtn{ flex:none; display:none; align-items:center; gap:6px; height:36px; padding:0 11px; border-radius:10px; border:1px solid var(--hair2); background:transparent;
+  color: var(--cyan); font-family:inherit; font-size:13px; font-weight:800; cursor:pointer; white-space:nowrap; }
+.gxbigbtn svg{ display:block; width:14px; height:14px; }
+@media (hover: hover) and (pointer: fine){ .gxbigbtn{ display:inline-flex; } }
+.gxbigbtn[hidden]{ display:none !important; }
+/* the Quick Tip's copy: a phone turned on its side, or a computer window */
+.lxrot{ position:absolute; overflow:hidden; border-radius:12px; box-shadow: 0 0 0 1.5px rgba(147,174,200,0.35), 0 10px 26px rgba(0,0,0,0.45); transform-origin:50% 50%; }
+.lxrot .lxscr{ left:0; }
+.lxscr.lxland{ padding:0; background:#0b1321; }
+.lxland .sheet.land{ --sl:24px; --sr:24px; --sb:8px; --st:0px; }
 @media (prefers-reduced-motion: reduce){
   .fx *, .fx, .gx-score *, .fx-pm, .lptag.pen, .lptag.xpl, .gx-stat .beacon, .gx-stat .fuse::after, .gx-dd .ddl > .rzc{ animation:none !important; transition:none !important; }
 }
@@ -3226,13 +3301,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       </span>
       <button class="devtoggle" id="snapLogCopy" type="button">Copy</button>
     </div>
-    <div class="devrow">
-      <span class="devlabel">
-        <b>Clock log</b>
-        <span id="clkLogSum">Nothing yet.</span>
-      </span>
-      <button class="devtoggle" id="clkLogCopy" type="button">Copy</button>
-    </div>
     <div class="devsect">Simulations<span>One at a time. Nobody’s real picks or scores are touched.</span></div>
     <div class="devrow">
       <span class="devlabel">
@@ -3282,6 +3350,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.0</b> Turn your phone sideways on a live game to see it full screen with a much bigger field. On a computer, click Big screen. The game clock is back to ESPN’s own time, as fast as it comes in.</div>
       <div class="cl"><b>4.10.0</b> Live games: the game clock now ticks along smoothly between updates. Inside the 20 the field zooms in to the 30 and the end zone so you can see every yard, and the field is a little taller.</div>
       <div class="cl"><b>4.9.3</b> When a new week opens, the app takes you to Picks once that week so you can make your picks.</div>
       <div class="cl"><b>4.9.2</b> Live field: play tags show the yards and big plays turn green, penalties name the foul and walk the ball off, kickoffs and punts are drawn (ball on a tee while you wait), a calmer red zone and a new win chance card. Also fixed: the football by the score stays put, the yellow line only blinks on a first down, play lines fade after a few seconds, and plays on the Rams’ side draw again.</div>
@@ -3426,8 +3495,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 
 <div class="overlay" id="gxOverlay">
   <div class="sheet" role="dialog" aria-label="Game">
-    <div class="gx-top"><span class="gx-kick" id="gxKick"></span><button class="backbtn" id="gxBack" type="button">‹ Back</button></div>
-    <div id="gxBody"></div>
+    <div class="gx-top"><span class="gx-kick" id="gxKick"></span><button class="gxbigbtn" id="gxBig" type="button" hidden></button><button class="backbtn" id="gxBack" type="button">‹ Back</button></div>
+    <div id="gxBody" class="gxbody"></div>
   </div>
 </div>
 
@@ -3722,7 +3791,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.10.0';
+  const APP_VERSION = '4.11.0';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5108,7 +5177,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         display: "standalone",
         background_color: "#060b16",
         theme_color: "#060b16",
-        orientation: "portrait",
+        orientation: "any",      // 4.11.0: lets a live game turn sideways on Android home-screen installs
         icons: [{
           src: "data:image/svg+xml," + encodeURIComponent(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
@@ -5174,6 +5243,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function closeOverlay(el, fromBack){
     if(!el.classList.contains('show')) return;
     el.classList.remove('show');
+    if(el.id === 'gxOverlay'){ try{ gxBigSet(false); }catch(e){} }      // 4.11.0: closing a game leaves Big screen
     if(el.id === 'chatOverlay') chatTabSync();
     const at = overlayStack.lastIndexOf(el);
     if(at !== -1) overlayStack.splice(at, 1);
@@ -5846,167 +5916,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       .catch(function(){ done(null); });
   }
 
-  /* Game clock player (idea #16).
-     ESPN gives the clock once per check (about every 10 s) and never says whether it's running.
-     Each check becomes a "window": how far the clock moved and how long it took. The windows are
-     played back in order, one check late, at exactly one clock second per real second:
-     - a window where the clock ran the whole time ticks the whole time;
-     - a window where it moved less than the time that passed holds for the rest, before the
-       ticking if the clock had been stopped (the snap came during it), after it otherwise
-       (the play ended during it);
-     - lag never builds up: any extra is taken out of the next stop, where nobody can tell;
-     - it never counts back up within a quarter, unless ESPN puts time back twice in a row;
-     - if ESPN only refreshes its clock every so often (a window that "moved" more than the time
-       that passed), it keeps one more window in hand and plays the two as one. */
-  function makeClockPlayer(){
-    const S = {};
-    const MAX_GAP = 25, EXTRA = 9, TOO_FAR = 30;
-    function stopper(o){
-      const t = String(o.lpType || ''), x = String(o.lpText || '');
-      if(/incomplet|touchdown|field goal|extra point|two-point|timeout|two.?minute|end (of )?|kickoff|punt|interception|fumble recovery \(opp|safety|penalty/i.test(t)) return true;
-      if(/PENALTY on/i.test(x) && !/declined/i.test(x)) return true;
-      const late = (o.per === 2 && o.sec <= 120) || (o.per >= 4 && o.sec <= 300);
-      return late && /\b(ran|pushed) ob\b|out of bounds/i.test(x);
-    }
-    function fresh(id, o, now){
-      S[id] = { per: o.per, live: o.live, D: o.sec, q: [], cur: null, lastT: now, last: { t: now, c: o.sec, lp: o.lpId, burn: null },
-                coarse: 0, up: 0, ahead: 0, runOn: false, emaP: 10 };
-    }
-    function merge(a, b){ return { burn: a.burn + b.burn, wall: a.wall + b.wall, endsRunning: b.endsRunning, prevStopped: a.prevStopped, stop: a.stop || b.stop, arr: b.arr }; }
-    function startNext(M, now){
-      if(!M.q.length) return false;
-      // a coarse feed: wait (briefly) for the next window so the two can be played as one
-      if(M.coarse >= 2 && M.q.length < 2 && (now - M.q[0].arr) / 1000 < M.q[0].wall * 0.6) return false;
-      let s = M.q.shift();
-      if(M.coarse >= 2 && M.q.length) s = merge(s, M.q.shift());
-      let run = s.burn;
-      if(M.ahead > 0){ const used = Math.min(M.ahead, run); run -= used; M.ahead -= used; }
-      const hold = Math.max(0, s.wall - s.burn);
-      const hf = s.prevStopped && !s.stop && hold > 0.5 && run > 0;
-      M.cur = { from: M.D, run: run, hold: hold, hf: hf, dr: 0, dh: 0, endsRunning: s.endsRunning };
-      M.runOn = false;
-      return true;
-    }
-    // how much playback is still owed (seconds of real time) against how much should be: one check
-    function owed(M){
-      let o = 0;
-      if(M.cur) o += (M.cur.run - M.cur.dr) + (M.cur.hold - M.cur.dh);
-      for(let i = 0; i < M.q.length; i++) o += M.q[i].wall;
-      return o;
-    }
-    function advance(M, now){
-      let dt = (now - M.lastT) / 1000; M.lastT = now;
-      let guard = 0;
-      while(dt > 1e-9 && guard++ < 50){
-        if(!M.cur && M.q.length === 0 && !M.runOn) return;
-        if(!M.cur && !startNext(M, now)){
-          // nothing to play yet: if the clock was running at the end of the last window, keep it going a moment
-          if(M.runOn && M.ahead < EXTRA){ const st = Math.min(dt, EXTRA - M.ahead); M.D = Math.max(0, M.D - st); M.ahead += st; }
-          return;
-        }
-        const c = M.cur, err = owed(M) + (now - M.last.t) / 1000 - M.emaP;     // > 0: further behind than one check
-        const rate = Math.max(0.9, Math.min(1.12, 1 + err / 20));          // running: one tick every 0.9-1.1 s
-        const hs = err > 0 ? Math.min(4, 1 + err / 3) : 1;                   // stopped: the wait shortens to catch up
-        const runPhase = c.hf ? c.dh >= c.hold - 1e-9 && c.dr < c.run - 1e-9 : c.dr < c.run - 1e-9;
-        if(runPhase){ const need = c.run - c.dr, adv = Math.min(need, dt * rate); c.dr += adv; dt -= adv / rate; }
-        else if(c.dh < c.hold - 1e-9){ const need = c.hold - c.dh, adv = Math.min(need, dt * hs); c.dh += adv; dt -= adv / hs; }
-        M.D = Math.max(0, c.from - c.dr);
-        if(c.dr >= c.run - 1e-9 && c.dh >= c.hold - 1e-9){ M.D = Math.max(0, c.from - c.run); M.runOn = c.endsRunning; M.cur = null; }
-      }
-    }
-    function feed(id, o, now){
-      let M = S[id];
-      if(o.sec === null || o.sec === undefined || isNaN(o.sec)){ delete S[id]; return; }
-      if(!M || M.per !== o.per || !o.live || !M.live){ fresh(id, o, now); return; }
-      advance(M, now);
-      const L = M.last, P = (now - L.t) / 1000;
-      if(P < 1) return;
-      if(P > MAX_GAP){ fresh(id, o, now); return; }                 // back after a gap (phone asleep, no signal): no replay
-      M.emaP = M.emaP * 0.8 + Math.min(20, P) * 0.2;
-      let burn = L.c - o.sec;
-      if(burn < 0){
-        // ESPN put time back: believe it only if it says so twice and it's more than our own run-ahead
-        if(o.sec - M.D > EXTRA + 0.5 && ++M.up >= 2){ fresh(id, o, now); return; }
-        burn = 0;
-      }else M.up = 0;
-      if(burn > P + 2) M.coarse = Math.min(4, M.coarse + 1); else if(burn > 0) M.coarse = Math.max(0, M.coarse - 0.34);
-      const stop = !!(o.lpId && o.lpId !== L.lp && stopper(o));
-      M.q.push({ burn: burn, wall: P, endsRunning: burn > 0 && burn >= P - 1.5 && !stop, prevStopped: L.burn === 0, stop: stop, arr: now });
-      M.last = { t: now, c: o.sec, lp: o.lpId, burn: burn };
-      // too far behind (shouldn't happen): jump to ESPN
-      const behind = M.D - o.sec - M.ahead;
-      if(behind > TOO_FAR){ fresh(id, o, now); return; }
-    }
-    function shown(id, now){
-      const M = S[id]; if(!M) return null;
-      advance(M, now);
-      return Math.max(0, Math.ceil(M.D - 1e-6));
-    }
-    function period(id){ return S[id] ? S[id].per : null; }
-    function reset(id){ if(id === undefined){ for(const k in S) delete S[k]; } else delete S[id]; }
-    return { feed: feed, shown: shown, period: period, reset: reset, stopper: stopper };
-  }
-  const CLK = makeClockPlayer();
-  /* 4.10.0: every check feeds the clock player; the clock log (Admin Panel) keeps what ESPN sent, for tuning */
-  const CLK_LOG_KEY = 'pickem-clock-log', CLK_LOG_MAX = 8000;
-  let clkLogBuf = null, clkLogDirty = 0;
-  function clkSec(c){ const m = /^(\d+):(\d\d)$/.exec(String(c || '')); return m ? (+m[1]) * 60 + (+m[2]) : null; }
-  function clkRunning(lg){ return !!(lg && lg.state === 'in' && /IN_PROGRESS/i.test(lg.statusName || '')); }
-  function clkFeedAll(list){
-    const now = Date.now();
-    let logOn = false; try{ logOn = !demoOn() && panelUnlocked(); }catch(e){}
-    (list || []).forEach(function(lg){
-      if(!lg || !lg.id) return;
-      if(lg.state !== 'in'){ CLK.reset(lg.id); return; }
-      const lp = lg.lastPlay || null;
-      CLK.feed(lg.id, { sec: clkSec(lg.clock), per: lg.period || 0, live: clkRunning(lg), lpId: lp ? lp.id : '', lpType: lp ? lp.type : '', lpText: lp ? lp.text : '' }, now);
-      if(logOn) clkLog(now, lg);
-    });
-    if(clkLogDirty >= 12) clkLogSave();
-  }
-  function clkLog(now, lg){
-    if(!clkLogBuf){ const v = getLocal(CLK_LOG_KEY); clkLogBuf = Array.isArray(v) ? v : []; }
-    const lp = lg.lastPlay || {};
-    clkLogBuf.push([now, lg.away + '@' + lg.home, lg.period || 0, lg.clock || '', (lg.statusName || '').replace('STATUS_', ''), lp.id || '', String(lp.type || '').slice(0, 24), lg.downDistance || '', String(lp.text || '').replace(/\s+/g, ' ').replace(/\|/g, '/').slice(0, 90)]);   // 4.10.0: + play text (clock-stop reasons)
-    if(clkLogBuf.length > CLK_LOG_MAX) clkLogBuf.splice(0, clkLogBuf.length - CLK_LOG_MAX);
-    clkLogDirty++;
-  }
-  function clkLogSave(){ if(clkLogBuf){ try{ put(CLK_LOG_KEY, clkLogBuf); }catch(e){} } clkLogDirty = 0; }
-  // the clock to show for a game in progress: the player's, or ESPN's own until the player has it
-  function clkText(lg){
-    if(!clkRunning(lg)) return lg ? lg.clock : '';
-    const v = CLK.shown(lg.id, Date.now());
-    if(v === null) return lg.clock;
-    return Math.floor(v / 60) + ':' + String(v % 60).padStart(2, '0');
-  }
-  function clkLiveById(id){ for(let i = 0; i < liveGames.length; i++) if(liveGames[i].id === id) return liveGames[i]; return null; }
-  // four times a second: every clock on screen, text only
-  function clkTick(){
-    if(document.hidden) return;
-    const els = document.querySelectorAll('[data-clk]');
-    if(!els.length) return;
-    const full = {};
-    els.forEach(function(el){
-      const id = el.getAttribute('data-clk'), lg = clkLiveById(id);
-      if(!lg || lg.state !== 'in') return;
-      const f = full[id] !== undefined ? full[id] : (full[id] = liveClock(lg));
-      const p = el.getAttribute('data-clkp');
-      const txt = p === 'a' ? splitClock(f)[0] : p === 'b' ? splitClock(f)[1] : p === 'g' ? f.replace(' - ', ' · ') : f;
-      if(el.textContent !== txt) el.textContent = txt;
-      if(p === 'b' && el.hidden !== !txt) el.hidden = !txt;
-      if(p === 'g'){
-        const st = el.closest('.gx-stat'), left = gxTwoMin(lg);
-        if(st){
-          st.classList.toggle('twomin', left !== null);
-          const fu = st.querySelector('.fuse'); if(fu) fu.style.width = (left !== null ? (left / 120 * 100).toFixed(1) : 0) + '%';
-          const sh = st.closest('.sheet'); if(sh) sh.classList.toggle('twomin', left !== null);
-        }
-      }
-    });
-  }
-  setInterval(clkTick, 250);
-  document.addEventListener('visibilitychange', function(){ if(document.hidden) clkLogSave(); });
-
   /* ---------- scoring flashes ----------
      ESPN's scoreboard has no "touchdown" flag, so plays are read from the score
      moving between two checks: +6 a touchdown (a +1 or +2 for the same team
@@ -6123,7 +6032,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(demoOn()){
       liveGames = simulateScoreboard();
       notePlays(liveGames);
-      try{ clkFeedAll(liveGames); }catch(e){}
       try{ gxTrack(liveGames); }catch(e){}
       computeDemoResults();
       liveStatus = 'Simulated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
@@ -6223,7 +6131,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         });
         liveGames = out;
         if(week === currentWeek) notePlays(out);
-        if(week === currentWeek){ try{ clkFeedAll(out); }catch(e){} }
         if(week === currentWeek){ try{ gxTrack(out); }catch(e){} }
         liveStatus = weekComplete()
           ? ('Week ' + week + ' final')
@@ -6300,11 +6207,11 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       return 'End Q' + (lg.period || '');
     }
     if(n.indexOf('DELAY') >= 0) return 'Delayed';
-    const p = lg.period || 0, ck = clkText(lg);
+    const p = lg.period || 0;
     const label = p > 4 ? (p === 5 ? 'OT' : 'OT' + (p - 4)) : 'Q' + p;
     // A quarter that has run out but hasn't been called yet
-    if(p && ck === '0:00') return p === 2 ? 'Halftime' : 'End ' + label;
-    if(p && ck) return label + ' - ' + ck;
+    if(p && lg.clock === '0:00') return p === 2 ? 'Halftime' : 'End ' + label;
+    if(p && lg.clock) return label + ' - ' + lg.clock;
     if(p) return label;
     return lg.detail || 'In progress';
   }
@@ -6411,8 +6318,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
           pts + '<em>pts</em></span>' +
         '<div class="gteams">' + teamRows + '</div>' +
         '<div class="gstatus ' + sCls + '" data-role="status">' +
-          '<span class="s1" data-role="s1"' + clkAttr(lg, 'a') + '>' + s1 + '</span>' +
-          '<span class="s2" data-role="s2"' + clkAttr(lg, 'b') + (s2 ? '' : ' hidden') + '>' + s2 + '</span>' +
+          '<span class="s1" data-role="s1">' + s1 + '</span>' +
+          '<span class="s2" data-role="s2"' + (s2 ? '' : ' hidden') + '>' + s2 + '</span>' +
           '<span data-role="restag">' + resTag + '</span>' +
         '</div>' +
       '</div>' +
@@ -6555,13 +6462,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }, 1020);     // 4.5.0: matches the 1.0 s slide, so the card never snaps
   }
   // "Q2 - 6:31" -> ["Q2", "6:31"]; "Halftime" stays whole.
-  // 4.10.0: a clock on screen the ticker keeps current (a/b: the two lines of a card, f: one line, g: the slide-up)
-  function clkAttr(lg, part){ return (lg && lg.state === 'in') ? ' data-clk="' + lg.id + '" data-clkp="' + part + '"' : ''; }
-  function clkMark(el, lg, part){
-    if(!el) return;
-    if(lg && lg.state === 'in'){ if(el.getAttribute('data-clk') !== lg.id) el.setAttribute('data-clk', lg.id); if(el.getAttribute('data-clkp') !== part) el.setAttribute('data-clkp', part); }
-    else if(el.hasAttribute('data-clk')){ el.removeAttribute('data-clk'); el.removeAttribute('data-clkp'); }
-  }
   function splitClock(txt){
     const at = String(txt).indexOf(' - ');
     return at === -1 ? [String(txt), ''] : [txt.slice(0, at), txt.slice(at + 3)];
@@ -7008,7 +6908,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function gxTwoMin(lg){
     if(!lg || lg.state !== 'in' || (lg.period !== 2 && lg.period !== 4)) return null;
     if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
-    const m = /^(\d+):(\d\d)$/.exec(String(clkText(lg) || ''));
+    const m = /^(\d+):(\d\d)$/.exec(String(lg.clock || ''));
     if(!m) return null;
     const s = (+m[1]) * 60 + (+m[2]);
     return s <= 120 ? s : null;
@@ -7029,7 +6929,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      Inside the 20 it glides to the 32 through the end zone (GX_ZOOM); everything is drawn through px(). */
   const GX_ZOOM = { r: [68, 110], l: [-10, 32] };
   function gxBuildField(fx, lg, s, W){
-    const H = 66, EZ = W / 12;
+    const H = fx.clientHeight || 66, EZ = W / 12;
+    // 4.11.0: in the sideways view the ball, marks and arcs scale with the bigger field (1 when upright)
+    const land = !!(fx.closest && fx.closest('.sheet.land')), bs = land ? Math.max(1, Math.min(1.5, H / 110)) : 1, ay = land ? Math.max(1, H / 66 * 0.8) : 1;
     const F = { va: -10, vb: 110 };
     const px = function(yd){ return (yd - F.va) * W / (F.vb - F.va); };
     const colorOf = function(ab){ const c = lg && lg.colors && lg.colors[ab]; return /^#[0-9a-f]{6}$/i.test(c || '') ? c : '#5f7894'; };
@@ -7045,7 +6947,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     [sv, tv].forEach(function(v){ v.setAttribute('viewBox', '0 0 ' + W + ' ' + H); v.setAttribute('width', W); v.setAttribute('height', H); });
     sv.innerHTML = ''; tv.innerHTML = '';
     Object.assign(F, { key: gxId + '|' + s.mine, W: W, H: H, EZ: EZ, px: px, lpId: null, fd: null, flashAt: 0, pmPoss: '', anim: 0, hold: false,
-      zs: '', zWant: '', zTimer: 0, ztok: 0, lay: null });
+      zs: '', zWant: '', zTimer: 0, ztok: 0, lay: null, land: land, bs: bs, ay: ay, postX: 2.5 * bs + 5 * Math.max(1, bs * 0.9) });
+    const tg = fx.querySelector('.fx-teeg'); if(tg) tg.style.top = land ? (H / 2 + 6.5 * bs).toFixed(1) + 'px' : '';
     gxGrid(fx, F);
     return F;
   }
@@ -7059,36 +6962,52 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const ezL = fx.querySelector('.fx-ez.l'), ezR = fx.querySelector('.fx-ez.r');
     ezL.style.left = px(-10) + 'px'; ezL.style.width = (px(0) - px(-10)) + 'px';
     ezR.style.left = px(100) + 'px'; ezR.style.right = 'auto'; ezR.style.width = (px(110) - px(100)) + 'px';
-    [[ezL, F.vb < 109.99], [ezR, F.va > -9.99]].forEach(function(e){      // the end zone of a zoomed end gets the room
+    const land = !!F.land, bs = F.bs || 1;
+    [[ezL, F.vb < 109.99, -10, 0], [ezR, F.va > -9.99, 100, 110]].forEach(function(e){      // the end zone of a zoomed end gets the room
       const on = e[1] ? z : 0, sp = e[0].querySelector('span'), im = e[0].querySelector('.fx-ezlogo');
+      if(land){
+        // 4.11.0 sideways: bigger name; the logo shows faintly in both end zones all the time
+        const fs0 = Math.max(9.5, H * 0.085), ls0 = Math.max(1.8, H * 0.016);
+        sp.style.fontSize = (fs0 * (1 + 0.37 * on)).toFixed(2) + 'px'; sp.style.letterSpacing = (ls0 * (1 + 0.78 * on)).toFixed(2) + 'px';
+        if(im){ const sz = Math.max(8, Math.min(H * 0.62, (px(e[3]) - px(e[2])) * 0.9));
+          im.style.width = im.style.height = sz.toFixed(1) + 'px'; im.style.margin = (-sz / 2).toFixed(1) + 'px 0 0 ' + (-sz / 2).toFixed(1) + 'px';
+          im.style.opacity = '0.2'; im.style.transform = 'none'; }
+        return;
+      }
       sp.style.fontSize = (9.5 + 3.5 * on).toFixed(2) + 'px'; sp.style.letterSpacing = (1.8 + 1.4 * on).toFixed(2) + 'px';
-      if(im){ im.style.opacity = (0.2 * on).toFixed(3); im.style.transform = 'scale(' + (0.7 + 0.3 * on).toFixed(3) + ')'; }
+      if(im){ im.style.width = im.style.height = im.style.margin = ''; im.style.opacity = (0.2 * on).toFixed(3); im.style.transform = 'scale(' + (0.7 + 0.3 * on).toFixed(3) + ')'; }
     });
     const fade = fx.querySelector('.fx-zfade');
     if(fade){ fade.className = 'fx-zfade ' + (F.va > -9.99 ? 'l' : 'r'); fade.style.opacity = z.toFixed(3); }      // the cut side
     let d5 = '', d10 = '', tk = '', nums = '';
     for(let y = 5; y < 100; y += 10) d5 += 'M' + f(px(y)) + ' 0V' + H;
     for(let y = 10; y < 100; y += 10) d10 += 'M' + f(px(y)) + ' 0V' + H;
+    const tkL = land ? Math.max(2.2, H * 0.022) : 2.2, hs = land ? Math.max(2, H * 0.02) : 2;
     for(let y = 1; y < 100; y++){ if(y % 5 === 0) continue; const x = f(px(y)); if(px(y) < -2 || px(y) > W + 2) continue;
-      tk += 'M' + x + ' 0v2.2M' + x + ' ' + (H - 2.2) + 'v2.2M' + x + ' ' + (H * 0.42).toFixed(1) + 'v2M' + x + ' ' + (H * 0.58 - 2).toFixed(1) + 'v2'; }
-    const fs = (7.5 + 2.3 * z).toFixed(2);
+      tk += 'M' + x + ' 0v' + f(tkL) + 'M' + x + ' ' + f(H - tkL) + 'v' + f(tkL) + 'M' + x + ' ' + (H * 0.42).toFixed(1) + 'v' + f(hs) + 'M' + x + ' ' + (H * 0.58 - hs).toFixed(1) + 'v' + f(hs); }
+    const fs = land ? (Math.max(7.5, H * 0.08) * (1 + 0.3 * z)).toFixed(2) : (7.5 + 2.3 * z).toFixed(2);
+    const ny = land ? f(H - Math.max(5, H * 0.1)) : (H - 5), ty = f(Math.max(5, H * 0.1));
     [10, 20, 30, 40, 50, 60, 70, 80, 90].forEach(function(y){ const x = px(y); if(x < -14 || x > W + 14) return;
-      nums += '<text x="' + f(x) + '" y="' + (H - 5) + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="rgba(147,174,200,0.5)" font-family="Manrope, sans-serif">' + (y <= 50 ? y : 100 - y) + '</text>'; });
+      const n = (y <= 50 ? y : 100 - y);
+      nums += '<text x="' + f(x) + '" y="' + ny + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="rgba(147,174,200,0.5)" font-family="Manrope, sans-serif">' + n + '</text>';
+      // 4.11.0 sideways: the far sideline's numbers too, upside down like a real field
+      if(land) nums += '<text x="' + f(x) + '" y="' + ty + '" transform="rotate(180 ' + f(x) + ' ' + ty + ')" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="rgba(147,174,200,0.5)" font-family="Manrope, sans-serif">' + n + '</text>'; });
     const sv = fx.querySelector('.fxs'), was = {};
     sv.querySelectorAll('.fxposts').forEach(function(g){ was[g.classList.contains('l') ? 'l' : 'r'] = (g.classList.contains('good') ? ' good' : '') + (g.classList.contains('miss') ? ' miss' : ''); });
-    const post = function(side, x, dir){ return '<g class="fxposts ' + side + (was[side] || '') + '"><path class="fxpost" d="M' + f(x) + ' ' + H / 2 + 'h' + 5 * dir + 'M' + f(x + 5 * dir) + ' ' + (H / 2 - 8) + 'v16"/>' +
-      '<circle class="fxpostdot" cx="' + f(x + 5 * dir) + '" cy="' + (H / 2 - 8) + '" r="1.6"/><circle class="fxpostdot" cx="' + f(x + 5 * dir) + '" cy="' + (H / 2 + 8) + '" r="1.6"/></g>'; };
+    const pl = land ? 5 * Math.max(1, bs * 0.9) : 5, ph = land ? H * 0.12 : 8, pr = land ? 1.6 * bs : 1.6;
+    const post = function(side, x, dir){ return '<g class="fxposts ' + side + (was[side] || '') + '"><path class="fxpost" d="M' + f(x) + ' ' + H / 2 + 'h' + f(pl * dir) + 'M' + f(x + pl * dir) + ' ' + f(H / 2 - ph) + 'v' + f(2 * ph) + '"/>' +
+      '<circle class="fxpostdot" cx="' + f(x + pl * dir) + '" cy="' + f(H / 2 - ph) + '" r="' + pr + '"/><circle class="fxpostdot" cx="' + f(x + pl * dir) + '" cy="' + f(H / 2 + ph) + '" r="' + pr + '"/></g>'; };
     sv.innerHTML = '<path d="' + d5 + '" stroke="rgba(220,232,245,0.07)" stroke-width="1"/><path d="' + d10 + '" stroke="rgba(220,232,245,0.15)" stroke-width="1"/>' +
       '<path d="M' + f(px(50)) + ' 0V' + H + '" stroke="rgba(220,232,245,0.24)" stroke-width="1"/>' +
       '<path d="M' + f(px(0)) + ' 0V' + H + 'M' + f(px(100)) + ' 0V' + H + '" stroke="rgba(255,255,255,0.55)" stroke-width="1.3"/>' +
       '<path d="' + tk + '" stroke="rgba(220,232,245,0.16)" stroke-width="0.8"/>' + nums +
-      post('l', px(-10) + 2.5, 1) + post('r', px(110) - 2.5, -1);
+      post('l', px(-10) + 2.5 * bs, 1) + post('r', px(110) - 2.5 * bs, -1);
   }
   // put the lines, band, red zone, marker and ball back where they belong in yards (during a zoom)
   function gxRelay(fx, ball){
     const F = gxF, L = F && F.lay; if(!L) return;
     const px = F.px, q = function(c){ return fx.querySelector(c); };
-    if(L.tee !== undefined){ q('.fx-teeg').style.left = px(L.tee) + 'px'; gxBallAt(fx, px(L.tee), F.H / 2 - 1.5, -90); return; }
+    if(L.tee !== undefined){ q('.fx-teeg').style.left = px(L.tee) + 'px'; gxBallAt(fx, px(L.tee), F.H / 2 - 1.5 * (F.bs || 1), -90); return; }
     q('.fx-los').style.left = px(L.los) + 'px'; q('.fx-chev').style.left = px(L.los) + 'px';
     if(L.fd !== null) q('.fx-fd').style.left = px(L.fd) + 'px';
     const band = q('.fx-band'), a = px(Math.min(L.b0, L.b1)), b = px(Math.max(L.b0, L.b1));
@@ -7137,8 +7056,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(ys.every(function(y){ return y === null || gxZoomIn(zs, y); })) return;
     await gxZoom(fx, '', animate);
   }
-  function gxBallAt(fx, x, y, rot){ fx.querySelector('.fx-ball').style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (rot || 0) + 'deg)'; }
-  function gxShadow(fx, x, op, sc){ const e = fx.querySelector('.fx-shadow'); e.style.transform = 'translate(' + x + 'px,' + (gxF.H / 2 + 1) + 'px) scale(' + (sc || 1) + ')'; e.style.opacity = op; }
+  function gxBallAt(fx, x, y, rot){ const bs = (gxF && gxF.bs) || 1; fx.querySelector('.fx-ball').style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (rot || 0) + 'deg)' + (bs !== 1 ? ' scale(' + bs.toFixed(2) + ')' : ''); }
+  function gxShadow(fx, x, op, sc){ const e = fx.querySelector('.fx-shadow'), bs = gxF.bs || 1; e.style.transform = 'translate(' + x + 'px,' + (gxF.H / 2 + bs) + 'px) scale(' + ((sc || 1) * bs) + ')'; e.style.opacity = op; }
   function gxTween(ms, fn, tok){
     return new Promise(function(res){
       if(gxRM()){ fn(1); return res(); }
@@ -7149,30 +7068,30 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function gxPath(x1, x2, apex){ const y = gxF.H / 2, mx = (x1 + x2) / 2;
     return apex ? 'M' + x1 + ' ' + y + 'Q' + mx + ' ' + (y - 2 * apex) + ' ' + x2 + ' ' + y : 'M' + x1 + ' ' + y + 'L' + x2 + ' ' + y; }
   function gxHead(g, p, len, cls){ const a = p.getPointAtLength(len), b = p.getPointAtLength(Math.max(0, len - 1.5));
-    const ang = Math.atan2(a.y - b.y, a.x - b.x), s = 4.6;
-    const pts = [[a.x + Math.cos(ang) * 2, a.y + Math.sin(ang) * 2], [a.x - Math.cos(ang - .55) * s, a.y - Math.sin(ang - .55) * s], [a.x - Math.cos(ang + .55) * s, a.y - Math.sin(ang + .55) * s]];
+    const bs = (gxF && gxF.bs) || 1, ang = Math.atan2(a.y - b.y, a.x - b.x), s = 4.6 * bs;
+    const pts = [[a.x + Math.cos(ang) * 2 * bs, a.y + Math.sin(ang) * 2 * bs], [a.x - Math.cos(ang - .55) * s, a.y - Math.sin(ang - .55) * s], [a.x - Math.cos(ang + .55) * s, a.y - Math.sin(ang + .55) * s]];
     gxSvg('path', { class: 'fxhead ' + (cls || ''), d: 'M' + pts.map(function(q){ return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('L') + 'Z' }, g); }
   /* One leg of a play. The line draws in behind the ball; animate = false draws it at once. */
   async function gxLeg(fx, g, x1, x2, o, animate, tok){
-    o = o || {}; const apex = o.apex || 0, H = gxF.H;
+    o = o || {}; const apex = (o.apex || 0) * (gxF.ay || 1), H = gxF.H, bs = gxF.bs || 1, gap = 5 * bs;
     const p = gxSvg('path', { class: 'tr ' + (o.cls || 'pass'), d: gxPath(x1, x2, apex) }, g);
     const L = p.getTotalLength();
     let dots = null;
-    if(o.dots){ p.style.opacity = 0; dots = []; for(let s = 0; s <= L; s += 5){ const q = p.getPointAtLength(s); dots.push(gxSvg('circle', { class: 'fxdot ' + (o.dotcls || ''), cx: q.x.toFixed(1), cy: q.y.toFixed(1), r: 1.5, opacity: animate ? 0 : 1 }, g)); } }
+    if(o.dots){ p.style.opacity = 0; dots = []; for(let s = 0; s <= L; s += gap){ const q = p.getPointAtLength(s); dots.push(gxSvg('circle', { class: 'fxdot ' + (o.dotcls || ''), cx: q.x.toFixed(1), cy: q.y.toFixed(1), r: 1.5 * bs, opacity: animate ? 0 : 1 }, g)); } }
     else if(animate && o.cls !== 'kick' && o.cls !== 'inc' && o.cls !== 'pen'){ p.style.strokeDasharray = L; p.style.strokeDashoffset = L; }
     else if(animate) p.style.opacity = 0;
     if(animate){
       const air = apex > 0, mode = o.cls === 'kick' ? 'tumble' : (air ? 'spiral' : 'carry'), bl = fx.querySelector('.fx-ball');
       bl.classList.toggle('spiral', mode === 'spiral');
-      if(mode === 'spiral') bl.style.setProperty('--trail', (apex >= 15 ? 24 : 15) + 'px');
+      if(mode === 'spiral') bl.style.setProperty('--trail', ((o.apex || 0) >= 15 ? 24 : 15) + 'px');
       await gxTween(o.ms || 700, function(k){
         const t = air ? k : k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, s = L * t;
         const q = p.getPointAtLength(s), q2 = p.getPointAtLength(Math.min(L, s + 1)), q0 = p.getPointAtLength(Math.max(0, s - 1));
         const ang = Math.atan2(q2.y - q0.y, q2.x - q0.x) * 180 / Math.PI, lift = air ? Math.sin(Math.PI * k) : 0;
         if(mode === 'spiral'){ gxBallAt(fx, q.x, q.y, ang); gxShadow(fx, q.x, 0.34 * (1 - 0.6 * lift), 1 - 0.4 * lift); }
         else if(mode === 'tumble'){ gxBallAt(fx, q.x, q.y, ang + k * 720); gxShadow(fx, q.x, 0.25 + lift * 0.3, 1 - 0.3 * lift); }
-        else { gxBallAt(fx, q.x, q.y + Math.sin(k * Math.PI * 8) * 0.7, ang); gxShadow(fx, q.x, 0); }
-        if(dots) dots.forEach(function(dd, i){ if(i * 5 <= s) dd.setAttribute('opacity', 1); });
+        else { gxBallAt(fx, q.x, q.y + Math.sin(k * Math.PI * 8) * 0.7 * bs, ang); gxShadow(fx, q.x, 0); }
+        if(dots) dots.forEach(function(dd, i){ if(i * gap <= s) dd.setAttribute('opacity', 1); });
         else if(p.style.strokeDasharray) p.style.strokeDashoffset = L - s;
         else p.style.opacity = Math.min(1, k * 3);
       }, tok);
@@ -7184,10 +7103,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     return p;
   }
   function gxMark(g, kind, x){
-    const H = gxF.H;
-    if(kind === 'start') gxSvg('circle', { class: 'mk-start', cx: x, cy: H / 2, r: 2.6 }, g);
-    else if(kind === 'x') gxSvg('path', { class: 'mk-x', d: 'M' + (x - 3.5) + ' ' + (H / 2 - 3.5) + 'l7 7M' + (x + 3.5) + ' ' + (H / 2 - 3.5) + 'l-7 7' }, g);
-    else if(kind === 'burst'){ const pts = []; for(let i = 0; i < 16; i++){ const r = i % 2 ? 2.6 : 6, a = i * Math.PI / 8; pts.push((x + r * Math.cos(a)).toFixed(1) + ' ' + (H / 2 + r * Math.sin(a)).toFixed(1)); }
+    const H = gxF.H, m = gxF.bs || 1;
+    if(kind === 'start') gxSvg('circle', { class: 'mk-start', cx: x, cy: H / 2, r: 2.6 * m }, g);
+    else if(kind === 'x') gxSvg('path', { class: 'mk-x', d: 'M' + (x - 3.5 * m) + ' ' + (H / 2 - 3.5 * m) + 'l' + 7 * m + ' ' + 7 * m + 'M' + (x + 3.5 * m) + ' ' + (H / 2 - 3.5 * m) + 'l' + (-7 * m) + ' ' + 7 * m }, g);
+    else if(kind === 'burst'){ const pts = []; for(let i = 0; i < 16; i++){ const r = (i % 2 ? 2.6 : 6) * m, a = i * Math.PI / 8; pts.push((x + r * Math.cos(a)).toFixed(1) + ' ' + (H / 2 + r * Math.sin(a)).toFixed(1)); }
       gxSvg('path', { class: 'mk-burst', d: 'M' + pts.join('L') + 'Z' }, g); }
   }
   const GX_FADE_MS = 4000;
@@ -7214,7 +7133,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     await gxLeg(fx, g, px(a), px(l), { cls: 'kick', apex: K.onside ? 4 : 23, ms: K.onside ? 900 : 1250 }, animate, tok);
     if(b !== null && Math.abs(b - l) >= 2 && tok === gxF.anim){
       if(K.tb){
-        if(animate) await gxTween(420, function(k){ const kk = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; gxBallAt(fx, px(l + (b - l) * kk), H / 2 - Math.sin(Math.PI * k) * 6, 0); }, tok);
+        if(animate) await gxTween(420, function(k){ const kk = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; gxBallAt(fx, px(l + (b - l) * kk), H / 2 - Math.sin(Math.PI * k) * 6 * (gxF.ay || 1), 0); }, tok);
       }else await gxLeg(fx, g, px(l), px(b), { dots: true, arrow: true, ms: 800 }, animate, tok);
     }
     return true;
@@ -7237,7 +7156,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     fx.querySelectorAll('.fxposts').forEach(function(e){ e.classList.remove('good', 'miss'); });
     fx.parentNode.querySelector('.fx-poss').hidden = true;
     fx.querySelector('.fx-teeg').style.left = x + 'px';
-    gxBallAt(fx, x, gxF.H / 2 - 1.5, -90);
+    gxBallAt(fx, x, gxF.H / 2 - 1.5 * (gxF.bs || 1), -90);
     gxF.fd = null;
     gxF.lay = { tee: y };
     if(gxF.zs || gxF.zWant) gxZoom(fx, '', true);
@@ -7291,16 +7210,16 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         await gxTween(400, function(){}, tok);
         for(let i = 0; i < n && tok === gxF.anim; i++){
           const y0 = e0 + st * i;
-          await gxTween(140, function(k){ gxBallAt(fx, px(y0 + st * k), gxF.H / 2 - Math.sin(Math.PI * k) * 3, rot); }, tok);
+          await gxTween(140, function(k){ gxBallAt(fx, px(y0 + st * k), gxF.H / 2 - Math.sin(Math.PI * k) * 3 * (gxF.ay || 1), rot); }, tok);
         }
       }
       return kind;
     }else if(kind === 'fg' || kind === 'fgx'){
       const ks = a - 7 * dir; gxMark(g, 'start', px(ks)); gxBallAt(fx, px(ks), gxF.H / 2, 0);
-      await gxLeg(fx, g, px(ks), dir > 0 ? px(110) - 7.5 : px(-10) + 7.5, { cls: 'kick', apex: 18, ms: 1100 }, animate, tok);
+      await gxLeg(fx, g, px(ks), dir > 0 ? px(110) - gxF.postX : px(-10) + gxF.postX, { cls: 'kick', apex: 18, ms: 1100 }, animate, tok);
       const posts = fx.querySelector('.fxposts.' + (dir > 0 ? 'r' : 'l'));
       if(posts) posts.classList.add(kind === 'fg' ? 'good' : 'miss');
-      if(kind === 'fgx') gxMark(g, 'x', dir > 0 ? px(110) - 12 : px(-10) + 12);
+      if(kind === 'fgx'){ const xo = gxF.postX + 4.5 * (gxF.bs || 1); gxMark(g, 'x', dir > 0 ? px(110) - xo : px(-10) + xo); }
     }else if(kind === 'tdpass' || kind === 'tdrun'){
       const e = dir > 0 ? 104 : -4; gxMark(g, 'start', px(a));
       if(kind === 'tdpass') await gxLeg(fx, g, px(a), px(e), { apex: Math.min(19, 6 + Math.abs(e - a) / 4), ms: 950 }, animate, tok);
@@ -7320,7 +7239,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { cls: 'loss', arrow: true, headcls: 'loss', ms: 600 }, animate, tok);
     }else if(kind === 'pass'){
       gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { apex: /deep/i.test(last.lp.text || '') ? 19 : 7, ms: /deep/i.test(last.lp.text || '') ? 1100 : 650 }, animate, tok);
-      gxSvg('circle', { class: 'fxdot', cx: px(b), cy: gxF.H / 2, r: 2 }, g);
+      gxSvg('circle', { class: 'fxdot', cx: px(b), cy: gxF.H / 2, r: 2 * (gxF.bs || 1) }, g);
     }else{
       const loss = (b - a) * dir < 0;
       gxMark(g, 'start', px(a)); await gxLeg(fx, g, px(a), px(b), { dots: true, dotcls: loss ? 'loss' : '', arrow: true, headcls: loss ? 'loss' : '', ms: 750 }, animate, tok);
@@ -7406,8 +7325,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   }
   async function gxFieldPaint(fx, lg, s, opening){
     if(!fx || !fx.clientWidth) return;
-    const W = fx.clientWidth;
-    if(!gxF || gxF.key !== gxId + '|' + s.mine || Math.abs(gxF.W - W) > 1) gxF = gxBuildField(fx, lg, s, W);
+    const W = fx.clientWidth, H = fx.clientHeight || 66;
+    if(!gxF || gxF.key !== gxId + '|' + s.mine || Math.abs(gxF.W - W) > 1 || Math.abs(gxF.H - H) > 1){ if(gxF) clearTimeout(gxF.zTimer); gxF = gxBuildField(fx, lg, s, W); }
     const r = gxSpot(lg), T = gxT[lg.id] || null, last = T && T.last;
     const first = gxF.lpId === null;
     if((first || opening) && r && !gxKoWait(lg, T)) await gxZoom(fx, gxZoomWant(lg, s, r), false);
@@ -7419,10 +7338,12 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         const nr = r, nk = gxFdKey(lg, s, nr);
         if(nr && nr.down === 1 && nk !== -1 && nk !== gxF.fd) fx.querySelector('.fx-fd').classList.add('off');
         fx.querySelector('.fx-chev').style.opacity = 0;
-        gxF.busy = true;
-        const keep = gxF.hold;
-        gxF.hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'nospot' ? keep : (k === 'tdpass' || k === 'tdrun' || k === 'fg'); });
-        gxF.busy = false;
+        const F0 = gxF; F0.busy = true;
+        const keep = F0.hold;
+        const hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'nospot' ? keep : (k === 'tdpass' || k === 'tdrun' || k === 'fg'); });
+        F0.busy = false;
+        if(gxF !== F0) return;      // 4.11.0: the field was redrawn at a new size (phone turned) while the play drew
+        gxF.hold = hold;
         fx.querySelector('.fx-chev').style.opacity = '';
         const v2 = gxView(), lg2 = (v2 && liveFor(v2.g)) || lg;
         if(!gxF.hold) gxSettle(fx, lg2, s, gxSpot(lg2), gxT[lg.id], false);
@@ -7506,7 +7427,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }else{
       const lc = state === 'in' ? liveClock(lg).replace(' - ', ' · ') : '';
       const stat = state === 'in'
-        ? '<div class="gx-stat' + (left !== null ? ' twomin' : '') + '"><i class="beacon ' + lvDot(s.my, s.op) + '"></i>' + GX_SW + '<span data-clk="' + lg.id + '" data-clkp="g">' + esc(lc) + '</span>' +
+        ? '<div class="gx-stat' + (left !== null ? ' twomin' : '') + '"><i class="beacon ' + lvDot(s.my, s.op) + '"></i>' + GX_SW + esc(lc) +
           '<i class="fuse" style="width:' + (left !== null ? (left / 120 * 100).toFixed(1) : 0) + '%"></i></div>'
         : '<div class="gx-stat fin">FINAL</div>';
       mid = '<div class="gx-score ' + (v.off ? '' : res) + '"><em class="gx-fb"></em><b' + (scorer === 'me' ? ' class="js"' : '') + '>' + (s.my === null ? '–' : s.my) + '</b><i>–</i><span' + (scorer === 'them' ? ' class="js"' : '') + '>' +
@@ -7529,6 +7450,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     // the field, down & distance and the last play (live only)
     const fw = body.querySelector('[data-role="field"]'), lb = body.querySelector('[data-role="last"]');
     fw.hidden = state !== 'in';
+    gxLandSync();
     const lpx = state === 'in' && lg.lastPlay && lg.lastPlay.text ? lg.lastPlay : null;
     lb.hidden = !lpx;
     if(state === 'in'){
@@ -7617,6 +7539,58 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   }
   document.getElementById('gxBack').addEventListener('click', function(){ closeOverlay(gxOverlay); });
   gxOverlay.addEventListener('click', function(e){ if(e.target === gxOverlay) closeOverlay(gxOverlay); });
+  /* 4.11.0 the sideways game view. A live game's slide-up goes full screen with a much bigger field when
+     a phone is turned on its side, or on a computer with the Big screen button (which also asks the
+     browser for full screen; Esc or the button goes back). Turned upright it's the normal card. Only
+     live games: before kickoff and finals stay as they are. The field redraws itself at the new size. */
+  const GX_LANDQ = window.matchMedia ? window.matchMedia('(orientation: landscape) and (max-height: 540px) and (pointer: coarse)') : null;
+  const GX_BIG_ON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><span>Big screen</span>';
+  const GX_BIG_OFF = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4"/></svg><span>Exit big screen</span>';
+  let gxBigOn = false, gxRsz = 0;
+  function gxFsEl(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function gxBigZoom(){ const w = window.innerWidth || 1000, h = window.innerHeight || 560; return Math.max(1, Math.min(3, w / 1000, h / 470)); }
+  function gxLandSync(){
+    const sh = gxOverlay.querySelector('.sheet'), fw = document.querySelector('#gxBody [data-role="field"]'), btn = document.getElementById('gxBig');
+    const live = !!(gxId && fw && !fw.hidden);
+    if(gxBigOn && !live) gxBigSet(false);
+    const on = live && (gxBigOn || !!(GX_LANDQ && GX_LANDQ.matches));
+    if(sh){
+      sh.classList.toggle('land', on); sh.classList.toggle('big', on && gxBigOn);
+      if(on && gxBigOn) sh.style.setProperty('--bz', gxBigZoom().toFixed(3)); else sh.style.removeProperty('--bz');
+    }
+    if(btn){
+      btn.hidden = !live;
+      if(btn.dataset.on !== String(gxBigOn)){ btn.innerHTML = gxBigOn ? GX_BIG_OFF : GX_BIG_ON; btn.dataset.on = String(gxBigOn); btn.setAttribute('aria-pressed', gxBigOn ? 'true' : 'false'); }
+    }
+    return on;
+  }
+  function gxBigSet(on){
+    on = !!on;
+    if(gxBigOn === on) return;
+    gxBigOn = on;
+    try{
+      const de = document.documentElement;
+      if(on){ const rq = de.requestFullscreen || de.webkitRequestFullscreen; if(rq && !gxFsEl()){ const p = rq.call(de); if(p && p.catch) p.catch(function(){}); } }
+      else if(gxFsEl()){ const ex = document.exitFullscreen || document.webkitExitFullscreen; if(ex){ const p = ex.call(document); if(p && p.catch) p.catch(function(){}); } }
+    }catch(e){}
+    gxRelayout(0);
+  }
+  // the phone turned, the window changed size, or Big screen went on or off: lay out again and redraw the field
+  function gxRelayout(ms){
+    clearTimeout(gxRsz);
+    gxRsz = setTimeout(function(){
+      if(!gxId || !gxOverlay.classList.contains('show')){ try{ gxLandSync(); }catch(e){} return; }
+      try{ gxPaint(false); }catch(e){}
+    }, ms);
+  }
+  document.getElementById('gxBig').addEventListener('click', function(){ gxBigSet(!gxBigOn); });
+  window.addEventListener('resize', function(){ if(gxId && gxOverlay.classList.contains('show')) gxRelayout(120); });
+  if(GX_LANDQ){ const f = function(){ gxRelayout(60); }; if(GX_LANDQ.addEventListener) GX_LANDQ.addEventListener('change', f); else if(GX_LANDQ.addListener) GX_LANDQ.addListener(f); }
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(function(ev){
+    document.addEventListener(ev, function(){ if(!gxFsEl() && gxBigOn) gxBigSet(false); else gxRelayout(60); });
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && gxBigOn) gxBigSet(false); });
+  try{ localStorage.removeItem('pickem-clock-log'); }catch(e){}      // 4.11.0: the 4.10.0 clock test's log is no longer used
   /* Every game card opens it too (Live now, Up next, Not on your sheet). The pin,
      the underdog tab and the spread keep their own jobs. */
   function gxCardTap(e){
@@ -7712,7 +7686,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         '<span class="gpts off">\u2013</span>' +
         '<div class="gteams">' + rows + '</div>' +
         '<div class="gstatus pre">' +
-          '<span class="s1"' + clkAttr(lg, 'f') + '>' + s1 + '</span>' +
+          '<span class="s1">' + s1 + '</span>' +
           (s2 ? '<span class="s2">' + s2 + '</span>' : '') +
         '</div>' +
       '</div>' +
@@ -7746,7 +7720,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       });
       const st = card.querySelector('.gstatus .s1');
       if(st && lg){
-        clkMark(st, lg, 'f');
         setText(st, lg.state === 'in' ? liveClock(lg)
                : lg.state === 'post' ? 'Final' : kickoffText(lg, g).day);
       }
@@ -7804,7 +7777,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         if(standsOut(g)) cls += ' offgame';
       }
       status.className = 'gstatus ' + cls;
-      clkMark(status.querySelector('[data-role="s1"]'), lg, 'a'); clkMark(status.querySelector('[data-role="s2"]'), lg, 'b');
       setText(status.querySelector('[data-role="s1"]'), s1);
       const el2 = status.querySelector('[data-role="s2"]');
       setText(el2, s2);
@@ -11258,7 +11230,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     syncAdminUI();
     try{ syncEdgeUI(); }catch(e){}
     try{ snapLogSync(); }catch(e){}
-    try{ clkLogSync(); }catch(e){}
     openOverlay(adminPanel);
   }
   function askPanelCode(){
@@ -11968,40 +11939,6 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       ? arr.length + ' saved. Last: ' + snapClock(arr[0].at) + ', ' + arr[0].kind + (arr[0].reason ? ' (' + arr[0].reason + ')' : '') + '. Copy and paste to Claude.'
       : 'None saved. If Snap fails on this phone, the details land here.';
   }
-  /* 4.10.0: what ESPN's clock did during live games, check by check, on this phone (Admin only), for tuning the ticking clock */
-  function clkLogText(){
-    clkLogSave();
-    const arr = clkLogBuf || getLocal(CLK_LOG_KEY);
-    if(!Array.isArray(arr) || !arr.length) return '';
-    const t0 = arr[0][0];
-    return 'CLOCK LOG (app ' + APP_VERSION + ', ' + arr.length + ' checks, from ' + new Date(t0).toLocaleString() + ')\n' +
-      'seconds | game | Q | clock | status | last play id | type | down & distance | play text\n' +
-      arr.map(function(r){ return ((r[0] - t0) / 1000).toFixed(1) + '|' + r.slice(1).join('|'); }).join('\n');
-  }
-  function clkLogSync(){
-    const el = document.getElementById('clkLogSum');
-    if(!el) return;
-    const arr = clkLogBuf || getLocal(CLK_LOG_KEY);
-    el.textContent = Array.isArray(arr) && arr.length
-      ? arr.length + ' checks saved, last ' + snapClock(arr[arr.length - 1][0]) + '. Copy and paste to Claude after a game.'
-      : 'Records the game clock during live games on this phone. Copy and paste to Claude after a game.';
-  }
-  document.getElementById('clkLogCopy').addEventListener('click', function(){
-    const txt = clkLogText();
-    if(!txt){ toast('No clock log yet'); return; }
-    const fallback = function(){
-      try{
-        const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', '');
-        ta.style.position = 'fixed'; ta.style.top = '-1000px'; document.body.appendChild(ta); ta.select();
-        const ok = document.execCommand('copy'); document.body.removeChild(ta);
-        toast(ok ? 'Copied' : 'Couldn’t copy');
-      }catch(e){ toast('Couldn’t copy'); }
-    };
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){ toast('Copied'); }, fallback);
-      else fallback();
-    }catch(e){ fallback(); }
-  });
   document.getElementById('snapLogCopy').addEventListener('click', function(){
     const txt = snapLogText();
     if(!txt){ toast('No Snap problems saved'); return; }
@@ -12882,12 +12819,14 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      get the four new cards once. The Quick Tips pill opens the full deck.
      Reduced motion: each card holds still on its key moment, no pointer. */
   const LIVETIPS_KEY = 'pickem-livetips';
-  const LIVETIPS_VERSION = 5;     // 4.9.1: the redone game slide-up card (cards + sheet) shows once more to everyone
+  const LIVETIPS_VERSION = 6;     // 4.11.0: the sideways game view card shows once to everyone who's seen the deck
+  // 4.9.1: version 5 showed the redone game slide-up card (cards + sheet) once more to everyone
   // 4.9.0: 'lvsheet' (tap any game) shows once to everyone (version 4).
-  const LT_FULL = ['live', 'lvsheet', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
-  const LT_NEW = ['lvsheet'];
+  const LT_FULL = ['live', 'lvsheet', 'side', 'pin', 'sheets', 'win', 'analysis', 'root', 'chat'];
+  const LT_NEW = ['side'];
+  const LX_PC = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);      // a computer: Big screen instead of turning the phone
   const LT_TITLE = { live: 'Live games update themselves', pin: 'Pin a game', sheets: 'Open &amp; compare sheets',
-    lvsheet: 'Tap any game', win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
+    lvsheet: 'Tap any game', side: LX_PC ? 'Big screen' : 'Turn your phone sideways', win: 'Chance to win', analysis: 'Analysis', root: 'Root for someone', chat: 'Pool Chat' };
   let ltDeck = LT_FULL.slice(), ltIndex = 0, pnTimers = [], lxR = null;
   const liveTipsOverlay = document.getElementById('liveTipsOverlay');
   function liveTipsSeenVer(){
@@ -13038,7 +12977,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function lxDeepPass(o, R){
     const fx = o.querySelector('.fx'); if(!fx || !fx.clientWidth) return;
     // 4.10.0: the taller field, drawn through the same view as the app, so the tip can show the red zone zoom
-    const W = fx.clientWidth, H = 66, F = { va: -10, vb: 110, zs: '', W: W, H: H };
+    const W = fx.clientWidth, H = fx.clientHeight || 66, wide = !!(fx.closest && fx.closest('.sheet.land'));      // 4.11.0: the sideways copy is bigger
+    const bs = wide ? Math.max(1, Math.min(1.5, H / 110)) : 1, ay = wide ? Math.max(1, H / 66 * 0.8) : 1;
+    const F = { va: -10, vb: 110, zs: '', W: W, H: H, land: wide, bs: bs };
     const px = function(y){ return (y - F.va) * W / (F.vb - F.va); }; F.px = px;
     const q = function(sel){ return o.querySelector(sel); };
     if(!fx.querySelector('.fx-zfade')){ const zf = document.createElement('span'); zf.className = 'fx-zfade'; fx.appendChild(zf); }
@@ -13047,7 +12988,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const los = q('.fx-los'), fd = q('.fx-fd'), ch = q('.fx-chev'), ball = q('.fx-ball'), sh = q('.fx-shadow'), band = q('.fx-band'), rz = q('.fx-rz'), pm = q('.fx-pm');
     const ddl = q('.gx-dd .ddl'), tag = q('.lptag'), txt = q('.lptxt'), wsb = q('.ws .wp.me'), wso = q('.ws .wp.op'), wbar = q('.ws .bar i');
     const tv = q('.fxt'), A = 35, B = 86, bandY = 25, bandL = px(bandY);
-    const setBall = function(x, y, r){ if(ball) ball.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (r || 0) + 'deg)'; };
+    const setBall = function(x, y, r){ if(ball) ball.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + (r || 0) + 'deg)' + (bs !== 1 ? ' scale(' + bs.toFixed(2) + ')' : ''); };
     const still = function(els, fn){ els.forEach(function(e){ if(e) e.style.transition = 'none'; }); fn(); if(los) void los.offsetWidth; els.forEach(function(e){ if(e) e.style.transition = ''; }); };
     // before the snap: 1st & 10 at NE 35
     still([los, ch, pm, band, fd], function(){
@@ -13066,14 +13007,14 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     R.later(function(){
       if(fd) fd.classList.add('off'); if(ch) ch.style.opacity = 0;
       const ns = 'http://www.w3.org/2000/svg', g = document.createElementNS(ns, 'g'); if(tv) tv.appendChild(g);
-      const st = document.createElementNS(ns, 'circle'); st.setAttribute('class', 'mk-start'); st.setAttribute('cx', px(A)); st.setAttribute('cy', H / 2); st.setAttribute('r', 2.6); g.appendChild(st);
+      const st = document.createElementNS(ns, 'circle'); st.setAttribute('class', 'mk-start'); st.setAttribute('cx', px(A)); st.setAttribute('cy', H / 2); st.setAttribute('r', 2.6 * bs); g.appendChild(st);
       const p = document.createElementNS(ns, 'path'); p.setAttribute('class', 'tr pass');
-      p.setAttribute('d', 'M' + px(A) + ' ' + H / 2 + 'Q' + (px(A) + px(B)) / 2 + ' ' + (H / 2 - 38) + ' ' + px(B) + ' ' + H / 2); g.appendChild(p);
+      p.setAttribute('d', 'M' + px(A) + ' ' + H / 2 + 'Q' + (px(A) + px(B)) / 2 + ' ' + (H / 2 - 38 * ay) + ' ' + px(B) + ' ' + H / 2); g.appendChild(p);
       const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
       const land = function(){
         p.style.strokeDashoffset = 0; if(ball) ball.classList.remove('spiral'); setBall(px(B), H / 2, 0);
         if(sh) sh.style.opacity = 0;
-        const d = document.createElementNS(ns, 'circle'); d.setAttribute('class', 'fxdot'); d.setAttribute('cx', px(B)); d.setAttribute('cy', H / 2); d.setAttribute('r', 2); g.appendChild(d);
+        const d = document.createElementNS(ns, 'circle'); d.setAttribute('class', 'fxdot'); d.setAttribute('cx', px(B)); d.setAttribute('cy', H / 2); d.setAttribute('r', 2 * bs); g.appendChild(d);
         g.setAttribute('class', 'fxold');
         if(los) los.style.left = px(B) + 'px'; if(ch){ ch.style.left = px(B) + 'px'; ch.style.opacity = 1; }
         if(pm) pm.style.left = Math.min(W - 28, px(B)) + 'px';
@@ -13106,14 +13047,57 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         const a = p.getPointAtLength(s), b2 = p.getPointAtLength(Math.min(L, s + 1)), b0 = p.getPointAtLength(Math.max(0, s - 1));
         const lift = Math.sin(Math.PI * k);
         setBall(a.x, a.y, Math.atan2(b2.y - b0.y, b2.x - b0.x) * 180 / Math.PI);
-        if(sh){ sh.style.transform = 'translate(' + a.x + 'px,' + (H / 2 + 1) + 'px) scale(' + (1 - 0.4 * lift) + ')'; sh.style.opacity = 0.34 * (1 - 0.6 * lift); }
+        if(sh){ sh.style.transform = 'translate(' + a.x + 'px,' + (H / 2 + bs) + 'px) scale(' + ((1 - 0.4 * lift) * bs) + ')'; sh.style.opacity = 0.34 * (1 - 0.6 * lift); }
         p.style.strokeDashoffset = L - s;
         if(k < 1) requestAnimationFrame(f); else land();
       })(t0);
     }, 800);
   }
-  const LX_STILL = { lvsheet: 3300, live: 5300, sheets: 6400, win: 2500, analysis: 4300, root: 6700, chat: 3700 };
+  const LX_STILL = { side: 3200, lvsheet: 3300, live: 5300, sheets: 6400, win: 2500, analysis: 4300, root: 6700, chat: 3700 };
   const LX_PLAY = {
+    /* 4.11.0: the sideways game view. Phone: the phone turns and the game's slide-up becomes the full-screen
+       view, then a deep pass on the bigger field. Computer: the pointer taps Big screen. Titles only. */
+    side: function(st, R){
+      R.stop();
+      R.cap('');
+      const W0 = st.clientWidth || 340, H0 = st.clientHeight || 330, pc = LX_PC;
+      const s = pc ? Math.min((W0 - 20) / 1000, (H0 - 20) / 600) : Math.min((H0 - 24) / 852, (W0 - 20) / 852);
+      st.innerHTML = '<div class="lxrot"><div class="lxscr' + (pc ? ' lxland' : '') + '"></div></div><span class="tipring"></span><span class="tipptr"></span><span class="lxcap"></span>';
+      const rot = st.querySelector('.lxrot'), scr = st.querySelector('.lxscr');
+      const size = function(w, h){
+        scr.style.width = w + 'px'; scr.style.height = h + 'px';
+        rot.style.width = (w * s) + 'px'; rot.style.height = (h * s) + 'px';
+        rot.style.left = Math.round((W0 - w * s) / 2) + 'px'; rot.style.top = Math.round((H0 - h * s) / 2) + 'px';
+      };
+      scr._s = s; scr._y = 0; scr.style.transition = 'none'; scr.style.transform = 'scale(' + s + ')';
+      size(pc ? 1000 : 393, pc ? 600 : 852);
+      scr.innerHTML = lxHTML('live');
+      let o = lxOverlay(scr, lxHTML('gx')); o.classList.add('show');
+      const turn = function(){
+        const sh = o.querySelector('.sheet'), body = sh && [].filter.call(sh.children, function(c){ return !c.classList.contains('gx-top'); })[0];
+        if(body) body.classList.add('gxbody');
+        if(sh) sh.classList.add('land');
+      };
+      if(pc){
+        const top = o.querySelector('.gx-top'), btn = document.createElement('span');
+        btn.className = 'gxbigbtn'; btn.style.display = 'inline-flex'; btn.innerHTML = GX_BIG_ON;
+        if(top) top.insertBefore(btn, top.querySelector('.backbtn'));
+        R.start();
+        R.later(function(){ R.go(btn); }, 400);
+        R.later(function(){ R.tap(function(){ turn(); const sh = o.querySelector('.sheet'); if(sh) sh.classList.add('big'); btn.innerHTML = GX_BIG_OFF; R.later(function(){ R.hide(); lxDeepPass(o, R); }, 300); }); }, 1500);
+        R.later(function(){ LX_PLAY.side(st, R); }, 8600);
+        return;
+      }
+      R.later(function(){ rot.style.transition = R.still ? 'none' : 'transform .8s cubic-bezier(.45,0,.2,1)'; rot.style.transform = 'rotate(-90deg)'; }, 1200);
+      R.later(function(){
+        rot.style.transition = 'none'; rot.style.transform = 'none';
+        scr.classList.add('lxland'); size(852, 393);
+        scr.innerHTML = ''; o = lxOverlay(scr, lxHTML('gx')); o.classList.add('show'); turn();
+        if(!R.still){ scr.style.opacity = 0; void scr.offsetWidth; scr.style.transition = 'opacity .3s ease'; scr.style.opacity = 1; }
+        R.later(function(){ lxDeepPass(o, R); }, 350);
+      }, 2150);
+      R.later(function(){ LX_PLAY.side(st, R); }, 8800);
+    },
     live: function(st, R){
       R.stop();
       const scr = lxScreen(st, lxHTML('live'), 0.74), g = scr.querySelectorAll('.gcard.islive');
