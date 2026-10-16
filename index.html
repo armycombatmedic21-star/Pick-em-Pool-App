@@ -3365,6 +3365,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.4</b> Live games: after a second-half kickoff touchback, the field shows the ball and who has it right away.</div>
       <div class="cl"><b>4.11.3</b> Live games: 2nd down is yellow, the down and play type glow for 5 seconds, and they no longer light up when nothing changed.</div>
       <div class="cl"><b>4.11.2</b> Live games: each new play makes the down and the play type light up for a few seconds. Penalties cut to half the distance to the goal say so. No drive line at halftime, and a punt or turnover no longer counts as part of the kicking team’s drive.</div>
       <div class="cl"><b>4.11.1</b> Live Quick Tips: a Close button, so you can leave without going through every card.</div>
@@ -3810,7 +3811,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.3';
+  const APP_VERSION = '4.11.4';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -6732,10 +6733,16 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const m = [lg.away, lg.home].filter(function(a){ return a && a.indexOf(side) === 0; });
     return m.length === 1 ? m[0] : '';
   }
+  /* Between quarters or at halftime there's no spot to show. 4.11.3: but once the half's kickoff is in,
+     the half has started: a touchback runs no clock, so ESPN can still say "Halftime" until the first snap. */
+  function gxBreak(lg){
+    if(!/HALFTIME|END_PERIOD|END_OF/i.test((lg && lg.statusName) || '')) return false;
+    return !(lg.lastPlay && gxKind(lg.lastPlay) === 'ko');
+  }
   function gxRawY(lg){
     const pos = lg && lg.poss;
     if(!pos) return null;
-    if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
+    if(gxBreak(lg)) return null;
     const m = String(lg.downDistance || '').trim().match(/^(1st|2nd|3rd|4th)\s*&\s*(goal|\d+)\s+at\s+(?:([A-Za-z]{2,4})\s+)?(\d{1,2})$/i);
     if(!m) return null;
     const raw = m[3] ? m[3].toUpperCase() : '', side = gxSideAb(raw, lg), yl = parseInt(m[4], 10);
@@ -6755,7 +6762,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function gxTxtSpot(lg, lp, kickerHint){
     const k = gxKind(lp);
     if(k !== 'ko' && k !== 'punt') return null;
-    if(/HALFTIME|END_PERIOD|END_OF/i.test(lg.statusName || '')) return null;
+    if(gxBreak(lg)) return null;
     const x = String(lp.text || '');
     if(/FUMBLE|MUFF/i.test(x)) return null;
     const K = gxKickOf(lp, lg), kicker = K.kicker || (k === 'punt' ? kickerHint : '') || '';
