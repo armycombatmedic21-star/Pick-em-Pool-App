@@ -2913,6 +2913,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .gx-dd .ddl > span.ddat{ font-size:15px; font-weight:700; color: var(--muted); }
 .gx-dd .dnb{ display:inline-flex; align-items:center; height:26px; padding:0 9px; border-radius:7px; font-size:13px; font-weight:800; letter-spacing:1.2px;
   color:#dce8f5; background: rgba(255,255,255,0.06); border:1px solid rgba(147,174,200,0.28); }
+.gx-dd .dnb.d2{ color:#ffd76a; background: rgba(244,196,61,0.13); border-color: rgba(244,196,61,0.6); box-shadow: 0 0 10px rgba(244,196,61,0.2); }      /* 4.11.3: 2nd down yellow */
 .gx-dd .dnb.d3{ color:#ffb36b; background: rgba(255,154,60,0.14); border-color: rgba(255,154,60,0.6); box-shadow: 0 0 10px rgba(255,154,60,0.22); }
 .gx-dd .dnb.d4{ color:#ff7a86; background: rgba(255,59,78,0.15); border-color: rgba(255,59,78,0.65); box-shadow: 0 0 10px rgba(255,59,78,0.25); }
 .gx-dd .ddl > .rzc{ display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:5px; font-size:10px; font-weight:800; letter-spacing:1px;
@@ -3042,17 +3043,18 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .lxland .sheet.land{ --sl:24px; --sr:24px; --sb:8px; --st:0px; }
 /* 4.11.2: a new down pulses the down pill and a new or changed play flashes the play pill; both glow for 3 seconds */
 .gx-dd .dnb{ --gl: rgba(220,232,245,0.6); }
+.gx-dd .dnb.d2{ --gl: rgba(244,196,61,0.85); }
 .gx-dd .dnb.d3{ --gl: rgba(255,154,60,0.85); }
 .gx-dd .dnb.d4{ --gl: rgba(255,59,78,0.9); }
-.gx-dd .dnb.dngo{ animation: gxdngo 3.4s ease-out; }
-@keyframes gxdngo{ 0%{ transform:scale(1); box-shadow:0 0 0 0 transparent; } 10%{ transform:scale(1.2); box-shadow:0 0 18px 4px var(--gl); }
-  22%{ transform:scale(1); box-shadow:0 0 12px 2px var(--gl); } 88%{ box-shadow:0 0 12px 2px var(--gl); } 100%{ box-shadow:0 0 0 0 transparent; } }
+.gx-dd .dnb.dngo{ animation: gxdngo 6.2s ease-out; }      /* 4.11.3: pulse, then a 5-second glow, then it fades */
+@keyframes gxdngo{ 0%{ transform:scale(1); box-shadow:0 0 0 0 transparent; } 5.5%{ transform:scale(1.2); box-shadow:0 0 18px 4px var(--gl); }
+  12%{ transform:scale(1); box-shadow:0 0 12px 2px var(--gl); } 93%{ box-shadow:0 0 12px 2px var(--gl); } 100%{ box-shadow:0 0 0 0 transparent; } }
 .lptag{ --tg: rgba(220,232,245,0.6); }
 .lptag.scr{ --tg: rgba(53,208,255,0.9); } .lptag.to{ --tg: rgba(255,176,32,0.9); } .lptag.xpl{ --tg: rgba(47,224,127,0.85); }
 .lptag.loss{ --tg: rgba(255,59,78,0.8); } .lptag.pen{ --tg: rgba(244,208,63,0.9); } .lptag.tw{ --tg: rgba(244,196,61,0.85); }
-.lptag.lpgo{ animation: gxlpgo 3.4s ease-out; }
-@keyframes gxlpgo{ 0%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 0 0 transparent; } 7%{ filter:brightness(1.9); transform:scale(1.08); box-shadow:0 0 20px 5px var(--tg); }
-  20%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 12px 2px var(--tg); } 88%{ box-shadow:0 0 12px 2px var(--tg); } 100%{ box-shadow:0 0 0 0 transparent; } }
+.lptag.lpgo{ animation: gxlpgo 6.2s ease-out; }
+@keyframes gxlpgo{ 0%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 0 0 transparent; } 4%{ filter:brightness(1.9); transform:scale(1.08); box-shadow:0 0 20px 5px var(--tg); }
+  11%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 12px 2px var(--tg); } 93%{ box-shadow:0 0 12px 2px var(--tg); } 100%{ box-shadow:0 0 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce){
   .fx *, .fx, .gx-score *, .fx-pm, .lptag.pen, .lptag.xpl, .lptag.lpgo, .gx-dd .dnb.dngo, .gx-stat .beacon, .gx-stat .fuse::after, .gx-dd .ddl > .rzc{ animation:none !important; transition:none !important; }
 }
@@ -3363,6 +3365,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.3</b> Live games: 2nd down is yellow, the down and play type glow for 5 seconds, and they no longer light up when nothing changed.</div>
       <div class="cl"><b>4.11.2</b> Live games: each new play makes the down and the play type light up for a few seconds. Penalties cut to half the distance to the goal say so. No drive line at halftime, and a punt or turnover no longer counts as part of the kicking team’s drive.</div>
       <div class="cl"><b>4.11.1</b> Live Quick Tips: a Close button, so you can leave without going through every card.</div>
       <div class="cl"><b>4.11.0</b> Turn your phone sideways on a live game to see it full screen with a much bigger field. On a computer, click Big screen. The game clock is back to ESPN’s own time, as fast as it comes in.</div>
@@ -3807,7 +3810,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.2';
+  const APP_VERSION = '4.11.3';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -7505,13 +7508,20 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       const dd = fw.querySelector('.gx-dd'), ddl = dd.querySelector('.ddl'), drv = dd.querySelector('.ddrive'), pt = dd.querySelector('.playtag');
       let ddHtml = '';
       if(rr){
-        const cls = rr.down === 3 ? ' d3' : (rr.down === 4 ? ' d4' : '');
+        const cls = rr.down === 2 ? ' d2' : (rr.down === 3 ? ' d3' : (rr.down === 4 ? ' d4' : ''));
         ddHtml = '<b class="dnb' + cls + '">' + ['1ST', '2ND', '3RD', '4TH'][rr.down - 1] + '</b><span>&amp; ' + (rr.goal ? 'Goal' : rr.dist) + '</span>' +
           '<span class="ddat">at ' + esc(rr.at) + '</span>' + (rr.d <= 20 ? '<span class="rzc">Red Zone</span>' : '');
       }
-      // 4.11.2: a new down (or the refs changing it) pulses the down pill, then it glows for 3 seconds
-      if(gxSet(ddl, ddHtml) && ddHtml && ddl.dataset.f && !opening) gxDnGo = Date.now();
-      if(ddHtml) ddl.dataset.f = '1';
+      // 4.11.2: a new down (or the refs changing it) pulses the down pill, then it glows.
+      // 4.11.3: only when what it says is different from the last down shown; blanking out and coming back the same doesn't count
+      // and an older copy of a play ESPN already sent doesn't count either (it's checked against what that play showed)
+      gxSet(ddl, ddHtml);
+      if(ddHtml){
+        const dpid = String((lg.lastPlay && lg.lastPlay.id) || ''), had = Object.prototype.hasOwnProperty.call(gxDnSeen, dpid);
+        const real = had ? gxDnSeen[dpid] !== ddHtml : (!!gxDnLast && ddHtml !== gxDnLast);
+        if(real && !opening) gxDnGo = Date.now();
+        gxDnSeen[dpid] = ddHtml; gxDnLast = ddHtml;
+      }
       const dnb = ddl.querySelector('.dnb'); if(dnb) dnb.classList.toggle('dngo', Date.now() - gxDnGo < GX_GLOW_MS);
       let dtxt = '';
       const ldr = lg.lastPlay && lg.lastPlay.drive && lg.lastPlay.drive.desc;
@@ -7539,9 +7549,12 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       }
       if(lpx){
         const tg = gxTagOf(kind, lpx, lg), tagEl = lb.querySelector('.lptag');
-        // 4.11.2: every new play, or a changed call on the same play, flashes the play pill, then it glows for 3 seconds
-        const tkey = String(lpx.id || '') + '|' + tg[0], tagNew = tagEl.dataset.k !== tkey;
-        if(tagNew && tagEl.dataset.k && !opening){ gxTagGo = Date.now(); tagEl.classList.remove('lpgo'); void tagEl.offsetWidth; }
+        // 4.11.2: every new play, or a changed call on the same play, flashes the play pill, then it glows.
+        // 4.11.3: a play already shown coming back (ESPN re-sending an older copy) doesn't count
+        const pid = String(lpx.id || ''), tkey = pid + '|' + tg[0], tagNew = tagEl.dataset.k !== tkey;
+        const had = Object.prototype.hasOwnProperty.call(gxTagSeen, pid), real = had ? gxTagSeen[pid] !== tg[0] : Object.keys(gxTagSeen).length > 0;
+        gxTagSeen[pid] = tg[0];
+        if(tagNew && real && !opening){ gxTagGo = Date.now(); tagEl.classList.remove('lpgo'); void tagEl.offsetWidth; }
         tagEl.className = 'lptag' + (tg[1] ? ' ' + tg[1] : '') + (Date.now() - gxTagGo < GX_GLOW_MS ? ' lpgo' : '');
         if(tagEl.textContent !== tg[0]) tagEl.textContent = tg[0];
         if(tagNew){ tagEl.dataset.k = tkey; tagEl.style.animation = 'none'; void tagEl.offsetWidth; tagEl.style.animation = ''; }
@@ -7580,10 +7593,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }
     return true;
   }
-  let gxDnGo = 0, gxTagGo = 0;
-  const GX_GLOW_MS = 3400;      // 4.11.2: pulse/flash, then the glow, then it fades
+  let gxDnGo = 0, gxTagGo = 0, gxDnLast = '', gxTagSeen = {}, gxDnSeen = {};
+  const GX_GLOW_MS = 6200;      // 4.11.3: pulse/flash, then a 5-second glow, then it fades
   function gxOpen(gid){
-    gxId = gid; gxBuilt = ''; gxPossWas = ''; gxF = null; gxDnGo = 0; gxTagGo = 0;
+    gxId = gid; gxBuilt = ''; gxPossWas = ''; gxF = null; gxDnGo = 0; gxTagGo = 0; gxDnLast = ''; gxTagSeen = {}; gxDnSeen = {};
     if(!gxPaint(true)) return;
     if(!getLocal(GX_TAP_KEY)){
       put(GX_TAP_KEY, { t: Date.now() });
