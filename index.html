@@ -3040,8 +3040,21 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 .lxrot .lxscr{ left:0; }
 .lxscr.lxland{ padding:0; background:#0b1321; }
 .lxland .sheet.land{ --sl:24px; --sr:24px; --sb:8px; --st:0px; }
+/* 4.11.2: a new down pulses the down pill and a new or changed play flashes the play pill; both glow for 3 seconds */
+.gx-dd .dnb{ --gl: rgba(220,232,245,0.6); }
+.gx-dd .dnb.d3{ --gl: rgba(255,154,60,0.85); }
+.gx-dd .dnb.d4{ --gl: rgba(255,59,78,0.9); }
+.gx-dd .dnb.dngo{ animation: gxdngo 3.4s ease-out; }
+@keyframes gxdngo{ 0%{ transform:scale(1); box-shadow:0 0 0 0 transparent; } 10%{ transform:scale(1.2); box-shadow:0 0 18px 4px var(--gl); }
+  22%{ transform:scale(1); box-shadow:0 0 12px 2px var(--gl); } 88%{ box-shadow:0 0 12px 2px var(--gl); } 100%{ box-shadow:0 0 0 0 transparent; } }
+.lptag{ --tg: rgba(220,232,245,0.6); }
+.lptag.scr{ --tg: rgba(53,208,255,0.9); } .lptag.to{ --tg: rgba(255,176,32,0.9); } .lptag.xpl{ --tg: rgba(47,224,127,0.85); }
+.lptag.loss{ --tg: rgba(255,59,78,0.8); } .lptag.pen{ --tg: rgba(244,208,63,0.9); } .lptag.tw{ --tg: rgba(244,196,61,0.85); }
+.lptag.lpgo{ animation: gxlpgo 3.4s ease-out; }
+@keyframes gxlpgo{ 0%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 0 0 transparent; } 7%{ filter:brightness(1.9); transform:scale(1.08); box-shadow:0 0 20px 5px var(--tg); }
+  20%{ filter:brightness(1); transform:scale(1); box-shadow:0 0 12px 2px var(--tg); } 88%{ box-shadow:0 0 12px 2px var(--tg); } 100%{ box-shadow:0 0 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce){
-  .fx *, .fx, .gx-score *, .fx-pm, .lptag.pen, .lptag.xpl, .gx-stat .beacon, .gx-stat .fuse::after, .gx-dd .ddl > .rzc{ animation:none !important; transition:none !important; }
+  .fx *, .fx, .gx-score *, .fx-pm, .lptag.pen, .lptag.xpl, .lptag.lpgo, .gx-dd .dnb.dngo, .gx-stat .beacon, .gx-stat .fuse::after, .gx-dd .ddl > .rzc{ animation:none !important; transition:none !important; }
 }
 </style>
 </head>
@@ -3350,6 +3363,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.2</b> Live games: each new play makes the down and the play type light up for a few seconds. Penalties cut to half the distance to the goal say so. No drive line at halftime, and a punt or turnover no longer counts as part of the kicking team’s drive.</div>
       <div class="cl"><b>4.11.1</b> Live Quick Tips: a Close button, so you can leave without going through every card.</div>
       <div class="cl"><b>4.11.0</b> Turn your phone sideways on a live game to see it full screen with a much bigger field. On a computer, click Big screen. The game clock is back to ESPN’s own time, as fast as it comes in.</div>
       <div class="cl"><b>4.10.0</b> Live games: the game clock now ticks along smoothly between updates. Inside the 20 the field zooms in to the 30 and the end zone so you can see every yard, and the field is a little taller.</div>
@@ -3793,7 +3807,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.1';
+  const APP_VERSION = '4.11.2';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -6868,7 +6882,23 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   // 4.9.2: a big play is a run of 10+ yards or a pass of 20+
   function gxBig(kind, y){ return ((kind === 'run' || kind === 'tdrun') && y >= 10) || ((kind === 'pass' || kind === 'tdpass') && y >= 20); }
   function gxYd(n){ n = Math.abs(n); return n + (n === 1 ? ' YD' : ' YDS'); }
-  function gxTagOf(kind, lp){
+  // 4.11.2: a penalty's normal yardage, to tell when it was cut to half the distance to the goal
+  function gxPenStd(foul){
+    const f = String(foul || '');
+    if(/rough|face ?mask|unsportsmanlike|taunt|horse|clip|chop|unnecessary|personal foul|lowering|leverag|leaping/i.test(f)) return 15;
+    if(/offensive holding|^holding|block in (the )?back|illegal block|tripping|offensive pass interference|illegal bat|illegal kick/i.test(f)) return 10;
+    return 5;
+  }
+  function gxPenHalf(lp, lg){
+    const x = String(lp && lp.text || '');
+    if(/half the distance/i.test(x)) return true;
+    const P = gxPenOf(lp, lg), pm = /PENALTY on ([A-Z]{2,4})\b/i.exec(x), who = pm && lg ? gxSideAb(pm[1], lg) : '';
+    if(!P.yds || P.dec || P.off || P.at === null || !who) return false;
+    if(P.yds < 5) return true;                                            // nothing is under 5 yards unless it was halved
+    const toGoal = who === lg.away ? P.at : 100 - P.at;                  // from the spot to the fouling team's own goal line
+    return P.yds < gxPenStd(P.foul) && Math.abs(2 * P.yds - toGoal) <= 1;
+  }
+  function gxTagOf(kind, lp, lg){
     const y = gxYards(lp), big = gxBig(kind, y) ? 'xpl' : '';
     switch(kind){
       case 'run': return y < 0 ? ['RUN · −' + (-y), 'loss'] : (y === 0 ? ['RUN · NO GAIN', ''] : ['RUN · ' + gxYd(y), big]);
@@ -6900,6 +6930,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         const P = gxPenOf(lp, null), f = gxFoul(P.foul);
         if(P.off) return ['OFFSETTING PENALTIES', 'pen'];
         if(P.dec) return [(f || 'PENALTY') + ' · DECLINED', 'pen'];
+        if(lg && gxPenHalf(lp, lg)){ const lbl = (f || 'PENALTY') + ' · HALF THE DISTANCE'; return [lbl.length > 30 ? 'PENALTY · HALF THE DISTANCE' : lbl, 'pen']; }
         return [(f || 'PENALTY') + (P.yds ? ' · ' + gxYd(P.yds) : ''), 'pen'];
       }
       case 'twomin': return ['2-MIN WARNING', 'tw'];
@@ -7256,6 +7287,16 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     return (f > 0 && f < 100) ? Math.round(f * 10) : -1;
   }
   /* Lines, drive band, red zone, ball and the possession marker for the current spot. */
+  // 4.11.2: ESPN's drive for the last play counts only while that team still has the ball. A punt, kickoff,
+  // interception, fumble or missed field goal (or the other team now having it, like a turnover on downs) starts over.
+  function gxDriveOk(lg, r){
+    const lp = lg && lg.lastPlay;
+    if(!lp || !lp.drive) return false;
+    const k = gxKind(lp);
+    if(k === 'punt' || k === 'ko' || k === 'int' || k === 'fum' || k === 'fgx') return false;
+    if(r && lp.team && lp.team !== r.pos) return false;
+    return true;
+  }
   function gxSettle(fx, lg, s, r, T, instant){
     const px = gxF.px, wrap = fx.parentNode, los = fx.querySelector('.fx-los'), fd = fx.querySelector('.fx-fd'), ch = fx.querySelector('.fx-chev');
     const band = fx.querySelector('.fx-band'), rz = fx.querySelector('.fx-rz'), pw = wrap.querySelector('.fx-poss'), pm = pw.querySelector('.fx-pm');
@@ -7288,7 +7329,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     gxF.fd = fdOk ? Math.round(fdy * 10) : -1;
     // the drive so far
     let ds = null;
-    const dstart = lg.lastPlay && lg.lastPlay.drive && lg.lastPlay.drive.start;
+    const dstart = gxDriveOk(lg, r) ? lg.lastPlay.drive.start : '';
     const dm = dstart ? /([A-Z]{2,4})\s+(\d{1,2})/.exec(dstart) : null, dsd = dm ? gxSideAb(dm[1], lg) : '';
     if(dsd){ const yl = +dm[2]; ds = own(dsd === lg.away ? yl : 100 - yl); }
     else if(T && T.dsY !== null && T.dsPos === r.pos) ds = own(T.dsY);
@@ -7340,6 +7381,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         const nr = r, nk = gxFdKey(lg, s, nr);
         if(nr && nr.down === 1 && nk !== -1 && nk !== gxF.fd) fx.querySelector('.fx-fd').classList.add('off');
         fx.querySelector('.fx-chev').style.opacity = 0;
+        // 4.11.2: a kick or a turnover ends the drive, so its shading fades as the play starts
+        if(kind === 'punt' || kind === 'ko' || kind === 'int' || kind === 'fum' || kind === 'fgx') fx.querySelector('.fx-band').style.opacity = 0;
         const F0 = gxF; F0.busy = true;
         const keep = F0.hold;
         const hold = await gxDrawPlay(fx, last, lg, s, true).then(function(k){ return k === 'nospot' ? keep : (k === 'tdpass' || k === 'tdrun' || k === 'fg'); });
@@ -7460,15 +7503,22 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       const koWait = !!(T && T.last && gxKoWait(lg, T) && !(gxF && gxF.hold && Date.now() - T.last.t < PLAY_MIN * 2));
       const rs = koWait ? null : gxSpot(lg), rr = rs && !rs.txt ? rs : null;
       const dd = fw.querySelector('.gx-dd'), ddl = dd.querySelector('.ddl'), drv = dd.querySelector('.ddrive'), pt = dd.querySelector('.playtag');
+      let ddHtml = '';
       if(rr){
         const cls = rr.down === 3 ? ' d3' : (rr.down === 4 ? ' d4' : '');
-        gxSet(ddl, '<b class="dnb' + cls + '">' + ['1ST', '2ND', '3RD', '4TH'][rr.down - 1] + '</b><span>&amp; ' + (rr.goal ? 'Goal' : rr.dist) + '</span>' +
-          '<span class="ddat">at ' + esc(rr.at) + '</span>' + (rr.d <= 20 ? '<span class="rzc">Red Zone</span>' : ''));
-      }else gxSet(ddl, '');
+        ddHtml = '<b class="dnb' + cls + '">' + ['1ST', '2ND', '3RD', '4TH'][rr.down - 1] + '</b><span>&amp; ' + (rr.goal ? 'Goal' : rr.dist) + '</span>' +
+          '<span class="ddat">at ' + esc(rr.at) + '</span>' + (rr.d <= 20 ? '<span class="rzc">Red Zone</span>' : '');
+      }
+      // 4.11.2: a new down (or the refs changing it) pulses the down pill, then it glows for 3 seconds
+      if(gxSet(ddl, ddHtml) && ddHtml && ddl.dataset.f && !opening) gxDnGo = Date.now();
+      if(ddHtml) ddl.dataset.f = '1';
+      const dnb = ddl.querySelector('.dnb'); if(dnb) dnb.classList.toggle('dngo', Date.now() - gxDnGo < GX_GLOW_MS);
       let dtxt = '';
       const ldr = lg.lastPlay && lg.lastPlay.drive && lg.lastPlay.drive.desc;
-      if(koWait) dtxt = '';
-      else if(ldr && !/^\s*0 plays?\b/i.test(ldr)) dtxt = 'Drive · ' + String(ldr).replace(/,\s*/g, ' · ').replace(/yards?/i, 'yds');
+      // 4.11.2: no drive line at halftime either
+      const halfT = /HALFTIME/i.test(lg.statusName || '') || /end (of )?(half|quarter 2|regulation)/i.test(String(lg.lastPlay ? lg.lastPlay.type + ' ' + lg.lastPlay.text : ''));
+      if(koWait || halfT) dtxt = '';
+      else if(ldr && !/^\s*0 plays?\b/i.test(ldr) && gxDriveOk(lg, rs)) dtxt = 'Drive · ' + String(ldr).replace(/,\s*/g, ' · ').replace(/yards?/i, 'yds');
       else if(rr && T && T.plays > 0 && T.dsPos === rr.pos && T.dsY !== null){
         const yds = Math.round((rr.y - T.dsY) * (rr.pos === lg.away ? 1 : -1));
         dtxt = 'Drive · ' + T.plays + ' play' + (T.plays === 1 ? '' : 's') + ' · ' + yds + ' yds';
@@ -7488,10 +7538,13 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         else { const c = midEl.querySelector('.gx-stat'); if(c){ c.classList.remove('hit'); void c.offsetWidth; c.classList.add('hit'); } }
       }
       if(lpx){
-        const tg = gxTagOf(kind, lpx), tagEl = lb.querySelector('.lptag');
-        tagEl.className = 'lptag' + (tg[1] ? ' ' + tg[1] : '');
+        const tg = gxTagOf(kind, lpx, lg), tagEl = lb.querySelector('.lptag');
+        // 4.11.2: every new play, or a changed call on the same play, flashes the play pill, then it glows for 3 seconds
+        const tkey = String(lpx.id || '') + '|' + tg[0], tagNew = tagEl.dataset.k !== tkey;
+        if(tagNew && tagEl.dataset.k && !opening){ gxTagGo = Date.now(); tagEl.classList.remove('lpgo'); void tagEl.offsetWidth; }
+        tagEl.className = 'lptag' + (tg[1] ? ' ' + tg[1] : '') + (Date.now() - gxTagGo < GX_GLOW_MS ? ' lpgo' : '');
         if(tagEl.textContent !== tg[0]) tagEl.textContent = tg[0];
-        if(tagEl.dataset.id !== String(lpx.id || '')){ tagEl.dataset.id = String(lpx.id || ''); tagEl.style.animation = 'none'; void tagEl.offsetWidth; tagEl.style.animation = ''; }
+        if(tagNew){ tagEl.dataset.k = tkey; tagEl.style.animation = 'none'; void tagEl.offsetWidth; tagEl.style.animation = ''; }
         const tx = lb.querySelector('.lptxt'); if(tx.textContent !== lpx.text) tx.textContent = lpx.text;
       }
       const go = function(){ gxFieldPaint(fx, lg, s, opening).then(function(){ if(gxF && flashKey) gxF.flashAt = flashKey; }).catch(function(){}); };
@@ -7527,8 +7580,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }
     return true;
   }
+  let gxDnGo = 0, gxTagGo = 0;
+  const GX_GLOW_MS = 3400;      // 4.11.2: pulse/flash, then the glow, then it fades
   function gxOpen(gid){
-    gxId = gid; gxBuilt = ''; gxPossWas = ''; gxF = null;
+    gxId = gid; gxBuilt = ''; gxPossWas = ''; gxF = null; gxDnGo = 0; gxTagGo = 0;
     if(!gxPaint(true)) return;
     if(!getLocal(GX_TAP_KEY)){
       put(GX_TAP_KEY, { t: Date.now() });
@@ -13021,8 +13076,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         if(pm) pm.style.left = Math.min(W - 28, px(B)) + 'px';
         if(band) band.style.width = Math.max(0, px(B) - bandL) + 'px';
         if(rz) rz.classList.add('on'); fx.classList.add('rzone');
-        if(ddl) ddl.innerHTML = '<b class="dnb">1ST</b><span>&amp; 10</span><span class="ddat">at CAR 14</span><span class="rzc">Red Zone</span>';
-        if(tag){ tag.className = 'lptag xpl'; tag.textContent = 'PASS \u00B7 51 YDS'; }
+        if(ddl) ddl.innerHTML = '<b class="dnb' + (R.still ? '' : ' dngo') + '">1ST</b><span>&amp; 10</span><span class="ddat">at CAR 14</span><span class="rzc">Red Zone</span>';
+        if(tag){ tag.className = 'lptag xpl' + (R.still ? '' : ' lpgo'); tag.textContent = 'PASS \u00B7 51 YDS'; }
         if(txt) txt.textContent = 'Drake Maye pass deep right to Stefon Diggs for 51 yards';
         if(wsb){ wsb.textContent = '93%'; } if(wso){ wso.textContent = '7%'; } if(wbar) wbar.style.width = '93%';
         R.later(function(){
