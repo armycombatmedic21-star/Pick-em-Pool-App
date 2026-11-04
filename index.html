@@ -2624,6 +2624,11 @@
   #snapCheck .sheetrow{ animation: snaprowin .35s ease-out both; }
   @keyframes snaprowin{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
   #snapCheck .confirmrow{ margin-top:14px; flex:none; }
+  /* 4.11.5 Snap: Set & Lock In (the app's Lock In button) / Set Picks, Lock Later / Cancel, with a note above.
+     The list scrolls on long weeks; the note and buttons never get squeezed. */
+  #snapCheck .confirmrow > *{ flex:none; }
+  #snapCheck .snaplknote{ flex:none; display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; color: var(--muted); font-size:13px; font-weight:700; text-align:center; }
+  #snapCheck .snaplknote svg{ width:13px; height:13px; color: var(--faint); flex:none; }
   @media (prefers-reduced-motion: reduce){
     .snaphero, .snaphero::before, .snaphero::after, #snapCheck .sheetrow{ animation:none; }
     .snaphero::before, .snaphero::after{ display:none; }
@@ -3239,7 +3244,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <div class="sheethead"><h2 class="sheettitle">Check Your Picks</h2><span class="sheetmeta" id="snapMeta"></span></div>
       <p class="snapsub" id="snapSub"></p>
       <div class="sheetcard"><div class="sheetcols" aria-hidden="true"><span>Pts</span><span>Pick</span><span>Spread</span></div><div id="snapList"></div></div>
-      <div class="confirmrow"><button class="confirmyes" type="button" id="snapSet">Set My Picks</button><button class="confirmcancel" type="button" id="snapCancel3">Cancel</button></div>
+      <div class="snaplknote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Locking is final. Only the admin can unlock.</div>
+      <div class="confirmrow"><button class="lkbtn" type="button" id="snapSetLock"><span class="lkico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Set &amp; Lock In Picks</button><button class="confirmyes" type="button" id="snapSet">Set Picks, Lock Later</button><button class="confirmcancel" type="button" id="snapCancel3">Cancel</button></div>
     </div>
   </div>
 </div>
@@ -3365,6 +3371,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.5</b> Snap: after checking your picks, choose Set &amp; Lock In Picks (asks once, like Lock In) or Set Picks, Lock Later.</div>
       <div class="cl"><b>4.11.4</b> Live games: after a second-half kickoff touchback, the field shows the ball and who has it right away.</div>
       <div class="cl"><b>4.11.3</b> Live games: 2nd down is yellow, the down and play type glow for 5 seconds, and they no longer light up when nothing changed.</div>
       <div class="cl"><b>4.11.2</b> Live games: each new play makes the down and the play type light up for a few seconds. Penalties cut to half the distance to the goal say so. No drive line at halftime, and a punt or turnover no longer counts as part of the kicking team’s drive.</div>
@@ -3811,7 +3818,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.4';
+  const APP_VERSION = '4.11.5';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5634,9 +5641,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       'Once you lock in, your picks are set for the week. Only the admin can unlock them.';
     openOverlay(lockAskOverlay);
   }
-  document.getElementById('lockAskCancel').addEventListener('click', function(){ closeOverlay(lockAskOverlay); });
-  lockAskOverlay.addEventListener('click', function(e){ if(e.target === lockAskOverlay) closeOverlay(lockAskOverlay); });
+  document.getElementById('lockAskCancel').addEventListener('click', function(){ closeOverlay(lockAskOverlay); snapLockNo(); });
+  lockAskOverlay.addEventListener('click', function(e){ if(e.target === lockAskOverlay){ closeOverlay(lockAskOverlay); snapLockNo(); } });
   document.getElementById('lockAskGo').addEventListener('click', function(){
+    snapLockAsk = false;
     closeOverlay(lockAskOverlay);
     doLock();
   });
@@ -12118,8 +12126,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     document.getElementById('snapMeta').textContent = n + ' picks · ' + sheetTotal(n) + ' pts';
     document.getElementById('snapSub').textContent = 'Read from your Week ' + job.week + ' sheet.';
   }
-  // Set My Picks: the sheet slides down, then the cards move into the paper's order.
-  function snapApply(){
+  // Set Picks (Lock Later) / Set & Lock In: the sheet slides down, then the cards move into the paper's order.
+  function snapApply(lock){
     const job = snapJob;
     if(!job || !job.picks || job.done) return;
     job.applied = true; job.done = true;
@@ -12149,10 +12157,16 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       saveAll();
       stampLine(currentWeek);
       render();
-      edgeSlide(first, null, true);
+      const ms = edgeSlide(first, null, true) || 0;
+      // 4.11.5: Set & Lock In opens the usual Lock In slide-up once the cards settle; Lock Later just says so
+      if(lock) setTimeout(function(){ if(weekLocked || overlayStack.length) return; snapLockAsk = true; askLockIn(); }, ms + 250);
+      else toast('Picks set \u00B7 Not locked yet');
     }, 400);
   }
-  document.getElementById('snapSet').addEventListener('click', snapApply);
+  let snapLockAsk = false;           // 4.11.5: the Lock In slide-up came from Snap
+  function snapLockNo(){ if(!snapLockAsk) return; snapLockAsk = false; toast('Picks set \u00B7 Not locked yet'); }
+  document.getElementById('snapSet').addEventListener('click', function(){ snapApply(false); });
+  document.getElementById('snapSetLock').addEventListener('click', function(){ snapApply(true); });
   ['snapCamIn', 'snapLibIn'].forEach(function(id){
     document.getElementById(id).addEventListener('change', function(){
       const f = this.files && this.files[0];
