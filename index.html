@@ -2616,21 +2616,37 @@
   @media (max-height:700px){ .snapframe{ --fh:196px; width:151px; margin:16px auto 18px; } }
   #snapOverlay .snapstage > p.snapwait{ color: var(--muted); font-size:13px; font-weight:600; margin:0 auto 18px; }
   #snapCheck{ flex:1 1 auto; }
-  #snapCheck .sheethead{ margin:2px 0 10px; }
+  #snapCheck .sheethead{ margin:0 0 6px; align-items:center; }
   #snapCheck .sheettitle{ font-size:21px; text-align:left; margin:0; }
-  #snapOverlay #snapCheck > p.snapsub{ text-align:left; max-width:none; margin:-4px 0 12px; color: var(--muted); font-size:13px; font-weight:600; }
+  #snapOverlay #snapCheck > p.snapsub{ text-align:left; max-width:none; margin:-3px 0 9px; color:#c9d6e3; font-size:13.5px; font-weight:700; }
   #snapCheck .sheetcard{ flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
   #snapCheck .sheetcols{ position:sticky; top:0; background: var(--card); z-index:1; }
+  /* 4.11.6: the column header sits flush at the top when the list scrolls (no row peeking above it) */
+  #snapCheck .sheetcard{ padding-top:0; }
+  #snapCheck .sheetcols{ box-sizing:border-box; height:28px; padding-top:4px; }
   #snapCheck .sheetrow{ animation: snaprowin .35s ease-out both; }
   @keyframes snaprowin{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
   #snapCheck .confirmrow{ margin-top:14px; flex:none; }
-  /* 4.11.5 Snap: Set & Lock In (the app's Lock In button) / Set Picks, Lock Later / Cancel, with a note above.
-     The list scrolls on long weeks; the note and buttons never get squeezed. */
+  /* 4.11.5 Snap: Set & Lock In (the app's Lock In button) / Set Picks, Lock Later / Cancel.
+     4.11.6 Review Your Picks: Lock Later + Cancel share a row; this slide-up can grow to 10 pts from the top
+     (it's only as tall as the games need); the week sits in a chip; the list breathes cyan 3 times, then holds
+     a soft cyan edge. The list scrolls only if it still doesn't fit; the buttons never get squeezed. */
   #snapCheck .confirmrow > *{ flex:none; }
-  #snapCheck .snaplknote{ flex:none; display:flex; align-items:center; justify-content:center; gap:7px; margin:12px 0 0; color: var(--muted); font-size:13px; font-weight:700; text-align:center; }
-  #snapCheck .snaplknote svg{ width:13px; height:13px; color: var(--faint); flex:none; }
+  #snapCheck .confirmrow{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  #snapCheck .confirmrow .lkbtn{ grid-column:1 / -1; }
+  #snapCheck .confirmrow .confirmyes, #snapCheck .confirmrow .confirmcancel{ height:52px; padding:0 8px; line-height:1.15; }
+  #snapCheck .confirmrow .confirmyes{ font-size:15px; }
+  #snapOverlay .snapcard.tall{ max-height: calc(100vh - 10px - env(safe-area-inset-top)); }
+  html.ios #snapOverlay .snapcard.tall{ max-height: calc(var(--vvh, 1vh) * 100 - 10px - env(safe-area-inset-top)); }
+  .snapwk{ flex:none; font-size:11.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color: var(--cyan);
+    padding:5px 11px; border-radius:999px; border:1px solid rgba(53,208,255,0.45); background: rgba(53,208,255,0.08); }
+  .snapwk:empty{ display:none; }
+  #snapCheck .sheetcard{ border-color: rgba(53,208,255,0.38); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 0 10px rgba(53,208,255,0.10);
+    animation: snapglow 2.4s ease-in-out 3; }
+  @keyframes snapglow{ 0%, 100%{ border-color: rgba(53,208,255,0.38); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 0 10px rgba(53,208,255,0.10); }
+    50%{ border-color: rgba(53,208,255,0.88); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 0 18px rgba(53,208,255,0.28); } }
   @media (prefers-reduced-motion: reduce){
-    .snaphero, .snaphero::before, .snaphero::after, #snapCheck .sheetrow{ animation:none; }
+    .snaphero, .snaphero::before, .snaphero::after, #snapCheck .sheetrow, #snapCheck .sheetcard{ animation:none; }
     .snaphero::before, .snaphero::after{ display:none; }
     /* 4.6.4: a still scan line across the middle, so the screen doesn't look stuck */
     .scanlaser, .scanhalo, .scangrid{ animation:none; transform: translateY(calc(var(--fh) / 2)); }
@@ -3241,10 +3257,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <div class="confirmrow"><button class="confirmcancel" type="button" id="snapCancel2">Cancel</button></div>
     </div>
     <div class="snapstage" id="snapCheck" hidden>
-      <div class="sheethead"><h2 class="sheettitle">Check Your Picks</h2><span class="sheetmeta" id="snapMeta"></span></div>
-      <p class="snapsub" id="snapSub"></p>
+      <div class="sheethead"><h2 class="sheettitle">Review Your Picks</h2><span class="snapwk" id="snapMeta"></span></div>
+      <p class="snapsub" id="snapSub">Make sure every pick matches your sheet.</p>
       <div class="sheetcard"><div class="sheetcols" aria-hidden="true"><span>Pts</span><span>Pick</span><span>Spread</span></div><div id="snapList"></div></div>
-      <div class="snaplknote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Locking is final. Only the admin can unlock.</div>
       <div class="confirmrow"><button class="lkbtn" type="button" id="snapSetLock"><span class="lkico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>Set &amp; Lock In Picks</button><button class="confirmyes" type="button" id="snapSet">Set Picks, Lock Later</button><button class="confirmcancel" type="button" id="snapCancel3">Cancel</button></div>
     </div>
   </div>
@@ -3371,6 +3386,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.6</b> Snap: the check screen is now Review Your Picks. It shows every game without scrolling (up to 16), with the week at the top, a glowing list, and Lock Later next to Cancel.</div>
       <div class="cl"><b>4.11.5</b> Snap: after checking your picks, choose Set &amp; Lock In Picks (asks once, like Lock In) or Set Picks, Lock Later.</div>
       <div class="cl"><b>4.11.4</b> Live games: after a second-half kickoff touchback, the field shows the ball and who has it right away.</div>
       <div class="cl"><b>4.11.3</b> Live games: 2nd down is yellow, the down and play type glow for 5 seconds, and they no longer light up when nothing changed.</div>
@@ -3818,7 +3834,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.5';
+  const APP_VERSION = '4.11.6';
   const APP_BUILT = 'Oct 12, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -12122,9 +12138,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         '<span class="sheetspread">' + s + '</span>' +
       '</div>';
     }).join('');
-    const n = job.picks.length;
-    document.getElementById('snapMeta').textContent = n + ' picks · ' + sheetTotal(n) + ' pts';
-    document.getElementById('snapSub').textContent = 'Read from your Week ' + job.week + ' sheet.';
+    document.getElementById('snapMeta').textContent = 'Week ' + job.week + ' sheet';   // 4.11.6: the week chip
   }
   // Set Picks (Lock Later) / Set & Lock In: the sheet slides down, then the cards move into the paper's order.
   function snapApply(lock){
