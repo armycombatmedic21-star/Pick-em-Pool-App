@@ -9,8 +9,9 @@
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link id="manifestLink" rel="manifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Confidence Pool">
+<meta name="apple-mobile-web-app-title" content="Pick'emPool">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Confidence Pool Picker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3841,7 +3842,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.9';
+  const APP_VERSION = '4.11.10';
   const APP_BUILT = 'Nov 14, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5221,23 +5222,18 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   (function installManifest(){
     try{
       const manifest = {
-        name: "Confidence Pool",
-        short_name: "Pool",
+        name: "Pick'em Pool",
+        short_name: "Pick'emPool",       // 4.11.10: Home Screen name
         start_url: ".",
         display: "standalone",
         background_color: "#060b16",
         theme_color: "#060b16",
         orientation: "any",      // 4.11.0: lets a live game turn sideways on Android home-screen installs
-        icons: [{
-          src: "data:image/svg+xml," + encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
-            '<rect width="192" height="192" rx="34" fill="#0d1626"/>' +
-            '<text x="96" y="126" font-family="Helvetica,Arial,sans-serif" font-size="104" ' +
-            'font-weight="bold" fill="#35d0ff" text-anchor="middle">CP</text></svg>'),
-          sizes: "192x192",
-          type: "image/svg+xml",
-          purpose: "any"
-        }]
+        // 4.11.10: shield + football icon (files next to index.html; full URLs because this manifest is a blob)
+        icons: [
+          { src: new URL('apple-touch-icon.png', location.href).href, sizes: "180x180", type: "image/png", purpose: "any" },
+          { src: new URL('icon-512.png', location.href).href, sizes: "512x512", type: "image/png", purpose: "any" }
+        ]
       };
       const url = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'}));
       const link = document.getElementById('manifestLink');
