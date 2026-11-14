@@ -1083,6 +1083,9 @@
     display:flex; align-items:center; justify-content:center; box-shadow: 0 0 6px rgba(61,220,132,0.55); }
   .lbsheets .ok svg{ width:8px; height:8px; color:#03131f; }
   .lbsheets.dim{ opacity:.45; }
+  /* 4.11.8: Basic/Advanced pill removed (Advanced always on); Sheets pill moves to the right */
+  .lbtop{ justify-content:flex-end; }
+  .lbtop .lbmode:not(.lbsheets){ display:none; }
   .lbhead{ display:flex; align-items:flex-end; gap:8px; padding:0 8px 0 4px; margin-bottom:4px; }
   .lbtitle{ flex:1; min-width:0; font-size:10px; font-weight:800; letter-spacing:1.6px; text-transform:uppercase; color: var(--muted); }
   .lbwinh, .lbptsh{ flex:none; text-align:right; font-size:9px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color: var(--faint); }
@@ -3156,8 +3159,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         <div class="scoreprog" id="scoreProg" hidden><i></i></div>
         <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
-      <div class="lbcard">
-        <div class="lbtop"><button type="button" class="lbmode" id="lbMode" aria-pressed="false">Basic</button><button type="button" class="lbmode lbsheets" id="shareBtn">Sheets</button></div>
+      <div class="lbcard adv">
+        <div class="lbtop"><button type="button" class="lbmode lbsheets" id="shareBtn">Open Sheets</button></div>
         <div class="lbhead"><span class="lbtitle">Leaderboard</span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
         <div id="lbList" class="lblist"></div>
         <div class="lbnote" id="lbNote"></div>
@@ -3835,7 +3838,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.7';
+  const APP_VERSION = '4.11.8';
   const APP_BUILT = 'Nov 14, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9282,7 +9285,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const b = document.getElementById('shareBtn');
     if(!b) return;
     const on = sharingOn(currentWeek);
-    b.innerHTML = ICON_DOC + 'Sheets' + (on ? ICON_OKDOT : '');
+    b.innerHTML = ICON_DOC + (on ? 'Sheets' + ICON_OKDOT : 'Open Sheets');   // 4.11.8
     b.classList.toggle('on', on);
     b.classList.toggle('dim', !weekLocked);
     b.setAttribute('aria-label', on ? 'Sheets, yours is open' : 'Open Sheets');
@@ -9351,7 +9354,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 
   /* Tapping someone who's opened their sheet. If yours isn't open yet, this is
      where the offer gets made — agree and it goes straight through to theirs. */
-  document.getElementById('lbMode').addEventListener('click', function(){
+  (document.getElementById('lbMode') || document.createElement('button')).addEventListener('click', function(){   // 4.11.8: pill removed; kept inert
     const on = !lbAdv();
     lbAdvMem = hasLocal ? null : on;
     put(LBMODE_KEY, { adv: on ? 1 : 0 });
@@ -9914,16 +9917,12 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   function lbAdv(){
     if(lbAdvMem !== null) return lbAdvMem;
     const v = getLocal(LBMODE_KEY);
-    return v ? !!v.adv : true;     // 4.5.0: Advanced unless you chose Basic
+    return true;                   // 4.11.8: Advanced always (Basic removed)
   }
   function syncLbMode(){
-    const btn = document.getElementById('lbMode');
-    const card = btn && btn.closest ? btn.closest('.lbcard') : null;
-    if(!btn || !card) return;
-    const on = lbAdv();
-    card.classList.toggle('adv', on);
-    btn.textContent = on ? 'Advanced' : 'Basic';
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    const card = document.querySelector('#liveBody .lbcard') || document.querySelector('.lbcard');
+    if(!card) return;
+    card.classList.toggle('adv', lbAdv());
   }
 
   /* Where the ball is, from ESPN's possession + down & distance
@@ -13257,8 +13256,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     sheets: function(st, R){
       R.stop();
       const scr = lxScreen(st, lxHTML('top'), 0.72), sb = scr.querySelector('.lbsheets');
-      const okd = sb ? sb.querySelector('.ok') : null;
-      if(sb){ sb.classList.remove('on', 'dim'); if(okd) okd.remove(); }
+      const sbIc = sb && sb.querySelector('svg') ? sb.querySelector('svg').outerHTML : '';   // the sheet icon comes first
+      const okH = (typeof ICON_OKDOT === 'string') ? ICON_OKDOT : '';
+      if(sb){ sb.classList.remove('on', 'dim'); sb.innerHTML = sbIc + 'Open Sheets'; }
       const dale = [].filter.call(scr.querySelectorAll('.lbrow'), function(r){ return /Dale/.test(r.textContent); })[0];
       const o1 = lxOverlay(scr, lxHTML('share')), o2 = lxOverlay(scr, lxHTML('cmp'));
       const yes = o1.querySelector('.confirmyes');
@@ -13266,7 +13266,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       R.later(function(){ R.go(sb); }, 300);
       R.later(function(){ R.tap(function(){ o1.classList.add('show'); R.later(function(){ lxPanTo(scr, o1.querySelector('.confirmcard'), 20); }, 250); }); }, 1200);
       R.later(function(){ R.go(yes); }, 2400);
-      R.later(function(){ R.tap(function(){ o1.classList.remove('show'); if(sb){ sb.classList.add('on'); if(okd) sb.appendChild(okd); } lxPan(scr, 0); }); }, 3400);
+      R.later(function(){ R.tap(function(){ o1.classList.remove('show'); if(sb){ sb.classList.add('on'); sb.innerHTML = sbIc + 'Sheets' + okH; } lxPan(scr, 0); }); }, 3400);
       R.later(function(){ R.go(dale); }, 4400);
       R.later(function(){ R.tap(function(){ if(dale) dale.style.boxShadow = '0 0 0 1px rgba(53,208,255,0.9)'; }); }, 5300);
       R.later(function(){ R.hide(); o2.classList.add('show'); }, 5600);
@@ -13285,11 +13285,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       cells.forEach(function(c){ c.textContent = '\u2013'; });
       R.cap('Dashes until your first game kicks off');
       R.later(function(){ cells.forEach(function(c, i){ c.innerHTML = orig[i]; }); R.cap('Then everyone\u2019s chance to win'); }, 2400);
-      R.later(function(){ R.cap(''); R.start(); }, 4400);
-      R.later(function(){ R.go(pill); }, 4700);
-      R.later(function(){ R.tap(function(){ lb.classList.remove('adv'); if(pill) pill.textContent = 'Basic'; }); }, 5700);
-      R.later(function(){ R.hide(); }, 6600);
-      R.later(function(){ LX_PLAY.win(st, R); }, 8000);
+      R.later(function(){ R.cap(''); }, 5200);
+      R.later(function(){ LX_PLAY.win(st, R); }, 6400);
     },
     analysis: function(st, R){
       R.stop();
