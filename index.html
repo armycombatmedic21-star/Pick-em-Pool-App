@@ -302,16 +302,17 @@
      Rooting: the accent turns royal blue and the number white. No dot before "Your Score". */
   .scorecard{ --sc: 61,220,132; }
   body.rooting .scorecard, .lxscr.rooting .scorecard{ --sc: 110,145,255; }
+  /* 4.11.7: Wes's slider picks (glow 55%, glare 165%, brightness 65%, number glow 40%) */
   body.glass .scorecard{ position:relative; overflow:hidden; border-radius:18px; padding:16px 10px 14px;
-    background: radial-gradient(130% 60% at 50% 0%, rgba(var(--sc),0.17), transparent 68%), linear-gradient(180deg, rgba(19,32,53,0.96), rgba(8,14,25,0.98));
-    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 34px rgba(0,0,0,0.42); }
+    background: radial-gradient(130% 60% at 50% 0%, rgba(var(--sc),0.094), transparent 68%), linear-gradient(180deg, rgba(12,21,34,0.96), rgba(5,9,16,0.98));
+    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.116), 0 18px 34px rgba(0,0,0,0.42); }
   body.glass .scorecard::before{ content:''; position:absolute; top:0; left:14px; right:14px; height:1px;
-    background: linear-gradient(90deg, transparent, rgba(var(--sc),0.85), transparent); }
+    background: linear-gradient(90deg, transparent, rgba(var(--sc),1), transparent); }
   body.glass .scorecard .cardbanner{ align-items:center; gap:5px; white-space:nowrap; font-size:9.5px; letter-spacing:1.5px; color:#8fa3b9; margin-bottom:8px; }
   body.glass .scorebig{ font-size:56px; letter-spacing:-2.5px; font-variant-numeric: tabular-nums;
     background: linear-gradient(180deg, #a6f7cb 0%, #3ddc84 70%); -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter: drop-shadow(0 0 12px rgba(61,220,132,0.45)); }
-  body.glass.rooting .scorebig{ background: linear-gradient(180deg, #ffffff 0%, #d6e2ff 80%); -webkit-background-clip:text; background-clip:text; filter: drop-shadow(0 0 10px rgba(110,145,255,0.4)); }
+    filter: drop-shadow(0 0 12px rgba(61,220,132,0.18)); }
+  body.glass.rooting .scorebig{ background: linear-gradient(180deg, #ffffff 0%, #d6e2ff 80%); -webkit-background-clip:text; background-clip:text; filter: drop-shadow(0 0 10px rgba(110,145,255,0.16)); }
   body.glass .scorelabel{ font-size:11px; color:#8fa3b9; margin-top:5px; }
   body.glass .scorerule{ height:1px; margin:12px 0 10px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent); }
   body.glass .scoreleft{ font-size:22px; letter-spacing:-0.5px; font-variant-numeric: tabular-nums; }
@@ -327,10 +328,10 @@
 
   /* Leaderboard: same size, rows and behavior. No left-edge marks (they clash with the online dot). */
   body.glass .lbcard{ position:relative; border-radius:18px; padding:13px 10px 9px 7px;
-    background: radial-gradient(110% 55% at 100% 0%, rgba(53,208,255,0.10), transparent 62%), linear-gradient(180deg, rgba(19,32,53,0.96), rgba(8,14,25,0.98));
-    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 34px rgba(0,0,0,0.42); }
+    background: radial-gradient(110% 55% at 100% 0%, rgba(53,208,255,0.055), transparent 62%), linear-gradient(180deg, rgba(12,21,34,0.96), rgba(5,9,16,0.98));
+    border:1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.116), 0 18px 34px rgba(0,0,0,0.42); }
   body.glass .lbcard::before{ content:''; position:absolute; top:0; left:18px; right:18px; height:1px;
-    background: linear-gradient(90deg, transparent, rgba(53,208,255,0.7), transparent); }
+    background: linear-gradient(90deg, transparent, rgba(53,208,255,1), transparent); }
   body.glass .lbtop{ margin-bottom:8px; }
   body.glass .lbmode{ height:20px; padding:0 9px; border-radius:10px; font-size:9.5px; letter-spacing:0.4px;
     border:1px solid rgba(53,208,255,0.45); background: linear-gradient(180deg, #13354f, #0b2135); color:#dff6ff; box-shadow: 0 0 8px rgba(53,208,255,0.15); }
@@ -3834,8 +3835,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.6';
-  const APP_BUILT = 'Oct 12, 2026';
+  const APP_VERSION = '4.11.7';
+  const APP_BUILT = 'Nov 14, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
