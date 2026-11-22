@@ -3394,6 +3394,11 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.11</b> Live games: during a timeout the field no longer shows the other team’s old down and distance after the ball changed hands. It waits for the new spot instead.</div>
+      <div class="cl"><b>4.11.10</b> New Home Screen icon (gold shield with a football) and the name Pick’emPool. Remove and re-add the app to see it.</div>
+      <div class="cl"><b>4.11.9</b> The leaderboard title and week sit in the top row, next to Open Sheets.</div>
+      <div class="cl"><b>4.11.8</b> The leaderboard always shows the Win column. The Sheets button says Open Sheets until your sheet is open.</div>
+      <div class="cl"><b>4.11.7</b> Softer glow on the Your Score and Leaderboard cards.</div>
       <div class="cl"><b>4.11.6</b> Snap: the check screen is now Review Your Picks. It shows every game without scrolling (up to 16), with the week at the top, a glowing list, and Lock Later next to Cancel.</div>
       <div class="cl"><b>4.11.5</b> Snap: after checking your picks, choose Set &amp; Lock In Picks (asks once, like Lock In) or Set Picks, Lock Later.</div>
       <div class="cl"><b>4.11.4</b> Live games: after a second-half kickoff touchback, the field shows the ball and who has it right away.</div>
@@ -3842,8 +3847,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.10';
-  const APP_BUILT = 'Nov 14, 2026';
+  const APP_VERSION = '4.11.11';
+  const APP_BUILT = 'Nov 22, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -6822,7 +6827,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const r = gxRawY(lg);
     if(r || !lg || !lg.lastPlay) return r;
     const T = gxT[lg.id];
-    if(T && T.rr && gxIsPause(lg.lastPlay) && !/HALFTIME/i.test(lg.statusName || '') && !/end of (half|regulation|game)|end game/i.test(lg.lastPlay.type + ' ' + lg.lastPlay.text)) return T.rr;
+    if(T && T.rr && (!lg.poss || T.rr.pos === lg.poss) && gxIsPause(lg.lastPlay) && !/HALFTIME/i.test(lg.statusName || '') && !/end of (half|regulation|game)|end game/i.test(lg.lastPlay.type + ' ' + lg.lastPlay.text)) return T.rr;   // 4.11.11: only if it's still that team's ball
     return gxTxtSpot(lg, lg.lastPlay, T && T.last ? T.last.fromPos : '');
   }
   // timeouts, the two-minute warning, end of a quarter: nothing happened on the field
