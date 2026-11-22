@@ -3394,6 +3394,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.12</b> Live game cards keep the down and distance and the Red Zone badge through a timeout, matching the game slide-up.</div>
       <div class="cl"><b>4.11.11</b> Live games: during a timeout the field no longer shows the other team’s old down and distance after the ball changed hands. It waits for the new spot instead.</div>
       <div class="cl"><b>4.11.10</b> New Home Screen icon (gold shield with a football) and the name Pick’emPool. Remove and re-add the app to see it.</div>
       <div class="cl"><b>4.11.9</b> The leaderboard title and week sit in the top row, next to Open Sheets.</div>
@@ -3847,7 +3848,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.11';
+  const APP_VERSION = '4.11.12';
   const APP_BUILT = 'Nov 22, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -6346,12 +6347,14 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }
 
     // "1st & 10 at NE 46" — only exists while a game is being played
-    const dd = (lg && lg.state === 'in' && lg.downDistance) ? esc(lg.downDistance) : '';
     /* Derived fresh every refresh, never stored, and only shown when there's a
        drive behind it. ESPN keeps the flag set for a beat after a score or a
        change of possession, while the down and the ball-carrier blank out —
-       a red zone badge with no team attached isn't telling you anything. */
-    const rz = !!(lg && lg.state === 'in' && lg.redZone && lg.poss && lg.downDistance);
+       a red zone badge with no team attached isn't telling you anything.
+       4.11.12: during a timeout, the slide-up's saved spot fills in (cardDD). */
+    const cdd = cardDD(lg);
+    const dd = esc(cdd.txt);
+    const rz = cdd.rz;
     const cardCls = r === 'win' ? ' won' : (r === 'loss' ? ' lost' : '');
     // Results fill in automatically when a game goes final — no buttons needed.
     const resTag = r ? '<span class="restag ' + r + '">' + resLabel(r) + '</span>' : '';
@@ -6821,6 +6824,20 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     }
     if(!(y >= 1 && y <= 99)) return null;
     return { y: y, d: recv === lg.away ? 100 - y : y, pos: recv, down: 1, dist: NaN, goal: false, at: '', txt: true };
+  }
+  /* 4.11.12: the game card's down & distance line and Red Zone badge. ESPN blanks
+     both during a timeout; then the card uses the same saved spot as the slide-up
+     (gxSpot), only while it's still that team's ball, so the two always match. */
+  function cardDD(lg){
+    const none = { txt: '', rz: false };
+    if(!lg || lg.state !== 'in') return none;
+    if(lg.downDistance) return { txt: lg.downDistance, rz: !!(lg.redZone && lg.poss) };
+    let sp = null;
+    try{ sp = gxSpot(lg); }catch(e){ sp = null; }
+    if(!sp || sp.txt || !lg.poss || sp.pos !== lg.poss) return none;
+    const ord = ['', '1st', '2nd', '3rd', '4th'][sp.down];
+    if(!ord || !sp.at) return none;
+    return { txt: ord + ' & ' + (sp.goal ? 'Goal' : sp.dist) + ' at ' + sp.at, rz: sp.d <= 20 };
   }
   // where the ball is: ESPN's down & distance, or the kick's text while that's missing
   function gxSpot(lg){
@@ -7900,8 +7917,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(dd){
       // While a scoring badge is up it owns this line: the down and distance
       // from before the score is stale, and nobody is in the red zone.
-      const txt = (live && lg.downDistance && !play) ? lg.downDistance : '';
-      const inRz = !!(live && lg.redZone && lg.poss && lg.downDistance && !play);
+      const cdd = (live && !play) ? cardDD(lg) : { txt: '', rz: false };   // 4.11.12
+      const txt = cdd.txt;
+      const inRz = cdd.rz;
       setText(dd.querySelector('[data-role="ddtext"]'), txt);
       const chip = dd.querySelector('[data-role="rz"]');
       if(chip) chip.hidden = !inRz;
