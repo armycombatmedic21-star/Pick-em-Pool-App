@@ -949,6 +949,15 @@
     pointer-events:none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
   .wk .wkthx{ position:absolute; top:4px; right:6px; font-style:normal; font-size:13px; line-height:1; pointer-events:none; }
   .thxlion{ margin-left:4px; font-size:0.9em; }
+  /* autumn gradient border: leaderboard + Thanksgiving Day game cards */
+  body.thx .lbcard::after, body.thx .gcard.thxcard::after{
+    border-radius:inherit; padding:1.5px;
+    background: linear-gradient(135deg, #ffcf6e 0%, #ff9a3c 35%, #d9532b 65%, rgba(217,83,43,0.35) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; }
+  body.thx .gcard.thxcard{ border-color: transparent; box-shadow: 0 0 16px rgba(255,154,60,0.12); }
+  body.thx .lbcard::after, body.thx .gcard.thxcard::after{ content:''; position:absolute; inset:-1px; pointer-events:none; z-index:2; }
+  body.thx .lbcard{ border-color: transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,0.116), 0 18px 34px rgba(0,0,0,0.42), 0 0 18px rgba(255,154,60,0.12); }
   /* maple leaves tucked over the leaderboard's top corners */
   .thxmaple{ display:none; }
   body.thx .lbcard{ position:relative; }
@@ -3439,6 +3448,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.18</b> Thanksgiving week: an autumn border on the leaderboard and on the Thanksgiving Day game cards in Live.</div>
       <div class="cl"><b>4.11.17</b> Thanksgiving week: more leaves (maple too) when you lock in, and the holiday note stays a little longer.</div>
       <div class="cl"><b>4.11.16</b> Thanksgiving week: maple leaves on the leaderboard's top corners.</div>
       <div class="cl"><b>4.11.15</b> New weeks start by Tuesday at noon Eastern at the latest, even when ESPN is slow to move on (it was still showing Week 11 this Tuesday). And a few Thanksgiving touches for Week 12 — they leave when Week 13 starts.</div>
@@ -3898,7 +3908,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.17';
+  const APP_VERSION = '4.11.18';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -6535,7 +6545,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const grp = cardGroup(lg, r);
     const dog = isLiveDog(g, lg);
     const pinOn = grp !== 'final' && pinIndex(g.id) >= 0;
-    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + (pinOn ? ' pinned' : '') + '" data-id="' + g.id +
+    return '<div class="gcard' + cardCls + liveCls + groupCls(grp) + (dog ? ' hasdog' : '') + (pinOn ? ' pinned' : '') + (thxDay(g) ? ' thxcard' : '') + '" data-id="' + g.id +
         '" data-grp="' + grp + '" data-pts="' + pts + '" style="order:' + cardOrder(grp, pts, g.id) + '">' +
       '<i class="gchev" aria-hidden="true">\u203A</i>' +
       pinBtnHtml(g.id, grp) +
