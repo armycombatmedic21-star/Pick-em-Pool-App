@@ -3394,6 +3394,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.13</b> Turning your phone sideways on a live game no longer sometimes draws the field with giant yard numbers and no ball. No need to close and reopen it.</div>
       <div class="cl"><b>4.11.12</b> Live game cards keep the down and distance and the Red Zone badge through a timeout, matching the game slide-up.</div>
       <div class="cl"><b>4.11.11</b> Live games: during a timeout the field no longer shows the other team’s old down and distance after the ball changed hands. It waits for the new spot instead.</div>
       <div class="cl"><b>4.11.10</b> New Home Screen icon (gold shield with a football) and the name Pick’emPool. Remove and re-add the app to see it.</div>
@@ -3848,8 +3849,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.12';
-  const APP_BUILT = 'Nov 22, 2026';
+  const APP_VERSION = '4.11.13';
+  const APP_BUILT = 'Nov 23, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -7427,6 +7428,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   }
   async function gxFieldPaint(fx, lg, s, opening){
     if(!fx || !fx.clientWidth) return;
+    gxWatchField(fx);
     const W = fx.clientWidth, H = fx.clientHeight || 66;
     if(!gxF || gxF.key !== gxId + '|' + s.mine || Math.abs(gxF.W - W) > 1 || Math.abs(gxF.H - H) > 1){ if(gxF) clearTimeout(gxF.zTimer); gxF = gxBuildField(fx, lg, s, W); }
     const r = gxSpot(lg), T = gxT[lg.id] || null, last = T && T.last;
@@ -7709,9 +7711,28 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       try{ gxPaint(false); }catch(e){}
     }, ms);
   }
+  /* 4.11.13: redraw the field whenever its own box changes size. The first time an iPhone turns sideways
+     after the app opens, the screen can still be mid-turn when the app measures the field (it reads almost
+     as tall as the whole screen). Everything is drawn for that size (giant upside-down yard numbers, huge
+     end zone letters, the ball and posts below the visible strip), then the field shrinks to its real size
+     and no further resize event comes to fix it. Watching the field itself catches that, however the phone
+     reports the turn. */
+  let gxRo = null, gxRoFx = null;
+  function gxFieldStale(){
+    const fx = document.querySelector('#gxBody .fx');
+    return !!(fx && gxF && fx.clientWidth && (Math.abs(fx.clientWidth - gxF.W) > 1 || Math.abs((fx.clientHeight || 66) - gxF.H) > 1));
+  }
+  function gxWatchField(fx){
+    if(!window.ResizeObserver || gxRoFx === fx) return;
+    if(!gxRo) gxRo = new ResizeObserver(function(){ if(gxId && gxOverlay.classList.contains('show') && gxFieldStale()) gxRelayout(60); });
+    if(gxRoFx) gxRo.unobserve(gxRoFx);
+    gxRoFx = fx; gxRo.observe(fx);
+  }
+  // and a last look once a turn has settled, for phones without ResizeObserver
+  function gxSettleCheck(){ [450, 1200].forEach(function(ms){ setTimeout(function(){ if(gxId && gxOverlay.classList.contains('show') && gxFieldStale()) gxRelayout(0); }, ms); }); }
   document.getElementById('gxBig').addEventListener('click', function(){ gxBigSet(!gxBigOn); });
-  window.addEventListener('resize', function(){ if(gxId && gxOverlay.classList.contains('show')) gxRelayout(120); });
-  if(GX_LANDQ){ const f = function(){ gxRelayout(60); }; if(GX_LANDQ.addEventListener) GX_LANDQ.addEventListener('change', f); else if(GX_LANDQ.addListener) GX_LANDQ.addListener(f); }
+  window.addEventListener('resize', function(){ if(gxId && gxOverlay.classList.contains('show')){ gxRelayout(120); gxSettleCheck(); } });
+  if(GX_LANDQ){ const f = function(){ gxRelayout(60); gxSettleCheck(); }; if(GX_LANDQ.addEventListener) GX_LANDQ.addEventListener('change', f); else if(GX_LANDQ.addListener) GX_LANDQ.addListener(f); }
   ['fullscreenchange', 'webkitfullscreenchange'].forEach(function(ev){
     document.addEventListener(ev, function(){ if(!gxFsEl() && gxBigOn) gxBigSet(false); else gxRelayout(60); });
   });
