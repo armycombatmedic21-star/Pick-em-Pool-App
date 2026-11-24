@@ -962,15 +962,18 @@
   .thxmaple{ display:none; }
   body.thx .lbcard{ position:relative; }
   body.thx .thxmaple{ display:block; position:absolute; inset:0; pointer-events:none; z-index:3; }
-  body.thx .thxmaple::before, body.thx .thxmaple::after{ content:'\1F341'; position:absolute; top:-10px; font-size:19px; line-height:1;
+  body.thx .thxmaple::before, body.thx .thxmaple::after{ content:'\1F341'; position:absolute; top:-11px; font-size:21px; line-height:1;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.55)); }
   body.thx .thxmaple::before{ left:-8px; transform: rotate(-28deg); }
   body.thx .thxmaple::after{ right:-8px; transform: scaleX(-1) rotate(-28deg); }
+  body.thx .thxmaple.bot::before, body.thx .thxmaple.bot::after{ top:auto; bottom:-11px; }
+  body.thx .thxmaple.bot::before{ transform: rotate(-152deg); }
+  body.thx .thxmaple.bot::after{ transform: scaleX(-1) rotate(-152deg); }
   .lbrow.thxleg .lbname{ flex:0 1 auto; }
   .lbleg{ flex:none; margin-right:auto; margin-left:-2px; font-size:12px; line-height:1; }
   .thxfall{ position:fixed; inset:0; z-index:9999; pointer-events:none; overflow:hidden; transition: opacity .45s ease; }
   .thxfall.out{ opacity:0; }
-  .thxfall i{ position:absolute; top:-40px; font-style:normal; line-height:1; will-change: transform;
+  .thxfall > i{ position:absolute; z-index:2; top:-40px; font-style:normal; line-height:1; will-change: transform;
     animation-name: thxleaf; animation-timing-function: cubic-bezier(.35,.1,.6,1); animation-fill-mode: both; }
   @keyframes thxleaf{
     0%{ transform: translate(0, 0) rotate(0deg); opacity:0; }
@@ -978,17 +981,33 @@
     50%{ transform: translate(var(--dx), 52vh) rotate(calc(var(--rot) * .5)); }
     100%{ transform: translate(calc(var(--dx) * -0.6), 112vh) rotate(var(--rot)); opacity:1; }
   }
-  .thxnote{ position:absolute; left:50%; top:38%; transform: translate(-50%, -50%); width:max-content; max-width:calc(100vw - 40px); text-align:center;
-    padding:14px 22px; border-radius:22px; font-size:17px; font-weight:800; color:#ffffff;
-    background: rgba(14,22,36,0.82); border:1px solid rgba(255,179,71,0.55);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.55), 0 0 22px rgba(255,166,77,0.25);
-    animation: thxnote .35s cubic-bezier(.2,.9,.3,1.2) both; }
-  .thxnote b{ position:absolute; font-size:16px; line-height:1; font-weight:400; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
-  .thxnote b:nth-child(1){ top:-8px; left:-7px; transform: rotate(-28deg); }
-  .thxnote b:nth-child(2){ top:-8px; right:-7px; transform: scaleX(-1) rotate(-28deg); }
-  .thxnote b:nth-child(3){ bottom:-8px; left:-7px; transform: rotate(-152deg); }
-  .thxnote b:nth-child(4){ bottom:-8px; right:-7px; transform: scaleX(-1) rotate(-152deg); }
+  .thxnote{ position:absolute; left:50%; top:42%; transform: translate(-50%, -50%); width:min(300px, calc(100vw - 48px));
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:46px 20px 22px; border-radius:28px; color:#ffffff;
+    background: radial-gradient(120% 70% at 50% 0%, rgba(255,154,60,0.22), transparent 60%), linear-gradient(180deg, rgba(26,22,30,0.94), rgba(10,14,24,0.95));
+    border:1.5px solid rgba(255,179,71,0.65);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.6), 0 0 34px rgba(255,154,60,0.28), inset 0 1px 0 rgba(255,220,160,0.18);
+    animation: thxnote .5s cubic-bezier(.2,.9,.3,1.25) .35s both; }
+  .thxbird{ position:absolute; top:-40px; left:50%; font-size:72px; line-height:1; transform: translateX(-50%);
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.55)); animation: thxbird 1.1s ease-in-out .35s infinite alternate; }
+  @keyframes thxbird{ from{ transform: translateX(-50%) rotate(-6deg); } to{ transform: translateX(-50%) rotate(6deg) translateY(-3px); } }
+  .thxhap{ font-size:30px; font-weight:800; line-height:1.1; letter-spacing:-0.5px;
+    background: linear-gradient(180deg, #ffe08a 0%, #ffb347 55%, #f07a32 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    filter: drop-shadow(0 2px 8px rgba(255,140,50,0.35)); }
+  .thxrule{ display:flex; align-items:center; gap:8px; width:80%; margin:12px 0 10px; font-size:14px; line-height:1; }
+  .thxrule i{ flex:1; height:1px; background: linear-gradient(90deg, rgba(255,179,71,0), rgba(255,179,71,0.75), rgba(255,179,71,0)); }
+  .thxgo{ display:flex; align-items:center; gap:10px; font-size:30px; font-weight:800; letter-spacing:-0.3px; color:#ffffff;
+    text-shadow: 0 0 14px rgba(0,118,182,0.55); }
+  .thxgo .thxgot{ background: linear-gradient(180deg, #ffffff, #b0b7bc); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .thxnote .thxdet{ width:54px; height:54px; object-fit:contain; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+  .thxlionbig{ font-size:46px; line-height:1; -webkit-text-fill-color:initial; }
+  .thxnote b{ position:absolute; font-size:22px; line-height:1; font-weight:400; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+  .thxnote b:nth-child(1){ top:-10px; left:-9px; transform: rotate(-28deg); }
+  .thxnote b:nth-child(2){ top:-10px; right:-9px; transform: scaleX(-1) rotate(-28deg); }
+  .thxnote b:nth-child(3){ bottom:-10px; left:-9px; transform: rotate(-152deg); }
+  .thxnote b:nth-child(4){ bottom:-10px; right:-9px; transform: scaleX(-1) rotate(-152deg); }
   @keyframes thxnote{ from{ opacity:0; transform: translate(-50%, -50%) scale(.9); } to{ opacity:1; transform: translate(-50%, -50%) scale(1); } }
   .livestatus{
     min-width:0; max-width:60%; text-align:right;
@@ -3217,7 +3236,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
       <div class="lbcard adv">
-        <i class="thxmaple" aria-hidden="true"></i>
+        <i class="thxmaple" aria-hidden="true"></i><i class="thxmaple bot" aria-hidden="true"></i>
         <div class="lbtop"><span class="lbtitle">Leaderboard<small id="lbWeek"></small></span><button type="button" class="lbmode lbsheets" id="shareBtn">Open Sheets</button></div>
         <div class="lbhead"><span class="lbtitle"></span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
         <div id="lbList" class="lblist"></div>
@@ -3448,6 +3467,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.19</b> Thanksgiving week: an avalanche of leaves when you lock in, a bigger holiday note with the Lions logo, and maple leaves on all four leaderboard corners.</div>
       <div class="cl"><b>4.11.18</b> Thanksgiving week: an autumn border on the leaderboard and on the Thanksgiving Day game cards in Live.</div>
       <div class="cl"><b>4.11.17</b> Thanksgiving week: more leaves (maple too) when you lock in, and the holiday note stays a little longer.</div>
       <div class="cl"><b>4.11.16</b> Thanksgiving week: maple leaves on the leaderboard's top corners.</div>
@@ -3908,7 +3928,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.18';
+  const APP_VERSION = '4.11.19';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5791,29 +5811,37 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       wrap.className = 'thxfall';
       wrap.setAttribute('aria-hidden', 'true');
       const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let h = '';
+      // 4.11.19: an avalanche of leaves pours down over the note, then clears
+      // (all down by 2.5 s) to leave the note showing on its own until 5 s.
+      let leaves = '';
       if(!still){
-        // 4.11.17: 30 leaves (two maple for every brown one) spread across the
-        // whole width, starting over the first 1.5 s; the last lands by 3.5 s.
         const LEAVES = ['\uD83C\uDF41', '\uD83C\uDF42', '\uD83C\uDF41'];
-        const N = 30;
+        const N = 60;
         for(let i = 0; i < N; i++){
-          const x = Math.round(-2 + (i / N) * 98 + Math.random() * 4);
-          const delay = Math.round((i % 3) * 500 + Math.random() * 500);
-          const dur = 1800 + Math.round(Math.random() * 200);
+          const x = Math.round(-4 + Math.random() * 102);
+          const delay = Math.round(Math.random() * 900);
+          const dur = 1300 + Math.round(Math.random() * 300);
           const drift = Math.round(Math.random() * 90 - 45);
-          const spin = Math.round(Math.random() * 300 - 150);
-          const size = 18 + Math.round(Math.random() * 12);
-          h += '<i style="left:' + x + '%;font-size:' + size + 'px;animation-delay:' + delay + 'ms;animation-duration:' + dur +
+          const spin = Math.round(Math.random() * 360 - 180);
+          const size = 20 + Math.round(Math.random() * 16);
+          leaves += '<i style="left:' + x + '%;font-size:' + size + 'px;animation-delay:' + delay + 'ms;animation-duration:' + dur +
                'ms;--dx:' + drift + 'px;--rot:' + spin + 'deg">' + LEAVES[i % LEAVES.length] + '</i>';
         }
       }
       const M = '<b aria-hidden="true">\uD83C\uDF41</b>';
-      h += '<div class="thxnote">' + M + M + M + M + 'Happy Thanksgiving. Go Lions! ' + LION + '</div>';
+      // The Lions' own logo (ESPN's, same as the game cards); the emoji stands in if it can't load.
+      const DET = '<img class="thxdet" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/det.png" alt="Lions" ' +
+        'onerror="this.outerHTML=\'<span class=thxlionbig>' + LION + '</span>\'">';
+      // The note goes in first so the leaves fall in front of it.
+      let h = '<div class="thxnote">' + M + M + M + M +
+        '<span class="thxbird">' + TURKEY + '</span>' +
+        '<span class="thxhap">Happy Thanksgiving!</span>' +
+        '<span class="thxrule"><i></i>\uD83C\uDF41<i></i></span>' +
+        '<span class="thxgo">' + DET + '<span class="thxgot">Go Lions!</span></span></div>' + leaves;
       wrap.innerHTML = h;
       document.body.appendChild(wrap);
-      setTimeout(function(){ wrap.classList.add('out'); }, 3500);
-      setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 4000);
+      setTimeout(function(){ wrap.classList.add('out'); }, still ? 3000 : 5000);
+      setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, still ? 3500 : 5500);
     }catch(e){}
   }
 
