@@ -3385,6 +3385,19 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
   </div>
 </div>
 
+<div class="overlay" id="adminNameOverlay">
+  <div class="confirmcard" role="dialog" aria-label="Change name">
+    <div class="chead"><span class="cicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><h2 id="adminNameTitle">Change name</h2></div>
+    <p>Changes it on the leaderboard for everyone, and on their own phone the next time it checks in. Emoji work too.</p>
+    <input id="adminNameInput" class="nameinput" type="text" maxlength="14" placeholder="New name" autocomplete="off">
+    <p class="namenote" id="adminNameNote"></p>
+    <div class="confirmrow">
+      <button class="confirmyes" id="adminNameSave">Save name</button>
+      <button class="confirmcancel" id="adminNameCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="weekOverlay">
   <div class="sheet" role="dialog" aria-label="Choose week">
     <div class="wkhead"><h2>Choose week</h2><span id="wkSeason"></span></div>
@@ -3482,6 +3495,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.21</b> Admin: tap a name on the leaderboard and choose Change name to rename that player for everyone (emoji work too).</div>
       <div class="cl"><b>4.11.20</b> "Your Score" is now a bold title like "Leaderboard"; while rooting it reads "Their Score" with the name underneath. Thanksgiving week: autumn orange on the header, week button, Your Score and Analysis.</div>
       <div class="cl"><b>4.11.19</b> Thanksgiving week: an avalanche of leaves when you lock in, a bigger holiday note with the Lions logo, and maple leaves on all four leaderboard corners.</div>
       <div class="cl"><b>4.11.18</b> Thanksgiving week: an autumn border on the leaderboard and on the Thanksgiving Day game cards in Live.</div>
@@ -3883,6 +3897,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     <p class="confirmsub" id="adminPlayerSub"></p>
     <div class="confirmrow">
       <button class="confirmyes danger" id="adminRemove">Unlock and remove this week</button>
+      <button class="confirmcancel" id="adminRename">Change name</button>
       <button class="confirmcancel" id="adminView">View sheet</button>
       <button class="confirmcancel" id="adminPlayerCancel">Cancel</button>
     </div>
@@ -3944,7 +3959,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.20';
+  const APP_VERSION = '4.11.21';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -9801,6 +9816,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      SDK to load. Each player writes only their own entry. */
   const DB_URL = 'https://pick-em-pool-app-default-rtdb.firebaseio.com';
   const PLAYER_KEY = 'pickem-player';
+  const NAME_AT_KEY = 'pickem-nameat';   // 4.11.21: when this phone last set its name
   let board = [];
   let boardWeek = 0;
   /* 4.2.0: each week's board is saved on this phone so the leaderboard can
@@ -9994,6 +10010,20 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
           const mineA = rows.filter(function(r){ return r.id === meNow.id; })[0];
           if(mineA && mineA.locked === false && mineA.adminAt && mineA.adminAt > lockTime(week)){
             adminUnlockedMe(week);
+          }
+        }
+        /* 4.11.21: the admin renamed this player. Their locked entry carries a
+           different name, written after this phone last set its own name. */
+        if(week === currentWeek && meNow.id && meNow.name){
+          const mineN = rows.filter(function(r){ return r.id === meNow.id; })[0];
+          const setAt = (getLocal(NAME_AT_KEY) || {}).t || 0;
+          if(mineN && mineN.locked !== false && mineN.name && mineN.name !== meNow.name && mineN.updated > setAt){
+            meNow.name = String(mineN.name).slice(0, 14);
+            put(PLAYER_KEY, meNow);
+            put(NAME_AT_KEY, { t: mineN.updated });
+            const sv = document.getElementById('setNameVal');
+            if(sv) sv.textContent = meNow.name;
+            try{ beat(); }catch(e){}
           }
         }
         if(week === currentWeek && meNow.name && meNow.id && (Date.now() - lastHeal) > 8000){
@@ -10721,6 +10751,11 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     });
     nameTags = tags;
   }
+  // 4.11.21: a player's newest name from this week's board (after an admin rename), else what we have.
+  function latestName(id, name){
+    try{ const r = board.filter(function(x){ return x.id === id; })[0]; if(r && r.name) return r.name; }catch(e){}
+    return name;
+  }
   function shownName(id, name){ return String(name || '') + (nameTags[id] ? ' (' + nameTags[id] + ')' : ''); }
 
   /* ---------- Pool Chat ----------
@@ -10871,7 +10906,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       prev = m;
       const who = !first ? '' : mine
         ? '<span class="chatwho" style="color: var(--green)"><i>' + esc(chatTime(m.t)) + ' \u00B7 </i>' + esc(shownName(m.pid, me.name || m.name)) + '</span>'
-        : '<span class="chatwho" style="color:' + chatColor(m.pid) + '">' + esc(shownName(m.pid, m.name)) + ' <i>\u00B7 ' + esc(chatTime(m.t)) + '</i></span>';
+        : '<span class="chatwho" style="color:' + chatColor(m.pid) + '">' + esc(shownName(m.pid, latestName(m.pid, m.name))) + ' <i>\u00B7 ' + esc(chatTime(m.t)) + '</i></span>';
       const bubble = '<div class="chatbubble">' + esc(m.text) + '</div>';
       const body = admin
         ? '<div class="chatline">' + bubble +
@@ -12490,6 +12525,46 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       }
     }, 300);
   });
+  /* 4.11.21: admin renames a player (emoji welcome). Writes only the two fields
+     every phone already writes to its own entry, name and updated, so no
+     Firebase rules change. Their phone adopts it from the board (fetchBoard). */
+  const adminNameOverlay = document.getElementById('adminNameOverlay');
+  let adminNamePid = null;
+  document.getElementById('adminRename').addEventListener('click', function(){
+    const pid = adminPid;
+    const r = board.filter(function(x){ return x.id === pid; })[0];
+    if(!r) return;
+    adminNamePid = pid;
+    closeOverlay(adminPlayerOverlay);
+    setTimeout(function(){
+      document.getElementById('adminNameTitle').textContent = 'Rename ' + r.name;
+      document.getElementById('adminNameInput').value = r.name || '';
+      document.getElementById('adminNameNote').textContent = '';
+      openOverlay(adminNameOverlay);
+    }, 300);
+  });
+  document.getElementById('adminNameCancel').addEventListener('click', function(){ adminNamePid = null; closeOverlay(adminNameOverlay); });
+  adminNameOverlay.addEventListener('click', function(e){ if(e.target === adminNameOverlay){ adminNamePid = null; closeOverlay(adminNameOverlay); } });
+  document.getElementById('adminNameSave').addEventListener('click', function(){
+    const pid = adminNamePid, week = currentWeek;
+    const v = (document.getElementById('adminNameInput').value || '').trim().slice(0, 14);
+    if(!v){ document.getElementById('adminNameNote').textContent = 'Enter a name.'; return; }
+    if(!pid || !adminOn() || typeof fetch !== 'function') return;
+    adminNamePid = null;
+    closeOverlay(adminNameOverlay);
+    fetch(entryUrl(week, pid), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: v, updated: Date.now() })
+    })
+      .then(function(r){
+        if(!r.ok) throw new Error('rejected');
+        toast('Name changed to ' + v);
+        fetchBoard(week, renderBoard);
+      })
+      .catch(function(){ toast('Couldn\u2019t change the name \u2014 try again'); });
+  });
+
   document.getElementById('adminRemove').addEventListener('click', function(){
     const pid = adminPid, week = currentWeek;
     const r = board.filter(function(x){ return x.id === pid; })[0];
@@ -12588,6 +12663,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const me = player();
     me.name = v;
     put(PLAYER_KEY, me);
+    put(NAME_AT_KEY, { t: Date.now() });   // 4.11.21: your own change beats an older admin rename
     closeOverlay(nameOverlay);
     syncPool();
     beat();
