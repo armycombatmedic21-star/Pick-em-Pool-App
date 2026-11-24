@@ -3394,6 +3394,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.14</b> Thanksgiving week: the Thanksgiving games stay on your sheet, and the Wednesday night game (not on the pool sheet) starts in the removed section at the bottom. Tap to restore it if you want it.</div>
       <div class="cl"><b>4.11.13</b> Turning your phone sideways on a live game no longer sometimes draws the field with giant yard numbers and no ball. No need to close and reopen it.</div>
       <div class="cl"><b>4.11.12</b> Live game cards keep the down and distance and the Red Zone badge through a timeout, matching the game slide-up.</div>
       <div class="cl"><b>4.11.11</b> Live games: during a timeout the field no longer shows the other team’s old down and distance after the ball changed hands. It waits for the new spot instead.</div>
@@ -3849,8 +3850,8 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.13';
-  const APP_BUILT = 'Nov 23, 2026';
+  const APP_VERSION = '4.11.14';
+  const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
 
@@ -4496,20 +4497,35 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     catch(e){ return d.getDay() === 4; }
   }
   /* 4.5.1: Thursday games start removed, except Week 12 (Thanksgiving),
-     when the Thursday games are on the sheet. */
+     when the Thursday games are on the sheet.
+     4.11.14: on Thanksgiving week the shop's sheet starts with the Thanksgiving
+     games, so anything played before Thanksgiving Day (a Tuesday or Wednesday
+     game, like 2026's Green Bay @ LA Rams on Wednesday night) starts removed
+     instead, the same way the Thursday game does on a normal week. */
   const THANKSGIVING_WEEK = 12;
-  function startsRemoved(g, week){ return week !== THANKSGIVING_WEEK && isThursday(g); }
+  function isPreThanksgiving(g){
+    if(!g || !g.date) return false;
+    const d = new Date(g.date);
+    if(isNaN(d)) return false;
+    let wd;
+    try{ wd = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(d); }
+    catch(e){ wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]; }
+    return wd === 'Tue' || wd === 'Wed';
+  }
+  function offSheetGame(g, week){ return week === THANKSGIVING_WEEK ? isPreThanksgiving(g) : isThursday(g); }
+  function startsRemoved(g, week){ return offSheetGame(g, week); }
   /* 4.5.5: Thursday comes off every sheet once per week, saved sheets too.
      The first time a week opens on this phone it gets a "checked" stamp; an
      unlocked sheet for a week that isn't over yet has its Thursday game
      parked as a removed row. After the stamp, the sheet is left alone, so a
      Restore (or a later remove) sticks. Locked sheets, finished weeks and
      Week 12 are only stamped, never changed. Returns true if it removed one. */
-  const thuKey = w => 'pickem-w' + w + '-thu';
+  // 4.11.14: Thanksgiving week gets its own stamp, so phones that already opened Week 12 still get the sweep once
+  const thuKey = w => 'pickem-w' + w + (w === THANKSGIVING_WEEK ? '-prethx' : '-thu');
   function thursdayOnce(week){
     if(getLocal(thuKey(week))) return false;
     put(thuKey(week), 1);
-    if(weekLocked || week === THANKSGIVING_WEEK) return false;
+    if(weekLocked) return false;
     const now = Date.now();
     const notOver = games.some(function(g){
       const t = g && g.date ? new Date(g.date).getTime() : NaN;
@@ -4517,7 +4533,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     });
     if(!notOver) return false;
     let hit = false;
-    games.forEach(function(g){ if(!g.removed && isThursday(g)){ g.removed = true; hit = true; } });
+    games.forEach(function(g){ if(!g.removed && offSheetGame(g, week)){ g.removed = true; hit = true; } });
     return hit;
   }
   // Night games kick off 7 PM Eastern or later — judged in Eastern time so
