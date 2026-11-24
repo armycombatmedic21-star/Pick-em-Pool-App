@@ -975,6 +975,11 @@
     -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     box-shadow: 0 10px 40px rgba(0,0,0,0.55), 0 0 22px rgba(255,166,77,0.25);
     animation: thxnote .35s cubic-bezier(.2,.9,.3,1.2) both; }
+  .thxnote b{ position:absolute; font-size:16px; line-height:1; font-weight:400; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+  .thxnote b:nth-child(1){ top:-8px; left:-7px; transform: rotate(-28deg); }
+  .thxnote b:nth-child(2){ top:-8px; right:-7px; transform: scaleX(-1) rotate(-28deg); }
+  .thxnote b:nth-child(3){ bottom:-8px; left:-7px; transform: rotate(-152deg); }
+  .thxnote b:nth-child(4){ bottom:-8px; right:-7px; transform: scaleX(-1) rotate(-152deg); }
   @keyframes thxnote{ from{ opacity:0; transform: translate(-50%, -50%) scale(.9); } to{ opacity:1; transform: translate(-50%, -50%) scale(1); } }
   .livestatus{
     min-width:0; max-width:60%; text-align:right;
@@ -3434,6 +3439,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.17</b> Thanksgiving week: more leaves (maple too) when you lock in, and the holiday note stays a little longer.</div>
       <div class="cl"><b>4.11.16</b> Thanksgiving week: maple leaves on the leaderboard's top corners.</div>
       <div class="cl"><b>4.11.15</b> New weeks start by Tuesday at noon Eastern at the latest, even when ESPN is slow to move on (it was still showing Week 11 this Tuesday). And a few Thanksgiving touches for Week 12 — they leave when Week 13 starts.</div>
       <div class="cl"><b>4.11.14</b> Thanksgiving week: the Thanksgiving games stay on your sheet, and the Wednesday night game (not on the pool sheet) starts in the removed section at the bottom. Tap to restore it if you want it.</div>
@@ -3892,7 +3898,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.16';
+  const APP_VERSION = '4.11.17';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5777,23 +5783,27 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       let h = '';
       if(!still){
-        const LEAVES = ['\uD83C\uDF42', '\uD83C\uDF41'];
-        for(let i = 0; i < 16; i++){
-          const x = Math.round(3 + (i / 16) * 90 + Math.random() * 5);
-          const delay = Math.round(Math.random() * 450);
-          const dur = 1350 + Math.round(Math.random() * 450);
-          const drift = Math.round(Math.random() * 60 - 30);
+        // 4.11.17: 30 leaves (two maple for every brown one) spread across the
+        // whole width, starting over the first 1.5 s; the last lands by 3.5 s.
+        const LEAVES = ['\uD83C\uDF41', '\uD83C\uDF42', '\uD83C\uDF41'];
+        const N = 30;
+        for(let i = 0; i < N; i++){
+          const x = Math.round(-2 + (i / N) * 98 + Math.random() * 4);
+          const delay = Math.round((i % 3) * 500 + Math.random() * 500);
+          const dur = 1800 + Math.round(Math.random() * 200);
+          const drift = Math.round(Math.random() * 90 - 45);
           const spin = Math.round(Math.random() * 300 - 150);
           const size = 18 + Math.round(Math.random() * 12);
           h += '<i style="left:' + x + '%;font-size:' + size + 'px;animation-delay:' + delay + 'ms;animation-duration:' + dur +
                'ms;--dx:' + drift + 'px;--rot:' + spin + 'deg">' + LEAVES[i % LEAVES.length] + '</i>';
         }
       }
-      h += '<div class="thxnote">Happy Thanksgiving. Go Lions! ' + LION + '</div>';
+      const M = '<b aria-hidden="true">\uD83C\uDF41</b>';
+      h += '<div class="thxnote">' + M + M + M + M + 'Happy Thanksgiving. Go Lions! ' + LION + '</div>';
       wrap.innerHTML = h;
       document.body.appendChild(wrap);
-      setTimeout(function(){ wrap.classList.add('out'); }, 2000);
-      setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 2500);
+      setTimeout(function(){ wrap.classList.add('out'); }, 3500);
+      setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 4000);
     }catch(e){}
   }
 
