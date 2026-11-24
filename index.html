@@ -937,6 +937,37 @@
   .livehead::after{ content:''; position:absolute; left:0; right:0; bottom:-7px; height:1px; pointer-events:none;
     background: linear-gradient(90deg, #35d0ff, rgba(53,208,255,0.35) 50%, rgba(53,208,255,0));
     box-shadow: 0 0 6px rgba(53,208,255,0.45); }
+  /* 4.11.15: Thanksgiving week (body.thx, only while Week 12 is current and on
+     screen). Small touches; nothing moves, nothing covers a control. */
+  body.thx .livehead::after{
+    background: linear-gradient(90deg, #ffb347, rgba(232,124,52,0.45) 50%, rgba(232,124,52,0));
+    box-shadow: 0 0 6px rgba(255,166,77,0.45); }
+  body.thx #resultsTitle{ white-space:nowrap; }
+  body.thx #resultsTitle::after{ content:' \1F983'; font-size:18px; }
+  body.thx button.weekpick{ position:relative; overflow:visible; }
+  body.thx button.weekpick::after{ content:'\1F983'; position:absolute; top:-9px; right:-7px; font-size:15px; line-height:1;
+    pointer-events:none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+  .wk .wkthx{ position:absolute; top:4px; right:6px; font-style:normal; font-size:13px; line-height:1; pointer-events:none; }
+  .thxlion{ margin-left:4px; font-size:0.9em; }
+  .lbrow.thxleg .lbname{ flex:0 1 auto; }
+  .lbleg{ flex:none; margin-right:auto; margin-left:-2px; font-size:12px; line-height:1; }
+  .thxfall{ position:fixed; inset:0; z-index:9999; pointer-events:none; overflow:hidden; transition: opacity .45s ease; }
+  .thxfall.out{ opacity:0; }
+  .thxfall i{ position:absolute; top:-40px; font-style:normal; line-height:1; will-change: transform;
+    animation-name: thxleaf; animation-timing-function: cubic-bezier(.35,.1,.6,1); animation-fill-mode: both; }
+  @keyframes thxleaf{
+    0%{ transform: translate(0, 0) rotate(0deg); opacity:0; }
+    10%{ opacity:1; }
+    50%{ transform: translate(var(--dx), 52vh) rotate(calc(var(--rot) * .5)); }
+    100%{ transform: translate(calc(var(--dx) * -0.6), 112vh) rotate(var(--rot)); opacity:1; }
+  }
+  .thxnote{ position:absolute; left:50%; top:38%; transform: translate(-50%, -50%); width:max-content; max-width:calc(100vw - 40px); text-align:center;
+    padding:14px 22px; border-radius:22px; font-size:17px; font-weight:800; color:#ffffff;
+    background: rgba(14,22,36,0.82); border:1px solid rgba(255,179,71,0.55);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.55), 0 0 22px rgba(255,166,77,0.25);
+    animation: thxnote .35s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes thxnote{ from{ opacity:0; transform: translate(-50%, -50%) scale(.9); } to{ opacity:1; transform: translate(-50%, -50%) scale(1); } }
   .livestatus{
     min-width:0; max-width:60%; text-align:right;
     font-size:12px; font-weight:600; color: var(--muted); line-height:1.35;
@@ -3394,6 +3425,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.15</b> New weeks start by Tuesday at noon Eastern at the latest, even when ESPN is slow to move on (it was still showing Week 11 this Tuesday). And a few Thanksgiving touches for Week 12 — they leave when Week 13 starts.</div>
       <div class="cl"><b>4.11.14</b> Thanksgiving week: the Thanksgiving games stay on your sheet, and the Wednesday night game (not on the pool sheet) starts in the removed section at the bottom. Tap to restore it if you want it.</div>
       <div class="cl"><b>4.11.13</b> Turning your phone sideways on a live game no longer sometimes draws the field with giant yard numbers and no ball. No need to close and reopen it.</div>
       <div class="cl"><b>4.11.12</b> Live game cards keep the down and distance and the Red Zone badge through a timeout, matching the game slide-up.</div>
@@ -3850,7 +3882,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.14';
+  const APP_VERSION = '4.11.15';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -4513,6 +4545,19 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     return wd === 'Tue' || wd === 'Wed';
   }
   function offSheetGame(g, week){ return week === THANKSGIVING_WEEK ? isPreThanksgiving(g) : isThursday(g); }
+  /* 4.11.15: Thanksgiving touches. Only while Week 12 is both the NFL's
+     current week and the week on screen, so they're gone the moment Week 13
+     starts (and never show when you look back at Week 12 later). */
+  const TURKEY = '\uD83E\uDD83', LION = '\uD83E\uDD81';
+  function thxOn(){
+    try{ return currentWeek === THANKSGIVING_WEEK && nflWeekNow() === THANKSGIVING_WEEK; }catch(e){ return false; }
+  }
+  // A Thanksgiving Day game (Thursday of Thanksgiving week, Eastern time).
+  function thxDay(g){ return !!(g && thxOn() && isThursday(g)); }
+  function syncThx(){ try{ document.body.classList.toggle('thx', thxOn()); }catch(e){} }
+  function weekUpMsg(w){
+    return w === THANKSGIVING_WEEK && thxOn() ? TURKEY + ' Week ' + w + ' is up \u00B7 Happy Thanksgiving' : 'Week ' + w + ' is up';
+  }
   function startsRemoved(g, week){ return offSheetGame(g, week); }
   /* 4.5.5: Thursday comes off every sheet once per week, saved sheets too.
      The first time a week opens on this phone it gets a "checked" stamp; an
@@ -4555,7 +4600,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(!g.date) return null;
     const d = new Date(g.date);
     if(isNaN(d)) return null;
-    return { day: d.toLocaleDateString([], {weekday:'short'}),
+    return { day: (thxDay(g) ? TURKEY + ' ' : '') + d.toLocaleDateString([], {weekday:'short'}),
              time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
   }
 
@@ -5147,6 +5192,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     weekBtn.textContent = 'Week ' + currentWeek;
     weekBtn.classList.toggle('now', cur === currentWeek);
     weekBtn.setAttribute('aria-label', 'Week ' + currentWeek + (cur === currentWeek ? ', current week' : '') + '. Choose week');
+    syncThx();
     if(weekOverlay.classList.contains('show')) drawWeekSheet();
   }
   function drawWeekSheet(){
@@ -5157,7 +5203,9 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     for(let w = 1; w <= MAX_WEEK; w++){
       const c = 'wk' + (cur && w < cur ? ' past' : '') + (w === cur ? ' cur' : '') + (w === currentWeek ? ' viewing' : '');
       const tag = w === cur ? '<small>CURRENT WEEK</small>' : (w === THANKSGIVING_WEEK ? '<small>THANKSGIVING</small>' : '');
-      h += '<button type="button" class="' + c + '" data-w="' + w + '">Week ' + w + tag + '</button>';
+      // 4.11.15: Thanksgiving week as the current week says CURRENT WEEK, with a turkey in the corner.
+      const thx = (w === THANKSGIVING_WEEK && cur === THANKSGIVING_WEEK) ? '<i class="wkthx" aria-hidden="true">' + TURKEY + '</i>' : '';
+      h += '<button type="button" class="' + c + '" data-w="' + w + '">Week ' + w + tag + thx + '</button>';
     }
     document.getElementById('wkGrid').innerHTML = h;
     const j = document.getElementById('wkJump');
@@ -5218,7 +5266,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       put(WKJUMP_KEY, { week: cur, t: Date.now() });
       if(!isTab('picks')) showTab('picks');
       saveView(currentTab);
-      toast('Week ' + cur + ' \u00B7 Make your picks');
+      toast((thxOn() ? TURKEY + ' ' : '') + 'Week ' + cur + ' \u00B7 Make your picks');
     }catch(e){}
   }
   document.addEventListener('visibilitychange', function(){
@@ -5702,7 +5750,41 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     stampLine(currentWeek);
     publishNow();
     maybeWelcome();
+    if(thxOn()) thxLeaves();
     setTimeout(function(){ if(!isTab('live')) showTab('live'); }, 300);
+  }
+
+  /* 4.11.15: Thanksgiving week only. Locking in drops a few autumn leaves for
+     two seconds with a holiday note. Touch passes straight through it. */
+  function thxLeaves(){
+    try{
+      const old = document.getElementById('thxFall');
+      if(old) old.remove();
+      const wrap = document.createElement('div');
+      wrap.id = 'thxFall';
+      wrap.className = 'thxfall';
+      wrap.setAttribute('aria-hidden', 'true');
+      const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let h = '';
+      if(!still){
+        const LEAVES = ['\uD83C\uDF42', '\uD83C\uDF41'];
+        for(let i = 0; i < 16; i++){
+          const x = Math.round(3 + (i / 16) * 90 + Math.random() * 5);
+          const delay = Math.round(Math.random() * 450);
+          const dur = 1350 + Math.round(Math.random() * 450);
+          const drift = Math.round(Math.random() * 60 - 30);
+          const spin = Math.round(Math.random() * 300 - 150);
+          const size = 18 + Math.round(Math.random() * 12);
+          h += '<i style="left:' + x + '%;font-size:' + size + 'px;animation-delay:' + delay + 'ms;animation-duration:' + dur +
+               'ms;--dx:' + drift + 'px;--rot:' + spin + 'deg">' + LEAVES[i % LEAVES.length] + '</i>';
+        }
+      }
+      h += '<div class="thxnote">Happy Thanksgiving. Go Lions! ' + LION + '</div>';
+      wrap.innerHTML = h;
+      document.body.appendChild(wrap);
+      setTimeout(function(){ wrap.classList.add('out'); }, 2000);
+      setTimeout(function(){ if(wrap.parentNode) wrap.remove(); }, 2500);
+    }catch(e){}
   }
 
   /* A brand-new player (came through the first-open name screen) gets one
@@ -5957,15 +6039,66 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      Called with no week, ESPN's scoreboard answers with the week it considers
      current — it rolls over Tuesday morning, after Monday night is in the
      books. Cached for six hours so a reopen doesn't wait on the network. */
-  const CURWEEK_KEY = 'pickem-curweek';
+  /* 4.11.15: Tuesday noon backstop. ESPN sometimes keeps last week as
+     "current" well past Tuesday morning (Week 11 of 2026 was still up at noon
+     Tuesday, its feed still listing Monday night as unplayed). From noon Eastern on the Tuesday after the
+     week's last kickoff, the app treats the next week as current, whatever
+     ESPN says. When ESPN flips on time (the usual), this never comes into play.
+     Never past Week 18, and only for regular-season answers (checked below).
+     The cache keeps ESPN's own week plus that Tuesday-noon moment, so a phone
+     that saved "Week 11" at 11:50 reads "Week 12" at 12:00 with no new call.
+     New key, so phones holding a plain "11" from before this update ask again. */
+  const CURWEEK_KEY = 'pickem-curweek2';
   const CURWEEK_TTL = 6 * 60 * 60 * 1000;
   let weekTouched = false;      // set once you pick a week by hand
 
+  // Noon Eastern on the first Tuesday after a moment (ms), or null.
+  function tuesdayNoonAfter(ms){
+    try{
+      if(typeof ms !== 'number' || !isFinite(ms)) return null;
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York',
+        year: 'numeric', month: 'numeric', day: 'numeric', weekday: 'short', hour: 'numeric', hourCycle: 'h23' });
+      const parts = function(t){
+        const o = {};
+        fmt.formatToParts(new Date(t)).forEach(function(p){ o[p.type] = p.value; });
+        return o;
+      };
+      const p = parts(ms);
+      const y = +p.year, m = +p.month, d = +p.day;
+      for(let k = 0; k <= 8; k++){
+        // Noon Eastern is 17:00 UTC in winter (EST), 16:00 UTC in summer (EDT).
+        let t = Date.UTC(y, m - 1, d + k, 17, 0, 0);
+        const q = parts(t);
+        if(q.weekday !== 'Tue') continue;
+        if(+q.hour === 13) t -= 3600000;
+        if(t > ms) return t;
+      }
+    }catch(e){}
+    return null;
+  }
+  // When ESPN's week rolls: Tuesday noon Eastern after its last kickoff.
+  function weekRollAt(data){
+    const ev = (data && data.events) || [];
+    let last = -Infinity;
+    ev.forEach(function(e){ const t = e && e.date ? Date.parse(e.date) : NaN; if(t > last) last = t; });
+    return last > -Infinity ? tuesdayNoonAfter(last) : null;
+  }
+  function rolledWeek(v, now){
+    if(v.week < MAX_WEEK && typeof v.rollAt === 'number' && now >= v.rollAt) return v.week + 1;
+    return v.week;
+  }
   function cachedCurrentWeek(){
     const v = getLocal(CURWEEK_KEY);
     if(!v || typeof v.week !== 'number' || typeof v.t !== 'number') return null;
     if(Date.now() - v.t > CURWEEK_TTL) return null;
-    return v.week;
+    return rolledWeek(v, Date.now());
+  }
+  // True while the current week comes from the Tuesday-noon rule, not ESPN.
+  function weekRolledByRule(){
+    const v = getLocal(CURWEEK_KEY);
+    if(!v || typeof v.week !== 'number' || typeof v.t !== 'number') return false;
+    if(Date.now() - v.t > CURWEEK_TTL) return false;
+    return rolledWeek(v, Date.now()) !== v.week;
   }
 
   function detectCurrentWeek(done){
@@ -5979,9 +6112,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         // their weeks from 1 too, and would drag the app back to Week 1.
         if(typeof w !== 'number' || w < 1 || w > MAX_WEEK) throw new Error('no week');
         if(typeof st === 'number' && st !== 2) throw new Error('not regular season');
-        put(CURWEEK_KEY, { week: w, t: Date.now() });
+        const v = { week: w, rollAt: weekRollAt(data), t: Date.now() };
+        put(CURWEEK_KEY, v);
         try{ syncWeekBtn(); }catch(e){}
-        done(w);
+        done(rolledWeek(v, Date.now()));
       })
       .catch(function(){ done(null); });
   }
@@ -6292,7 +6426,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       if(!isNaN(d)){
         // Day name only — a full date doesn't fit the status column.
         const day = sameDay(d, new Date()) ? 'Today' : d.toLocaleDateString([], {weekday:'short'});
-        return { day: day, time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
+        return { day: (thxDay(g || lg) ? TURKEY + ' ' : '') + day, time: d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) };
       }
     }
     if(lg && lg.detail) return { day: lg.detail, time: '' };
@@ -6338,6 +6472,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
              '" data-ab="' + ab + '">' +
         '<span class="tlogo">' + (logo ? '<img src="' + logo + '" alt="" onerror="this.style.display=\'none\'">' : '') + '</span>' +
         '<span class="tname">' + (atHome ? '<i>@</i>' : '') + city +
+          (ab === 'DET' && thxDay(g) ? '<span class="thxlion" aria-hidden="true">' + LION + '</span>' : '') +
           (isFav && typeof g.spread === 'number'
             ? '<b class="tspread" data-role="hist" data-gid="' + g.id + '">\u2212' + g.spread + '</b>' + moveArrow(g)
             : '') + '</span>' +
@@ -6556,7 +6691,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     const src = (lg && lg.date) || g.date;
     const d = src ? new Date(src) : null;
     if(!d || isNaN(d)) return (lg && lg.detail) ? String(lg.detail) : '';
-    return d.toLocaleDateString([], {weekday:'short'}) + ' ' +
+    return (thxDay(g) ? TURKEY + ' ' : '') + d.toLocaleDateString([], {weekday:'short'}) + ' ' +
       d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}).replace(/\s*[AaPp]\.?\s?[Mm]\.?$/, '');
   }
   // Your side of a game: abbreviations, cities and scores (null when there's no score).
@@ -10360,13 +10495,16 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       // 4.6.11: everyone tied at the top gets the gold bar (once there are points).
       // The new-leader pulse still uses leadId, which is outright-only.
       const lead = top > 0 && r.points === top;
+      // 4.11.15: Thanksgiving week, the leader gets the turkey leg (a John Madden tradition)
+      const leg = lead && thxOn();
       return '<div class="lbrow' + (isHi ? ' me' : '') +
-             (lead ? ' lead' : '') + (tappable ? ' shares' : '') +
+             (lead ? ' lead' : '') + (leg ? ' thxleg' : '') + (tappable ? ' shares' : '') +
              '" data-pid="' + esc(r.id) + '">' +
         (isOnline(r.id) ? '<i class="beacon lbdot" aria-label="Online"></i>' : '') +
         '<span class="lbrank">' + (i + 1) + '</span>' +
         '<span class="lbname">' + esc(r.name) +
           (tag[r.id] ? ' <em class="lbdup">(' + tag[r.id] + ')</em>' : '') + '</span>' +
+        (leg ? '<span class="lbleg" aria-label="Turkey leg for the leader">\uD83C\uDF57</span>' : '') +
         (r.share ? '<span class="sheeticon' + (isMe ? ' own' : '') + '">' + ICON_DOC + '</span>' : '') +
         (odds ? '<span class="lbwin">' + esc(odds[r.id] || '\u2013') + '</span>' : '') +
         '<span class="lbpts">' + r.points + '</span>' +
@@ -13796,7 +13934,10 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     // the league is actually on — nobody should open this and see a stale sheet.
     // 4.5.5: a week other than the current one only holds for 10 minutes, so
     // nobody scopes ahead, comes back later and finds an empty leaderboard.
-    const keepWeek = recentView && savedWeek && (!cached || savedWeek === cached || away < OFFWEEK_MAX);
+    // 4.11.15: on the week that just ended by the Tuesday-noon rule? Move on
+    // even if you were here a minute ago — that week is over.
+    const rolledOff = !!(cached && savedWeek && savedWeek === cached - 1 && weekRolledByRule());
+    const keepWeek = recentView && savedWeek && !rolledOff && (!cached || savedWeek === cached || away < OFFWEEK_MAX);
     let startWeek = 1, snapped = false;
     if(keepWeek) startWeek = savedWeek;
     else if(cached){ startWeek = cached; snapped = !!(recentView && savedWeek && savedWeek !== cached); }
@@ -13804,7 +13945,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
 
     weekPick.value = startWeek;
     loadWeek(startWeek);
-    if(snapped) toast('Back to Current Week \u00B7 Week ' + startWeek);
+    if(snapped) toast(rolledOff ? weekUpMsg(startWeek) : 'Back to Current Week \u00B7 Week ' + startWeek);
     if(!player().name) showGate();
 
     // Come back to the tab you were on, but only if it was recent — otherwise
@@ -13834,13 +13975,15 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     detectCurrentWeek(function(w){ startWeekCheck(w); maybeWeekJump(); });
     function startWeekCheck(w){
       if(!w || weekTouched) return;
-      if(recentView && savedWeek && (savedWeek === w || away < OFFWEEK_MAX)) return;
+      // 4.11.15: the 10-minute hold doesn't keep you on a week the Tuesday-noon rule just ended.
+      const ended = !!(savedWeek && savedWeek === w - 1 && weekRolledByRule());
+      if(recentView && savedWeek && (savedWeek === w || (away < OFFWEEK_MAX && !ended))) return;
       if(w === currentWeek) return;
-      const back = !!(recentView && savedWeek && savedWeek !== w);
+      const back = !!(recentView && savedWeek && savedWeek !== w && !ended);
       weekPick.value = w;
       loadWeek(w);
       if(isTab('picks') && picksBlocked()) showTab('live');
-      toast(back ? 'Back to Current Week \u00B7 Week ' + w : 'Week ' + w + ' is up');
+      toast(back ? 'Back to Current Week \u00B7 Week ' + w : weekUpMsg(w));
     }
   })();
 })();
