@@ -3495,6 +3495,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.22</b> Thanksgiving colors show the moment the app opens, even after it’s been closed a while.</div>
       <div class="cl"><b>4.11.21</b> Admin: tap a name on the leaderboard and choose Change name to rename that player for everyone (emoji work too).</div>
       <div class="cl"><b>4.11.20</b> "Your Score" is now a bold title like "Leaderboard"; while rooting it reads "Their Score" with the name underneath. Thanksgiving week: autumn orange on the header, week button, Your Score and Analysis.</div>
       <div class="cl"><b>4.11.19</b> Thanksgiving week: an avalanche of leaves when you lock in, a bigger holiday note with the Lions logo, and maple leaves on all four leaderboard corners.</div>
@@ -3959,7 +3960,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.21';
+  const APP_VERSION = '4.11.22';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -4627,7 +4628,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
      starts (and never show when you look back at Week 12 later). */
   const TURKEY = '\uD83E\uDD83', LION = '\uD83E\uDD81';
   function thxOn(){
-    try{ return currentWeek === THANKSGIVING_WEEK && nflWeekNow() === THANKSGIVING_WEEK; }catch(e){ return false; }
+    try{ return currentWeek === THANKSGIVING_WEEK && (nflWeekNow() || lastKnownWeek()) === THANKSGIVING_WEEK; }catch(e){ return false; }
   }
   // A Thanksgiving Day game (Thursday of Thanksgiving week, Eastern time).
   function thxDay(g){ return !!(g && thxOn() && isThursday(g)); }
@@ -6181,6 +6182,17 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     if(!v || typeof v.week !== 'number' || typeof v.t !== 'number') return null;
     if(Date.now() - v.t > CURWEEK_TTL) return null;
     return rolledWeek(v, Date.now());
+  }
+  /* 4.11.22: for the look only (the Thanksgiving colors), trust the last known
+     week right away even when the 6-hour check is due, so the app opens in the
+     right colors instead of waiting on ESPN. Good until a week after that
+     week's Tuesday-noon rollover; the ESPN check still runs and corrects it. */
+  function lastKnownWeek(){
+    const v = getLocal(CURWEEK_KEY);
+    if(!v || typeof v.week !== 'number' || typeof v.t !== 'number') return null;
+    const now = Date.now();
+    const until = typeof v.rollAt === 'number' ? v.rollAt + 7 * 24 * 3600 * 1000 : v.t + CURWEEK_TTL;
+    return now < until ? rolledWeek(v, now) : null;
   }
   // True while the current week comes from the Tuesday-noon rule, not ESPN.
   function weekRolledByRule(){
