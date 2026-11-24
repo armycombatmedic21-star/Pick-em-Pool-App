@@ -949,6 +949,14 @@
     pointer-events:none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
   .wk .wkthx{ position:absolute; top:4px; right:6px; font-style:normal; font-size:13px; line-height:1; pointer-events:none; }
   .thxlion{ margin-left:4px; font-size:0.9em; }
+  /* maple leaves tucked over the leaderboard's top corners */
+  .thxmaple{ display:none; }
+  body.thx .lbcard{ position:relative; }
+  body.thx .thxmaple{ display:block; position:absolute; inset:0; pointer-events:none; z-index:3; }
+  body.thx .thxmaple::before, body.thx .thxmaple::after{ content:'\1F341'; position:absolute; top:-10px; font-size:19px; line-height:1;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.55)); }
+  body.thx .thxmaple::before{ left:-8px; transform: rotate(-28deg); }
+  body.thx .thxmaple::after{ right:-8px; transform: scaleX(-1) rotate(-28deg); }
   .lbrow.thxleg .lbname{ flex:0 1 auto; }
   .lbleg{ flex:none; margin-right:auto; margin-left:-2px; font-size:12px; line-height:1; }
   .thxfall{ position:fixed; inset:0; z-index:9999; pointer-events:none; overflow:hidden; transition: opacity .45s ease; }
@@ -3195,6 +3203,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
         <button type="button" class="anpill" id="anPill" hidden>Analysis</button>
       </div>
       <div class="lbcard adv">
+        <i class="thxmaple" aria-hidden="true"></i>
         <div class="lbtop"><span class="lbtitle">Leaderboard<small id="lbWeek"></small></span><button type="button" class="lbmode lbsheets" id="shareBtn">Open Sheets</button></div>
         <div class="lbhead"><span class="lbtitle"></span><span class="lbwinh">Win</span><span class="lbptsh">Pts</span></div>
         <div id="lbList" class="lblist"></div>
@@ -3425,6 +3434,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.16</b> Thanksgiving week: maple leaves on the leaderboard's top corners.</div>
       <div class="cl"><b>4.11.15</b> New weeks start by Tuesday at noon Eastern at the latest, even when ESPN is slow to move on (it was still showing Week 11 this Tuesday). And a few Thanksgiving touches for Week 12 — they leave when Week 13 starts.</div>
       <div class="cl"><b>4.11.14</b> Thanksgiving week: the Thanksgiving games stay on your sheet, and the Wednesday night game (not on the pool sheet) starts in the removed section at the bottom. Tap to restore it if you want it.</div>
       <div class="cl"><b>4.11.13</b> Turning your phone sideways on a live game no longer sometimes draws the field with giant yard numbers and no ball. No need to close and reopen it.</div>
@@ -3882,7 +3892,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.15';
+  const APP_VERSION = '4.11.16';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
