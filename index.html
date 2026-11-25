@@ -964,7 +964,9 @@
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude; }
   body.thx .gcard.thxcard{ border-color: transparent; box-shadow: 0 0 16px rgba(255,154,60,0.12); }
-  body.thx .lbcard::after, body.thx .gcard.thxcard::after{ content:''; position:absolute; inset:-1px; pointer-events:none; z-index:2; }
+  body.thx .lbcard::after, body.thx .gcard.thxcard::after{ content:''; position:absolute; inset:-1px; pointer-events:none; z-index:1; }
+  /* 4.11.23: the UNDERDOG tab and pin sit on top of the autumn border, not under it */
+  body.thx .gcard.thxcard .dogtab{ z-index:3; }
   body.thx .lbcard{ border-color: transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,0.116), 0 18px 34px rgba(0,0,0,0.42), 0 0 18px rgba(255,154,60,0.12); }
   /* Your Score in autumn orange (rooting keeps its royal blue) */
   body.thx:not(.rooting) .scorecard{ --sc: 226,108,34; }
@@ -3495,6 +3497,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.23</b> Fix: the autumn border on Thanksgiving Day cards no longer runs through the YOUR UNDERDOG tab.</div>
       <div class="cl"><b>4.11.22</b> Thanksgiving colors show the moment the app opens, even after it’s been closed a while.</div>
       <div class="cl"><b>4.11.21</b> Admin: tap a name on the leaderboard and choose Change name to rename that player for everyone (emoji work too).</div>
       <div class="cl"><b>4.11.20</b> "Your Score" is now a bold title like "Leaderboard"; while rooting it reads "Their Score" with the name underneath. Thanksgiving week: autumn orange on the header, week button, Your Score and Analysis.</div>
@@ -3960,7 +3963,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.22';
+  const APP_VERSION = '4.11.23';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
