@@ -3497,6 +3497,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.24</b> iPhone fix: the tab bar no longer gets stuck mid-screen after typing (renaming someone, chat, your name).</div>
       <div class="cl"><b>4.11.23</b> Fix: the autumn border on Thanksgiving Day cards no longer runs through the YOUR UNDERDOG tab.</div>
       <div class="cl"><b>4.11.22</b> Thanksgiving colors show the moment the app opens, even after it’s been closed a while.</div>
       <div class="cl"><b>4.11.21</b> Admin: tap a name on the leaderboard and choose Change name to rename that player for everyone (emoji work too).</div>
@@ -3963,7 +3964,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.23';
+  const APP_VERSION = '4.11.24';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5478,6 +5479,37 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     setVh();
     window.addEventListener('resize', setVh);
     if(window.visualViewport) window.visualViewport.addEventListener('resize', setVh);
+
+    /* 4.11.24: iPhone sometimes leaves the page shifted after the keyboard
+       closes (renaming someone, chat, your name), so anything pinned to the
+       bottom (the tab bar) floats mid-screen until you scroll. Whenever the
+       keyboard goes away, or the app comes back to the front, give the page a
+       1-pixel nudge so iOS re-pins everything where it belongs. */
+    function typing(){
+      const a = document.activeElement;
+      return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable));
+    }
+    function repin(){
+      if(typing()) return;
+      const y = window.scrollY || window.pageYOffset || 0;
+      window.scrollTo(window.scrollX || 0, y + 1);
+      window.scrollTo(window.scrollX || 0, y);
+    }
+    function repinSoon(){ [60, 320, 700].forEach(function(ms){ setTimeout(repin, ms); }); }
+    document.addEventListener('focusout', function(e){
+      const t = e.target;
+      if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) repinSoon();
+    });
+    if(window.visualViewport){
+      let lastH = window.visualViewport.height;
+      window.visualViewport.addEventListener('resize', function(){
+        const h = window.visualViewport.height;
+        if(h > lastH + 80) repinSoon();     // keyboard just went away
+        lastH = h;
+      });
+    }
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) repinSoon(); });
+    window.addEventListener('pageshow', repinSoon);
 
     let drag = null;     // { ov, panel, y0, dy }
     const HANDLE = 44, CLOSE_AT = 80;
