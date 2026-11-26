@@ -3497,6 +3497,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
       <h2>What’s new</h2>
     </div>
     <div class="changelog">
+      <div class="cl"><b>4.11.25</b> iPhone: stronger fix for the tab bar getting stuck mid-screen — the app now checks and snaps it back to the bottom on its own.</div>
       <div class="cl"><b>4.11.24</b> iPhone fix: the tab bar no longer gets stuck mid-screen after typing (renaming someone, chat, your name).</div>
       <div class="cl"><b>4.11.23</b> Fix: the autumn border on Thanksgiving Day cards no longer runs through the YOUR UNDERDOG tab.</div>
       <div class="cl"><b>4.11.22</b> Thanksgiving colors show the moment the app opens, even after it’s been closed a while.</div>
@@ -3964,7 +3965,7 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     ]
   };
   const MAX_WEEK = 18;
-  const APP_VERSION = '4.11.24';
+  const APP_VERSION = '4.11.25';
   const APP_BUILT = 'Nov 24, 2026';
   const DEMO_KEY = 'pickem-demo';
   let demoResults = {};   // simulated wins/losses — display only, never persisted
@@ -5480,36 +5481,64 @@ body.glass .lvsheet::before{ content:''; position:absolute; top:0; left:18px; ri
     window.addEventListener('resize', setVh);
     if(window.visualViewport) window.visualViewport.addEventListener('resize', setVh);
 
-    /* 4.11.24: iPhone sometimes leaves the page shifted after the keyboard
-       closes (renaming someone, chat, your name), so anything pinned to the
-       bottom (the tab bar) floats mid-screen until you scroll. Whenever the
-       keyboard goes away, or the app comes back to the front, give the page a
-       1-pixel nudge so iOS re-pins everything where it belongs. */
-    function typing(){
-      const a = document.activeElement;
-      return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable));
-    }
-    function repin(){
-      if(typing()) return;
-      const y = window.scrollY || window.pageYOffset || 0;
-      window.scrollTo(window.scrollX || 0, y + 1);
-      window.scrollTo(window.scrollX || 0, y);
-    }
-    function repinSoon(){ [60, 320, 700].forEach(function(ms){ setTimeout(repin, ms); }); }
-    document.addEventListener('focusout', function(e){
-      const t = e.target;
-      if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) repinSoon();
-    });
-    if(window.visualViewport){
-      let lastH = window.visualViewport.height;
-      window.visualViewport.addEventListener('resize', function(){
-        const h = window.visualViewport.height;
-        if(h > lastH + 80) repinSoon();     // keyboard just went away
-        lastH = h;
-      });
-    }
-    document.addEventListener('visibilitychange', function(){ if(!document.hidden) repinSoon(); });
-    window.addEventListener('pageshow', repinSoon);
+    /* 4.11.25: iPhone tab bar re-pin (replaces the 4.11.24 nudge). iOS sometimes leaves the page shifted (after the
+       keyboard closes, or when the app comes back from the background), so the
+       bottom tab bar hangs mid-screen until you scroll. A watchdog checks a
+       couple of times a second while you're using the app, plus on every
+       keyboard close / return to the app; if the bar isn't at the bottom of
+       the screen it nudges the page 1 pixel and redraws the bar. One position
+       read each check: no data, no battery to speak of. */
+    (function repinTabBar(){
+      const bar = document.getElementById('tabBar');
+      if(!bar) return;
+      function typing(){
+        const a = document.activeElement;
+        return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable));
+      }
+      function stuck(){
+        if(typing() || document.hidden) return false;
+        const cs = getComputedStyle(bar);
+        if(cs.display === 'none' || cs.visibility === 'hidden') return false;
+        const vv = window.visualViewport;
+        if(vv && vv.scale && vv.scale > 1.01) return false;   // pinch-zoomed: leave it alone
+        const screenBottom = vv ? vv.height + vv.offsetTop : window.innerHeight;
+        const r = bar.getBoundingClientRect();
+        if(r.bottom > screenBottom + 4) return false;        // slid away on purpose (sheet open)
+        if(screenBottom - r.bottom > 60) return true;          // floating well above the bottom
+        if(vv && (vv.offsetTop > 2 || window.innerHeight - vv.height > 80)) return true;   // page left shifted
+        return false;
+      }
+      function fix(){
+        const x = window.scrollX || 0, y = window.scrollY || window.pageYOffset || 0;
+        window.scrollTo(x, y + 1);
+        window.scrollTo(x, y);
+        const d = bar.style.display;
+        bar.style.display = 'none';
+        void bar.offsetHeight;
+        bar.style.display = d;
+      }
+      // At most 3 tries in a row, then rest 10 s, so it can never flicker.
+      let tries = 0, restUntil = 0;
+      function check(){
+        try{
+          if(!stuck()){ tries = 0; return; }
+          const now = Date.now();
+          if(now < restUntil) return;
+          if(++tries > 3){ tries = 0; restUntil = now + 10000; return; }
+          fix();
+        }catch(e){}
+      }
+      function soon(){ [60, 320, 800, 1600].forEach(function(ms){ setTimeout(check, ms); }); }
+      document.addEventListener('focusout', soon);
+      document.addEventListener('visibilitychange', function(){ if(!document.hidden) soon(); });
+      window.addEventListener('pageshow', soon);
+      window.addEventListener('orientationchange', soon);
+      window.addEventListener('resize', soon);
+      if(window.visualViewport) window.visualViewport.addEventListener('resize', soon);
+      let st = 0;
+      window.addEventListener('scroll', function(){ clearTimeout(st); st = setTimeout(check, 150); }, { passive: true });
+      setInterval(check, 500);
+    })();
 
     let drag = null;     // { ov, panel, y0, dy }
     const HANDLE = 44, CLOSE_AT = 80;
